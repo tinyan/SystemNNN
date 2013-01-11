@@ -1,0 +1,12 @@
+modename nothing
+
+fillColor[RGB]
+
+nextMode (defalt = LOGO)
+
+codecCheckFlag (default = 0)
+
+
+startupJumpScriptFlag (default = 0)
+
+

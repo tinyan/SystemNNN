@@ -1,0 +1,80 @@
+listenbgm
+
+backscript
+
+button
+
+	rew
+	play
+	ff
+	pause
+	stop
+
+filenameBG
+
+volumeMin 80
+volumeMax 100
+
+
+musicPrintNumber 8
+
+checklisten 0
+
+cannotMusicName ÅHÅHÅH
+
+useCannotByList 0
+
+fileNameVolume
+
+volumePrint[XY] 56 464
+volumeSize[XY] 338 17
+
+volumeSliderTransFlag 1
+
+musicFadeInTime 0
+musicFadeOutTime 20
+
+bgmLoopFlag 0
+
+messageColor[RGB] 255 255 255
+
+cannotColor[RGB] 128 128 128
+
+
+trackAndTimePrintFlag 1
+
+filenameNumber ta_bgm_num1
+fontSize[XY] 16 16
+fontNext[xy] fontSizeX 0
+
+
+trackPrint[XY] 162 101
+minutePrint[XY] 276 101
+secondPrint[XY] 334 101 
+
+
+
+filenameCursor ta_bgm_selc
+
+//volumeCursorPrint[XY] 258 410
+
+
+messageFontSize 22
+
+
+cursorAnimeFlag 1
+cursorAnimeType
+cursorAnimePattern
+cursorAnimeSpeed
+
+musicNamePrint[XY] 0 0
+
+cursorPrint[XY] 76 199
+cursorSIZE[XY] 294 27
+cursorNext[XY] 0 26
+
+
+back,updown-button
+
+entervoice
+fadein-out

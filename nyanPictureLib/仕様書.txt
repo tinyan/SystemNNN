@@ -1,0 +1,51 @@
+RedBlt
+GreyBlt
+
+
+
+
+
+抜きありとは、データ左上のドットを抜き色として使う
+マスクとは、別のマスクデータを透明度として処理
+
+256色:抜きあり、抜きなし
+フルカラー:抜きあり、抜きなし、マスク(透明度)
+
+
+
+256色マスクつきは、マスクなしとして処理する
+（256色データはサイズを小さくするのが目的のためマスクをつけるのは本末転倒）
+また、256色データは一部機能が制限される
+
+
+
+
+CPictureから独立した形で使用できるようにする
+
+
+
+
+ColorBlt
+GreyBlt				//256対応
+RedBlt				//256対応
+MaskBlt				//旧AntiAliesBlt2
+Blt
+BltBeta
+Blt256
+Blt256Beta
+NegaBlt				//マスクなしぬきなしのみ
+TransLucentBlt0
+TransLucentBlt
+TransLucentBlt2
+TransLucentBlt3
+ShapeBlt
+GradationShapeBlt
+AddBlt(単純加算：[マスク＆抜き]無視、256不可)高速
+LightBlt*加算割合設定可能[マスク＆抜き]無視、256不可
+
+
+
+ColorAddBlt
+	DarkMaskBlt->ColorAddBltに統合
+
+StretchBlt1?

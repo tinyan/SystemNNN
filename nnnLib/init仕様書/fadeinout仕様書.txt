@@ -1,0 +1,22 @@
+enterFadeInType (default = 0)
+ enterFadeInTime 10
+ enterFadeInColor[RGB]
+
+
+
+exitFadeOutType
+ exitFadeOutTime
+ exitFadeOutColor[RGB]
+
+createExitScreenFlag
+fillExitScreenFlag
+
+
+
+exitFadeOutSpecialMode
+exitFadeOutTypeSpecial
+ exitFadeOutTimeSpecial
+ exitFadeOutColorSpecial[RGB]
+
+createExitScreenFlagSpecial
+fillExitScreenFlagSpecial

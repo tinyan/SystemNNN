@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<TITLE>Project NYANLIB</TITLE>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=Shift_JIS">
+	<LINK REV=MADE HREF="mailto:tinyan@mri.biglobe.ne.jp">
+</HEAD>
+
+<BODY BGCOLOR="#80C0A0"
+      LINK   ="#006060"
+      VLINK  ="#7499CC"
+      TEXT   ="#202020" 
+      ALINK  ="#000000">
+
+picPrintType 0 0:normal 1:color(photoshop)
+
+
+
+
+
+areaSize[XY] 132 10
+picSize[XY] areaSize
+picPrint[XY] 0 0
+
+saveTimePrintFlag 1
+
+saveTimePrint[XY] 0 0
+saveTimeFontSize[XY] 10 10
+saveTimeFontNextX saveTimeFontSizeX
+
+
+fileNameSaveTimeFont ta_sl_font
+gameYearPrintFlag 0
+gameDatePrintFlag 0
+
+
+fileNameGameTimeFont
+gameTimePrintX 0 0
+gameTimeFontSizeX 10 10
+gameTimeFontNextX 
+
+
+addPicPrintFlag 0
+
+
+addPicPrintX 0 0
+addPicSizeX 16 16
+fileNameAddPic
+
+addPicWithSpecialFlag 0
+
+
+
+specialNumberPrintFlag 0
+specialNumberPrintLimit -1 これ以上で表示
+specialNumberPrintX 0 0
+specialNumberFontSizeX 16 16
+pecialNumberFontNextX
+specialNumberKeta 2
+fileNameSpecialNumberFont
+commentFontSize 12
+
+
+
+commentPrintFlag 0
+commentPrintX 0 0
+commentSpaceX 1
+commentColor[RGB]
+commentColorShade 0
+
+
+errorPrintX
+oldPrintX
+badPrintX
+fileNameError
+fileNameOld
+fileNameBad
+
+
+selectColorRGB 230 0 255
+selectPercent 50
+selectPrintMode 0
+	fileNameSelectPic
+
+basePrintFlag 0
+baseChangeLoadSave 0
+filenameLoadBase
+	filenameSaveBase
+
+selectPrintX picPrint
+selectSizeX picSize
+
+
+
+
+GetBasePrintFlag();
+	GetLoadBase();
+	GetSaveBase();
+
+GetSavePicZahyo();
+GetSelectZahyo();
+GetSelectSize();
+
+GetSaveTimeZahyo();
+GetSaveTimeSize();
+GetSaveTimeNextX();
+GetSaveTimePrintFlag();
+
+	GetSaveTimePic();
+	GetSaveTimeSuuji4();
+	GetSaveTimeSuuji2();
+
+GetGameTimeZahyo();
+GetGameTimeNextX();
+GetGameYearPrintFlag();
+GetGameDatePrintFlag();
+
+GetGameYearDatePic();
+
+GetGameYearSuuji();
+GetGameDateSuuji();
+
+GetSpecialNumberPrintFlag();
+GetSpecialNumberZahyo();
+
+GetSpecialNumberSuuji();
+
+GetSpecialNumberPrintLimit();
+
+
+GetAddPicFlag();
+
+
+GetAddPic();
+GetAddPicWithSpecialFlag();
+
+GetAddPicZahyo();
+GetAddPicSize();
+
+GetCommentPrintFlag();
+
+GetCommentZahyo();
+
+GetCommnetFontSize();
+GetCommentSukima();
+
+GetCommentColor(0-3);
+
+GetSaveSelectPrintMode()
+
+	GetSelectColorParam(0-4)
+	GetSaveSelectPic();
+
+
+GetSaveErrorZahyo();
+GetSaveOldZahyo();
+GetSaveBadZahyo();
+
+GetSaveErrorPic();
+GetSaveOldPic();
+GetSaveBadPic();
+
+
+
+
+<CENTER>
+<FONT SIZE=7>init - datafile</FONT><BR>
+</CENTER>
+<BR>
+<BR>
+
+
+<TABLE BORDER=4>
+
+<TR>
+<TD>名前</TD>
+<TD>サブ</TD>
+<TD>デフォルト値</TD>
+<TD>解説</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>bgmNumber</TD>
+
+<TD ALIGN=RIGHT>-1</TD>
+<TD>そのモードでの曲を番号で指定 bgmlist.txtに対応</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>bgmRestartFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>前のモードと同じ曲の場合、0:曲をそのまま続ける 1:頭から再生しなおす</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>bgmVolume</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>曲の音量の増減値を-100～100の範囲で指定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>bgmLoop</TD>
+<TD ALIGN=RIGHT>1</TD>
+<TD>0:ループしない 1:曲をループさせる</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>bgmFadeInTime</TD>
+<TD>game.txtでの設定値</TD>
+<TD>曲のフェードインタイムを0.1秒単位で指定。(ex. 設定値が35なら3.5秒)</TD>
+</TR>
+
+
+
+
+
+</TABLE>
+
+<BR>
+<BR>
+<CENTER><A HREF="../index.htm">Home</A></CENTER>
+
+</BODY>
+</HTML>
+

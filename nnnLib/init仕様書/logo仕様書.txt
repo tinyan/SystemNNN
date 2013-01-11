@@ -1,0 +1,44 @@
+logoNumber 2
+
+nextMode title
+
+defaultUseBGColor 0
+defaultFadeInTime 10
+defaultFadeOutTime 20
+defaultKeepTime 10
+
+
+defaultFadeInColor[RGB] 255 255 255
+defaultFadeOutColor[RGB] 255 255 255
+
+
+
+useCustomBGColorFlag 0
+useCustomFileFlag 0
+useCustomSkipFlag 0
+useCustomTimeFlag 0
+useCustomColorFlag 0
+
+
+fadeInBGColorFlag[n]
+fadeOutBGColorFlag[n]
+
+filename[n]
+skipOK[n]
+fadeInTime[n]
+fadeOutTime[n]
+keepTime[n]
+
+fadeInColor[RGB][n]
+fadeOutColor[RGB][n]
+
+
+
+
+標準フェードインアウト設定
+
+
+//声機能をつける
+
+
+

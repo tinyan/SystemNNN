@@ -1,0 +1,17 @@
+
+pagePrintFlag 0
+
+pageKeta 2
+pageFontSize 21 27
+pageFontNextX 
+pagePrint 0 0
+
+fileNamePageFont ta_font_sl3
+
+
+pageMaxPrintFlag 0
+pageMaxPrint
+pageMaxLeftAlign
+
+slashPrintFlag
+slashPrintX

@@ -1,0 +1,101 @@
+クラス	ボタンの基底クラス
+
+CMyButton
+
+virtual void Init(void);
+virtual int Calcu(LPMOUSESTATUS);
+virtual void Print(BOOL bMustPrintFlag = FALSE);
+
+
+void SetEnable(BOOL enableFlag = TRUE);
+void RemoveButton(BOOL removeFlag = TRUE);
+
+
+
+	void SetWaitCount(int count);
+
+	void SetExist(BOOL existFlag = TRUE);
+	void SetButtonMode(int buttonMode = 0);
+
+	void SetNormalPicNumber(int n = 0);
+	void SetSelectPicNumber(int n = 1);
+	void SetTenmetsuPicNumber(int n1 , int n2);
+
+	void SetDisablePicNumber(int n = -1);	//-1,-2,-3...は灰色で0,1,2ばんめの絵
+	void SetRedPicNumber(int n = -1);		//-1,-2,-3...は赤で0,1,2ばんめの絵
+
+
+	BOOL CheckOn(int mouseX, int mouseY);
+
+	void SetClicked(void);
+
+	void SetTenmetsuAddColor(int r=128,int g = 128, int b = 128);
+
+
+
+
+
+typedef struct _tagMOUSESTATUS
+{
+	int mouseX,mouseY;
+	BOOL trig1,trig2,trig3;
+	BOOL trig1Mae,trig2Mae,trig3mae;
+	int wheel;
+//	LPKEYSTATUS lpkeystatus;
+} MOUSESTATUS,*LPMOUSESTATUS;
+
+ボタンの絵
+マウスのった状態,マウスのってない状態,第3の状態・・・
+
+
+
+
+
+
+
+
+予定
+ボタン類
+
+
+
+ラジオボタン
+チェックボタン
+メニューボタン??
+
+クリックしてから動作するまでの時間
+
+
+CMyButtonGroup
+ボタン群	通常ボタン群
+	ラジオボタン群
+	キャンセルボタン番号
+
+
+
+ボタンの戻り値
+0-n				ボタン番号			ボタンが押された処理をすべきタイミング
+
+-1				なにもなし
+
+MYBUTTON_CLICKING		0x80000000	| n		ボタンをおされたあとの待ち時間中
+MYBUTTON_CLICKED		0x90000000	| n		ボタンが押された瞬間を示す
+MYBUTTON_MASK			0xffff0000
+
+
+背景有り無し
+
+
+
+
+
+
+
+
+
+最後にCalcuを呼んだあとに呼ぶ
+int GetEnter(void);
+int GetLeave(void);
+
+
+int GetOn

@@ -1,0 +1,576 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<TITLE>Project NYANLIB</TITLE>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=Shift_JIS">
+	<LINK REV=MADE HREF="mailto:tinyan@mri.biglobe.ne.jp">
+</HEAD>
+
+<BODY BGCOLOR="#80C0A0"
+      LINK   ="#006060"
+      VLINK  ="#7499CC"
+      TEXT   ="#202020" 
+      ALINK  ="#000000">
+
+
+
+<CENTER>
+<FONT SIZE=7>init - backlog</FONT><BR>
+</CENTER>
+<BR>
+<BR>
+
+<TABLE BORDER=3>
+<TR>
+<TD COLSPAN=3>共通設定</TD>
+</TR>
+
+
+<TR>
+<TD>背景スクリプト設定</TD>
+<TD>可能</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+<TR>
+<TD>BGM設定</TD>
+<TD>可能</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+
+
+<TR>
+<TD>その他設定</TD>
+<TD>なし</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+</TABLE>
+
+
+<BR>
+<BR>
+
+<TABLE BORDER=4>
+<TR>
+<TD COLSPAN=4>専用設定</TD>
+</TR>
+
+<TR>
+<TD>名前</TD>
+<TD>サブ</TD>
+<TD>デフォルト値</TD>
+<TD>解説</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN = 2>modename</TD>
+<TD>backlog</TD>
+<TD>モード名、変更不可。省略不可</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>returnSoundNumber</TD>
+
+<TD ALIGN=LEFT>0</TD>
+<TD>バックログから戻るときに音を出す場合にはシステムサウンドの番号を設定する</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>bgMode</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>背景処理 0:塗りつぶし 1:絵 2:キャプチャー画像</TD>
+</TR>
+
+<TR><TD COLSPAN=4>背景処理 塗りつぶしモード (bgMode=0)</TD></TR>
+<TR>
+<TD></TD>
+<TD>backColorR</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD ROWSPAN=3>色をRGBで設定</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backColorG</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backColorB</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+
+<TR><TD COLSPAN=4>背景処理 絵モード (bgMode=1)</TD></TR>
+
+
+<TR>
+<TD></TD>
+<TD>backlogBGFileName</TD>
+<TD>bg_backlog</TD>
+<TD>背景画像ファイル名</TD>
+</TR>
+
+
+<TR><TD COLSPAN=4>背景処理 キャプチャーモード (bgMode=2)</TD></TR>
+
+<TR>
+<TD></TD>
+<TD>backScreenEffectNega</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:キャプチャー画像にネガ処理をかける 0:処理しない</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backScreenEffectGrey</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:キャプチャー画像に白黒化処理をかける 0:処理しない</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>backMultiR</TD>
+<TD ALIGN=RIGHT>100</TD>
+<TD ROWSPAN=3>キャプチャー画像にかける乗算値を0 ～ 100で設定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backMultiG</TD>
+<TD ALIGN=RIGHT>100</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backMultiB</TD>
+<TD ALIGN=RIGHT>100</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backDeltaR</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD ROWSPAN=3>キャプチャー画像にかける加減算値を -255 ～ 255で設定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backDeltaG</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>backDeltaB</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>fontSize</TD>
+
+<TD ALIGN=RIGHT>24</TD>
+<TD>フォントサイズを設定</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>printLines</TD>
+
+<TD ALIGN=RIGHT>15</TD>
+<TD>表示行数を設定</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>printX</TD>
+
+<TD ALIGN=RIGHT>110</TD>
+<TD ROWSPAN=2>ログ表示開始座標</TD>
+</TR>
+
+<TR>
+<TD COLSPAN=2>printY</TD>
+
+<TD ALIGN=RIGHT>32</TD>
+
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>nextX</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD ROWSPAN=2>次の行までの距離</TD>
+</TR>
+
+<TR>
+<TD COLSPAN=2>nextY</TD>
+
+<TD ALIGN=RIGHT>fontSize</TD>
+
+</TR>
+
+
+
+
+
+<TR>
+<TD COLSPAN=2>titlePrintFlag</TD>
+
+<TD ALIGN=RIGHT>1</TD>
+<TD>1:タイトルメッセージを表示する 0:表示しない</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>titlePrintX</TD>
+<TD ALIGN=RIGHT>画面中央から3文字左</TD>
+<TD ROWSPAN=2>タイトルメッセージ表示座標</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>titlePrintY</TD>
+<TD ALIGN=RIGHT>printY</TD>
+
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>titleMessage</TD>
+<TD ALIGN=LEFT>※1</TD>
+<TD>タイトル文章を３１文字(62byte)までで設定する</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>titlePicPrintFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:バックログタイトル画像を表示する</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>titlePicFileName</TD>
+<TD ALIGN=LEFT>ta_backlog_title</TD>
+<TD>バックログタイトル画像ファイル名を設定</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>titlePicPrintX</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD ROWSPAN=2>バックタイトル画像表示座標</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>titlePicPrintY</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>titlePicUpperFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:バックタイトル画像を文字の上に表示する</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>barMessage</TD>
+
+<TD ALIGN=LEFT>※2</TD>
+<TD>セパレーターメッセージを３１文字(62byte)までで設定する</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>firstMessageNumber</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>開始メッセージを指定するときに1を設定する。開始メッセージが62byteを超える場合には複数に分割し、その分割個数を指定する</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>firstMessage[n]</TD>
+<TD ALIGN=LEFT>なし</TD>
+<TD>n番目の分割開始メッセージを指定する。分割開始メッセージは31文字(62byte)までで、かつ合計510byteまで(表示はみ出さないように注意)[デフォルト:※3]</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>upArrowPrintX</TD>
+
+<TD ALIGN=RIGHT>画面中央</TD>
+<TD ROWSPAN=2>上カーソル表示座標</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>upArrowPrintY</TD>
+
+<TD ALIGN=RIGHT>printYから2行下</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN= 2>downArrowPrintX</TD>
+
+<TD ALIGN=RIGHT>画面中央</TD>
+<TD ROWSPAN=2>下カーソル表示座標</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>downArrowPrintY</TD>
+
+<TD ALIGN=RIGHT>printYから(表示行数+3)行下</TD>
+
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>updownArrowSizeX</TD>
+
+<TD ALIGN=RIGHT>fontSize</TD>
+<TD ROWSPAN=2>上下カーソルサイズ</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>upDownArrowSizeY</TD>
+
+<TD ALIGN=RIGHT>fontSize</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN= 2>upArrowMessage</TD>
+
+<TD ALIGN=LEFT>#水▲</TD>
+<TD>上カーソルの文字を設定します。</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>downArrowMessage</TD>
+
+<TD ALIGN=LEFT>#水▼</TD>
+<TD>下カーソルの文字を設定します。</TD>
+</TR>
+
+
+
+
+
+<TR>
+<TD COLSPAN= 2>updownArrowPicFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:上下カーソルをグラフィックで表示します 0:文字のまま</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>filenameUpDownArrow</TD>
+<TD ALIGN=LEFT>ta_backlog_updown</TD>
+<TD>上下カーソルファイル名を設定します</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>updownArrowAnimeFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:上下カーソルをアニメさせます</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>upArrowFileName</TD>
+<TD ALIGN=LEFT>ta_backlog_up</TD>
+<TD>上下カーソルをアニメさせる場合には個別にファイルを設定します(上カーソル)</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>downArrowFileName</TD>
+<TD ALIGN=LEFT>ta_backlog_down</TD>
+<TD>(下カーソル)</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>updownArrowAnimePattern</TD>
+<TD ALIGN=RIGHT>2</TD>
+<TD>上下カーソルアニメのグラフィックパターン数</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>updownArrowAnimeType</TD>
+<TD ALIGN=RIGHT>5</TD>
+<TD>上下カーソルアニメのアニメ種類(ボタンと同じ設定)</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>updownArrowAnimeSpeed</TD>
+<TD ALIGN=RIGHT>10</TD>
+<TD>上下カーソルアニメのアニメフレーム数</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>voiceSizeX</TD>
+
+<TD ALIGN=RIGHT>fontSize</TD>
+<TD ROWSPAN=2>音声ボタンサイズを設定</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>voiceSizeY</TD>
+
+<TD ALIGN=RIGHT>fontSize</TD>
+
+</TR>
+
+
+
+
+<TR>
+<TD COLSPAN= 2>voiceMessage</TD>
+
+<TD ALIGN=LEFT>♪</TD>
+<TD>文字音声ボタンの文字を設定します。</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>voiceFlag</TD>
+
+<TD ALIGN=RIGHT>1</TD>
+<TD>1:文字音声ボタンを押したときに音声がでます 0:音声なし</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>voicePrintX</TD>
+
+<TD ALIGN=RIGHT>-fontX</TD>
+<TD ROWSPAN=2>音声ボタンの表示位置をメッセージからの相対座標で指定</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>voicePrintY</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN= 2>voicePicFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:音声ボタンをグラフィックで表示します 0:文字のまま</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>filenameVoice</TD>
+<TD ALIGN=LEFT>ta_backlog_updown</TD>
+<TD>音声ボタンのファイル名を設定</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>voicePicAnimeFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:音声ボタンをアニメさせます</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>voicePicAnimePattern</TD>
+<TD ALIGN=RIGHT>2</TD>
+<TD>音声ボタンのアニメのグラフィックパターン数</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>voicePicAnimeType</TD>
+<TD ALIGN=RIGHT>5</TD>
+<TD>音声ボタンのアニメのアニメ種類(ボタンと同じ設定)</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>voicePicAnimeSpeed</TD>
+<TD ALIGN=RIGHT>10</TD>
+<TD>音声ボタンアニメのアニメフレーム数</TD>
+</TR>
+
+
+
+
+
+</TABLE>
+
+<BR>
+※1 #橙回想・・・・<BR>
+※2 ―――――――――――――――――――――――<BR>
+※3 #赤#猫#白　過去、それは単なる通過点の集まり・・・　#赤#猫<BR>
+<BR>
+上下カーソルグラフィック(アニメなし)は[上][下]の順に左右にならべる<BR>
+<BR>
+音声ボタン(アニメなし)は、カーソルオンパターンはありません<BR>
+
+
+
+<BR>
+上下カーソルグラフィックおよび音声ボタン(共にアニメあり)は、それぞれ<BR>
+[通常パターン１][カーソルオンパターン１]<BR>
+[通常パターン２][カーソルオンパターン２]<BR>
+[通常パターン３][カーソルオンパターン３]<BR>
+・<BR>
+・<BR>
+の順ににならべる<BR>
+<BR>
+
+<BR>
+<CENTER><A HREF="../index.htm">Home</A></CENTER>
+
+</BODY>
+</HTML>
+

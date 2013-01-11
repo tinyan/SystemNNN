@@ -1,0 +1,655 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<TITLE>Project NYANLIB</TITLE>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=Shift_JIS">
+	<LINK REV=MADE HREF="mailto:tinyan@mri.biglobe.ne.jp">
+</HEAD>
+
+<BODY BGCOLOR="#80C0A0"
+      LINK   ="#006060"
+      VLINK  ="#7499CC"
+      TEXT   ="#202020" 
+      ALINK  ="#000000">
+
+
+
+<CENTER>
+<FONT SIZE=7>init - selectcg</FONT><BR>
+</CENTER>
+<BR>
+<BR>
+
+<TABLE BORDER=3>
+<TR>
+<TD COLSPAN=3>共通設定</TD>
+</TR>
+
+<TR>
+<TD>上下ボタン設定</TD>
+<TD>必要</TD>
+<TD>それぞれのとこを参照あとでリンクをつける</TD>
+</TR>
+
+<TR>
+<TD>戻るボタン設定</TD>
+<TD>必要</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+<TR>
+<TD>背景スクリプト設定</TD>
+<TD>可能</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+<TR>
+<TD>BGM設定</TD>
+<TD>可能</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+<TR>
+<TD>画面切り替え時フェード設定</TD>
+<TD>可能</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+<TR>
+<TD>画面切り替え時音声設定</TD>
+<TD>可能</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+<TR>
+<TD>その他設定</TD>
+<TD>なし</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+</TABLE>
+
+
+<BR>
+<BR>
+
+<TABLE BORDER=4>
+<TR>
+<TD COLSPAN=4>専用設定</TD>
+</TR>
+
+<TR>
+<TD>名前</TD>
+<TD>サブ</TD>
+<TD>デフォルト値</TD>
+<TD>解説</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN = 2>modename</TD>
+<TD>selectcg</TD>
+<TD>モード名、変更不可。省略不可</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>cgPianoSoundFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:選択可能サムネイルにマウスカーソルが乗ったときにシステム標準のピアノ音を出す</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>filenameBG</TD>
+
+<TD>cg_bg</TD>
+<TD>背景画像ファイル名(背景スクリプトを使用しない場合に有効)</TD>
+</TR>
+
+
+
+
+<TR>
+<TD COLSPAN=2>blockNumberX</TD>
+
+<TD ALIGN=RIGHT>4</TD>
+<TD ROWSPAN=2>表示するサムネイルの個数を横、縦で指定する</TD>
+</TR>
+<TR>
+<TD COLSPAN=2>blockNumberY</TD>
+
+<TD ALIGN =RIGHT>3</TD>
+
+</TR>
+
+
+
+
+<TR>
+<TD COLSPAN=2>picMustPrintPercent</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>手に入れていない絵であっても、サムネイルを表示する場合には、ここに透明度を1-100の値で設定する</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>addPicFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>画面に追加の絵を表示する場合に1を設定する。選択されたCGキャラごとに違う絵（タイトルや名前など）を表示する場合に使う</TD>
+</TR>
+
+
+
+
+
+
+<TR>
+<TD ROWSPAN=8></TD>
+<TD>addPicPrintPercent</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>表示する絵の透明度を%で指定。ただし0の場合にはマスク処理なし</TD>
+</TR>
+
+
+<TR>
+
+<TD>addPicPrintX</TD>
+<TD ALIGN=RIGHT>217</TD>
+<TD ROWSPAN=2>追加絵の表示位置を指定</TD>
+</TR>
+
+
+<TR>
+
+<TD>addPicPrintY</TD>
+<TD ALIGN=RIGHT>26</TD>
+
+</TR>
+
+
+<TR>
+
+<TD>addPicSizeX</TD>
+<TD ALIGN=RIGHT>355</TD>
+<TD ROWSPAN=2>追加絵のキャラ1人分のサイズを指定</TD>
+</TR>
+
+
+<TR>
+
+<TD>addPicSizeY</TD>
+<TD ALIGN=RIGHT>22</TD>
+
+</TR>
+
+
+<TR>
+
+<TD>addPicSrcNumX</TD>
+<TD ALIGN=RIGHT>1</TD>
+<TD ROWSPAN=2>追加絵でキャラ絵が縦横いくつずつ並んでいるかを指定</TD>
+</TR>
+
+
+<TR>
+
+<TD>addPicSrcNumY</TD>
+<TD>CGキャラの数</TD>
+
+</TR>
+
+
+<TR>
+
+<TD>filenameAdd</TD>
+<TD>cgbg_title</TD>
+<TD>追加絵のファイル名</TD>
+</TR>
+
+
+
+
+
+
+
+<TR>
+<TD COLSPAN=2>printX</TD>
+
+<TD ALIGN=RIGHT>85</TD>
+<TD ROWSPAN=2>1つめのサムネイルエリアの表示位置を指定</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>printY</TD>
+
+<TD ALIGN=RIGHT>113</TD>
+
+</TR>
+
+
+
+
+
+<TR>
+<TD COLSPAN=2>nextX</TD>
+
+<TD ALIGN=RIGHT>166</TD>
+<TD ROWSPAN=2>次のサムネイルエリアまでの距離を指定</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>nextY</TD>
+
+<TD ALIGN=RIGHT>124</TD>
+
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>sizeX</TD>
+
+<TD ALIGN=RIGHT>133</TD>
+<TD ROWSPAN=2>サムネイル画像のサイズを指定</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>sizeY</TD>
+
+<TD ALIGN=RIGHT>100</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>picPrintX</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD ROWSPAN=2>サムネイルエリアでのサムネイルの表示位置を相対座標で指定</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>picPrintY</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>picSizeX</TD>
+
+<TD>sizeX</TD>
+<TD ROWSPAN= 2>未実装</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>picSizeY</TD>
+
+<TD>sizeY</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>cursorPrintX</TD>
+
+<TD>picPrintX</TD>
+<TD ROWSPAN=2>サムネイルエリアでのカーソル表示位置を相対座標で指定</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>cursorPrintY</TD>
+
+<TD>picPrintY</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>cursorSizeX</TD>
+
+<TD>picSizeX(sizeX)</TD>
+<TD ROWSPAN=2>カーソルサイズを指定</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>cursorSizeY</TD>
+
+<TD>picSizeY(sizeY)</TD>
+
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>futaPrintFlag</TD>
+
+<TD ALIGN=RIGHT>1</TD>
+<TD>取得していないCG部分をふたで隠す場合に1を設定する、ふたの表示位置は、サムネイル表示エリア。マスク処理しない場合には2を指定する</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>filenameFuta</TD>
+<TD>ta_futa1</TD>
+<TD>フタのファイル名</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>selectPrintMode</TD>
+
+<TD ALIGN=RIGHT>1</TD>
+<TD>カーソルの表示モードを指定 0:なし 1:色 2:絵</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>cursorColorR</TD>
+<TD ALIGN=RIGHT>230</TD>
+<TD ROWSPAN=3>カーソルの表示モードが1の場合に、カーソルの色をRGBで指定</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>cursorColorG</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>cursorColorB</TD>
+<TD ALIGN=RIGHT>50</TD>
+
+</TR>
+
+
+
+
+<TR>
+<TD></TD>
+<TD>fileNameCursor</TD>
+<TD>ta_cg_cur</TD>
+<TD>カーソル表示モードが2の場合にカーソルファイル名を指定</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>cursorPrintType</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>カーソル表示モードが2の場合にカーソルの表示方法を0-2で指定 0:通常 1:半透明(selectPercentで指定) 2:加算</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>selectPercent</TD>
+<TD ALIGN=RIGHT>50</TD>
+<TD>カーソル表示モードが2ので、カーソルの表示方法が1の場合にカーソルの透明度を指定</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>totalPercentPrintFlag</TD>
+
+<TD ALIGN=RIGHT>1</TD>
+<TD>CG回収%を表示する場合1を設定する。しない場合は0</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>fileNameTotalPercent</TD>
+<TD>ta_font_cg1</TD>
+<TD>CG回収%表示用の、フォントグラフィックファイル名</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>totalPercentFontSizeX</TD>
+<TD ALIGN=RIGHT>16</TD>
+<TD ROWSPAN=2>フォントサイズ</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>totalPercentFontSizeY</TD>
+<TD ALIGN=RIGHT>22</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>totalPercentFontNextX</TD>
+<TD>totalPercentFontSizeX</TD>
+<TD>次の文字までのサイズ</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>totalPercentPrintX</TD>
+<TD ALIGN=RIGHT>688</TD>
+<TD ROWSPAN=2>表示位置</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>totalPercentPrintY</TD>
+<TD ALIGN=RIGHT>25</TD>
+
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>differencePrintFlag</TD>
+
+<TD ALIGN=RIGHT>1</TD>
+<TD>差分情報表示フラグ 0:表示しない 1:差分があるものにのみ表示 2:全てに表示 </TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>differencePrintByGetFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>1枚でも取得したものだけ差分情報を表示する場合には、1を指定する</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>differenceFontSizeX</TD>
+<TD ALIGN=RIGHT>21</TD>
+<TD ROWSPAN=2>差分情報用フォントサイズ</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>differenceFontSizeY</TD>
+<TD ALIGN=RIGHT>27</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>differenceFontNextX</TD>
+<TD>differenceFontSizeX</TD>
+<TD>次の文字までのサイズ</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>differencePrintX</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD ROWSPAN=2>サムネイルエリアでの差分情報表示座標を相対座標で指定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>differencePrintY</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>fileNameDifferenceFont</TD>
+<TD>ta_sl_font3</TD>
+<TD>差分情報用フォントグラフィックファイル名</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>pagePrintFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>ページ数を表示する場合は1、表示しない場合は0</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>pageFontSizeX</TD>
+<TD ALIGN=RIGHT>21</TD>
+<TD ROWSPAN=2>ページ数表示用フォントサイズ</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>pageFontSizeY</TD>
+<TD ALIGN=RIGHT>27</TD>
+
+</TR>
+
+<TR>
+<TD></TD>
+<TD>pageFontNextX</TD>
+<TD>pageFontSizeX</TD>
+<TD>次の文字までのサイズ</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>pagePrintX</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD ROWSPAN=2>ページ数表示座標</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>pagePrintY</TD>
+<TD ALIGN=RIGHT>0</TD>
+
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>fileNamePageFont</TD>
+<TD>ta_sl_font3</TD>
+<TD>ページ表示用フォントグラフィックファイル名</TD>
+</TR>
+
+
+
+<TR>
+<TD></TD>
+<TD>pageMaxPrintFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>最大ページ数を表示する場合には1、表示しない場合には0を設定</TD>
+</TR>
+
+
+
+
+<TR>
+<TD></TD>
+<TD>pageMaxPrintX</TD>
+<TD>pagePrintXから3文字分右</TD>
+<TD ROWSPAN = 2>最大ページ数表示座標</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>pageMaxPrintY</TD>
+<TD>pagePrintY</TD>
+
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>slashPrintFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>スラッシュを表示する場合には1を設定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>slashPrintX</TD>
+<TD>pagePrintXから2文字分右</TD>
+<TD ROWSPAN=2>スラッシュを表示する座標</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>slashPrintY</TD>
+<TD>pagePrintY</TD>
+
+</TR>
+
+<TR>
+<TD COLSPAN = 2>miniPicTransFlag</TD>
+<TD ALIGN=RIGHT>0</TD>
+<TD>サムネイルをマスク付き画像として処理する場合には1を設定する</TD>
+</TR>
+
+
+
+</TABLE>
+
+<BR>
+<BR>
+<CENTER><A HREF="../index.htm">Home</A></CENTER>
+
+</BODY>
+</HTML>
+

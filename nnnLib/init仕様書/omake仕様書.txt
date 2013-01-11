@@ -1,0 +1,22 @@
+menuStartWaitTime
+menuStartEffectTime
+menuStartEffectType
+
+menuStartDeltaX
+menuStartDeltaY
+
+
+autoCGCharaFlag 0
+autoSceneCharaFlag 0
+
+
+
+cgModeExistFlag 1
+sceneModeExistFlag 1
+bgmModeExistFlag 1
+
+
+filenameBG
+
+
+//メニュー、バックスクリプト、曲、声

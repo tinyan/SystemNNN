@@ -1,0 +1,65 @@
+主な変更点
+
+
+ライブラリが分割されました
+すべてをリンクしてください
+
+NYANLIB関連
+nyanlib\lib
+
+NNNLIB関連
+nnnlib\lib
+
+
+includeヘッダーのファルダが変更されました
+主なものは
+nyanlib\include
+に移されました
+
+
+
+
+NYANLIBに移行した際に
+バッファ及びサイズ取得方法が変更されました
+
+
+CMyGraphicsクラスのスタティックメソッドを使用します
+
+
+static int* GetScreenBuffer(void);
+スクリーンバッファ取得
+
+//static int* GetCommonX8Buffer(void);
+
+static SIZE GetScreenSize(void);
+static int GetScreenSizeX(void);
+static int GetScreenSizeY(void);
+スクリーンサイズ取得
+
+
+
+
+
+
+CPictureクラスが一部変更されています
+
+主な変更点
+
+CPicture::
+
+	void* GetBuffer(void);
+	int* GetPictureBuffer(void);
+(返すものは同じです)
+
+	char* GetMaskPic(void);
+
+	BOOL CheckMaskExist(void);
+マスクデータの有り無しをチェックする必要がある場合にはこれを使ってください
+
+	SIZE GetPicSize(void);
+絵のサイズを取得する場合には、これをつかってください
+
+
+
+
+

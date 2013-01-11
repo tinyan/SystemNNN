@@ -1,0 +1,260 @@
+
+
+
+
+
+
+
+CFillScreen
+CBoxFill
+CTransBoxFill
+CTransCircleFill
+CTransTorusFill
+CDaikei
+
+
+
+画面全体に
+乗算(rgbごとに0-100%)
+CMulti
+
+色の加減算(-255～255)
+
+
+
+グラデーション関連
+CTransGradationBoxV	//垂直方向グラデ
+
+
+
+
+void CMyGraphics::TransGradationBoxV(int x, int y, int sizeX, int sizeY,int r1, int g1, int b1, int r4, int g4, int b4)
+{
+	//4の倍数サイズのみ対応	クリップしていないので注意
+	x = 0;
+
+	int screenSizeX = GetScreenSizeX();
+	int screenSizeY = GetScreenSizeY();
+	sizeX = screenSizeX;
+
+	int lPitch = screenSizeX*4;
+
+//	int* dst = (int*)CPicture::m_lpScreenBuffer;
+	int* dst = GetScreenBuffer();
+	dst += lPitch * y;
+
+
+//	int delta[MAXSCREENSIZEY*2];
+	int* delta = CEffectSimpleWipe::m_shapeWork;
+
+	int* table = delta;
+
+	int dr = r4 - r1;
+	int dg = g4 - g1;
+	int db = b4 - b1;
+
+
+	for (int i=0;i<sizeY;i++)
+	{
+		int rr = r1 + ((dr * i) / (sizeY-1));
+		int gg = g1 + ((dg * i) / (sizeY-1));
+		int bb = b1 + ((db * i) / (sizeY-1));
+
+		rr += 256;
+		gg += 256;
+		bb += 256;
+
+		delta[i*2] = (bb & 0xffff) | ((gg<<16) & 0xffff0000);
+		delta[i*2+1] = (rr & 0xffff);
+	}
+
+
+	int sizeXdiv4 = sizeX / 4;
+
+	int loopX = sizeX;
+	int loopY = sizeY;
+
+	__asm
+	{
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+
+		mov edi,dst
+		mov ebx,table
+		mov ecx,loopY
+		pxor mm0,mm0
+
+		mov eax,256
+		movd mm6,eax
+		punpcklwd mm6,mm6
+		punpckldq mm6,mm6
+
+LOOP1:
+		push ecx
+		push edi
+
+		movq mm7,[ebx]
+
+
+		mov ecx,sizeXdiv4
+
+LOOP2:
+		movq mm1,[edi]
+		movq mm2,mm1
+		
+		movq mm3,[edi+8]
+		movq mm4,mm3
+
+		punpcklbw mm1,mm0
+		punpckhbw mm2,mm0
+		punpcklbw mm3,mm0
+		punpckhbw mm4,mm0
+
+		paddw mm1,mm7
+		paddw mm2,mm7
+		paddw mm3,mm7
+		paddw mm4,mm7
+
+		psubusw mm1,mm6
+		psubusw mm2,mm6
+		psubusw mm3,mm6
+		psubusw mm4,mm6
+
+		packuswb mm1,mm2
+		packuswb mm3,mm4
+
+		movq [edi],mm1
+		movq [edi+8],mm3
+
+		add edi,16
+		dec ecx
+		jnz LOOP2
+
+		pop edi
+		pop ecx
+		add edi,lPitch
+		add ebx,4*2
+		dec ecx
+		jnz LOOP1
+
+
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		emms
+	}
+}
+
+
+
+
+
+void CMyGraphics::PrintFade(int ps1, int ps2, int r, int g, int b)
+{
+	int* dst = GetScreenBuffer();
+
+	if (ps1<0) ps1 = 0;
+	if (ps1>100) ps1 = 100;
+	if (ps2<0) ps2 = 0;
+	if (ps2>100) ps2 = 100;
+
+	int d = ps1 * 0x7fff;
+	int d2 = ps2 * 0x7fff;
+
+	d /= 100;
+	d2 /= 100;
+
+	d &= 0x7fff;
+	d2 &= 0x7fff;
+
+	int srcColor = (r<<16) | (g<<8) | b;
+
+	int mulColor1 = d;
+	int mulColor2 = d2;
+
+	int sizeX = GetScreenSizeX();
+	int sizeY = GetScreenSizeY();
+
+
+	int loops = sizeX * sizeY / 2;
+
+	__asm
+	{
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+
+		mov edi,dst
+
+		pxor mm7,mm7
+
+		mov eax,mulColor1
+		movd mm5,eax
+		punpcklwd mm5,mm5
+		punpckldq mm5,mm5
+
+		mov eax,mulColor2
+		movd mm6,eax
+		punpcklwd mm6,mm6
+		punpckldq mm6,mm6
+
+		mov eax,srcColor
+		movd mm4,eax
+		punpcklbw mm4,mm7
+		psllw mm4,1
+		pmulhw mm6,mm4
+
+		mov ecx,loops
+
+LOOP1:
+		movq mm0,[edi]
+		movq mm1,mm0
+
+		punpcklbw mm0,mm7
+		punpckhbw mm1,mm7
+
+		psllw mm0,1
+		psllw mm1,1
+
+//		movq mm2,mm0
+//		movq mm3,mm1
+
+		pmulhw mm0,mm5
+		pmulhw mm1,mm5
+
+//		pmulhw mm2,mm6
+//		pmulhw mm3,mm6
+
+		paddw mm0,mm6
+		paddw mm1,mm6
+
+		packuswb mm0,mm1
+
+		movq [edi],mm0
+
+		add edi,8
+		dec ecx
+		jnz LOOP1
+
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+
+		emms
+	}
+
+
+}

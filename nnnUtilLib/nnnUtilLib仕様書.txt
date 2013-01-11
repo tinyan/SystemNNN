@@ -1,0 +1,139 @@
+
+追加
+
+CMyKeyStatus
+	キーの情報のはいったクラスです
+
+	BOOL CheckKey(int key);
+
+	void ClearAllKey(void);
+	void SetKey(int key,BOOL flg = TRUE);
+
+
+CInputStatus
+	CMyMouseStatusとCMyKeyStatusをメンバーにもつクラスです
+
+	CMyMouseStatus* GetMouseStatus(void){return m_mouseStatus;}
+	CMyKeyStatus* GetKeyStatus(void){return m_keyStatus;}
+
+
+
+
+CSuperButtonPicture
+	ボタン用共有グラフィックバッファ(CPicture)管理用クラスです
+	
+	static CPicture* GetPicture(int n);
+	n番目のバッファを準備します
+
+
+CSuperButtonSetup
+	initからボタンの設定部分をひろってきます
+	CSuperButtonSetup(CNameList* lpNameList,LPSTR buttonName,CSuperButtonSetup* lpCopyFrom = NULL,POINT* lpDelta = NULL);
+		lpNameList
+			initファイルを読み込んだCNameListオブジェクトです
+			たいていは、CGeneral::m_setupです
+
+		buttonName
+			ボタン名。initのボタン名+各種設定名を参照して情報を取得します
+
+		lpCopyFrom
+			デフォルト値をコピーする場合には指定します
+
+		lpDelta
+			ボタンの座標の差分を設定します
+
+
+	void SetupButtonStatus(CCommonButton* lpButton);
+		今の設定をボタンに設定します
+
+
+
+CCommonButton
+	int Calcu(CInputStatus* lpInput,BOOL clickFlag = FALSE);
+
+	戻り値は、NNNBUTTON_NOTHINGまたは、各種戻り値です
+
+	NNNBUTTON_NOTHINGでない場合は
+	戻り値は必要であれば次のメソッドで処理します
+
+	static int GetButtonStatus(int statusData);
+	static int GetButtonMode(int statusData);
+	static int GetButtonSound(int statusData);
+	static int GetButtonData(int statusData);
+	static BOOL CheckRequestSound(int statusData);
+	static BOOL CheckExistData(int statusData);
+
+ステータス他のDEFINEは
+nnnButtonStatus.hを参照のこと
+
+
+	void SetBG(CPicture* lpPic){m_bg = lpPic;}
+ボタンを描画する場合に、背景画像を再描画する場合には、背景画像を設定
+背景を再描画する必要がない場合にはNULLを設定します
+
+	これ以外のメソッドはヘッダーを参考に名前で判断してください
+
+
+
+CCommonBackButton
+	CCommonButtonから継承
+	戻るボタンフラグがたっている以外は同じ
+
+
+CCommonButtonGroup
+	CCommonButtonGroup(CNameList* lpSetup,int buttonKosuu = 2,CPicture* lpBG = NULL,LPSTR defaultButtonName = NULL,LPSTR* customButtonName = NULL);
+	initを参照して、複数のボタンをまとめて作成します
+	ボタンが複数のため、一部メソッドは、ボタン番号を指定するようになっています
+
+
+CCommonMultiStateButton
+	複数の状態をもつボタンを作成します。
+	主に、CCommonCheckButton,CCommonRadioButtonの基本クラスとして使われます
+
+
+CCommonCheckButton
+	CCommonCheckButton(CNameList* lpSetup,CPicture* lpBG,LPSTR buttonName = NULL,POINT* lpPoint = NULL,CSuperButtonSetup* lpSuperSetup = NULL);
+	initを参照してチェックボタンを作成します
+
+CCommonRadioButton
+	CCommonRadioButton(CNameList* lpSetup,CPicture* lpBG = NULL,LPSTR buttonName = NULL,POINT* lpPoint = NULL,CSuperButtonSetup* lpSuperSetup = NULL);
+	initを参照して、ラジオボタングループ用のボタンを作成します
+
+CCommonRadioButtonGroup
+	CCommonRadioButtonGroup(CNameList* lpSetup,LPSTR buttonName,CPicture* lpBG = NULL,int buttonKosuu = 2,CSuperButtonSetup* lpCopySetup = NULL);
+	initを参照して、ラジオボタングループを作成します
+	
+
+CCommonUpDownButtonGroup
+	initを参照して、上下カーソルボタングループを作成します
+	ボタン名はUp,Downに固定です
+
+CCommonUpdownBack
+	CCommonUpDownButtonGroupとCCommonBackButtonをひとつにまとめたグループを作成します
+	CCommonUpdownBack(CCommonBackButton* lpBack,CCommonUpDownButtonGroup* lpUpDown);
+
+CMenuButtonGroup
+	initを参照してメニューボタンを作成します。
+	CMenuButtonGroup(CMenuButtonSetup* lpMenuButtonSetup,CPicture* lpBG = NULL);
+	拡張モードの設定は、自動では行われないので
+	これを使うクラスから変更する必要があります
+
+	void SetExtMode(int extMode);
+
+CMenuButtonSetup
+	initを参照して、メニューボタンようの設定をひろってきます
+	CMenuButtonSetup(CNameList* lpNameList,int basicButtonKosuu);
+
+	basicButtonKosuu 基本メニューの個数
+
+
+
+
+
+
+
+
+CPagePrint
+	CPagePrint(CNameList* namelist,CPicture* lpBG = NULL);
+	ページ数表示ユーティリティークラスです
+	initを参照して各種設定がされます

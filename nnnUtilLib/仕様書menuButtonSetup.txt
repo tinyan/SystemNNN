@@ -1,0 +1,22 @@
+superMode (default=1)
+basicButtonNumber
+extButtonNumber (default = 0)
+extModeNumber (default = 0)
+extModeCheckVarName
+extModeReturnVarName
+
+//簡易設定用
+menuPrintX
+menuPrintY
+menuSizeX
+menuSizeY
+menuNextX
+menuNextY
+
+//n番目のメニュタイプのk番目のボタンの簡易座標設定
+menu[n]Button[k]printX
+menu[n]Button[k]printY
+
+
+
+//個別設定(superButton)

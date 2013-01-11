@@ -1,0 +1,27 @@
+主にCPictureクラスが使用するので説明なし
+
+
+
+
+	static void GreyBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID srcPic,SIZE picSize,char* maskPic, BOOL transFlag = TRUE, LPVOID lpPalette = NULL);
+	static void RedBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID srcPic,SIZE picSize,char* maskPic, BOOL transFlag = TRUE, LPVOID lpPalette = NULL);
+	static void ColorBlt(POINT putPoint,POINT srcPoint,SIZE putSize,char* maskPic,SIZE srcSize,int r,int g,int b);
+	static void TransLucentBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize,int transPercent);
+	static void TransLucentBlt0(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize,int transPercent);
+	static void TransLucentBlt2(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize,int transPercent);
+	static void TransLucentBlt3(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,LPVOID maskData,SIZE srcSize,int transPercent);
+	static void MaskBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,LPVOID maskData,SIZE srcSize);
+	static void NegaBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize,int negaPercent);
+	static void Blt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize);
+	static void BltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize);
+	static void Blt256(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,LPVOID lpPalette,SIZE srcSize);
+	static void Blt256Beta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,LPVOID lpPalette,SIZE srcSize);
+	static void ShapeBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID maskData,SIZE srcSize,int r,int g,int b);
+	static void GradationShapeBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID maskData,SIZE srcSize,int r1,int g1,int b1,int r2,int g2,int b2);
+	static void AddBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize);
+	static void LightBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE srcSize,int lightPercent);
+	static void StrtchBlt1(POINT dstPoint,POINT srcPoint,SIZE dstSize,SIZE srcSize,LPVOID picData,LPVOID maskData,SIZE picSize,BOOL transFlag,int transPercent);
+	static void ColorAddBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,LPVOID maskData,SIZE srcSize,BOOL transFlag,int r,int g,int b);
+	static void ChangeTransLucentBlt(POINT dstPoint,POINT srcPoint,SIZE putSize,LPVOID picData1,LPVOID picData2,LPVOID maskData1,LPVOID maskData2,SIZE picSize,int ps1,int ps2);
+	static void OverrapBltWithScreen(POINT nextPoint,LPVOID nextPic,SIZE nextPicSize,int startPercent,int endPercent);
+	static void OverrapBlt(POINT startPoint,LPVOID startPic,SIZE startPicSize,POINT endPoint,LPVOID endPic,SIZE endPicSize,int startPercent,int endPercent);

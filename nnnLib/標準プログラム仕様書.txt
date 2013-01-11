@@ -1,0 +1,2396 @@
+注意事項
+[n]は、1～nの数値に置きかえらる
+[RGB]は、R,G,B に置きかえらる
+[bgmButton] は "rew","play","ff","pause","stop"におきかえる
+
+
+*** 設定ファイルの制限:1項目あたり63byte(全角なら31文字)まで ***
+
+
+
+共通
+name モード名
+
+○fadein fadeout関連 (ないクラスもあり)画面の切り替えのためのもの
+
+enterFadeInType	(default = 0)	//0:なし	1:fadein(特定の色) 2～:overrap (40まで実装)
+enterFadeInTime	(default = 10)	//フェードインの時間
+enterFadeInSkipOkFlag (default = 1)	//マウスでフェードインをスキップできるかどうか 0:不可 1:可
+
+enterFadeInColor[RGB]	//default = 0,0,0
+
+exitFadeOutType (default = 0)	//0:なし 1:fadeout(特定の色)
+exitFadeOutTime (default = 10)
+exitFadeOutSkipOkFlag (default = 1)
+
+exitFadeOutColor[RGB]	//default = 0,0,0 (黒)
+
+createExitScreenFlag (default = 0)	//ぬけるまえにいまの画面をオーバーラップ用の元画面として記録する フェードインタイプ2～で使う
+fillExitScreenFlag (default = 0)	//ぬけるまえにオーバーラップ用の元画面もぬりつぶす
+
+
+//bgm関連 使用できるのは TITLE,OMAKE,(CONFIG,LOAD,SAVE これらはつけないほうがよい),PRINTCG,SELECTCG,SELECTCHCGARA,SELECTPLACE,SELECTSCENE,SELECTSCENECHARA
+//デフォルト値
+//title 曲=1 bgmRestartFlag=1
+//SELECTSCENE 曲=1
+//
+//
+bgmNumber	//デフォルト以外のBGMを演奏するとき (0:曲なし)
+bgmRestartFlag (default = 0)		//bgmをならすときに、かならず最初から演奏する
+//曲無し、かつ、bgmRestartFlag が 1のときは曲をとめる
+//曲無し、かつ、bgmRestartFlag が 0のときは前の曲がながれつづける
+//@@@1回しかならさない。無限ループのフラグが必要かも(現在、無限ループのみ)
+
+//戻るボタン関連	使用できるのは、CONFIG,LISTENBGM,FILECONTROL,SELECTCGCHARA,SELECTCG,SELECTSCENECHARA,SELECTSCENE
+
+backSizeX
+backSizeY
+backButtonPrintX
+backButtonPrintY
+fileNameBackButton
+backButtonAnime
+backButtonType (default = 0)	//将来の拡張用いまは設定不可(0のみ)
+
+
+
+exitFadeOutSpecialMode (default = -2)	//このモードからきたときは特殊フェードアウト処理をいれる
+//特殊フェードアウト
+	exitFadeOutTypeSpecial (default = 0)	//	特殊フェードアウト
+	exitFadeOutTimeSpecial (default = 10)
+	exitFadeOutSkipOkFlagSpecial (default = 1)
+
+	exitFadeOutColorSpecial[RGB]	//default = 0,0,0 (黒)
+
+	createExitScreenFlagSpecial (default = 0)	//ぬけるまえにいまの画面をオーバーラップ用の元画面として記録する フェードインタイプ2～で使う
+	fillExitScreenFlagSpecial (default = 0)	//ぬけるまえにオーバーラップ用の元画面もぬりつぶす
+
+
+
+
+					音声関連
+//使用できるもののみ			selectcgchara,selectcg,selectscenechara,selectscene,title,omake,listenbgm,config,load,save,cderror
+enterVoiceFlag (default = 0)
+enterVoiceWaitTime (default = 10)
+enterVoiceFileName (default = "cgcharaenter")
+
+exitVoiceFlag (default = 0
+exitVoiceWaitFlag (default = 10)
+exitVoiceFileName (default = "cgcharaexit")
+
+-------------------------------------------------------------------------------------------------------------------
+GameCallBack用
+
+参照:init\game.xtx
+
+mutexName aiueo			//CreateMutexでつかう文字列	config.exe等もこれを参照する
+
+companyName bugnekosoft	//プログラマー向け	レジストリーの場所を指定する LocalMachine\\Software\\[companyName]\\[gameName]
+gameName hogehoge		//
+
+taikenFlag (default = 0)	//体験版の場合に1～をいれて制御する。config.exeもこれを参照する
+
+frameTime (default = 50)(現在50ms 毎秒20コマ) (CGame内で動的に変更も可能)
+
+maxSkipFrame (default = 2)	//描画がおいつかないましんで、最大なんコマまでスキップするか
+
+
+f9KeyExitOffFlag (default = 0)	//F9キーによる終了を禁止する
+escKeyExitOffFlag (default = 1)	//ESCキーによる終了を禁止する
+
+////									config.exe 設定
+configMidiButtonFlag (default = 1)		//CONFIG画面でも有効
+configCDDAButtonFlag (default = 1)		//CONFIG画面でも有効
+
+configMidiCaption	//config.exeでのみ使用する
+configCDDACaption	//config.exeでのみ使用する
+
+noMidiFlag (default = 0)	//1:     MIDI == 曲なし   になる
+
+configWindowButtonFlag (default = 1)		//あるだけ 将来の拡張用
+configFullScreenButtonFlag (default = 1)
+configNormalMusicButtonFlag (default = 1)
+configDirectSoundButtonFlag (default = 1)
+////									ここまで
+
+
+//標準プログラム等のmain.cppが作成するmainコントロールクラス(CMainControl)が参照する
+defaultSei	// (sysfileが存在しないときにのみ有効)
+defaultMei
+
+windowSizeX
+windowSizeY
+
+needBpp	(default = 16)	最低必要カラービット数
+
+
+fukaPrintFlag //	画面左下に負荷（１フレーム描画するのにかかった時間をミリ秒で表示 sys\nekofont.dwqが必要）
+noWaitVSync 1	//VSyncを待たないので、最高速で描画できる。ただし、水平同期ラインが見えてきれいでない
+
+
+//ここまで
+
+
+backScriptSetCGOkFlag (default = 0)	//1:タイトル画面等でのスクリプトでつかわれたCGも登録する
+
+
+optionOffVarFlag (default = 0)	//1にするとオプションのオンオフを次の変数で管理する
+	optionOffVarName (default = "オプションオフ")
+
+
+
+
+directXVolumeFlag	(default = 1)	プログラマー向け	音楽がDirectXモードの時にメインのWAVEボリュームを設定するかどうか
+directXVolume		(default = 60)//ボリューム値
+
+
+pictureBufferInitSizeFlag (default = 0)	//プログラマー向け	CEffectのCPictrueバッファーサイズを指定する
+	pictureBufferSizeX[n];
+	pictureBufferSizeY[n];
+
+pictureBufferInitLoadFlag (default = 0)	//プログラマー向け	CEffectのCPictrueバッファーに起動時に読み込むファイルを指定する
+	pictureBufferFileName[n]		//dwq\以下のパスおよびファイル名を指定する(拡張子はつけない)	ex.  sys\hogehoge
+
+
+cgCharaNumber	//cg鑑賞モードでのキャラ(ボタン)の数を指定する
+
+
+
+specialNumberForSaveSetFlag (default = 0)
+specialNumberForSaveVarName (default = "残り日数")
+
+bossComingType (default = 0)	//0:なし 1:ぬりつぶし 2:絵 3～特殊
+	bossComingColorR
+	bossComingColorG
+	bossComingColorB
+	bossComingFileName
+
+
+
+
+
+
+//それぞれのクラスの作成を抑制するかどうか	実際に作成するかどうかはアプリ側で判断すること
+//on なら作成するではなく、offなら作成しない。という方針が望ましい
+//特に、体験版のロードセーブなどをこのフラグのみで制御していると体験版の制限をはずされてしまう
+//
+//  if (!体験版)
+//	{
+//		if (抑制フラグ == 0)
+//		{
+//			m_general[LOAD_MODE] = new CCommonLoad(this);
+//		}
+//	}
+//
+//  という使い方がよい
+//
+selectPlaceOff (default = 0)
+selectSceneCharaOff (default = 0)
+selectSceneOff (default = 0)
+selectCGCharaOff (default = 0)
+selectCGOff (default = 0)
+selectPlaceOff (default = 0)
+printCalendarOff (default = 0)
+omakeOff (default = 0)
+loadOff (default = 0)
+saveOff (default = 0)
+listenBgmOff (default = 0)
+configOff (default = 0)
+
+
+
+floatingLayerFlashFlag (default = 0)
+			//全表示フラグがオンのモードの場合浮きレイヤー消去処理をフラッシュで済ませて高速化する
+
+systemWaveLoadNumber (default = 4)
+	//システム効果音のうち最初のいくつをメモリに常駐させておくか
+
+
+
+
+maxCGCharaNumber	//プログラムでの指定より優先されます (注意:mainControlクラスを使用している場合にのみ有効)
+maxScriptNumber		//
+
+
+
+CGame::MainLoopをCGameCallBackに移しました。これにあわせて以下の仮想関数が追加
+必要に応じてCGameで継承してください
+
+virtual void StartMainLoop(int cnt) {}
+旧MainLoopの先頭でよばれる
+
+virtual void BeforerCalcu(void){}
+virtual void AfterCalcu(void){}
+旧MainLoopの各クラスのCalcu実行前後に呼ばれる
+
+virtual void BeforerOmakeCalcu(void){}
+virtual void AfterOmakeCalcu(void){}
+旧MainLoopのおまけクラスのCalcu実行前後に呼ばれる
+
+virtual void BeforerPrint(void){}
+virtual void AfterPrint(void){}
+旧MainLoopの各クラスのPrint実行前後に呼ばれる
+
+virtual void BeforerPrint(void){}
+virtual void AfterPrint(void){}
+旧MainLoopのおまけクラスのPrint実行前後に呼ばれる
+
+virtual void BeforePrintBackBuffer(void){}
+virtual void BeforeFlip(void){}
+virtual void AfterFlip(void){}
+旧MainLoopのFlip処理実行前後に呼ばれる
+(バッファーへの転送、合間、画面への転送)
+
+virtual void BeforeScript(void){}
+virtual void AfterScript(void){}
+旧MainLoopのスクリプト実行前後に呼ばれる
+(スクリプトが実行されないときも呼ばれる)
+
+virtual void BeforeChangeMode(void){}
+virtual void AfterChangeMode(void){}
+旧MainLoopで通常のモード変更が起きる場合、その前後で呼ばれる
+
+
+virtual void EndMainLoop(void){}
+旧MainLoopの最後でよばれる
+
+---------------------------------------------------------------------------------------------------------
+CMainControlクラス
+mainControl.xtx
+
+					メッセージ関連は、半角スペース、タブ、改行、カンマ、は使えないので注意
+
+oldUseGeneralFlag	//シングルスレッド型でも新しいGeneralMainLoop();を呼び出す形式にする
+
+windowSizeX (default = 800)
+windowSizeY (default = 600)
+windowSizeErrorMessage	//default = "画面サイズを%dx%d以上に設定してください";
+windowSizeErrorTitle	//default = "Error"
+windowSizeErrorMustAbortFlag (default = 1)
+windowSizeErrorMesAddNumFlag (default = 1)	//エラーメッセージに画面サイズをいれる(2つの%dがサイズにおきかえられる)	//このフラグがたっていてメッセージ中の%dが2つ以外の場合暴走する
+
+
+mmxErrorMessage	//
+mmxErrorTitle	//default = "警告"
+mmxErrorMustAbortFlag (default = 0)	//1:error must abort
+
+
+needBpp (default = 16)	//必要カラービット数
+bppErrorMessage
+bppErrorTitle
+bppErrorMustAbortFlag (default = 1)
+bppErrorMesAddNumFlag (default = 1)	//エラーメッセージに色深度をいれる(%dがbit数におきかえられる)//このフラグがたっていてメッセージ中の%dが1つ以外の場合暴走する
+
+
+checkMutexFlag (default = 1)
+mutexName	これはgame.xtxからひろってくる
+mutexErrorMessage
+mutexErrorTitle
+
+windowTitle
+windowTitleTaiken
+windowTitleNet
+windowTitleDemo
+addVersionToWindowTitleFlag (default = 1)	//0:かかない 1:ばーじょん1.0.0以外で追加 2:つねに追加
+	versionTitleMessage		//Verとか、versionとか
+	lowVersionNotPrintFlag (default = 0)
+	middleVersionNotPrintFlag (default = 0)	//middleをかかない場合はlowもかかれない
+
+//バージョン番号は、game.xtxからひろってくる
+
+checkDirectXFlag (default = 1)			//初期化チェック
+*checkDirectXVersionFlag	//not support
+*needDirectXVersion
+directXErrorMessage
+directXErrorTitle
+directXErrorMustAbortFlag (default = 1)
+
+
+///frameRate (default = 50)(現在50ms 毎秒20コマ) 削除[指定は、game.xtxで行う](CGame内で動的に変更も可能)
+
+className ウィンドウを作成するためのクラス名、ゲームごとにユニークなのが望ましい
+
+initRandomSeed (default = -1)	//-1:seed is time 0:nothing 1～:seed
+
+*iconName						//未実装
+
+-----------------------------------------------------汎用------------------------------------------------
+//
+// もどるボタン
+//
+//あとでそれぞれの位置に移動
+//
+// 使用可能な場所 SelectCGChara,SelectCG,SelectSceneChara,SelectScene,FileControl,Config,ListenBGM
+//
+//
+backSizeX
+backSizeY
+fileNameBackButton
+backPrintX
+backPrintY
+backButtonType (default = 0)	//0だとこのパラメーターで作成 1～だとCGameクラスで作った特殊なものをもらう(拡張用)
+backButtonAnime (default = 1)
+
+
+//
+// 上下ページ切り替えようボタン
+//
+// 使用可能な場所 SelectCGChara,SelectCG,SelectSceneChara,SelectScene,FileControl,        ListenBGM
+//                SelectMessage
+//
+fileNameUp
+fileNameDown
+updownSizeX
+updownSizeY
+updownAnime
+upPrintX
+upPrintY
+downPrintX
+downPrintY
+
+
+
+
+
+//これはdatafile.xtxにあればそちらが優先されるので、なるべくそちらに(次バージョンからdatafile.xtxでのみ有効になる)
+
+saveHeaderName (default = "SAVEDATA")	//SAVEファイルのヘッダー名(15byteまで)
+extSaveDataNumber (default = 0)		//拡張saveデーターブロックの個数
+	extSaveDataSize[n]				//それぞれのサイズ
+
+-------------------------------------------------------------------------------------------------------------------
+//@@@
+datafile.xtx		//よみこみはGameCallBackでおこなう?
+
+
+////////////////プログラマー向け
+saveHeaderName (default = "SAVEDATA")	//SAVEファイルのヘッダー名(15byteまで)
+extSaveDataNumber (default = 0)		//拡張saveデーターブロックの個数
+	extSaveDataSize[n]				//それぞれのサイズ
+
+
+
+
+サムネイル
+
+
+areaSizeX
+areaSizeY
+picSizeX	(default = プログラムで指定される縮小絵のサイズ)//指定しないほうが望ましいかも
+picSizeY	//プログラムで指定されているサイズをこえると不正処理がおこる
+picPrintX	//相対座標
+picPrintY
+
+basePrintFlag (default = 0)
+	filenameLoadBase	//
+	baseChangeLoadSave (default = 0)
+		filenameSaveBase	//load save で絵を分けるとき使う
+
+//datePicFileName
+
+
+saveTimePrintFlag	(default = 1) //セーブ日時、時間表示フラグ 	//年月日時分
+
+saveTimePrintX	//相対座標
+saveTimePrintY
+saveTimeFontSizeX
+saveTimeFontSizeY
+saveTimeFontNextX
+fileNameSaveTimeFont
+
+
+
+
+
+
+//ゲーム内日時表示関連
+
+gameYearPrintFlag (default = 0)	//年
+gameDatePrintFlag (defualt = 1)	//月日
+
+
+gameTimePrintX	//相対座標
+gameTimePrintY
+gameTimeFontSizeX
+gameTimeFontSizeY
+gameTimeFontNextX
+fileNameGameTimeFont
+
+
+
+//dateの月と日の間にはスラッシュがはいる
+//年と月日表示する場合には、年のあとにスラッシュがはいる
+
+
+
+
+
+//残り日数等の特殊数値表示
+specialNumberPrintFlag (default = 0)
+specialNumberPrintX	//相対
+specialNumberPrintY
+specialNumberFontSizeX
+specialNumberFontSizeY
+specialNumberFontNextX
+specialNumberKeta (defualt = 2)
+fileNameSpecialNumberFont
+specialNumberPrintLimit (default = -1)	//この数値以上のときのみかく
+
+//かざりなど
+addPicPrintFlag (default = 0)
+addPicPrintX
+addPicPrintY
+addPicSizeX
+addPicSizeY
+fileNameAddPic
+addPicWithSpecialFlag (default = 0)	//かざりを特殊数値の表示に連動させる
+
+
+
+
+//コメント等表示
+commentPrintFlag (default = 0)
+	commentPrintX
+	commentPrintY
+	commentFontSize (default = 12)
+	commentColorR (default = 255)
+	commentColorG (default = 255)
+	commentColorB (default = 255)
+	commentColorShade (default = 0)
+	commentSpace (default = 1)
+
+//////////////////for programmer
+コメントはsaveされる前に
+virtual LPSTR CGameCallBack::GetSaveComment(void) {return NULL;}
+がよばれますので、必要ならそのときに設定してください。(CGameで継承する)
+文字数は終端の0を含めずに30bytes(全角15文字)までです
+表示の際はみだすかどうかのチェックはおこないませんので注意してください
+
+
+
+
+
+
+//選択表示
+selectPrintMode (default = 0)	//0:半透明色 1:絵
+selectColorR
+selectColorG
+selectColorB
+selectColorPercent
+fileNameSelectPic
+
+selectPrintX (default = picPrintX)
+selectPrintY (default = picPrintY)
+selectSizeX (default = picSizeX)
+selectSizeY (default = picSizeY)
+
+
+//エラー関連
+
+fileNameError
+fileNameBad
+fileNameOld
+
+errorPrintX
+errorPrintY
+badPrintX
+badPrintY
+oldPrintX
+oldPrintY
+
+
+
+
+////////////////////ゲーム内の日にちの表示フラグとかは？？？
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+MessageWindow用
+
+参照:init\messageWindow.xtx
+
+filenameWindow
+printX
+printY
+sizeX
+sizeY
+
+nameWindowFlag (default = 0)
+	filenameNameWindow ta_meswin_name00
+	namePrintX 72
+	namePrintY 402
+	nameSizeX 225
+	nameSizeY 56
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+gameMouse用
+参照:init\gameMouse.xtx
+
+
+sizeX
+sizeY
+hotPointX
+hotPointY
+percent (default = 100)透明度
+anime 1 //アニメパターン個数
+
+filenameMouse (default="ta_mouse")
+
+
+-------------------------------------------------------------------------------------------------------------------
+///？？？
+messageCursor用
+参照:init\messageCursor.xtx
+
+
+//1:通常 2:自動 3:全画面 4:全画面自動
+
+filenameCursor1 mes_cur
+filenameCursor2	//カーソルを個別ファイルに分ける場合に使う 
+filenameCusror3 //全画面用送りカーソル
+filenameCusror4 //全画面用自動送りカーソル
+//1つにまとめるか、全て別のファイルにわけるかの２種類のみ可能
+
+
+printX1
+printY1
+sizeX1
+sizeY1
+percentStart1	//透明度を変化させる場合に指定する
+percentEnd1
+percentLoop1	//透明度変化フレーム数
+percentReverse1	//透明度変化リバースする
+//以下必要なら2～4まで設定する
+
+
+
+fullFixX	(default = 0)	//	1:全画面オクリカーソルの座標を指定したものに固定する
+fullFixY	(default = 0)	//	0:文末からの相対位置
+
+
+//カーソルアニメのパターン数、スピードを設定 
+animePattern[n]
+animeSpeed[n]
+animeReverse[n]
+
+@animeOverrap[n]	//アニメをオーバーラップでつなぐ（未実装）
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+シーンボタン、オプションボタン
+参照:init\optionButton.xtx
+参照:init\sceneButton.xtx
+
+
+addPartsNumber (default = 0)	//かざりの個数 かざりは n=2以降に対応	かざりの最大数はたぶん３こ？
+	printX[n]	//1は絶対位置、2～は1に対する相対座標
+	printY[n]
+	sizeX[n]
+	sizeY[n]
+	percent[n]	//(default = 100)
+	filenameButton[n]
+
+animePatternNumber	(default = 1)	//アニメする場合にアニメの個数を
+animeSpeed			(default = 1)	//アニメするフレーム数 数が大きいほど遅くなる
+
+-------------------------------------------------------------------------------------------------------------------
+
+fileControl用(Load Saveでも使う)
+
+参照:init\fileControl.xtx
+
+page (default = 10)
+blockNumberX (default = 4)
+blockNumberY (default = 3)
+printX	//セーブスロットの左上の座標
+printY
+nextX	//つぎのセーブスロットまでのdot数
+nextY
+picDeltaX (default = 0)	//printX,printYYからの相対座標		つかわれてないのでは？？－＞削除？
+picDeltaY (default = 0) 
+fileNamePage (default = "ta_sl_font3")
+fontSizeX (default = 21)
+fontSizeY (default = 27)
+keta (default = 2)
+fontNextX (default = 19)
+
+pagePrintFlag (default = 1)
+pagePrintX
+pagePrintY
+pageMaxPrintFlag (default = 1)
+pageMaxPrintX
+pageMaxPrintY
+slashPrintFlag (default = 0)
+slashPrintX
+slashPrintY
+
+
+
+//上下カーソル
+fileNameUp
+fileNameDown
+upPrintX
+upPrintY
+downPrintX
+downPrintY
+updownSizeX
+updownSizeY
+updownAnime (default = 5)
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+NOTHING_MODE = 1
+
+ヘッダー:commonNothing.h
+クラス CCommonNothing
+
+動作
+起動直後に最初によばれるモード
+1フレームだけ画面をぬりつぶし、LOGOモードに移行する
+
+参照:init\nothing.xtx
+fillColor[RGB] ぬりつぶし色 (Default = 255)
+nextMode (default = LOGO_MODE)	//LOGO_MODE以外に移行したい場合、次のモードを「数値」で指定する
+-------------------------------------------------------------------------------------------------------------------
+LOGO_MODE = 2
+
+ヘッダー:commonLogo.h
+クラス CCommonLogo
+
+動作
+1つ又は複数のロゴ画面をフェードイン、フェードアウト付きで表示する(DWQファイル)
+画像サイズは、画面サイズと同じでなければならない
+マウスクリックによりロゴごとにスキップされる
+動作終了後は TITLE_MODE に移行する
+
+
+参照:init\logo.xtx
+logoNumber ロゴの個数 (Default = 2)
+
+defaultUseBGColor (default = 0)
+defaultFadeInTime (default = 10)
+defaultFadeOutTime (default = 10)
+defaultKeepTime (default = 20)
+defaultFadeInColorR (default = 255)
+defaultFadeInColorG (default = 255)
+defaultFadeInColorB (default = 255)
+defaultFadeOutColorR (defaut = 255)
+defaultFadeOutColorG (default = 255)
+defaultFadeOutColorB (default = 255)
+
+
+useCustomBGColorFlag (default = 0)これを1にすると以下が有効
+	fadeInUseBGColor[n] 1にすると画像の左上の色をフェードイン時のカラーに(最優先)
+	fadeOutUseBGColor[n] 1にすると画像の左上の色をフェードアウト時のカラーに(最優先)
+
+
+useCustomColorFlag (default = 0)これを1にすると以下が有効
+	fadeinColor[RGB][n] n番目のロゴのフェードインカラー 
+	fadeoutColor[RGB][n] n番目のロゴのフェードアウトカラー 
+
+
+useCustomTimeFlag (default = 0)これを1にすると以下が有効
+	fadeInTime[n] n番目のロゴのフェードインフレーム数 (Default = 10)
+	keepTime[n] n番目のロゴの通常状態の表示時間 (Default = 20)
+	fadeOutTime[n] n番目のロゴのフェードアウトフレーム数 (Default = 10)
+
+
+useCustomFileFlag (default = 0)これを1にすると以下が有効
+	filename[n] n番目のロゴファイルの名前 (Default = sys\logo[n])
+
+
+useCustomSkipFlag(default = 0)これを1にすると以下が有効
+	skipOK[n] n番目のロゴのスキップ許可フラグ (0:不許可 1:許可) (Default = 1)
+
+cdCheckFlag (default = 1)	//BGMがCD再生モードになっていた場合に、CDをチェックするかどうか(0:しない 1:する)
+
+nextMode (default = TITLE_MODE)
+-------------------------------------------------------------------------------------------------------------------
+OPENING_MODE = 3	
+
+ヘッダー:commonOpening.h
+クラス:CCommonOpening
+
+動作
+オープニングフラグをたてて
+スクリプトの実行を開始する	//オープニング中は、クリックでタイトルになる。メニュー、ショートカット等のキーは受けつけない
+
+
+openingVar (default = "オープニング中フラグ")	//この変数に1をいれてスクリプトを呼び出す
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+TITLE_MODE = 4
+
+
+ヘッダー:commonTitle.h
+クラス:CCommonTitle
+
+動作
+	基本モード
+背景に基本ボタン5つを重ねて表示し処理する
+[最初から]
+[続きから]	体験版、デモ版は選択不可
+[環境設定]
+[おまけ]
+[終了]
+
+	拡張モード
+システム変数をチェックして
+追加ボタンを含めて表示し処理する(未実装)
+
+
+ボタンの上にカーソルがのって一定時間で音声を出す機能(未実装)
+
+参照:init\title.txt
+
+menuNumberX メニュー横に表示する個数(Default = 1)			//1に固定 (将来の拡張用)
+menuNumberY メニュー縦に表示する個数(Default = 5)			//5に固定 (将来の拡張用)
+menuPrintX メニュー表示X座標								(***必須***)
+menuPrintY メニュー表示Y座標								(***必須***)
+menuSizeX メニュー1このサイズX								(***必須***)
+menuSizeY メニュー1このサイズY								(***必須***)
+menuNextX メニュー1このつぎまでの距離X (Default = menuSizeX 横個数が1の場合は0)
+menuNextY メニュー1このつぎまでの距離Y (Default = menuSizeY 縦個数が1の場合は0)
+
+omakeFlag (0:おまけなし 1:おまけあり)(Default = 1)
+mustLoadFlag (0:[続きから]標準動作(体験版等では灰色になる) 1:体験版でも[続きから]あり)
+
+startNextMode 最初からをおしたときに、特殊モード(名前変更など)に移行する
+
+filenameBG 背景ファイル名 (Default = "title_bg")
+filenameButton メニューボタンファイル名 (Default = "ta_title_bt1")
+
+//拡張用
+startVoiceFileName
+loadVoiceFileName
+configVoiceFileName
+omakeVoiceFileName
+exitVoiceFileName
+
+
+ExtFlagCheckName 拡張モードを判断する変数名 (Default = 設定無し)
+
+
+
+
+
+autoRestartTime (default = 0)	//このフレーム数だけ経過したら最初から（ロゴやオープニング） 0だと行かない
+
+scriptEndIsModeEnd (default = 0)	//スクリプトの終了でオープニングにもどる
+
+-------------------------------------------------------------------------------------------------------------------
+BACKLOG_MODE = 6
+
+
+printX				//バックログ表示開始位置
+printY
+nextX
+nextY
+
+titlePrintX			(default 中央 - 3文字分)
+titlePrintY			(default = printY)
+
+updownArrowSizeX	(default = fontSize)
+updownArrowSizeY	(default = fontSize)
+upArrowPrintX			//デフォルトは画面中央、メッセージの上下位置
+upArrowPrintY
+downArrowPrintX
+downArrowPrintY
+
+upArrowMessage			//水色の▲記号以外を使いたいときに指定する
+downArrowMessage		//水色の▼記号以外を使いたいときに指定する
+
+updownArrowPicFlag	//独自の絵を使いたいときに指定する
+	filenameArrow	//1つのファイルに▲▼の順にいれる
+
+voicePrintX (default = -fontSize)	//メッセージ先頭からの相対座標
+voicePrintY (default = 0)
+voiceSizeX	(default = fontSize)
+voiceSizeY	(default = fontSize)
+
+voiceMessage			//♪マーク以外を使いたいとき指定する
+voicePicFlag	(default = 0)	//独自の絵を使いたいときに指定する
+	filenameVoice
+
+
+
+titleMessage		
+barMessage
+firstMessageNumber	(default = 0)	1行目のメッセージを何分割して指定するか
+firstMessage[n]		//設定ファイルの制限(63byte全角31文字)があるため、こういう指示方式になっている
+
+
+-------------------------------------------------------------------------------------------------------------------
+LOAD_MODE = 5
+
+ヘッダー:commonLoad.h
+クラス CCommonLoad
+
+参照:init\load.xtx
+
+fileNameBG (default = "load_bg")
+-------------------------------------------------------------------------------------------------------------------
+SAVE_MODE = 6
+ヘッダー:commonSave.h
+クラス CCommonSave
+
+参照:init\save.xtx
+
+fileNameBG (default = "save_bg")
+fileNameDialog (default = "ta_dialog4")
+fileNameButton (default = "ta_dialog_bt1")
+
+dialogX
+dialogY
+dialogSizeX
+dialogSizeY
+
+buttonSizeX[n]	//n:1～2
+buttonSizeY[n]
+buttonPrintX[n]
+buttonPrintY[n]
+-------------------------------------------------------------------------------------------------------------------
+LISTENBGM_MODE = 8
+
+ヘッダー:commonListenBgm.h
+クラス CCommonListenBGM
+
+動作
+
+
+特殊参照:nnndir\\bgmtime.txt
+BGMの長さを分、秒の順に指定
+
+参照:init\listenBGM.xtx
+
+fileNameBG (default = "bgm_bg")	//背景
+fileNameButton (default = "ta_bgm_bt")	//ボタン
+
+musicPrintNumber (default = 8) //表示する曲数
+filenameVolume (default = "ta_opt_bar")	//ボリューム絵
+volumePrintX (default = 53)
+volumePrintY (default = 464)
+volumeSizeX (default = 338)
+volumeSizeY (default  17);
+
+
+vokumeSliderTransFlag (default = 1)	//ボリュームを抜き無しにするときは、これを0に
+
+
+
+fileNameUp (default = "ta_bgm_cur1")
+fileNameDown (default = "ta_bgm_cur2")
+fileNameNumber (default = "ta_bgm_num1")
+filenameCursor (default = "ta_bgm_selc")
+oldSelectCursorType (default = 0)	//横7dotの旧カーソルデータ(引き伸ばす方式)を使う
+oldCursorPicType (default = 1)	//おなじでーたがよこにならんでるときは、その個数を
+
+messageColor[RGB] (default = 255,255,255)
+messageFontSize (default = 22)
+
+trackAndTimePrintFlag (default = 1)
+	fontSizeX	//トラック数、分、秒、数字フォントの大きさ
+	fontSizeY
+	fontNextX (default = fontSizeX)
+	fontNextY (default = 0)	//指定は意味無し
+	trackPrintX
+	trackPrintY
+	minutePrintX
+	minutePrintY
+	secondPrintX
+	secondPrintY
+volumeCursorPrintX	//未実装
+volumeCursorPrintY	//未実装
+musicNamePrintX (default = 0)カーソル位置からの差
+musicNamePrintY (default = 0)カーソル位置からの差
+cursorPrintX
+cursorPrintY
+cursorSizeX
+cursorSizeY
+cursorNextX
+cursorNextY
+
+**************************** [bgmButton] は "rew","play","ff","pause","stop"
+[bgmButton]PrintX
+[bgmButton]PrintY
+[bgmButton]SizeX
+[bgmButton]SizeY
+[bgmButton]SrcX
+[bgmButton]SrcY
+[bgmButton]CheckSizeX
+[bgmButton]CheckSizeY
+
+
+
+
+//上下カーソル
+fileNameUp
+fileNameDown
+upPrintX
+upPrintY
+downPrintX
+downPrintY
+updownSizeX
+updownSizeY
+updownAnime (default = 5)
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+SELECTMESSAGE_MODE = 9
+
+
+ヘッダー:commonSelectMessage.h
+クラス:CommonSelectMessage
+
+
+動作
+
+
+messagePrintX
+messagePrintY
+messageNextX
+messageNextY
+cursorDeltaX
+cursorDeltaY
+cursorSizeX
+cursorSizeY
+animePattern (default = 8)
+animePrintType (defalut = 0, 1:オーバーラップ)
+animeFrame (default = 1)
+animeReverse (default = 0) おりかえし
+cursorIsOnMessage (default = 0)
+
+fontSize
+backlogOK (default = 1)	//optionOk=1のときは、強制的に1になる
+optionOK (default = 0)
+
+messageColor[RGB] (default : R=255 G=255 B=255)
+
+cursorFileName (default = ta_select01???)
+
+backlogStartMessage (default = #足選択肢)
+backlogStartMessageColor[RGB] (default : R=64 G=192 B=255)
+backlogColor[RGB]
+selectedColor[RGB]
+
+
+firstAppearType (default = 0)	//1～3 中央から、上から、下から、の表示
+firstAppearTime (default = 10)
+
+backPrintMode (default = 0)0:ぬりつぶし 1:絵 2:スクリプトのまま
+backColor[RGB]
+backFileName
+
+useScrollFlag (default = 0)	//1のときはupdownボタンが必要
+
+
+
+選択肢の前にメッセージを入れたい場合には、メッセージの先頭に半角の「%」を入れる
+
+-------------------------------------------------------------------------------------------------------------------
+PRINTMESSAGE_MODE = 10
+
+
+fontSize (default = 24)
+
+printX					//メッセージ表示座標
+printY
+nextX	(default = 0)	//変更不可
+nextY	(default = 30)
+
+
+
+
+colorCustomFlag (default = 0)	//文字の色をカスタムするかどうか 1で以下の指定が有効に
+	colorR	
+	colorG
+	colorB
+	shadeColorR
+	shadeColorG
+	shadeColorB
+
+	nameColorR
+	nameColorG
+	nameColorB
+	nameShadeColorR
+	nameShadeColorG
+	nameShadeColorB
+
+
+
+
+//すきま指定は?	現在 1固定
+space (default = 1)	//文字間隔
+nameSpace (default = 1)	//名前の文字間隔
+
+nameFontSize (default = 20)
+
+nameFlag (default = 1)	//名前を特殊処理するか
+nameX
+nameY
+nameCenterFlag (default = 1)	//名前のセンタリング
+nameLengthMax (default = 5)		//名前センタリングするときの最大文字数
+
+
+createExitScreenFlag
+のみ使用可能(シーン鑑賞モードの時のみ有効)
+通常フェードイン、フェードアウト関連は使用してはいけない
+
+autoNameWindowFlag (default = 0)	//名前ウィンドウが別の場合に、名前がないときはそれを表示しない
+	
+
+//未
+fullCursorX (default = 0)	//カーソル座標固定の場合にはメッセージウィンドウカーソル位置がデフォルト
+fullCursorY (default = 0)	//
+fullCursorXFix (default = 1)	//カーソルX座標の固定 1:固定 0:メッセージ末からの相対位置
+fullCursorYFix (default = 1)	//カーソルX座標の固定
+//固定されるのはあくまで座標であり、将来縦書きモードに対応した場合にまちがえないように注意すること
+
+
+
+LPrintX
+LPrintY
+LNextX	(default = 0)
+LNextY
+fullMessageNumber	(最大表示行数)
+@LBlickX	(default = 1)
+LBlockY (default = 20)
+
+LPrintOptionFlag (default = 0)
+
+
+-------------------------------------------------------------------------------------------------------------------
+11 削除
+-------------------------------------------------------------------------------------------------------------------
+CONFIG_MODE = 12
+
+ヘッダー:commonConfig.h
+クラス CCommonConfig
+
+filenameBG (default = "opt_bg")
+filenameBar (default = "ta_opt_bar")
+filenameCheckBox (default = "ta_opt_chk")
+filenameRadioButton (default = "ta_opt_chk")
+
+filenameBadButton (default = "ta_bad_chk")
+badButtonPrintFlag (default = 0)	//押せないボタンの表示方法 0:表示なし 1:通常ボタンを灰色に 3:filenameBadButtonで指定された絵
+
+
+
+voiceCutButtonFlag (default = 1)	//ボイスのオンオフを指定可能にする
+	voiceCutButtonNumber			//ボイスon/offの数
+
+voiceCutButtonCustomFlag (default = 0)	//1つのボタンに複数の音声を対応させるフラグ
+	voiceOffNumberByButton[n] (default = 1)		//nばんめのボタンに対応させる人数
+		voiceOffButton[n]chara[m]				//nばんめのボタンに対応させるキャラ番号。省略するとk～がはいる
+
+			//kとは、まえに指定された番号+1
+
+		//さいごのひとつにその他をまとめるような場合に最後だけ指定すればすむようにこのような仕様になっている
+		//
+		// ボタンが6こあってさいごのボタンにキャラ番号6～9を対応させる場合の設定例
+		//
+		// voiceCutButtonCustomFlag 1
+		// voiceOffNumberByButton6 4
+		// voiceOffButton6chara1 6			//この4行はいらないかな
+		// voiceOffButton6chara2 7			//
+		// voiceOffButton6chara3 8			//
+		// voiceOffButton6chara4 9			//
+		//
+		// これで対応は
+		// ボタン番号1 キャラ1
+		// ボタン番号2 キャラ2
+		// ボタン番号3 キャラ3
+		// ボタン番号4 キャラ4
+		// ボタン番号5 キャラ5
+		// ボタン番号6 キャラ6 キャラ7 キャラ8 キャラ9
+		//
+
+		//ボタンが4こあって、かなりぐちゃぐちゃな設定例
+		//
+		// voiceCutButtonCustomFlag 1
+		// voiceOffNumberByButton1 3 
+		// voiceOffNumberByButton2 2 
+		// voiceOffNumberByButton3 3 
+		// voiceOffNumberByButton4 6 
+		//
+		// voiceOffButton1chara1 1
+		// voiceOffButton1chara2 2
+		// voiceOffButton1chara3 6
+		// voiceOffButton2chara1 5
+		// voiceOffButton2chara2 7
+		// voiceOffButton3chara1 3
+		// voiceOffButton3chara2 8
+		// voiceOffButton3chara3 9
+		// voiceOffButton4chara1 4
+		// voiceOffButton4chara2 10
+		// voiceOffButton4chara3 11
+		// voiceOffButton4chara4 12
+		// voiceOffButton4chara5 13
+		// voiceOffButton4chara6 14
+		//
+		// ボタン番号1 キャラ: 1 2 6
+		// ボタン番号2 キャラ: 5 7
+		// ボタン番号3 キャラ: 3 8 9
+		// ボタン番号4 キャラ: 4 10 11 12 13 14
+
+
+
+voiceCheckBoxSizeX
+voiceCheckBoxSizeY
+voiceCheckBoxStartX
+voiceCheckBoxStartY
+voiceCheckBoxNextX
+voiceCheckBoxNextY
+voiceCheckBoxNumberX
+voiceCheckBoxNumberY
+voiceCheckBoxHorizenFlag (default = 1) 横方向に配置
+voiceCheckBoxCustomFlag (default = 0) //ボタンの特殊配置
+	voiceCheckBoxPrintX[n]
+	voiceCheckBoxPrintY[n]
+
+
+
+volumeSizeX
+volumeSizeY
+
+musicVolumePrintX
+musicVolumePrintY
+seVolumePrintX
+seVolumePrintY
+voiceVolumePrintX
+voiceVolumePrintY
+messageSpeedPrintX
+messageSpeedPrintY
+
+
+musicSliderTransFlag (default = 1)	//各種ボリュームを抜き無しにするときは、これを0に
+seSliderTransFlag (default = 1)
+voiceSliderTransFlag (default = 1)
+messageSliderTransFlag (default = 1)
+
+
+radioButtonSizeX	
+radioButtonSizeY	
+
+radioButtonPrintX
+radioButtonPrintY
+radioButtonNextX
+radioButtonNextY
+
+//ラジオボタンは2個一組で順に、(window,fullscreen) (既読,全て) (autoOff,autoOn) (midi[又は無し],CDDA)
+
+
+radioButtonCustomFlag (default = 0)	//radioボタンの座標をカスタマイズする
+
+radioButtonPrintX[n]
+radioButtonPrintY[n]
+
+
+
+extSeFlag	//操作時の効果音をnnndir\configse.txtで指定する	ファイルはvaw\sys\を参照
+
+	//ならしたくないものは0を指定する
+	soundSeNumber	(default = 1)
+	voiceSeNumber	(default = 2)	//2～12	設定値から順番
+	messageSeNumber	(default = 13)	//13～17設定値から順番
+
+	windowSeNumber	(default = 18)		//18:window 19fullscreen
+	readSeNumber	(default = 20)		//20:既読 21:全て
+	autoSeNumber	(default = 22)		//22:auto-off 23:auto-on
+	midiCddaSeNumber	(default = 24)	// 24:midi 25:cdda
+
+	voiceOnSeNumber	(default = 26)	//26～
+		voiceOnNext	(default = 1)	//voiceon全て同じときは0
+		voiceOnSeCustomFlag	//voiceOnSeを個別に指定する
+			voiceOnSeNumber[n]
+
+	voiceOffSeNumber(default = voiceOn)
+		voidOffNext	(default = 1)	//voiceoff全て同じときは0
+		voiceOffSeCustomFlag	//voiceOffSeを個別に指定する
+			voiceOffSeNumber[n]
+
+
+
+拡張ラジオボタン
+addRadioGroupNumber (default = 0)			//拡張ボタングループの個数
+	addRadio[n]ButtonNumber (default =2)	//拡張グループ[n]がいくつのボタンをもっているか
+	addGroup[n]Radio[k]X					//拡張グループ[n]の[k]番目のボタンの座標
+	addGroup[n]Radio[k]Y
+
+//拡張ラジオボタンの動作に関してはCGameCallBackを継承したCGameで
+//以下のMethodを継承して実装すること
+	virtual void SetAdditionalSystemParam(int addGroup,int d){}
+	virtual int GetAdditionalSystemParam(int addGroup){return 0;}
+
+
+-------------------------------------------------------------------------------------------------------------------
+SYSTEMMENU_MODE = 13
+
+optionNumber (default = 9)	//ボタン個数
+
+filenameDialog
+filenameDialogButton
+
+filenameMenuBase
+filenameMenu
+
+basePrintX	//オプションメニューの下地
+basePrintY
+baseSizeX
+baseSizeY
+
+optionPrintX	//下地からの相対座標に変更
+optionPrintY
+optionSizeX
+optionSizeY
+
+optionNextY		//追加
+
+optionUpSizeX	//削除
+optionUpSizeY	//削除
+
+saveButton (default = 1)
+loadButton (default = 2)
+configButton (default = 3)
+windowButton (default = 4)
+messageSkipButton (default = 5)
+backlogButton (default = 6)
+autoModeButton (default = 7)
+cancelButton (default = 8)
+exitButton (default = 9)
+
+dialogPrintX
+dialogPrintY
+dialogSizeX
+dialogSizeY
+
+buttonSizeX[n]	//ダイログボタン
+buttonSizeY[n]
+buttonPrintX[n]
+buttonPrintX[n]
+
+
+オプションメニューが開く前の画像処理
+backScreenEffectType //0:なし	1:色の加減算	2:モノトーンにしてから色の加減算	3:ネガポジ反転させてから色の加減算
+	backScreenColorR	//プラスの値で明るく、マイナスの値で暗くなる
+	backScreenColorG
+	backScreenColorB
+
+-------------------------------------------------------------------------------------------------------------------
+PRINTOVERRAP_MODE = 14
+
+ヘッダー:commonOverrap.h
+クラス CCommonOverrap
+
+動作
+オーバーラップ表示処理をおこなう
+
+参照:init\overrap.xtx
+optionButtonPrintFlag (default = 1) 0でオーバーラップ時に表示しない
+sceneButtonPrintFlag (default = 1) 0でオーバーラップ時に表示しない
+
+-------------------------------------------------------------------------------------------------------------------
+
+OMAKE_MODE = 15
+
+
+ヘッダー:commonOmake.h
+クラス:CCommonOmake
+
+動作
+	基本モード
+背景に基本ボタン4つを重ねて表示し処理する
+[CG鑑賞]
+[シーン鑑賞]
+[音楽鑑賞]
+[戻る]
+
+	拡張モード
+システム変数をチェックして
+追加ボタンを含めて表示し処理する(未実装)
+
+
+ボタンの上にカーソルがのって一定時間で音声を出す機能
+
+参照:init\omake.txt
+
+menuNumberX メニュー横に表示する個数(Default = 1)
+menuNumberY メニュー縦に表示する個数(Default = 4)
+menuPrintX メニュー表示X座標								(***必須***)
+menuPrintY メニュー表示Y座標								(***必須***)
+menuSizeX メニュー1このサイズX								(***必須***)
+menuSizeY メニュー1このサイズY								(***必須***)
+menuNextX メニュー1このつぎまでの距離X (Default = menuSizeX 横個数が1の場合は0)
+menuNextY メニュー1このつぎまでの距離Y (Default = menuSizeY 縦個数が1の場合は0)
+
+autoCGCharaFlag	(CGキャラ選択画面をつかわない)(Default = 0)
+autoSceneCharaFlag (シーンキャラ選択画面をつかわない)(Default = 0)
+
+cgModeExistFlag (default = 1)		//cg鑑賞ボタン有り
+sceneModeExistFlag (default = 1)	//scene鑑賞ボタン有り
+bgmModeExistFlag (default = 1)		//bgm鑑賞ボタン有り
+
+
+cgVoiceFileName
+sceneVoiceFileName
+bgmVoiceFileName
+exitVoiceFileName
+
+
+
+filenameBG 背景ファイル名 (Default = sys\title_bg)
+filenameButton メニューボタンファイル名 (Default = sys\title_bt)
+
+ExtFlagCheckName 拡張モードを判断する変数名 (Default = 設定無し)
+
+-------------------------------------------------------------------------------------------------------------------
+SELECTCGCHARA_MODE = 16
+
+
+ヘッダー:commonSelectCGChara.h
+クラス:CommonSelectCGChara
+
+
+動作
+CG鑑賞画面のキャラクターを選択して
+CGameCallBack::SetCGCharaNumber(int charaNumber);で指定し
+SELECTCG_MODEに移行する
+
+キャンセルでOMAKE_MODEにもどる
+
+//cgNumber (default = プログラム側からもらう)
+
+
+
+fileNameBG
+fileNameCursor (default = "ta_cgm_cur")	//カーソルモードが2の時のみ
+fileNameChara (default = "")	//pictureモードが0以外の場合
+
+cursorMode (default = 1)	//カーソルのったときの処理(カーソル部分) 0:なし 1:色をかさねる 2:カーソル絵を重ねる
+pictureMode (default = 0)	//カーソルのったときの処理(絵部分)0:なにもしない 1:ON/OFFともに絵をかさねる(ON/OFF同じ絵) 2:ONのときのみ絵をかさねる 3:キャラごとの絵(消去用の絵もあり グラフィックでは下に追加しておく)
+picNumberX (default = -1) //カーソルグラフィックの横個数( -1 ならキャラの個数 グラフィックサイズが大きすぎるとき２行以上にわけるために必要)
+
+
+cursorColorR
+cursorColorG
+cursorColorB
+
+cursorPercent (default = 50)	//カーソルモード1および、[2でcursorPrintTypeが1のとき使用]
+
+cursorPrintType (default = 1) //カーソルモードが2のとき使用 0:Normal 1:TransLucent(cursorPercentを参照する) 2:Add
+
+
+
+
+
+
+
+sizeX	//キャラ１人の大きさ
+sizeY
+
+customPrintFlag (default = 0) //個別に表示座標を指定する場合は1
+
+//規則的に配置する場合(customPrintFlag = 0)はこれでまとめて指定
+	numberX (default = cgKosuu)	//キャラ表示個数横
+	numberY (default = 1)
+	baseX
+	baseY
+	baseNextX
+	baseNextY
+//独自に配置する場合には(customPrintFlag=1)以下も有効
+	printX[n]
+	printY{n]
+
+
+
+// パーセント数字は右詰め上位０表示しないのみ対応
+
+totalPercentPrintFlag
+fileNameTotalPercentPic (default = "ta_font_cgm1")
+totalPercentPrintX
+totalPercentPrintY
+totalPercentSizeX (default = 16)
+totalPercentSizeY (default = 22)
+totalPercentNextX
+totalPercentStuffingDirection (default = 0) //詰める方向 (0:右詰 1:左詰)
+totalPercentZeroFlag (default = 0) //右詰の場合、上位の0を表示するかどうか (0:表示しない 1:表示する)
+totalPercentPercentFlag (default = 1) // %記号を表示するかどうか (0:表示しない 1:表示する)
+
+
+//percentのdefault はtotalPercentの数値
+percentPrintFlag (default = 1)
+fileNamePercentPic (default = "ta_font_cgm1")
+adjustDirectionX (default = 0) //表示開始位置の基準 (0:左 1:右)	//現在0のみ対応
+adjustDirectionY (default = 0) //表示開始位置の基準 (0:上 1:下)	//現在0のみ対応
+percentPrintX (default =0)		//キャラ絵に対する相対座標
+percentPrintY (default = 0)		//キャラ絵に対する相対座標
+percentSizeX (default = 16)
+percentSizeY (default = 22)
+percentNextX
+percentPicFileName (default = "ta_font_cgm1")
+percentStuffingDirection (default = 0) //詰める方向 (0:右詰 1:左詰)
+percentZeroFlag (default = 0) //右詰の場合、上位の0を表示するかどうか (0:表示しない 1:表示する)
+percentPercentFlag (default = 1) // %記号を表示するかどうか (0:表示しない 1:表示する)
+
+
+
+//枚数表示は将来の追加?未実装
+
+
+
+
+//キャラごとにカーソルのったらしゃべる声をつけるばあい
+charaVoiceFlag (default = 0)
+charaVoiceWaitTime (default = 10)
+charaVoiceFileName[n] (default = "cgcharavoice[n]")
+
+enterVoiceFlag (default = 0)
+enterVoiceWaitTime (default = 10)
+enterVoiceFileName (default = "cgcharaenter")
+
+
+exitVoiceFlag (default = 0
+exitVoiceWaitFlag (default = 10)
+exitVoiceFileName (default = "cgcharaexit")
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+SELECTCG_MODE = 17
+
+filenameBG
+filenameFuta
+filenameCursor
+
+blockNumberX
+blockNumberY
+
+printX
+printY
+nextX
+nextY
+sizeX
+sizeY
+
+picPrintX
+picPrintY
+picSizeX
+picSizeY
+
+
+cursorPrintX	//設定なしならpicと同じ
+cursorPrintY
+cursorSizeX
+cursorSizeY
+
+
+
+cursorMode (default = 1)	//カーソルのったときの処理(カーソル部分) 0:なし 1:色をかさねる 2:カーソル絵を重ねる
+cursorColorR
+cursorColorG
+cursorColorB
+cursorPercent (default = 50)	//カーソルモード1および、[2でcursorPrintTypeが1のとき使用]
+cursorPrintType (default = 1) //カーソルモードが2のとき使用 0:Normal 1:TransLucent(cursorPercentを参照する) 2:Add
+
+
+
+
+
+
+addPicFlag (default = 0) 1でキャラごとのネームタイトルなどの独自の絵を表示
+
+	addPicPrintPercent 0:ぬきなし 100:ぬきあり 1-99半透明%
+	addPicPrintX
+	addPicPrintY
+	addPicSizeX
+	addPicSizeY
+	addPicSrcNumX	キャラ絵がたてよこいくつずつで構成されているか
+	addPicSrcNumY
+	filenameAdd
+
+totalPercentPrintFlag (default = 1) パーセント表示するかどうか
+	filenameTotalPercent
+	totalPercentFontSizeX
+	totalPercentFontSizeY
+	totalPercentFontNextX
+	totalPercentPrintX
+	totalPercentPrintY
+
+
+
+differencePrintFlag (default = 1) 差分数値表示フラグ	0:差分個数表示しない 1:差分があるもののみ個数表示あり 3:差分がなくても 0/1 1/1等を表示
+	differencePrintByGetFlag (default = 0)	絵が1こも表示されていないときに差分数を表示するかどうか
+
+	filenameDifferenceFont
+	differenceFontSizeX
+	differenceFontSizeY
+	differenceFontNextX
+	differencePrintX
+	differencePrintY
+
+pagePrintFlag (default = 0)
+
+	filenamePageFont
+	pageFontSizeX
+	pageFontSizeY
+	pageFontNextX
+	pagePrintX
+	pagePrintY
+
+
+picMustPrintPercent	//default = 0	見ていない絵を半透明で表示する(数値がパーセント)   -1:白黒
+
+cgPianoSoundFlag //カーソルをのせたときに音をならす。ファイル名はo4c o4d o4e o4f o4g o4a o4b o5c o5d ...
+-------------------------------------------------------------------------------------------------------------------
+SELECTSCENE_MODE = 18
+
+filenameBG
+filenameFuta
+filenameCursor
+
+blockNumberX
+blockNumberY
+
+printX
+printY
+nextX
+nextY
+sizeX
+sizeY
+
+picPrintX
+picPrintY
+picSizeX
+picSizeY
+
+cursorPrintX	//設定なしならpicと同じ 通常は設定不要
+cursorPrintY
+cursorSizeX
+cursorSizeY
+
+cursorMode (default = 1)	//カーソルのったときの処理(カーソル部分) 0:なし 1:色をかさねる 2:カーソル絵を重ねる
+cursorColorR
+cursorColorG
+cursorColorB
+cursorPercent (default = 50)	//カーソルモード1および、[2でcursorPrintTypeが1のとき使用]
+cursorPrintType (default = 1) //カーソルモードが2のとき使用 0:Normal 1:TransLucent(cursorPercentを参照する) 2:Add
+
+
+addPicFlag (default = 0) 1でキャラごとのネームタイトルなどの独自の絵を表示
+
+	addPicPrintPercent 0:ぬきなし 100:ぬきあり 1-99半透明%
+	addPicPrintX
+	addPicPrintY
+	addPicSizeX
+	addPicSizeY
+	addPicSrcNumX	キャラ絵がたてよこいくつずつで構成されているか
+	addPicSrcNumY
+	filenameAdd
+
+totalPercentPrintFlag (default = 1) パーセント表示するかどうか
+	filenameTotalPercent
+	totalPercentFontSizeX
+	totalPercentFontSizeY
+	totalPercentFontNextX
+	totalPercentPrintX
+	totalPercentPrintY
+
+
+pagePrintFlag (default = 0)
+
+	filenamePageFont
+	pageFontSizeX
+	pageFontSizeY
+	pageFontNextX
+	pagePrintX
+	pagePrintY
+
+
+
+picMustPrintPercent	//default = 0	見ていない絵を半透明で表示する(数値がパーセント)   -1:白黒
+
+futaPrintFlag (default = 1)	//0 ふたを表示しない 1:表示する
+
+-------------------------------------------------------------------------------------------------------------------
+19 なし
+-------------------------------------------------------------------------------------------------------------------
+SELECTSCENECHARA_MODE = 20
+
+基本はSELECTCGCHARAと同じです
+
+
+fileNameBG
+fileNameCursor (default = "ta_cgm_cur")	//カーソルモードが2の時のみ
+fileNameButton (default = "")	//pictureモードが0以外の場合
+
+cursorMode (default = 1)	//カーソルのったときの処理(カーソル部分) 0:なし 1:色をかさねる 2:カーソル絵を重ねる
+pictureMode (default = 0)	//カーソルのったときの処理(絵部分)0:なにもしない 1:ON/OFFともに絵をかさねる(ON/OFF同じ絵) 2:ONのときのみ絵をかさねる 3:キャラごとの絵(消去用の絵もあり グラフィックでは下に追加しておく)
+picNumberX (default = -1) //カーソルグラフィックの横個数( -1 ならキャラの個数 グラフィックサイズが大きすぎるとき２行以上にわけるために必要)
+
+
+cursorColorR
+cursorColorG
+cursorColorB
+
+cursorPercent (default = 50)	//カーソルモード1および、[2でcursorPrintTypeが1のとき使用]
+
+cursorPrintType (default = 1) //カーソルモードが2のとき使用 0:Normal 1:TransLucent(cursorPercentを参照する) 2:Add
+
+checkOnByPicFlag (default = 0)	//カーソルがのったかどうかを絵(マスク)で判定する
+
+
+
+
+
+
+sizeX	//キャラ１人の大きさ
+sizeY
+
+customPrintFlag (default = 0) //個別に表示座標を指定する場合は1
+
+
+customStart	//	独自に配置するボタンの最初の番号 (一部のみを特定の座標にしたい場合)
+customEnd	//	独自に配置するボタンの最後の番号
+
+//規則的に配置する場合(customPrintFlag = 0)はこれでまとめて指定
+	numberX (default = cgKosuu)	//キャラ表示個数横
+	numberY (default = 1)
+	baseX
+	baseY
+	baseNextX
+	baseNextY
+//独自に配置する場合には(customPrintFlag=1)以下も有効
+	printX[n]
+	printY{n]
+
+
+
+// パーセント数字は右詰め上位０表示しないのみ対応
+
+totalPercentPrintFlag
+fileNameTotalPercentPic (default = "ta_font_cgm1")
+totalPercentPrintX
+totalPercentPrintY
+totalPercentSizeX (default = 16)
+totalPercentSizeY (default = 22)
+totalPercentNextX
+totalPercentStuffingDirection (default = 0) //詰める方向 (0:右詰 1:左詰)
+totalPercentZeroFlag (default = 0) //右詰の場合、上位の0を表示するかどうか (0:表示しない 1:表示する)
+totalPercentPercentFlag (default = 1) // %記号を表示するかどうか (0:表示しない 1:表示する)
+
+
+//percentのdefault はtotalPercentの数値
+percentPrintFlag (default = 1)
+fileNamePercentPic (default = "ta_font_cgm1")
+adjustDirectionX (default = 0) //表示開始位置の基準 (0:左 1:右)	//現在0のみ対応
+adjustDirectionY (default = 0) //表示開始位置の基準 (0:上 1:下)	//現在0のみ対応
+percentPrintX (default =0)		//キャラ絵に対する相対座標
+percentPrintY (default = 0)		//キャラ絵に対する相対座標
+percentSizeX (default = 16)
+percentSizeY (default = 22)
+percentNextX
+percentPicFileName (default = "ta_font_cgm1")
+percentStuffingDirection (default = 0) //詰める方向 (0:右詰 1:左詰)
+percentZeroFlag (default = 0) //右詰の場合、上位の0を表示するかどうか (0:表示しない 1:表示する)
+percentPercentFlag (default = 1) // %記号を表示するかどうか (0:表示しない 1:表示する)
+
+
+filenameBG
+filenameButton
+filenameCursor
+filenameTotalPercentPic		//トータルパーセント用数字
+filenamePercentPic		//パーセント用数字
+
+
+
+totalPercentPrintFlag
+totalPercentPrintX
+totalPercentPrintY
+
+
+percentPrintFlag	//パーセントを表示するかどうか
+percentPrintX
+percentPrintY
+
+
+
+//これ以降がついか
+
+filenameHeart			//Hシーン有り(0%) Hシーン有り(1-99%) Hシーンなし(100%) Hシーン有り(100%)の順
+
+heartPrintFlag		//ハートマーク(Hシーンマーク)を表示するかどうか
+
+heartPrintX
+heartPrintY
+heartSizeX
+heartSizeY
+
+
+combineFlag	//	闇のように組み合わせキャラの場合、ボタン座標を階段状に設定できる
+combineType	//	0:上(7型) 1:下(L型)
+
+
+
+//@@@@@未
+useButtonPicFlag (default = 0)	1:でカーソルのかわりに絵をつかう
+useButtonEraseFlag (default = 0) 1:で消去用の絵を持つ
+buttonPicNumberX	//元絵の切り出し個数(横)
+buttonPicNumberY	//元絵の切り出し個数(縦)不要??
+
+
+
+
+
+
+
+cursorType	//	0:normal 1:add
+
+
+-------------------------------------------------------------------------------------------------------------------
+CDERROR_MODE = 21
+
+ヘッダー:commonCDError.h
+クラス CCDError
+
+動作
+CDの再生ができないことを表示し
+CDの再生を行わないか、再試行をえらばせる
+
+specialBGPercent (default = 0) //ランダムに別の絵を表示させる割合
+
+filenameBG 背景ファイル名 (default = cderror)
+filenameBG2 背景ファイル名2 (default = cderror) ときどきランダムに表示される絵
+filenameDialog ダイアログファイル名 (default = ta_dialog5)
+filenameButton ボタンファイル名 (default = ta_dialog_bt2)
+
+dialogPrintX
+dialogPrintY
+dialogSizeX
+dialogSizeY
+buttonPrintX	//ダイアログに対する相対座標
+buttonPrintY
+buttonNextX		//次のボタンの前のボタンに対する相対座標
+buttonNextY
+buttonSizeX
+buttonSizeY
+buttonSizeX[n]	//個別指定用
+buttonSizeY[n]
+buttonSrcX[n]
+buttonSrcY[n]
+
+
+enterExitVoiceFlag (default = 0) 1:でこの画面にはいった時の音声を有効にする
+	enterVoiceFileName 音声のファイル名
+	enterVoiceWaitTime (default = 20) 音声が鳴り始めるまでの待ち時間をフレームで指定
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+SELECTPLACE_MODE = 22
+
+//プログラマー、スクリプター、デザイナー共通
+placeNumber //場所の数
+lastTime (default = 20)	//決定時の表示時間
+
+//ボタンの反応範囲を指定する
+onCheckAreaType (default = 1)	//0 :なし 1:四角範囲内ならOK (2:絵の上ならOK 予定)
+onCheckBaseType (default = 1)
+onCheckCharaType (default = 1)
+
+
+//デザイナー
+
+fileNameBG
+
+areaPrintFlag (default = 0)	//共通下地パーツ表示するかどうか 1:する
+	fileNameArea	//(default = "ta_area")共通エリア下地パーツファイル(あれば) サイズはエリアサイズと同じに
+basePrintFlag (default = 1)
+	fileNameBase
+	basePicNumberX //パーツが横にいくつならんでいるか(指定なしのときは、場所個数)
+
+
+//fileNameChara???
+fileNameCursor
+
+
+areaSizeX
+areaSizeY
+
+areaX[n]
+areaY[n]
+
+
+
+baseDeltaX	//共通のベース表示座標(エリアからの相対座標)
+baseDeltaY
+baseSizeX	//サイズは共通
+baseSizeY
+
+baseCustomFlag (default = 0)	//これが1のときは、個別にベース表示位置を設定する
+	baseDeltaX[n]
+	baseDeltaY[n]
+
+charaDeltaX	//共通のキャラ表示座標(ベースからの相対座標)
+charaDeltaY
+charaSizeX	//サイズは共通
+charaSizeY
+
+charaCustomFlag (default = 0)	//これが1のときは、個別にキャラ表示位置を設定する
+	charaDeltaX[n]
+	charaDeltaY[n]
+
+
+areaSelectPrintType (default = 0)	//0:セレクト時特殊なし 1:セレクト時 選択絵 2～セレクト時エフェクト処理(予定)
+baseSelectPrintType (default = 1) //0:セレクト時特殊なし 1:セレクト時 選択絵 2～セレクト時エフェクト処理(予定)
+charaSelectPrintType	(default = 1)//おなじ
+cursorSelectPrintType		(default = 0)	//0:なし 1:四角 2:絵
+
+cursorColorR
+cursorColorG
+cursorColorB
+
+cursorPercent (default = 50)	//カーソルモード1のとき
+cursorPrintType (default = 1) //カーソルモードが2のとき使用 0:Normal 1:TransLucent(cursorPercentを参照する) 2:Add
+
+
+baseDeltaX (default = 0)
+baseDeltaY (default = 0)
+charaDeltaX (default = 0)
+charaDeltaY (default = 0)
+
+baseSizeX
+baseSizeY
+
+charaSizeX
+charaSizeY
+
+
+
+
+
+
+charaCustomFlag (default = 0)
+	charaDeltaX[n]
+	charaDeltaY[n]
+
+
+charaFlag (default = 0)//場所にキャラ等がでる時のフラグ
+	fileNameCharaTag (default = "ta_idou_chr")	//キャラ絵filenameのtag
+
+
+
+
+
+
+
+
+//プログラマーまたはスクリプター用 制御関連
+
+placeNumber	//場所の個数
+placeAppearFlag (default = 0)	//1:スクリプトで場所の登場を制御する
+
+
+
+
+//プログラマーまたはスクリプター用 変数関連
+
+selectedVarNumber (default = "場所選択番号")	//選んだ場所を返す変数名
+
+
+
+
+
+
+
+charaFlag (default = 0)//場所にキャラ等がでる時のフラグ これが1の場合は下を設定
+	buttonAfterTag (default = "ボタン")
+	buttonVarName[n]	//場所変数名
+	selectCharaOnlyFlag (default = 1) //キャラがいるところのみを選択できるフラグ
+
+
+
+commonPlaceNameFlag (default = 0)//共通場所名 
+	commonPlaceName[n]
+
+defaultPlaceName (default = "場所名")	//共通場所名がないとき[場所名]+数字が、場所名として使われる
+
+???	(defualt = 0) //表示エリアがかさなってるかどうか 1:少しかさなってるところあり 2:かなりかさなってる(常に全てを書きなおし)	未実装(重なり不可)
+
+appearFlag (default = 0)	//場所の登場フラグ			これが1のときは下を設定
+	appearAfterTag (default = "登場")
+	appearVarName[n]		//個別に指定するときは、こちらで
+
+
+selectFlag (default = 0)	//場所選択可不可用フラグ	これが1のときは下を設定
+	selectOkAfterTag (default = "選択可能")
+	selectOkVarName[n]		//個別に指定するときは、こちらで
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+PRINTCG_MODE = 23
+
+ヘッダー:commonPrintCG.h
+クラス CCommonPrintCG
+
+動作
+CG表示。スクロール処理。
+
+参照:init\printcg.xtx
+scrollDirectionX (default = 0) 1:で右にスクロール
+scrollDirectionY (default = 0) 1:で下にスクロール
+scrollWaitX (default = 10) スクロールする絵の横スクロール開始までの待機フレーム数
+scrollWaitY (default = 10) スクロールする絵の縦スクロール開始までの待機フレーム数
+scrollTimeX (default = 30) スクロールする絵の横スクロールフレーム数
+scrollTimeY (default = 30) スクロールする絵の縦スクロールフレーム数
+
+
+-------------------------------------------------------------------------------------------------------------------
+24-28 なし
+-------------------------------------------------------------------------------------------------------------------
+NAMEINPUT_MODE = 29
+
+ヘッダー:commonNameInput.h
+クラス CCommonNameInput
+
+-------------------------------------------------------------------------------------------------------------------
+PRINTCALENDAR_MODE = 30
+
+保留中
+
+-------------------------------------------------------------------------------------------------------------------
+MINIGAME_MODE = 40
+略
+
+
+//memo
+メニューなどのボタンは
+通常、のせた、決定用、選択不可用の順
+
+決定時は 0,2きりかえ 1,2きりかえ 2のみのパターンから動作を選ぶ
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+フェードイン資料 enterFadeInType (ぬりつぶしからのフェードインが追加されているため、adveditでの番号とは1こずれてる)
+0:なし
+1:ぬりつぶしからのフェードイン
+2:前の絵からのオーバーラップ(2～は、前の絵がつくられてることが大前提)
+3:左から右へのカーテンワイプ
+4:上から下へのカーテンワイプ
+5:上下からのクロスワイプ
+6:右からの／￣タイプの引きずりワイプ。元絵は動かない
+7:右からの／￣タイプの引きずりワイプ。元絵も動いて画面外に
+8:円拡大ワイプ
+9:円縮小ワイプ
+10:円右側のみ押し出しワイプ
+11:時計ワイプ
+12:入場上から↓
+13:入場右から←
+14:入場下から↑
+15:入場左から→
+16:退場上へ↑
+17:退場右へ→
+18:退場下へ↓
+19:退場左へ←
+20:入場上下X
+21:入場左右→←
+22:退場上下◇
+23:退場左右←→
+24:横伸ばし消え伸ばし現れ
+25:上から落ちてくる(重力計算あり、２かいはねる)
+26:ぎざぎざ左から
+27:ぎざぎざ右から
+28:ほこら
+29:ほこら(外側黒)
+30:星拡大ワイプ
+31:星縮小ワイプ
+32:ハート拡大ワイプ
+33:ハート縮小ワイプ
+34:星回転拡大ワイプ
+35:星回転縮小ワイプ
+36:ひび割れとびちる(処理重い通常の2倍)
+37:ひび割れあつまる(処理重い通常の2倍)
+38:なみなみ左から
+39:なみなみ右から
+40:モザイク
+41:ランダムストライプ
+42:加算
+43:めくり↓
+44:ながれおちる
+45:その逆
+46:ながれあがる
+47:その逆
+48:上下にながれる
+49:その逆
+
+-------------------------------------------------------------------------------------------------------------------
+まとめなど
+			まとめ途中・・・
+
+モード名		番号 戻	上下 入  出 入声出声ダ声
+NOTHING			:1	:	:	:	:	:x	:	:
+LOGO			:2	:	:	:	:o	:x	:	:
+TITLE			:4	:	:	:o1	:o	:o	:	:
+LOAD			:6	:o	:o	:o1	:o	:o	:	:
+SAVE			:7	:o	:o	:o	:o	:o	:	:@
+LISTENBGM		:8	:o	:o	:o	:o	:o	:	:
+SELECTMESSAGE	:9	:	:	:	:	:x	:	:
+PRINTMESSAGE	:10	:	:	:	:	:x	:	:
+CONFIG			:12	:o	:	:o1	:o	:o	:	:
+SYSTEMMENU		:13	:	:	:x	:	:	:	:@
+PRINTOVERRAP	:14	:	:	:x	:x	:x	:	:
+OMAKE			:15	:	:	:o	:o	:o	:	:
+SELECTCGCHARA	:16	:o	:	:o	:o	:o	:	:
+SELECTCG		:17	:o	:o	:o	:o	:o	:	:
+SELECTSCENE		:18	:o	:	:o	:o	:o	:	:
+SELECTSCENECHARA:20	:o	:o	:o	:o	:o	:	:
+CDERROR			:21	:	:	:o	:o	:o	:	:o1
+SELECTPLACE		:22	:	:	:o	:o	:o	:	:
+PRINTCG			:23	:	:	:	:	:x	:	:
+NAMEINPUT		:29	:	:	:	:	:	:	:
+PRINTCALENDAR	:30	:	:	:	:	:	:	:
+MINIGAME		:40	:	:	:	:	:	:	:
+
+戻		戻るボタン有無
+上下	スクロールボタン有無
+入		フェードイン可			o1...特殊モード対応
+出		フェードアウト可
+入声	切り替え時音声可
+出声	戻るボタン音声可
+ダ声	ダイアログ音声可		o1 ダイアログ音声は鳴らないので切り替え時音声を使用
+
+
+@	調整中
+
+
+-------------------------------------------------------------------------------------------------------------------
+nnndir\cglist??.txt
+??は01～99まで
+
+それぞれのファイルに CG鑑賞画面で表示するファイル名をいれる。拡張子(dwq)は書かない
+サムネイルはそれぞれのファイル名にsmをつけたものがつかわれる。
+サムネイルの場所は、dwq\sys\sm\
+
+
+ファイル名の頭に@がついているものは、差分あつかいとなる
+その後に特殊コマンド(必要な場合のみ)[]でくくってコマンドをいれる
+現在使用可能なものは、スクロール方向を↑↓←→の記号で指定できる。この指定はprintcg.xtxファイルの指定より優先される
+
+
+記入例
+
+ev0001
+ev0002
+@ev0002b
+@ev0002c
+ev0004
+[↑]ev0005
+ev0006
+
+現時点では、エディターが特殊コマンドに対応していないので、特殊コマンドなしのcglist??.txtでコンパイル後、手動で[]および矢印等を追加すること
+
+
+-------------------------------------------------------------------------------------------------------------------
+nnndir\シーン回想登録テキスト.txt	//コンパイル後は
+spt\scene.datになるので、このファイルを製品にいれる必要はない
+
+[キャラ名]
+@スクリプトファイル名 フィルム名前 ... フィルム名前
+スクリプト名の前に#がついているものは、Hシーン扱い
+フィルム名に頭に!がついているものは、シーン登録に無関係
+
+
+
+設定例
+[沙恵里]
+@test666 あああ !いいい ううう
+
+フィルム「あああ」と「ううう」を見た場合にシーン鑑賞フラグがたち、シーン鑑賞モードでは、「あああ」「いいい」「ううう」の順に再生される
+
+-------------------------------------------------------------------------------------------------------------------
+nnndir\scenevoice.txt
+
+[キャラ名]
+@サムネイルファイル名 音声 メッセージ1 メッセージ2 メッセージ3
+.
+.
+.
+
+サムネイル名の前には、@記号が必須
+音声の頭に!記号をつけると、その音声は発生されない。
+
+
+記入例
+
+[沙恵里]
+@sc0206a !kyaa 沙恵里 驚く
+-------------------------------------------------------------------------------------------------------------------
+体験版の作成
+WinMainの最初に
+
+CCommonGameVersion::SetTaikenVersion();
+
+をいれてコンパイルすると、標準体験版になります
+
+製品版との違いは
+
+sysfile.savのかわりに、tsysfile.savを参照します
+load saveができなくなります。(メニューがえらべなくなる。ショートカットも無効)
+おまけめにゅーにいけなくなります。(おまけめにゅーからいく、CG SCENE鑑賞、音楽鑑賞も使用できません)
+
+-------------------------------------------------------------------------------------------------------------------
+バージョン管理
+闇3からバージョン情報が設定ファイルgame.xtxにかきこめるようになりました
+datafile.xtxでも設定できますが、game.xtxが優先されます
+
+パッチ等をだす場合に変更する必要があります
+闇3以前では
+CGameCallBack::SetGameVersion(highVersion,middleVerison,lowVerison);
+を使って指定する必要があります(CFileControlクラスを作成する前に実行すること)
+
+highVersion (default = 0)
+middleVersion (default = 0)
+lowVersion (default = 0)
+です
+
+highVersionがかわった場合セーブデータはつかえません
+middleVersionが変わった場合、一部データが使えます
+lowversionは、すべてのデータが使えます
+
+sys.nnnが書きかえられた場合には、ほとんどの場合、highVersionをかえる必要があります
+
+誤字脱字の修正が、文章の長さを変えないばあいには、lowVersionをかえます
+
+通常の修正の場合にはmiddleVersionをかえます
+
+
+どの場合でも、古いシステムから新しいデータを読むことはできません
+
+
+-------------------------------------------------------------------------------------------------------------------
+インストーラー作成者へ
+設定するレジストリは
+HKEY_LOCAL_MACHINE
+	[companyName]\[gameName]
+
+[companyName]	
+[gameName]		
+は、game.xtxで指定されているものをいれる
+
+
+installdirectory					//文字列
+	<TARGETDIR>\[ディレクトリ名]
+
+installmode							//DWORD値
+	1								//1:完全 (0:最小)
+
+uninstall							//文字列 *
+	<UNINST> -f "<TARGETDIR>\[ディレクトリ名]\uninst.isu"
+
+uninstallcmd						//文字列 *
+	<UNINST>
+
+uninstallpara						//文字列 *
+	-f "<TARGETDIR>\[ディレクトリ名]\uninst.isu"
+
+version								//文字列
+	1.00
+
+wavedirectory						//文字列
+	<SRCDIR>\CDVAW
+
+*マークはなくてもいいかな
+-----------------------
+mutexNameをもらってgame.xtxに指定する
+
+-------------------------------------------------
+useExtClass (default = 0)
+おまけクラスを使う(セーブファイルにおまけクラス情報を追加)
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------
+拡張ボタン
+
+ボタン名[buttonName]をおきかえるぶぶんは
+superBack
+superUp
+superDown
+superMenu[n]	//1～
+
+等になる
+
+superButtonFlag 1		//拡張ボタンを使う場合はこれを1にする
+
+superUpDownButtonFlag 1	//上下カーソルを拡張ボタンに
+superBackButtonFlag 1	//戻るボタンを拡張ボタンに
+
+	*** 注意 現在、上下ボタン、戻るボタンの片方だけを拡張ボタンにはできません ***
+
+
+
+設定項目
+ファイル名
+[buttonName]FileName
+
+サイズ
+[buttonName]SizeX
+[buttonName]SizeY
+
+表示位置
+[buttonName]PrintX
+[buttonName]PrintY
+
+ボタンをおしてから実行されるまでの時間
+[buttonName]ClickTime
+
+
+
+
+アニメ関連	[k]1～4	それぞれ、「通常」「選択」「決定」「不可」に対応
+パターン数
+[buttonName]Pattenr[k]	//
+フレーム数
+[buttonName]Speed[k]
+動作タイプ
+[buttonName]Type[k]
+
+
+音関連
+クリックしたとき
+[buttonName]ClickSound
+
+カーソルを載せたとき
+[buttonName]EnterSound
+
+カーソルをはなしたとき
+[buttonName]ExitSound
+
+選択不可をクリックしたとき
+[buttonName]BadSound
+
+
+
+
+カーソルを載せたと判断するまでの時間
+[buttonName]EnterTime
+
+カーソルをはなしたと判断するまでの時間
+[buttonName]ExitTime
+
+
+-------------------------------------------------------------------------------
+TITLE,OMAKEで使うメニューボタン用ついか設定
+
+basicButtonNumber	//default:	TITLE = 5, OMAKE = 4	通常は指定しない
+extModeNumber		//追加モードの個数 (default = 0)
+	extButtonNumber		//追加されるボタンの最大数
+	extModeCheckVarName		//	この変数をみて0以外(1～)なら、拡張メニューモード
+	extModeReturnVarName	//	ここに拡張メニューでおされた拡張ボタンの番号が入る(1～)
+
+	ext[n]Button[m]ExistFlag	モード[n]のm番めの「拡張」ボタンがあるかどうか n:1～
+
+	extButton[m]SpecialMode		m番目の「拡張」ボタンを押したとき、スクリプトではなくモード移行を実行する
+
+button[n]PrintX[k]	モード[n]の[k]番めのボタン座標の個別指定	(n=0は標準ボタン)
+button[n]PrintY[k]
+
+
+
+
+----------------------------------------------------------------------------------
+OPENING,TITLE,OMAKE,SELECTCGCHARA,SELECTCG,SELECTSCENECHARA,SELECTSCENE,LISTENBGMで使用可
+		LOAD,SAVE,CONFIG CDERRORでは現在使用不可
+
+
+backScriptLoopFlag
+backScriptFlag
+backScriptName
+
+
+
+
+
+
+
+
+////////////// TITLE,OMAKE
+//
+//拡張モードmで拡張ボタンnが存在するフラグ
+//
+// ext[m]Button[n]ExistFlag
+//
+ext1Button1ExistFlag 1
+ext2Button1ExistFlag 1
+ext2Button2ExistFlag 1
+
+
+//
+//拡張モードの個数
+//
+extModeNumber 1
+
+//
+//拡張モードでの拡張ボタンの最大数
+//
+extButtonNumber 2
+
+//
+//???
+//
+button1PrintX1 50
+button1PrintY1 300
+
+//
+// 拡張モードかどうかをプログラムが判断するための変数
+// ユーザー用システム変数にいれること
+// 0:通常 1～拡張
+//
+extModeCheckVarName 拡張モード
+
+//
+// 拡張ボタンがおされてスクリプトの実行が開始される場合、ここに拡張ボタン番号が入る
+// 通常変数を使うこと
+//
+extModeReturnVarName 拡張モード戻り値
+
+
+
+-----------------------------------------------------------------------------------------------------------------------
+制限事項バッファの関係で
+oggのサイズは1.6Mまで
+
+
+
+
+---------------------------
+予定
+メッセージ選択画面でオプションおせるように	済み？
+マウスカーソルのアニメ
+バックログでの絵のアニメ					済み？
+
+各種未対応画面での背景スクリプト動作
+
+
+

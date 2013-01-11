@@ -1,0 +1,28 @@
+
+
+
+追加
+backlogMessage
+backlogMessageColor[RGB]
+backlogSelectColor[RGB]
+
+
+useScrollFlag スクロールボタンを使用する
+
+
+windowPrintFlag 1
+windowFileName
+windowPrint[XY]
+windowSizew[XY]
+
+
+windowOffSound
+windowOnSound
+selectSound
+
+
+
+
+
+
+

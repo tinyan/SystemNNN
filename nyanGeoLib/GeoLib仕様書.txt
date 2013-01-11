@@ -1,0 +1,30 @@
+画面上に幾何学図形を描画します
+
+
+static void BoxFill(int x,int y,int sizeX,int sizeY,int r,int g,int b);
+塗りつぶし長方形。
+
+
+//static void Daikei(POINT leftUpperPoint, int sizeUpperX, POINT leftBottomPoint, int sizeBottomX, int r, int g, int b);
+//台形。修正中
+
+static void TransBoxFill(int x,int y,int sizeX,int sizeY,int r,int g,int b,int ps);
+半透明塗りつぶし長方形
+
+//static void TransCircleFill(int x, int y, int rx, int ry, int dr, int dg, int db);
+//半透明塗りつぶし楕円。修正中
+//static void TransTorusFill(int x, int y, int rx, int ry, int x2,int y2,int rx2, int ry2,int dr, int dg, int db);
+//半透明塗りつぶしドーナツ。修正中
+
+static void TransGradationBoxV(POINT leftTop,SIZE size,int r1, int g1, int b1, int r4, int g4, int b4);
+static void TransGradationBoxV(POINT leftTop,POINT rightBottom,int r1, int g1, int b1, int r4, int g4, int b4);
+グラデーション加減算長方形＞名前があってないので名前変更の可能性あり
+
+
+
+
+static void AddCircleFill(int x, int y, int rx, int ry, int dr, int dg, int db);
+半透明加算塗りつぶし楕円
+
+static void AddTorusFill(int x, int y, int rx, int ry, int x2,int y2,int rx2, int ry2,int dr, int dg, int db);
+半透明加算塗りつぶしドーナツ

@@ -1,0 +1,15 @@
+
+
+
+
+ボタン
+	"notButton","canButton","exitButton",
+
+backScript関連
+
+
+nextMode
+filenameBG
+dialogFlag
+filenameDialog
+dialogPrintXY	//サイズはありません

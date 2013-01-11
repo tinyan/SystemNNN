@@ -1,0 +1,73 @@
+volume名
+
+messageSpeed
+music
+sound
+voice
+
+
+messageIsVoice 1	//メッセージの拡張音のボリュームを音声ボリューム値で発声する
+
+volumeMin 80		//見た目のボリューム値の実際の値に変換するための値
+volumeMax 100
+
+
+
+モードボタン名
+screen
+skip
+auto
+
+
+
+
+pageMode 0		//0:ページ切り替えなし、1:updownカーソル 2:tab
+
+filenameBG[n]	//ページごとの背景ファイル名
+
+[volume名]VolumePrintPage 1
+
+voicePrintPage 1
+
+[モードボタン名]ModeButtonPrintPage 1
+
+
+
+vouceCutButtonFlag 1
+voiceCutButtonNumber 0
+
+voiceAutoLineSetFlag
+ voiceAutoLinePrintXY
+ voiceAutoLineNextXY
+ voiceAutoLineNumberXY (5,0)
+
+
+voiceCutButtonCustomFlag
+voiceOffNumberByButton[n]
+voiceOffButton[n]chara[k]
+
+
+volumeSizeX
+volumePrintX
+volumeNextX
+
+volumeButtonDeltaXY -buttonSizeX,0
+
+[volume名]VolumePrintX
+
+
+pageNumberSetFlag 0
+pageNumberVarName コンフィグページ
+changePageRestartScriptFlag 0
+
+
+extSeFlag
+
+voiceSeNumber
+messageSeNumber
+
+
+voiceNameChangeFlag 0	//音声カットボタンがゲーム進行で変化するかどうか
+
+voiceNameChangeVar[n] 変数名	// この変数をみて0でなければ、ファイル名の後に 
+								// _[n] (アンダーバーと番号)をつけた名前のファイルを読み込む

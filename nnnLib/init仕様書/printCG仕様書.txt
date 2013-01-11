@@ -1,0 +1,20 @@
+
+
+scrollDirection[XY]
+
+scrollTime[XY]
+
+scrollWait[XY]
+
+backMode
+
+nextSound
+prevSound
+backSound
+
+//
+BGM,FADEIN-OUT
+
+
+
+//—§‚¿ŠG•\Ž¦‹@”\?? backscript??

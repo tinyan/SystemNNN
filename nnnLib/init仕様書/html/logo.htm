@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<TITLE>Project NYANLIB</TITLE>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=Shift_JIS">
+	<LINK REV=MADE HREF="mailto:tinyan@mri.biglobe.ne.jp">
+</HEAD>
+
+<BODY BGCOLOR="#80C0A0"
+      LINK   ="#006060"
+      VLINK  ="#7499CC"
+      TEXT   ="#202020" 
+      ALINK  ="#000000">
+
+
+
+<CENTER>
+<FONT SIZE=7>init - logo</FONT><BR>
+</CENTER>
+<BR>
+<BR>
+
+<TABLE BORDER=3>
+<TR>
+<TD COLSPAN=3>共通設定</TD>
+</TR>
+
+
+
+<TR>
+<TD>その他設定</TD>
+<TD>なし</TD>
+<TD>それぞれのとこを参照</TD>
+</TR>
+
+</TABLE>
+
+
+<BR>
+<BR>
+
+<TABLE BORDER=4>
+<TR>
+<TD COLSPAN=4>専用設定</TD>
+</TR>
+
+<TR>
+<TD>名前</TD>
+<TD>サブ</TD>
+<TD>デフォルト値</TD>
+<TD>解説</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN = 2>modename</TD>
+<TD>logo</TD>
+<TD>モード名、変更不可。省略不可</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>nextMode</TD>
+
+<TD>title</TD>
+<TD>ロゴ表示後のモードを番号または名前で設定する</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>defaultUseBGColor</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>フェードイン、フェードアウト時のBGカラーのデフォルトの指定方法を設定する 0:指定色 1:画像左上の色</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>defaultFadeInTime</TD>
+
+<TD ALIGN=RIGHT>10</TD>
+<TD>フェードインのデフォルトの長さをフレーム数で設定する</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>defaultFadeOutTime</TD>
+
+<TD ALIGN=RIGHT>10</TD>
+<TD>フェードアウトのデフォルトの長さをフレーム数で設定する</TD>
+</TR>
+
+<TR>
+<TD COLSPAN= 2>defaultKeepTime</TD>
+
+<TD ALIGN=RIGHT>20</TD>
+<TD>表示時間のデフォルトの長さをフレーム数で設定する</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN= 2>defaultFadeInColor[RGB]</TD>
+
+<TD ALIGN=RIGHT>255</TD>
+<TD>フェードイン時のデフォルトの色を設定する</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN= 2>defaultFadeOutColor[RGB]</TD>
+
+<TD ALIGN=RIGHT>255</TD>
+<TD>フェードアウト時のデフォルトの色を設定する</TD>
+</TR>
+
+
+
+
+
+<TR>
+<TD COLSPAN=2>useCustomBGColorFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:フェードイン、フェードアウト時の背景色の表示方法を絵ごとに設定する</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>fadeInBGColorFlag[n]</TD>
+<TD ALIGN=RIGHT>defaultUseBGColor</TD>
+<TD ROWSPAN=2>n番目の絵の背景表示方法を設定する。defaultUseBGColorと同じ動作</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>fadeOutBGColorFlag[n]</TD>
+<TD ALIGN=RIGHT>defaultUseBGColor</TD>
+
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>useCustomFileFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:絵のファイル名を個別に指定する。0:logo1,logo2...</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>filename[n]</TD>
+<TD>logo[n]</TD>
+<TD>n番目の絵のファイル名を設定する</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>useCustomSkipFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:絵ごとにスキップ処理の仕方を設定する</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>skipOk[n]</TD>
+<TD ALIGN=RIGHT>1</TD>
+<TD>n番目の絵のスキップ処理を 0:禁止する 1:許可する 2～その回数目の起動から許可する</TD>
+</TR>
+
+
+<TR>
+<TD COLSPAN=2>useCustomTimeFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:絵ごとに表示時間を設定する</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>fadeInTime[n]</TD>
+<TD ALIGN=RIGHT>defaultFadeInTime</TD>
+<TD>n番目の絵のフェードイン時間をフレーム数で設定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>fadeOutTime[n]</TD>
+<TD ALIGN=RIGHT>defaultFadeOutTime</TD>
+<TD>n番目の絵のフェードアウト時間をフレーム数で設定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>keepTime[n]</TD>
+<TD ALIGN=RIGHT>defaultKeepTime</TD>
+<TD>n番目の絵の表示時間をフレーム数で設定する</TD>
+</TR>
+
+
+
+<TR>
+<TD COLSPAN=2>useCustomColorFlag</TD>
+
+<TD ALIGN=RIGHT>0</TD>
+<TD>1:絵ごとにフェードイン、フェードアウト時の背景色を設定する</TD>
+</TR>
+
+
+<TR>
+<TD></TD>
+<TD>fadeInColor[RGB][n]</TD>
+<TD ALIGN=RIGHT>defaultFadeInColor[RGB]</TD>
+<TD>n番目の絵のフェードイン時の背景色を設定する</TD>
+</TR>
+
+<TR>
+<TD></TD>
+<TD>fadeOutColor[RGB][n]</TD>
+<TD ALIGN=RIGHT>defaultFadeOutColor[RGB]</TD>
+<TD>n番目の絵のフェードアウト時の背景色を設定する</TD>
+</TR>
+
+
+
+
+
+
+</TABLE>
+
+<BR>
+<BR>
+
+<BR>
+<CENTER><A HREF="../index.htm">Home</A></CENTER>
+
+</BODY>
+</HTML>
+

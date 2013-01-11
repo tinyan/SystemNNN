@@ -1,0 +1,9 @@
+name messageCursor
+
+fullFix[XY] 0,0
+
+
+filenameCursor1 mes_cur
+size[XY][1-4]
+print[XY][1-4]
+

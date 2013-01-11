@@ -1,0 +1,81 @@
+modeName
+
+
+bgMode 0 1 2
+backColor[RGB]
+backlogBGFileName
+
+backDelta[RGB] 0
+backMulti[RGB] 100
+
+fontSize 24
+printLines 15
+printX 110 32
+nextX 0 fontsize
+
+titleprintflag
+titleprintxy
+titleMessage
+
+
+firstMessageNumber 0
+firstMessage[n]
+
+barMessage
+
+
+
+titlepicprintflag
+titlePicFileName
+titlePicPrintX
+titlePicUpperFlag
+
+
+
+uparrowprintxy
+downarrowprintxy
+updownarrowsizexy
+
+
+upArrowMessage #水▲
+downArrowMessage #水▼
+voiceMessage ♪
+
+
+
+
+
+voiceflag 1
+
+
+
+updownArrowPicFlag
+filenameUpdownArrow
+
+voicePicFlag 0
+filenameVoice
+voicePicAnimeFlag 0
+voicePicAnimePattern 2
+voicePicAnimeSpeed 10
+voicePicAnimeType 5
+
+
+
+
+voicePrintX -fontSize,0
+voiceSizeX fontsize,fontsize
+
+
+returnSoundNumber ?
+
+
+updownArrowAnimeFlag
+updownArrowAnimePattern
+updownArrowAnimeType
+updownArrowAnimeSpeed
+upArrowFileName
+downArrowFileName
+
+
+上下ボタン設定は作成中
+ボタン方式にすると使いにくいので中断

@@ -1,0 +1,620 @@
+nnnUtilLibの解説を含む
+
+CCommonGameVersion
+WinMainで次のstaticMethodを使用する
+	CCommonGameVersion::SetTaikenVersion();	//体験版にする load,save,omake不可になる
+	CCommonGameVersion::SetLoadOk();		//体験版でもload可能に
+	CCommonGameVersion::SetSaveOk();		//体験版でもsave可能に
+
+
+
+
+
+
+CFileControlクラスはなくなりました
+CLoadSave(CLoad,CSave用の基本クラス)に吸収されています
+ライブラリ使用時には特に変更はありません
+
+
+
+
+
+
+CGameCallBackに追加
+BOOL CreateCommonClass(int modeNumber);
+ライブラリの基本クラスを(initその他で禁止されていなければ)作成します
+
+以前の m_general[PRINTMESSAGE_MODE] = CCommonPrintMessage(this);
+などを置き換えてください
+
+
+
+
+
+CGameCallBack::CSuperButtonPicture* m_superButtonPicture;
+ボタン用画像バッファーコントロールクラスです
+ボタン画像が大きくなったきているため
+モードごとに同じバッファを再利用するためのものです
+
+バッファ番号0は戻るボタンに
+バッファ番号1-2は上下カーソルに
+予約されていますので、3以降をつかってください
+
+ボタン作成後に、
+ボタンにCPictureバッファを設定しますが、そのCPictureを
+これからもらってきてください
+
+CSuperButtonPicture::GetPicture(int n);
+
+
+
+
+各クラスのInit()および、変更が必要になったときに
+画像を読み込む処理をおこなってください
+CPicture* lpPic = button->GetPicture();
+lpPic->LoadDWQ("ほげほげ");
+
+
+
+
+
+
+
+
+
+
+
+CCommonGeneralに追加変更
+
+
+
+	virtual void InitByLoad(void){}
+セーブデータがロードされた時に、セーブ時点のモードのクラスのみ
+よびだされます。必要な処理があれば、これを継承して処理をおこなってください
+
+
+	virtual void StartUserCommand(int paraKosuu,int* paraPtr){}
+スクリプトコマンドで、モードがシステムクラス処理のものに以降する場合によばれます
+現在、CSelectPlace,CSelectHeroin,(CPrintCalendar)
+が対象です
+
+
+
+
+	virtual void CreateBackButton(void);
+initファイルを参照して戻るボタンを作成します
+	m_backです
+
+
+	virtual void CreateUpDownButton(void);
+initファイルを参照して、上下カーソルボタンを作成します
+	m_updownです
+
+	virtual void CreateUpDownBack(void);
+戻るボタンと上下カーソルボタンをまとめたボタンを作成します
+(戻るボタン、上下カーソルボタンが既に作成されている必要があります)
+	m_updownBackです
+
+
+
+	virtual void SetBackButtonZahyo(void);
+戻るボタンが、全ゲーム共通のもの（同じインスタンス）を使う場合に座標のみをこれで設定します
+
+	void SetUpDownZahyo(void);
+上下カーソルボタンが、全ゲーム共通のもの（同じインスタンス）を使う場合に座標のみをこれで設定します
+
+	void LoadBackButtonPic(void);
+initの設定を参照して、戻るボタンの画像をよみこみます
+	void LoadUpDownButtonPic(void);
+initの設定を参照して、上下カーソルボタンの画像をよみこみます
+	void LoadBackButtonPic(void);
+initの設定を参照して、戻るボタン、および、上下カーソルボタンの画像をよみこみます
+
+これらは、おもにInit()で使用します
+
+
+
+
+	void PrintBackScriptOrBG(void);
+主にPrint()の頭でつかいます
+initの設定におうじて、
+m_commonBGでぬりつぶすか、背景スクリプトを描画します
+
+
+
+	virtual int ProcessUpDownBack(int rt);
+	virtual int ProcessButtonGroup(int rt);
+	virtual int ProcessCommonButton(int rt);
+それぞれのボタンまたはボタングループからの戻り値をいれて
+必要な処理を行います。（主に音を出します）
+ボタンが確定された場合には、0～の値がかえります。
+それ以外は-1がかえります
+
+確定値は
+ボタンの場合は0
+ボタングループの場合は、ボタン番号(0～)
+上下カーソルの場合はページ数
+上下カーソルと戻るボタンのセットの場合は、戻るボタンが0,ページ数は(1～)になります
+
+
+------------------------------------------------------------------------
+
+
+	virtual void ReceiveUserCommand(int cmd, int paraKosuu, int* paraPtr){}
+	virtual void ReceiveUserFunction(int cmd, int paraKosuu, int* paraPtr){}
+
+
+
+
+
+	virtual int GetVarData(int varNum);			//m_var[varNum]を直接返す
+	virtual int GetCalcuVarData(int varNum);	//0-99までは特殊処理が行われる
+	virtual void SetVarData(int varNum, int dat);
+
+
+
+
+	virtual CPicture* GetCommonBG(void){return m_commonBG;}
+	virtual CPicture* GetCommonParts(void){return m_commonParts;}
+	virtual CMyMouseStatus* GetMouseStatus(void){return m_mouseStatus;}
+	virtual CInputStatus* GetInputStatus(void){return m_inputStatus;}
+	virtual CMyFont* GetMyFont(void) {return m_font;}
+	virtual CMyMessage* GetMyMessage(void) {return m_message;}
+
+
+
+
+	virtual int GetCGCharaKosuu(void) {return m_cgCharaKosuu;}
+	virtual int GetSceneCharaKosuu(void) {return m_sceneCharaKosuu;}
+	virtual void SetCGCharaNumber(int cgChara) {m_cgCharaNumber = cgChara;}
+	virtual void SetSceneCharaNumber(int sceneChara) {m_sceneCharaNumber = sceneChara;}
+	virtual int GetCGCharaNumber(void) {return m_cgCharaNumber;}
+	virtual int GetSceneCharaNumber(void) {return m_sceneCharaNumber;}
+
+
+
+	virtual void ClearF5(void) {m_skipNextCommandFlag = FALSE;}
+	virtual void SetYoyaku(BOOL b = TRUE) {	m_yoyakuExecFlag = b;}
+
+
+	virtual BOOL CheckClickKey(int key);
+
+
+
+
+	virtual void SetCommonBackMode(int mode, int backMode);
+	virtual void ToWindowScreen(void);
+	virtual void ToFullScreen(void);
+
+	virtual void StartLog(void);
+	virtual void AddErrorLog(LPSTR mes);
+
+	virtual void CalcuEffectOnly(void);
+	virtual void CountUpOnly(int n = 1);
+	virtual void StopVoice(void);
+
+	virtual void SkipToEffectEnd(void);//////@@
+
+	virtual void PrintEffect(BOOL bScreenFlag = FALSE);
+	virtual BOOL CheckGetCG(int cgCharaNumber, int cgNumber);
+	virtual BOOL CheckGetScene(int sceneCharaNumber, int sceneNumber);
+	virtual BOOL CheckHScene(int sceneCharaNumber, int sceneNumber);
+
+	virtual int* GetCommonBuffer(void) {return m_commonBuffer;}
+	virtual void SearchCase(int caseNumber);
+
+	virtual CPicture* GetOverrapPic(int n);//n:0-1
+	virtual int GetOverrapType(void) {return m_overrapType;}
+	virtual int GetOverrapLength(void) {return m_overrapLength;}
+
+	virtual BOOL CheckVoiceFlag(int voiceCharaNumber);
+	virtual BOOL CheckVoiceUsedFlag(int voiceCharaNumber);
+
+	virtual void SetVoiceFlag(int voiceCharaNumber, BOOL flg = TRUE);
+	virtual void SetSaveMode(int mode) {m_saveMode = mode;}
+	virtual void PrintOverrap(int count);
+	
+
+	virtual void AddBackLogMessage(LPSTR mes,int colR=255, int colG=255, int colB=255);
+	virtual BOOL CheckMessageHaveVoice(void) {return m_messageHaveVoiceFlag;}
+	virtual int GetVoiceLength(void) {return m_messageVoiceLength;}
+
+	virtual void SetMessageRead(int mesNum, int sptNum = -1);
+	virtual BOOL CheckMessageRead(int mesNum, int sptNum = -1);
+
+	virtual void ChangePreColor(int n, int colorR, int colorG, int colorB);
+	virtual int GetPastTime(void) {return m_pastTime2;}
+	virtual BOOL CheckNoSkipFrame(void);
+
+	virtual BOOL CheckSceneMode(void) {return m_sceneMode;}
+
+
+	virtual void PrintMessageWindow(BOOL bFlag = FALSE,BOOL nameWindowPrintFlag = FALSE);
+	virtual void PrintMessageWindowByCheck(BOOL bFlag = FALSE,BOOL nameWindowPrintFlag = FALSE);
+	
+	virtual int GetCGKosuu(int cgCharaNumber);
+	virtual int GetSceneKosuu(int sceneCharaNumber);
+	virtual int GetHSceneKosuu(int n);
+
+	virtual CPicture* GetSystemPicture(LPSTR filename,BOOL b256Flag = FALSE);
+	virtual int GetSystemParam(int param);
+	virtual void SetSystemParam(int param, int dat);
+	virtual LPSTR GetCGFileName(int cgCharaNumber, int cgNumber, BOOL realnameFlag = TRUE);
+
+	virtual void PostCloseMessage(void);
+
+	virtual CCommonBackButton* GetBackButton(void) {return m_backButton;}
+	virtual CMyCommonButton* GetNewBackButton(void){return m_newBackButton;}
+
+	virtual CCommonFileControl* GetFileControl(void) {return m_fileControl;}
+	virtual void ReplayVoice(LPSTR voiceFileName);
+	virtual void SetOption(BOOL flg = TRUE) {m_optionFlag = flg;}
+	virtual void SetSceneButton(BOOL flg = TRUE) {m_sceneButtonFlag = flg;}
+	virtual void PreInitGameCallBack(int classNumber) {}
+
+
+	virtual int GetWeek(int dayMonth);
+	virtual void PlayCommonSystemSound(int commonSoundNumber);
+	virtual int GetMusicMode(void);
+	virtual int GetTotalCGPercent(void);
+	virtual int GetCGPercent(int cgCharaNumber);
+	virtual int GetTotalScenePercent(void);
+	virtual int GetScenePercent(int sceneCharaNumber);
+	virtual void MakeMiniCG(void);
+	virtual int GetGameSystemData(LPSTR name);
+	virtual LPSTR GetGameSystemString(LPSTR name);
+	virtual void InitOpeningMode(int para1 = -1,int para2 = 1);
+
+
+	virtual void SetDemoMode(BOOL b = TRUE);
+	virtual void ResetAllShakin(void);
+
+	virtual BOOL CheckOptionOff(void);
+
+	virtual	void FrameControl(int cnt);
+	virtual void AdjustMouseZahyo(void);
+
+	virtual LRESULT GameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	virtual void ClearAllKey(void);
+	virtual void ChangeScreenMode(void);
+
+	virtual void EndGame(void);
+	virtual void YoyakuArea(RECT* lpRect);
+
+	virtual void YoyakuShori(void);
+
+	virtual BOOL CheckSaijitsu(int month, int day);
+
+	virtual void SetSystemVarNumber(void);
+	virtual void PrintInitializeMessage(void);
+
+	virtual BOOL CheckInitDirectX(void);
+	virtual BOOL NextSceneFilm(void);
+	
+	virtual BOOL StartSceneMode(void);
+
+	virtual void SetDesktopWindowSize(int sizeX,int sizeY);
+
+	virtual void Erase(void);
+	virtual void Flush(void);
+
+	virtual int GetVarNumber(LPSTR varName);
+		//varNameを変数名一覧からサーチしてその番号を返す。ない場合には-1
+
+	virtual int InitNewGame(int uraMode = 0, BOOL demoFlag = FALSE,int setVar = -1,int setData = 0);
+		//Title画面で新規開始(及びそれに準じるもの)を選んだあと呼び出される
+	virtual void InitLoadGame(void);
+		//load後に呼び出される
+
+	//継承用
+	virtual void AfterInitNewGame(int uraMode = 0, BOOL demoFlag = FALSE);
+		//InitNewGameの最後に呼び出される
+	virtual void AfterInitLoadGame(void);
+		//InitLoadGameの最後に呼び出される
+
+
+
+	virtual CCommonUpDownButtonGroup* GetCommonUpDown(void) {return m_upDown;}
+
+	virtual void SaveSystemFile(void);
+		//sysfile.savを保存する
+
+
+	virtual void CursorAnime(int cnt = 1);
+	virtual void SetMyCursor(int x, int y, int pat);
+	virtual void SetMyCursor(int pat = 0);
+
+	virtual CMIDIPlayer* GetMIDI(void) {return m_midi;}
+
+	virtual void SetBGMVolumeOnly(int volume);
+
+
+
+	virtual CMyDirectSound* GetMyDirectSound(void) {return m_directSound;}
+	virtual CMyDirectShow* GetMyDirectShow(void){return m_directShow;}
+	static int m_satijistu2000[];
+	static int m_weekStart[];
+
+	virtual BOOL CheckBossMode(void) {return m_bossMode;}
+	virtual void SetBossMode(BOOL flg = TRUE) {m_bossMode = flg;}
+
+	virtual void SetOptionVarOn(BOOL flg = TRUE);
+	virtual void WindowOn(BOOL flg = TRUE);
+
+	virtual void PlaySystemSound(int n);
+	virtual void PlaySystemWaveFilename(LPSTR filename,int deltaVolume = 0);
+
+	virtual BOOL CheckNetVersion(void);
+	virtual BOOL CheckTaikenVersion(void);
+	virtual BOOL CheckLoadCommandOk(void);
+	virtual BOOL CheckSaveCommandOk(void);
+	virtual BOOL CheckOmakeOk(void);
+	virtual BOOL CheckListenBGMOk(void);
+
+
+	virtual int GetExtDataBlockKosuu(void) {return m_extSaveDataKosuu;}
+	virtual int GetExtDataBlockSize(int extNumber);
+	virtual void GetExtDataForSave(LPVOID ptr,int extNumber = 0) {};
+	virtual void SetExtDataByLoad(LPVOID ptr,int extNumber = 0) {};
+
+	virtual int GetGameVersion(void) {return m_gameVersion;}
+	virtual void SetGameVersion(int highVersion = 0, int middleVersion = 0, int lowVersion = 0);
+
+	virtual void CreateCGList(int kosuu);
+
+	virtual int GetBGMKosuu(void) {return m_bgmKosuu;}
+	virtual LPSTR GetBGMFileName(int n);
+	virtual LPSTR GetBGMName(int n);
+
+	virtual void PlaySystemVoiceByFileName(LPSTR filename,BOOL firstOffFlag = TRUE);
+
+	virtual BOOL CheckResetVolume(int volumeType);
+
+	virtual HWND GetGameHWND(void) {return m_hWnd;}
+
+	CNameList* GetVarList(void) {return m_varList;}
+
+	virtual void PrintDebugParam(void);
+	virtual void PrintDebugBack(void);
+
+	virtual void ReceiveScriptCommand(int cmd, int para1, LPVOID para2);
+	virtual void PreReceiveScriptData(int cmd, int para1, LPVOID para2);
+
+	BOOL CreateCommonClass(int modeNumber);
+
+
+
+
+
+	BOOL GetInitGameParam(int* lpVar, LPSTR name);
+	BOOL GetInitGameString(LPSTR* lpStr, LPSTR name);
+
+	virtual void UserCommandCallBack(void) {}
+
+	CPicture* GetEffectPicture(int n);
+
+	int VoiceToCharaNumber(LPSTR name);
+	virtual BOOL CheckVoiceOffByName(LPSTR name);
+
+	virtual void GetUserPara(int paraKosuu, int* paraPtr);
+
+	virtual void PrintBackBuffer(void);
+	virtual void BltToFront(void);
+
+	virtual BOOL CheckVoiceSpeak(void) {return m_voiceSpeakFlag;}
+	void CalcuVoiceSpeak(int cnt = 50);
+
+	virtual LPSTR GetSaveHeaderName(void) {return m_saveHeaderName;}
+
+	virtual void EraseMouse(void);
+
+
+	virtual void PrintSimpleWipe(int count, int countMax, int type = 2);
+
+
+
+
+	virtual int GetFrameTime(void) {return m_frameTime;}
+	virtual int GetDefaultFrameTime(void) {return m_defaultFrameTime;}
+	virtual SIZE GetMiniCGSize(void);
+
+	virtual void SetDefaultFrameRate(void) {SetFrameRate(GetDefaultFrameTime());}
+
+
+
+	virtual int GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber);
+
+
+	int GetConfigData(int n);
+
+	virtual CDataFileSetup* GetDataFileSetup(void) {return m_dataFileSetup;}
+
+
+	virtual int MainLoop(int cnt) {return 0;};
+
+	void SetReturnCode(int code);
+	int GetReturnCode(void);
+
+	virtual BOOL StartModalThread(int modeNumber, int printMode = 0,int stackSize = 0);
+	virtual BOOL EndModalThread(void);
+
+	int GetGameMode(void);
+	int GetGameMode(int level);
+	void SetGameMode(int gameMode);
+
+	BOOL GetQuitFlag(void) {return m_quitFlag;}
+
+	int GetModalLevel(void) {return m_modalLevel;}
+	void SetModalLevel(int level) {m_modalLevel = level;}
+
+	void SetMainControl(CMainControl* lpMainControl) {m_mainControl = lpMainControl;}
+
+	void StartModeRoutine(int mode);
+	void EndModeRoutine(int mode);
+
+	void ChangeOmakeClass(int oldMode, int newMode);
+	void ChangeOmakeEnd(int oldMode, int newMode);
+	void ChangeOmakeInit(int oldMode, int newMode);
+
+
+	void AllClearOmakeClass(void);
+	void ClearOmakeClass(int parentModeNumber);
+	BOOL AddOmakeClass(int parentModeNumber, int omakeModeNumber,int mode = 0xf,int place = -1);
+	BOOL DeleteOmakeClass(int parentModeNumber, int omakeModeNumber);
+
+	//type == -1 direct data
+	int GetOmakeMode(int parentModeNumber, int omakeModeNumber, int type = -1);
+	//omakeModeNumber == -1 all omake
+	void SetOmakeMode(int parentModeNumber, int mode, int omakeModeNumber = -1, int type = -1);
+
+	void CalcuOmake(void);
+	void PrintOmake(void);
+
+	int GeneralMainLoop(int cnt);
+
+	virtual void StartMainLoop(int cnt) {}
+	virtual void BeforeCalcu(void) {}
+	virtual void AfterCalcu(void) {}
+	virtual void BeforeOmakeCalcu(void) {}
+	virtual void AfterOmakeCalcu(void) {}
+	virtual void BeforePrint(void) {}
+	virtual void AfterPrint(void) {}
+	virtual void BeforeOmakePrint(void) {}
+	virtual void AfterOmakePrint(void) {}
+	virtual void BeforePrintBackBuffer(void) {}
+	virtual void BeforeFlip(void) {}
+	virtual void AfterFlip(void) {}
+
+	virtual void BeforeChangeMode(void){}
+	virtual void AfterChangeMode(void){}
+
+	virtual void EndMainLoop(void) {}
+
+	void SetModalPrintMode(int level, int md);
+	int GetModalPrintMode(int level);
+
+	virtual void SetFrameRate(int frameRate);
+	virtual void PreChangeMode(int md){}
+
+	virtual LPSTR GetSaveComment(void) {return NULL;}
+
+	virtual int GetOmakeClassExistFlag(void){return m_omakeClassExistFlag;}
+
+	virtual BOOL CheckOpeningMode(void) {return m_openingModeFlag;}
+	virtual void SetOpeningMode(BOOL md = TRUE) {m_openingModeFlag = md;}
+
+	virtual CNameList* GetCharaNamelsit(void) {return m_charaNameList;}
+
+	virtual void SetBackScriptMode(BOOL flg = TRUE){m_backScriptModeFlag = flg;}
+	virtual BOOL CheckBackScriptMode(void);
+	virtual void RestartBackScript(void);
+
+	virtual CNameList* GetSptList(void){return m_sptList;}
+
+	virtual BOOL LoadBackScript(LPSTR filename);
+	virtual BOOL CalcuBackScript(BOOL loopFlag = TRUE);
+	virtual void PrintBackScript(void);
+
+	virtual int CalcuCommonBackButton(CMyMouseStatus* lpMouse);
+	virtual void PrintCommonBackButton(BOOL mustPrintFlag, int deltaX = 0,int deltaY = 0,int patNum = -1);
+	virtual int CalcuCommonUpDownButton(CMyMouseStatus* lpMouse);
+	virtual void PrintCommonUpDownButton(BOOL mustPrintFlag, int deltaX = 0,int deltaY = 0,int patNum = -1);
+
+
+	virtual void CreateCommonBackButton(void);
+
+	virtual void PlaySystemPiano(int n);
+
+	virtual void PrintBossComing(void);
+	virtual void BossModeSoundOff(void);
+
+	virtual void SetAdditionalSystemParam(int addGroup,int d){}
+	virtual int GetAdditionalSystemParam(int addGroup){return 0;}
+
+	virtual int ExecGameScript(int pc = -1);
+
+
+
+
+	virtual void TaihiAllEffect(void);
+	virtual void FuqueAllEffect(void);
+
+
+	void AddDebugLibDesc(void);
+
+	virtual int ProcessGameKey(int modeNumber);
+
+	virtual void PlayMusic(int n,int loopCount = 0,int volume = -9999,int fadeInTime = -1, int fadeOutTime = -1);
+	virtual void PlayMusic(LPSTR filename,int loopCount = 0,int volume = -9999,int fadeInTime = -1,int fadeOutTime = -1);
+	virtual void StopMusic(int fadeOutTime = -1);
+
+	int GetNowMusicNumber(void);
+
+	int GetDefaultFadeInTime(void){return m_defaultFadeInTime;}
+	int GetDefaultFadeOutTime(void){return m_defaultFadeOutTime;}
+
+	void FuqueAllEffectYoyaku(void){m_fuqueAllEffectYoyaku = TRUE;}
+
+	virtual void CreateNowExitScreen(void);
+
+	virtual CMusicControl* GetMusicControl(void){return m_musicControl;}
+	CSceneVoice* GetSceneVoice(void){return m_sceneVoice;}
+
+
+	virtual int CalcuOptionButton(void);
+	virtual int CalcuSceneButton(void);
+
+	virtual void InitOptionButton(void);
+	virtual void InitSceneButton(void);
+
+	virtual void PrintOptionButtonYoyaku(void);
+	virtual void PrintSceneButtonYoyaku(void);
+
+	virtual void PrintOptionButton(void);
+	virtual void PrintSceneButton(void);
+
+
+	void SetDontPlay(int md);
+
+	int GetDontPlayMode(void){return m_dontPlayMode;}
+
+	int CheckListenMusic(int musicNumber);
+	int SearchMusicNumber(LPSTR filename);
+
+	void LaunchCountUp(void);
+	int GetLaunchCount(void);
+
+	virtual int CheckCodec(void);
+
+	void SetCodecErrorRunMode(int md){m_codecErrorRunMode = md;}
+	int GetCodecErrorRunMode(void){return m_codecErrorRunMode;}
+
+	void SetMovieCursor(HCURSOR cursor){m_movieCursor = cursor;}
+
+	void StopScriptSound(void);
+
+	int GetLastSelectHeroinNumber(void){return m_lastSelectHeroinNumber;}
+	void SetLastSelectHeroinNumber(int heroin){m_lastSelectHeroinNumber = heroin;}
+
+	LPSTR GetMovieName(int n);
+	void ResetLaunch(void);
+	BOOL CheckDebugFlag(void){return m_debugOkFlag;}
+
+	CMyDirectSoundBuffer* GetScriptSoundBuffer(int n);
+
+	void EraseCursor(void);
+	void SetCodecError(int err = 1);
+
+	void SetListenBGMParam(int md,int musicNumber);
+
+
+	void GetGetScreen(void);
+		//現在の画像をGETPUTバッファに取り込む
+	void PutGetScreen(void);
+		//GETPUTバッファを表示する
+
+
+	int GetShakinFrame(int kaeseru = -1);
+	int ShakinHensai(int kaeseru = 1);
+

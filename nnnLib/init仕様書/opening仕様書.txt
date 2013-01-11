@@ -1,0 +1,4 @@
+nextMode (default = TITLE)
+
+backscriptLoopFlag‚ÌƒfƒtƒH‚ª0
+

@@ -1,0 +1,195 @@
+追加予定
+
+
+StartUserCommand(int paraKosuu,int* paraPtr);
+//ユーザーコマンドによる変更がきたときに呼ばれる
+別ファイルで指定
+  クラス番号,コマンド名
+  (複数指定可能)
+
+
+
+
+CSelectHeroin
+けっこう汎用的に使えそうなキャラ選択画面
+キャンセルボタンのありなし
+表示モードはinitで設定
+
+command.txtに登録するタイプにする？
+
+selectheroin(0(キャンセル使えるかどうか), 1,2,3,変数・・・定数、変数指定);
+ヒロイングラフィックは
+nnndir\heroin.txtに登録
+
+キャンセル
+1:使える
+0:使えない
+-1:使えない（表示はされる）
+
+
+
+
+CSelectMovie
+CSelectMovieChara???
+CPrintMovie
+
+を追加
+movie.txt
+
+
+
+
+
+
+datafile
+でセーブエリアに
+変数の値に応じた絵を表示できるようにする
+
+
+
+メッセージウィンドウをスクリプトから選択できるようにする
+
+
+
+マウスカーソルを変更できるようにする
+モードごとの設定
+スクリプトによる変更
+
+
+
+
+
+
+
+
+
+
+
+
+
+printMessage
+
+selectMessage
+ scroll機能、上下カーソル
+
+たてがき機能はnyanlibにかなり依存するか？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ミニゲームクラス
+
+
+GameCallBack
+public:
+::PlaySystemSound(int n);
+nnndir\systemse.txt???で指定された音を1回鳴らす
+
+
+CCommonGeneral
+protected:
+::
+
+
+
+
+
+
+
+SYSTEMPARAM_BGMMODE
+0:MIDI
+1:CD
+2:WAVE
+
+
+
+------------------------------------------------------------------------------------------
+GameCallBackまとめ
+曲のコントロールは
+外部からのアクセスは曲番号、回数等のみとし
+デバイスの違いはいれない
+
+BOOL StopBGM(void);
+BOOL PlayBGM(int n,int loop = 1);
+BOOL PauseBGM(void);
+BOOL ResumeBGM(void);
+int GetBGMTime(void);
+
+ボリューム等も同様
+
+MusicControlクラスにまとめてユーティリティークラスに移行
+MIDI,CD,WAVE
+
+
+
+
+
+
+
+
+
+
+各種クラス共通分
+
+
+
+
+クラス独自分
+
+------------------------------------------------------------------------------------------
+class:CCommonNothing
+mode:NOTHING_MODE
+
+コンストラクタ処理
+ 各種設定の読み込み
+
+cdCheckFlag
+codecCheckFlag
+fillColorR,fillColorG,fillColorB
+nextMode
+
+
+Init();
+ 無処理
+
+Calcu();
+m_codecCheckFlagがonの場合
+ 1回だけcheckし、エラーならCODEC_ERRORモードに即移行(終了後NOTHING_MODEにもどる)
+  (m_codecChecked 0:未チェック 1:OK -1:ERROR)
+m_cdCheckFlagonの場合
+ チェックを行いエラーであればCDERROR_MODEに即移行
+
+エラーがなければ
+ m_nextModeに移行(デフォルト LOGO_MODE)
+
+Print();
+ 塗りつぶし色でFill
+-------------------------------------------------------------------------------------------
+CommonLogo
+ CDのチェックはNothingクラスに移行
+
+
+
+CCommonPrintCG
+nextSound
+prevSound
+backSound
+
+
+予定
+切り替えをワイプ可能にする
+番号、時間
+next,prevの2種類
+

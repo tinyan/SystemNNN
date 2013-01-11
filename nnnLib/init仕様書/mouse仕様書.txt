@@ -1,0 +1,12 @@
+name mouse
+
+size[XY]
+hotPoint[XY]
+percent
+anime
+filenameMouse
+
+//’Ç‰Á
+animeType
+animePattern
+animeSpeed

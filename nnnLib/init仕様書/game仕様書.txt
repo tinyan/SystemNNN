@@ -1,0 +1,24 @@
+
+
+
+
+追加
+
+//ゲーム中にボタンでないショートカットキーを使ったときの共通効果音指定
+
+shortCutSystemMenuSound 1
+shortCutSaveSound shortCutSystemMenuSound
+shortCutLoadSound shortCutSystemMenuSound
+shortCutConfigSound shortCutSystemMenuSound
+
+
+
+
+[]IsDefault	//selectplace selectheroin printmovie printcalendar
+
+
+directXVolumeFlag 1
+
+directXVolume 60
+
+defaultFont 

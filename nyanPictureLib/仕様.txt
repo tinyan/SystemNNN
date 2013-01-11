@@ -1,0 +1,9 @@
+CPicture支援のための
+ユーティリティー的ライブラリ
+(CPictureの変更に影響されないように作る)
+
+
+
+
+RedBlt
+GreyBlt

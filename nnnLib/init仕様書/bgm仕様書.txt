@@ -1,0 +1,7 @@
+bgmNumber
+bgmRestartFlag
+bgmVolume
+bgmLoop
+bgmFadeInTime
+
+

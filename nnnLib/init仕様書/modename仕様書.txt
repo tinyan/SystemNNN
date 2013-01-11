@@ -1,0 +1,50 @@
+
+
+
+//多くの場合必須だとおもわれるモード
+	nothing
+	logo
+	title
+	load
+	save
+	backlog
+	listenbgm
+	selectmessage
+	printmessage
+	config
+	systemmenu
+	printoverrap
+	omake
+
+	//たいてい必要っぽいもの
+	selectcgchara
+	selectcg
+	selectscene
+	selectscenechara
+	selectplace
+	printcg
+
+	//ゲームごとにあったりなかったりと予想されるもの
+	codecerror
+	printmovie
+	opening
+	selectmoviechara
+	selectmovie
+	nameinput
+	printcalendar
+	selectheroin
+
+	//draw(ありません)
+
+
+game.xtxでの設定
+
+[modename]ClassDisable 0	//これを1にすると標準プログラムからその機能が削除される
+							//削除されていない場合標準で必要なファイルを読み込もうとしてエラーをだすので
+							//いらないモードは必ず削除しておくこと
+
+
+
+[modename]IsDefault 0	//標準プログラムで標準動作させる場合には、これを1にする	
+
+//使用可能なモード selectplace selectheroin printmovie printcalendar

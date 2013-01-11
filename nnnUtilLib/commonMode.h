@@ -1,0 +1,62 @@
+//
+// commonMode.h
+//
+
+#if !defined __TINYAN_NNNUTILLIB_COMMONMODE__
+#define __TINYAN_NNNUTILLIB_COMMONMODE__
+
+// use 1-50
+
+#define NOTHING_MODE 1
+#define LOGO_MODE 2
+#define OPENING_MODE 3
+#define TITLE_MODE 4
+#define LOAD_MODE 5
+#define SAVE_MODE 6
+#define BACKLOG_MODE 7
+//#define BGM_MODE 8
+#define LISTENBGM_MODE 8
+#define SELECTMESSAGE_MODE 9
+#define PRINTMESSAGE_MODE 10
+#define DRAW_MODE 11
+#define CONFIG_MODE 12
+
+//dummy
+#define SYSTEMMENU_MODE 13
+
+
+#define PRINTOVERRAP_MODE 14
+#define OMAKE_MODE 15
+#define SELECTCGCHARA_MODE 16
+#define SELECTCG_MODE 17
+#define SELECTSCENE_MODE 18
+//#define OPTIONMENU_MODE 19
+
+#define SELECTSCENECHARA_MODE 20
+#define CDERROR_MODE 21
+
+
+#define SELECTPLACE_MODE 22
+
+//#define PRINTDAYS_MODE 22
+
+#define PRINTCG_MODE 23
+//#define STAFFROLL_MODE 24
+
+//#define MINIGAME_MODE 25
+
+//#define SELECTPATROL_MODE 26
+//#define BATTLE_MODE 27
+//#define PRINTSTATUS_MODE 28
+
+#define NAMEINPUT_MODE 29
+#define PRINTCALENDAR_MODE 30
+
+
+
+#define MINIGAME_MODE 40
+
+
+#endif
+/*_*/
+

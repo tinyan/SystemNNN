@@ -1,0 +1,28 @@
+loadSound
+cannotLoadSound
+filenameBG load_bg
+page 10
+
+blockNumber[XY] 4 3
+print[XY] 85 113
+next[XY] 166 124
+
+dataPrintCustomFlag 0
+ dataPrint[XY][n]
+
+
+clickTime 8
+
+back,updown-button
+bgm
+fadeinout
+enterexitvoice
+
+
+//–¢Žg—p
+dialogVoiceFlag 0
+dialogVoiceFileName
+dialogVoiceWaitTime
+
+//dialogYesVoiceFileName
+//dialogNoVoiceFileName

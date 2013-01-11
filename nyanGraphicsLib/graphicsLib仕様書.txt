@@ -1,0 +1,29 @@
+
+スクリーンバッファ全体に対して処理を行います
+
+
+static void Fade(int ps1,int r=0,int g=-1,int b=-1,int ps2 = -1);
+
+元画面をps1%、設定色をps2%の割合で合成します。
+ps2==-1の場合(省略時)ps2 = 100-ps1として処理されます
+
+
+
+
+
+static void FillScreen(int r = 0,int g = -1, int b = -1);
+画面を指定されたRGB値で塗りつぶします
+
+
+static void Multi(int percentR,int percentG = -1,int percentB = -1);
+画面に対し指定された%(0-100)の乗算処理を行います
+
+
+static void AddSub(int deltaR,int deltaG = -9999,int deltaB = -9999);
+画面に対し、指定されたRGB値を加減算します。演算結果は、0以下は0、255以上は255になります
+
+static void Nega(void);
+画面を白黒反転させます
+
+static void Grey(void);
+画面をモノクロ化します。Y=76*R/256 + 150*G/256 + 29*B/256の演算です
