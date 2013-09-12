@@ -29,6 +29,12 @@ public:
 	int GetCGNumber(void) {return m_cgNumber;}
 	void SetCGNumber(int cgNumber) {m_cgNumber = cgNumber;}
 
+	void SetAllOn(void);
+
+	BOOL CheckCGIsAnime(int player,int num);
+	int GetAnimeStart(int player,int num);
+	int GetAnimeMaisuu(int player,int num);
+
 private:
 	CCommonSystemFile* m_systemFile;
 	CNameList** m_cgList;
@@ -37,6 +43,11 @@ private:
 
 	int m_cgNumber;
 	int m_cgCharaNumber;
+
+	int** m_animeTable;
+
+	BOOL GetAnimeParam(int player,int num);
+
 
 };
 

@@ -33,6 +33,9 @@ public:
 
 	void SetSceneCharaNumber(int n){m_sceneCharaNumber = n;}
 	void SetSceneFilmNumber(int sceneFilmNumber){m_sceneFilmNumber = sceneFilmNumber;}
+
+	void SetAllOn(void);
+
 private:
 	CCommonSystemFile* m_systemFile;
 	CSceneList* m_sceneList;

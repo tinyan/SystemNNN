@@ -183,6 +183,7 @@ protected:
 	void GetAddLayerSetup(void);
 	void GetAnimeLayerSetup(void);
 	void GetDisableQuickButtonSetup(void);
+	void GetDisableFreeButtonSetup(void);
 
 
 	void GetKeyMoveSetup(int tateyoko = 0,int updown = 1,int leftRight = 1);
@@ -279,6 +280,9 @@ protected:
 	static char m_defaultBackButtonFileName[];
 
 	static char m_disableQuickButtonCheckMode[][64];
+	static char m_disableFreeButtonCheckMode[][64];
+	static char m_disableFreeButtonCheckName[][64];
+	static int m_freeButtonNumber[];
 
 	int m_nextMode;
 
@@ -339,7 +343,10 @@ protected:
 	CCommonSystemModeList* m_systemModeList;
 
 	int* m_disableQuickButtonWork;
+	int* m_disableFreeButtonWork;
 
+	int m_freeAutoButtonDisable;
+	int m_freeSkipButtonDisable;
 
 	void SetClassNumber(int n);
 private:

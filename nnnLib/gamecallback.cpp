@@ -60,6 +60,9 @@
 #include "..\nyanLib\include\picture.h"
 
 
+#include "..\nyanEffectLIB\commoneffect.h"
+#include "..\nyanEffectAnimeLIB\effectAnimation.h"
+
 
 #include "..\nyanLib\include\allGraphics.h"
 
@@ -495,6 +498,22 @@ void CGameCallBack::GeneralCreate(void)
 	CEffect::m_layerKosuuMaxSetup = m_layerKosuuMax;
 	CEffect::m_pictureKosuuMaxSetup = m_pictureKosuuMax;
 
+	int animeEffectEnable = 0;
+	if (GetInitGameParam(&animeEffectEnable,"animeEffectEnable"))
+	{
+		CEffectAnimation::SetAnimeEffectEnable(animeEffectEnable);
+	}
+	int animeBufferMax = 60;
+	if (GetInitGameParam(&animeBufferMax,"animeBufferMax"))
+	{
+		CEffectAnimation::SetAnimeBufferMax(animeBufferMax);
+	}
+	int animeBufferDepth = 32;
+	if (GetInitGameParam(&animeBufferDepth,"animeBufferDepth"))
+	{
+		CEffectAnimation::SetBufferDepth(animeBufferDepth);
+	}
+
 
 	for (i=0;i<m_pictureKosuuMax;i++)
 	{
@@ -595,6 +614,9 @@ void CGameCallBack::GeneralCreate(void)
 		}
 	}
 
+	int notSrcCopyFlagEnable = 0;
+	GetInitGameParam(&notSrcCopyFlagEnable,"notSrcCopyFlagEnable");
+	if (notSrcCopyFlagEnable) CSuperButtonSetup::SetNotCopyFlagEnable();
 
 
 	m_superButtonPicture = new CSuperButtonPicture();
@@ -719,6 +741,9 @@ void CGameCallBack::GeneralCreate(void)
 			m_autoExtSubDataLoadKosuu++;
 		}
 	}
+
+	m_clearAutoAfterLoad = 0;
+	GetInitGameParam(&m_clearAutoAfterLoad,"clearAutoAfterLoad");
 
 
 	//当面どちらも有効
@@ -847,6 +872,8 @@ void CGameCallBack::GeneralCreate(void)
 	
 	//total volume?
 
+	m_totalVolumeUseFlag = 0;
+	GetInitGameParam(&m_totalVolumeUseFlag,"totalVolumeUseFlag");
 
 
 	//reset mute?
@@ -908,6 +935,18 @@ void CGameCallBack::GeneralCreate(void)
 
 	m_modalCannotCloseFlag = 1;
 	GetInitGameParam(&m_modalCannotCloseFlag,"modalCannotCloseFlag");
+
+
+	m_useHsavemask = 0;
+	m_hSaveList = NULL;
+	m_hSaveMaskPic = NULL;
+	GetInitGameParam(&m_useHsavemask,"useHsaveMask");
+	if (m_useHsavemask)
+	{
+		m_hSaveList = new CNameList();
+		m_hSaveMaskPic = new CPicture();
+		m_hSaveList->LoadFile("nya\\savemasklist.xtx");
+	}
 
 
 	m_miniCGReduce = 6;
@@ -1970,11 +2009,18 @@ void CGameCallBack::GeneralCreate(void)
 
 	SetForegroundWindow(m_hWnd);
 	SetFocus(m_hWnd);
+	int masterVolumeFlag = 0;
+	GetInitGameParam(&masterVolumeFlag,"masterVolumeFlag");
 
 	m_directSound = new CMyDirectSound(m_hWnd);
-	m_mixer = new CMixerControl();
+	m_mixer = new CMixerControl(masterVolumeFlag);
 	int vmr = m_systemFile->m_systemdata.useVMR9;
 	m_directShow = new CMyDirectShow(m_hWnd,WM_APP+1,vmr);
+	SIZE dsSize;
+	dsSize.cx = m_windowSizeX;
+	dsSize.cy = m_windowSizeY;
+	if (m_directShow != NULL) m_directShow->SetWindowSize(dsSize);
+	if (m_directShow != NULL) m_directShow->SetFullMonitorSize(dsSize);
 	if (m_directShow != NULL) m_directShow->OnDisplayChanged();
 
 
@@ -2312,6 +2358,12 @@ void CGameCallBack::GeneralCreate(void)
 	m_quickConfigButton = NULL;
 	m_quickBackLogButton = NULL;
 
+	m_freeSaveButton = NULL;
+	m_freeLoadButton = NULL;
+	m_freeAutoButton = NULL;
+	m_freeSkipButton = NULL;
+	m_freeWindowOffButton = NULL;
+
 	m_notice = NULL;
 
 	m_gameMouseCreateFlag = 1;
@@ -2345,6 +2397,20 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&quickConfigButtonCreateFlag,"quickConfigButtonCreateFlag");
 	GetInitGameParam(&quickBackLogButtonCreateFlag,"quickBacklogButtonCreateFlag");
 	
+	int freeSaveButtonCreateFlag = 0;
+	int freeLoadButtonCreateFlag = 0;
+	int freeAutoButtonCreateFlag = 0;
+	int freeSkipButtonCreateFlag = 0;
+	int freeWindowOffButtonCreateFlag = 0;
+
+	GetInitGameParam(&freeSaveButtonCreateFlag,"freeSaveButtonCreateFlag");
+	GetInitGameParam(&freeLoadButtonCreateFlag,"freeLoadButtonCreateFlag");
+	GetInitGameParam(&freeAutoButtonCreateFlag,"freeAutoButtonCreateFlag");
+	GetInitGameParam(&freeSkipButtonCreateFlag,"freeSkipButtonCreateFlag");
+	GetInitGameParam(&freeWindowOffButtonCreateFlag,"freeWindowOffButtonCreateFlag");
+
+
+
 	GetInitGameParam(&m_noticeFlag,"noticeFlag");
 
 	m_loadNoticeNumber = 1;
@@ -2373,8 +2439,17 @@ void CGameCallBack::GeneralCreate(void)
 	if (quickConfigButtonCreateFlag) m_quickConfigButton = new CSceneOptionButton("quickConfigButton",m_taihi,16);
 	if (quickBackLogButtonCreateFlag) m_quickBackLogButton = new CSceneOptionButton("quickBacklogButton",m_taihi,18);
 
+	if (freeSaveButtonCreateFlag) m_freeSaveButton = new CSceneOptionButton("freeSaveButton",m_taihi,20);
+	if (freeLoadButtonCreateFlag) m_freeLoadButton = new CSceneOptionButton("freeLoadButton",m_taihi,22);
+	if (freeAutoButtonCreateFlag) m_freeAutoButton = new CSceneOptionButton("freeAutoButton",m_taihi,24);
+	if (freeSkipButtonCreateFlag) m_freeSkipButton = new CSceneOptionButton("freeSkipButton",m_taihi,26);
+	if (freeWindowOffButtonCreateFlag) m_freeWindowOffButton = new CSceneOptionButton("freeWindowOffButton",m_taihi,28);
 
-	if (m_noticeFlag) m_notice = new CNotice(m_taihi,20);
+	//30,31
+
+
+
+	if (m_noticeFlag) m_notice = new CNotice(m_taihi,32);
 
 	m_noticeFunction = -1;
 	if (m_noticeFlag)
@@ -2652,6 +2727,17 @@ void CGameCallBack::GeneralCreate(void)
 	{
 //			m_mixer->SetWAVEVolume(60);
 		m_mixer->SetWAVEVolume(m_directXInitVolume);
+	}
+
+	if (m_totalVolumeUseFlag)
+	{
+		int totalInitFlag = 1;
+		GetInitGameParam(&totalInitFlag,"totalVolumeInitFlag");
+		if (totalInitFlag)
+		{
+			m_mixer->SetTotalVolume(GetSystemParam(NNNPARAM_TOTALVOLUME));
+		}
+
 	}
 
 
@@ -2987,6 +3073,13 @@ ENDDELETECLASS(m_waveData);	//dummy
 	ENDDELETECLASS(m_quickConfigButton);
 	ENDDELETECLASS(m_quickLoadButton);
 	ENDDELETECLASS(m_quickSaveButton);
+
+	ENDDELETECLASS(m_freeSaveButton);
+	ENDDELETECLASS(m_freeLoadButton);
+	ENDDELETECLASS(m_freeAutoButton);
+	ENDDELETECLASS(m_freeSkipButton);
+	ENDDELETECLASS(m_freeWindowOffButton);
+
 	ENDDELETECLASS(m_skipFilmButton);
 	ENDDELETECLASS(m_sceneButton);
 	ENDDELETECLASS(m_optionButton);
@@ -3045,6 +3138,9 @@ ENDDELETECLASS(m_waveData);	//dummy
 
 
 	ENDDELETECLASS(m_cgDataControl);
+
+	ENDDELETECLASS(m_hSaveList);
+	ENDDELETECLASS(m_hSaveMaskPic);
 
 //OutputDebugString("delete ***ListX\n");
 //	if (m_cgList != NULL)
@@ -3901,12 +3997,19 @@ void CGameCallBack::ToFullScreenRoutine(void)
 	devMode.dmPelsWidth = m_windowSizeX;
 	devMode.dmPelsHeight = m_windowSizeY;
 	devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT; 
+
+	//test 20130822
+//	devMode.dmBitsPerPel = devMode0.dmBitsPerPel;
+//	devMode.dmFields |= DM_BITSPERPEL;
+
 	int hr = ChangeDisplaySettings(&devMode, CDS_FULLSCREEN); 
 	Sleep(100);
+//	int hr = DISP_CHANGE_BADMODE;
 
 	if (hr != DISP_CHANGE_SUCCESSFUL)
 	{
 		char mes[1024];
+		mes[0] = 0;
 		int nn = 0;
 		if (hr == DISP_CHANGE_SUCCESSFUL) nn = 1;
 		if (hr == DISP_CHANGE_RESTART) nn = 2;
@@ -3916,6 +4019,7 @@ void CGameCallBack::ToFullScreenRoutine(void)
 		if (hr == DISP_CHANGE_BADMODE) nn = 6;
 		if (hr == DISP_CHANGE_NOTUPDATED) nn = 7;
 		wsprintf(mes,"%d:%d",hr,nn);
+		//fordebug@@@@@@@@@@@@@@@@@
 //		MessageBox(NULL,mes,"fullerrorret",MB_OK);
 
 		int devNum = 0;
@@ -3928,6 +4032,7 @@ void CGameCallBack::ToFullScreenRoutine(void)
 		BOOL cannot = TRUE;
 
 
+		BOOL modeFound = FALSE;
 
 		while (EnumDisplaySettings(NULL,devNum,&devMode2))
 		{
@@ -3937,6 +4042,8 @@ void CGameCallBack::ToFullScreenRoutine(void)
 				{
 					if (devMode2.dmBitsPerPel == devMode0.dmBitsPerPel)
 					{
+						modeFound = TRUE;
+
 						devMode2.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY | DM_BITSPERPEL;  
 						int hr2 = ChangeDisplaySettings(&devMode2, CDS_FULLSCREEN); 
 						Sleep(10);
@@ -3949,8 +4056,9 @@ void CGameCallBack::ToFullScreenRoutine(void)
 						if (hr2 == DISP_CHANGE_FAILED) nn2 = 5;
 						if (hr2 == DISP_CHANGE_BADMODE) nn2 = 6;
 						if (hr2 == DISP_CHANGE_NOTUPDATED) nn2 = 7;
-						wsprintf(mes,"%d:%d f=%d",hr,nn,devMode2.dmDisplayFrequency);
-					//	MessageBox(NULL,mes,"fullerrorret",MB_OK);
+						wsprintf(mes,"HR=%d エラー=%d 周波数=%dHz",hr,nn,devMode2.dmDisplayFrequency);
+						//for debug@@@@@@@@
+//						MessageBox(NULL,mes,"fullerrorret2",MB_OK);
 
 						if (hr2 == DISP_CHANGE_SUCCESSFUL)
 						{
@@ -3958,6 +4066,7 @@ void CGameCallBack::ToFullScreenRoutine(void)
 							cannot = FALSE;
 							break;
 						}
+//						MessageBox(NULL,mes,"fullerrorret2",MB_OK);
 					}
 				}
 			}
@@ -3967,7 +4076,14 @@ void CGameCallBack::ToFullScreenRoutine(void)
 
 		if (cannot)
 		{
-			MessageBox(m_hWnd,"フルスクリーン処理に失敗しました","Error",MB_ICONEXCLAMATION | MB_OK);
+			if (modeFound)
+			{
+				MessageBox(m_hWnd,"フルスクリーン処理に失敗しました","Error",MB_ICONEXCLAMATION | MB_OK);
+			}
+			else
+			{
+				MessageBox(m_hWnd,"このマシンではこの解像度はサポートされていません","Error",MB_ICONEXCLAMATION | MB_OK);
+			}
 		}
 	}
 
@@ -4152,6 +4268,11 @@ void CGameCallBack::PrintSimpleWipe(int count, int countMax, int type)
 	m_effect->PrintSimpleWipe(type,m_overrapPic1,m_overrapPic2,count,countMax);
 }
 
+void CGameCallBack::PrintSimpleWipe(CPicture* lpFromPic,CPicture* lpToPic,int count, int countMax, int type)
+{
+	m_effect->PrintSimpleWipe(type,lpFromPic,lpToPic,count,countMax);
+}
+
 BOOL CGameCallBack::CheckDemoMode(void)
 {
 	//当面つねにFALSEになる予定
@@ -4168,6 +4289,13 @@ void CGameCallBack::AddBackLogMessage(LPSTR mes,int colR, int colG, int colB)
 	obj->AddMessage(mes,colR,colG,colB);
 }
 
+void CGameCallBack::AddBacklogSeparator(void)
+{
+	CCommonBackLog* obj = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	if (obj == NULL) return;
+
+	obj->AddSeparator();
+}
 
 BOOL CGameCallBack::CheckMessageRead(int mesNum, int sptNum)
 {
@@ -4251,7 +4379,13 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 			m_systemFile->m_systemdata.soundVoiceVolume = dat;
 		}
 		break;
-
+	case NNNPARAM_TOTALVOLUME:
+		if (m_totalVolumeUseFlag)
+		{
+			m_systemFile->m_systemdata.totalVolume = dat;
+			m_mixer->SetTotalVolume(dat);
+		}
+		break;
 	case NNNPARAM_MUSICSWITCH:
 		m_systemFile->m_systemdata.musicSwitch = dat;
 		if (dat == 0)
@@ -4287,7 +4421,26 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 			m_systemFile->m_systemdata.soundVoiceSwitch = dat;
 		}
 		break;
-	
+	case NNNPARAM_TOTALSWITCH:
+		if (m_totalVolumeUseFlag)
+		{
+			m_systemFile->m_systemdata.totalVolumeSwitch = dat;
+			if (dat == 0)
+			{
+				//stop only
+				int m = m_lastMusicNumber;
+				StopMusic();
+				m_lastMusicNumber = m;
+			}
+			else
+			{
+				if (m_lastMusicNumber != -1)
+				{
+					PlayMusic(m_lastMusicNumber,m_musicKaisuu);
+				}
+			}
+		}
+		break;
 	case NNNPARAM_SKIPMODE:
 		m_systemFile->m_systemdata.skipMode = dat;
 		break;
@@ -4307,18 +4460,24 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 	case NNNPARAM_AUTOSPEEDSLIDER:
 		m_systemFile->m_systemdata.autoSpeedSlider = dat;
 		break;
+	case NNNPARAM_AUTOCONTINUESWITCH:
+		m_systemFile->m_systemdata.coninueAuto = dat;
+		break;
 	}
 
 	if ((para >= NNNPARAM_EXPMODE) && (para < NNNPARAM_EXPMODE+m_expButtonKosuu))
 	{
 		m_systemFile->m_systemdata.expMode[para-NNNPARAM_EXPMODE] = dat;
 		
-		CheckAndSetMouseAndCursor(para,dat);
-
+		if (AfterChangeSystemParamExpRadio(para-NNNPARAM_EXPMODE,dat) == FALSE)
+		{
+			CheckAndSetMouseAndCursor(para,dat);
+		}
 	}
 	if ((para >= NNNPARAM_EXPCHECK) && (para < NNNPARAM_EXPCHECK+m_expCheckButtonKosuu))
 	{
 		m_systemFile->m_systemdata.expCheck[para-NNNPARAM_EXPCHECK] = dat;
+		AfterChangeSystemParamExpCheck(para-NNNPARAM_EXPCHECK,dat);
 	}
 
 	if ((para >= NNNPARAM_CHARAVOICEVOLUME) && (para < NNNPARAM_CHARAVOICEVOLUME+12*6))
@@ -4374,7 +4533,9 @@ int CGameCallBack::GetSystemParam(int para)
 		}
 
 		break;
-
+	case NNNPARAM_TOTALVOLUME:
+		return m_systemFile->m_systemdata.totalVolume;
+		break;
 	case NNNPARAM_MUSICSWITCH:
 		return m_systemFile->m_systemdata.musicSwitch;
 		break;
@@ -4412,6 +4573,9 @@ int CGameCallBack::GetSystemParam(int para)
 			return m_systemFile->m_systemdata.voiceSwitch;
 		}
 		break;
+	case NNNPARAM_TOTALSWITCH:
+		return m_systemFile->m_systemdata.totalVolumeSwitch;
+		break;
 	case NNNPARAM_SKIPMODE:
 		return m_systemFile->m_systemdata.skipMode;
 		break;
@@ -4429,6 +4593,9 @@ int CGameCallBack::GetSystemParam(int para)
 		break;
 	case NNNPARAM_AUTOSPEEDSLIDER:
 		return m_systemFile->m_systemdata.autoSpeedSlider;
+		break;
+	case NNNPARAM_AUTOCONTINUESWITCH:
+		return m_systemFile->m_systemdata.coninueAuto;
 		break;
 	}
 
@@ -4460,6 +4627,8 @@ void CGameCallBack::PostCloseMessage(void)
 
 void CGameCallBack::StopReplayVoice(int fadeTime)
 {
+	if (CheckTotalVolumeOff()) return;
+
 	if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
 
 	m_scriptVoiceControl->Stop(0,FALSE,fadeTime);
@@ -4467,6 +4636,7 @@ void CGameCallBack::StopReplayVoice(int fadeTime)
 
 void CGameCallBack::ReplayVoice(LPSTR filename)
 {
+	if (CheckTotalVolumeOff()) return;
 	if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
 	
 	//check voice off
@@ -4767,12 +4937,21 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 
 	m_nokori = lp->nokori;
 
+	//clear auto skip
+	if (m_clearAutoAfterLoad)
+	{
+		SetSystemParam(NNNPARAM_AUTOMODE,0);
+		SetMessageSkipFlag(FALSE);
+	}
+
 	//bgm
 //	m_bgmNumber = lp->bgmNumber;
 //	m_bgmKaisuu = lp->bgmKaisuu;
 	m_musicNumber = lp->bgmNumber;
 	m_musicKaisuu = lp->bgmKaisuu;
 
+	int vol = lp->bgmVolume;
+	vol -= GetSystemParam(NNNPARAM_MUSICVOLUME);
 
 	if (m_musicNumber == -1)
 	{
@@ -4780,7 +4959,7 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 	}
 	else
 	{
-		PlayMusic(m_musicNumber,m_musicKaisuu);
+		PlayMusic(m_musicNumber,m_musicKaisuu,vol);
 	}
 
 
@@ -4861,6 +5040,8 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 	{
 		SetFrameRate(frame);
 	}
+
+
 }
 
 
@@ -5124,7 +5305,7 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 //	lp->bgmNumber = m_musicNumber;
 	lp->bgmNumber = m_lastMusicNumber;
 	lp->bgmKaisuu = m_musicKaisuu;
-
+	lp->bgmVolume = m_musicControl->GetVolumeData();
 
 
 	int j = 0;
@@ -5429,9 +5610,53 @@ void CGameCallBack::MakeMiniCG(void)
 
 
 #endif
-	
-//	m_gameUtil->MakeMiniCG132x100((int*)(CMyGraphics::GetScreenBuffer()),m_miniCG);
+
 	m_gameUtil->MakeMiniCG((int*)(CMyGraphics::GetScreenBuffer()),m_miniCG);
+
+
+	if (m_useHsavemask)
+	{
+		//check
+		int found = -1;
+		int kosuu = m_hSaveList->GetNameKosuu();
+		for (int n=1;n<kosuu/2;n++)
+		{
+			LPSTR name = m_hSaveList->GetName(n*2);
+			char checkName[1024];
+			memcpy(&checkName[3],name,strlen(name)+1);
+			checkName[0] = *name;
+			checkName[1] = *(name+1);
+			checkName[2] = '\\';
+
+			for (int layer = 0;layer<16;layer++)
+			{
+				//if exist pic
+				LPSTR effectFilename = m_effect->GetExistEffectFileName(layer);
+				if (effectFilename != NULL)
+				{
+					if (_stricmp(effectFilename,checkName) == 0)
+					{
+						found = n;
+						break;
+					}
+				}
+			}
+			if (found != -1) break;
+		}
+
+
+		if (found != -1)
+		{
+			char filename[1024];
+			wsprintf(filename,"sys\\%s",m_hSaveList->GetName(found*2+1));
+			m_hSaveMaskPic->LoadDWQ(filename);
+			m_gameUtil->AddMaskToMiniPic(m_miniCG,m_hSaveMaskPic);
+		}
+	}
+
+
+
+//	m_gameUtil->MakeMiniCG132x100((int*)(CMyGraphics::GetScreenBuffer()),m_miniCG);
 
 
 }
@@ -6444,7 +6669,10 @@ LRESULT CGameCallBack::GameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		}
 		break;
 
-
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@ test20130826
+//	case WM_ERASEBKGND:
+//		return 1;
+//		break;
 	case WM_CHAR:
 		if (m_textInputBox != NULL)
 		{
@@ -7193,6 +7421,7 @@ LPSTR CGameCallBack::GetBGMName(int n)
 
 void CGameCallBack::PlaySystemWaveFilename(LPSTR filename,int deltaVolume)
 {
+	if (CheckTotalVolumeOff()) return;
 	if (GetSystemParam(NNNPARAM_SOUNDSWITCH) == 0) return;
 
 	char name[256];
@@ -7235,6 +7464,7 @@ void CGameCallBack::PlaySystemWaveFilename(LPSTR filename,int deltaVolume)
 
 void CGameCallBack::PlaySystemVoiceByFileName(LPSTR filename, BOOL firstOffFlag,BOOL sameBufferFlag)
 {
+	if (CheckTotalVolumeOff()) return;
 	if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
 
 	char name[256];
@@ -7919,6 +8149,8 @@ void CGameCallBack::SystemFunctionSound(int para1,LPVOID para2)
 
 BOOL CGameCallBack::PlayScriptSe(int ch)
 {
+	if (CheckTotalVolumeOff()) return TRUE;
+
 	if (GetSystemParam(NNNPARAM_SOUNDSWITCH))
 	{
 		m_scriptSoundControl->CalcuTeii(ch);
@@ -8165,6 +8397,8 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2)
 					vsw = GetSystemParam(NNNPARAM_SOUNDVOICESWITCH);
 				}
 
+				if (CheckTotalVolumeOff()) vsw = 0;
+
 				if (vsw)
 				{
 					if (voicenum != -1)
@@ -8405,6 +8639,7 @@ OutputDebugString(mes999);
 			vsw = GetSystemParam(NNNPARAM_SOUNDVOICESWITCH);
 		}
 
+		if (CheckTotalVolumeOff()) vsw = 0;
 
 		if (vsw)
 		{
@@ -11023,6 +11258,8 @@ int CGameCallBack::GetModalPrintMode(int level)
 
 void CGameCallBack::PlaySystemSound(int n,int volumeType)
 {
+	if (CheckTotalVolumeOff()) return;
+
 	if (volumeType == 0)
 	{
 		if (GetSystemParam(NNNPARAM_SOUNDSWITCH) == 0) return;
@@ -12214,9 +12451,28 @@ void CGameCallBack::PlayMusic(int n,int loopCount,int volume,int fadeInTime, int
 	LPSTR filename = m_bgmList->GetName(n*2);
 	if (filename != NULL)
 	{
+		BOOL played = FALSE;
+
 		if (GetSystemParam(NNNPARAM_MUSICSWITCH))
 		{
-			PlayMusic(filename,loopCount,volume,fadeInTime,fadeOutTime);
+			if (CheckTotalVolumeOff() == FALSE)
+			{
+				PlayMusic(filename,loopCount,volume,fadeInTime,fadeOutTime);
+				played = TRUE;
+			}
+		}
+
+		if (played == FALSE)
+		{
+			int vol = GetSystemParam(NNNPARAM_MUSICVOLUME);
+
+			if (volume != -9999)
+			{
+				vol += volume;
+				if (vol<1) vol = 1;
+				if (vol>100) vol = 100;
+			}
+			m_musicControl->SetVolumeData(vol);
 		}
 	}
 
@@ -12264,6 +12520,12 @@ int CGameCallBack::CalcuOptionButton(void)
 	int rt4 = NNNBUTTON_NOTHING;
 	int rt5 = NNNBUTTON_NOTHING;
 
+	int rt102 = NNNBUTTON_NOTHING;
+	int rt103 = NNNBUTTON_NOTHING;
+	int rt106 = NNNBUTTON_NOTHING;
+	int rt107 = NNNBUTTON_NOTHING;
+	int rt108 = NNNBUTTON_NOTHING;
+
 	int md = GetGameMode();
 
 	if (GetOptionOff() == FALSE)
@@ -12290,6 +12552,22 @@ int CGameCallBack::CalcuOptionButton(void)
 					rt3 = m_quickLoadButton->Calcu(m_inputStatus);
 				}
 			}
+
+			if (m_freeSaveButton != NULL)
+			{
+				if (CheckFreeButtonOkMode(md,SAVE_MODE))
+				{
+					rt102 = m_freeSaveButton->Calcu(m_inputStatus);
+				}
+			}
+
+			if (m_freeLoadButton != NULL)
+			{
+				if (CheckFreeButtonOkMode(md,LOAD_MODE))
+				{
+					rt103 = m_freeLoadButton->Calcu(m_inputStatus);
+				}
+			}
 		}
 
 		if (m_quickConfigButton != NULL)
@@ -12308,6 +12586,28 @@ int CGameCallBack::CalcuOptionButton(void)
 				{
 					rt5 = m_quickBackLogButton->Calcu(m_inputStatus);
 				}
+			}
+		}
+
+		if (m_freeAutoButton != NULL)
+		{
+			if (CheckFreeButtonOkMode(md,NNN_FREEBUTTON_AUTO))
+			{
+				rt106 = m_freeAutoButton->Calcu(m_inputStatus);
+			}
+		}
+		if (m_freeSkipButton != NULL)
+		{
+			if (CheckFreeButtonOkMode(md,NNN_FREEBUTTON_SKIP))
+			{
+				rt107 = m_freeSkipButton->Calcu(m_inputStatus);
+			}
+		}
+		if (m_freeWindowOffButton != NULL)
+		{
+			if (CheckFreeButtonOkMode(md,NNN_FREEBUTTON_WINDOWOFF))
+			{
+				rt108 = m_freeWindowOffButton->Calcu(m_inputStatus);
 			}
 		}
 	}
@@ -12490,6 +12790,39 @@ int CGameCallBack::CalcuOptionButton(void)
 		}
 	}
 
+	int st102 = -1;
+	int st103 = -1;
+	int st106 = -1;
+	int st107 = -1;
+	int st108 = -1;
+
+	if (optionProceed == FALSE)
+	{
+		st102 = CCommonButton::GetButtonStatus(rt102);
+		optionProceed = CalcuFreeButton(m_freeSaveButton,rt102,3,&rt1,&sound);
+	}
+	if (optionProceed == FALSE)
+	{
+		st103 = CCommonButton::GetButtonStatus(rt103);
+		optionProceed = CalcuFreeButton(m_freeLoadButton,rt103,4,&rt1,&sound);
+	}
+	if (optionProceed == FALSE)
+	{
+		st106 = CCommonButton::GetButtonStatus(rt106);
+		optionProceed = CalcuFreeButton(m_freeAutoButton,rt106,5,&rt1,&sound);
+	}
+	if (optionProceed == FALSE)
+	{
+		st107 = CCommonButton::GetButtonStatus(rt107);
+		optionProceed = CalcuFreeButton(m_freeSkipButton,rt107,6,&rt1,&sound);
+	}
+	if (optionProceed == FALSE)
+	{
+		st108 = CCommonButton::GetButtonStatus(rt108);
+		optionProceed = CalcuFreeButton(m_freeWindowOffButton,rt108,7,&rt1,&sound);
+	}
+
+
 	if (optionProceed == FALSE)
 	{
 		if ((st1 != NNNBUTTON_STARTCLICK) && (st1 != NNNBUTTON_CLICKING))
@@ -12516,6 +12849,27 @@ int CGameCallBack::CalcuOptionButton(void)
 				f = TRUE;
 			}
 
+			if ((st102 == NNNBUTTON_STARTCLICK) || (st102 == NNNBUTTON_CLICKING))
+			{
+				f = TRUE;
+			}
+			if ((st103 == NNNBUTTON_STARTCLICK) || (st103 == NNNBUTTON_CLICKING))
+			{
+				f = TRUE;
+			}
+			if ((st106 == NNNBUTTON_STARTCLICK) || (st106 == NNNBUTTON_CLICKING))
+			{
+				f = TRUE;
+			}
+			if ((st107 == NNNBUTTON_STARTCLICK) || (st107 == NNNBUTTON_CLICKING))
+			{
+				f = TRUE;
+			}
+			if ((st108 == NNNBUTTON_STARTCLICK) || (st108 == NNNBUTTON_CLICKING))
+			{
+				f = TRUE;
+			}
+
 			if (f)
 			{
 				rt1 = CCommonButton::MakeButtonStatus(NNNBUTTON_CLICKING);
@@ -12526,8 +12880,54 @@ int CGameCallBack::CalcuOptionButton(void)
 	return rt1;
 }
 
+BOOL CGameCallBack::CalcuFreeButton(CSceneOptionButton* button,int rt,int cmd,int* lpRT,int* lpSound)
+{
+	if (button == NULL) return FALSE;
 
+	BOOL optionProceed = FALSE;
 
+	int nm = -1;
+//	int rt = -1;
+
+//	st102 = CCommonButton::GetButtonStatus(rt102);
+	int requestSoundFlag = CCommonButton::CheckRequestSound(rt);
+	if (requestSoundFlag)
+	{
+		*lpSound = CCommonButton::GetButtonSound(rt);
+	}
+
+	int existDataFlag = CCommonButton::CheckExistData(rt);
+	if (existDataFlag)
+	{
+		nm = CCommonButton::GetButtonData(rt);
+		if (nm == 0)
+		{
+			if (button != NULL)
+			{
+				button->Init();
+			}
+
+			optionProceed = TRUE;
+			*lpRT = CCommonButton::MakeButtonStatus(NNNBUTTON_NUMBER,-1,-1,cmd);
+		}
+	}
+	return optionProceed;
+}
+
+BOOL CGameCallBack::CheckOnFreeAutoSkipButton(POINT pt)
+{
+	if (m_freeAutoButton != NULL)
+	{
+		if (m_freeAutoButton->CheckOn(pt)) return TRUE;
+	}
+
+	if (m_freeSkipButton != NULL)
+	{
+		if (m_freeSkipButton->CheckOn(pt)) return TRUE;
+	}
+
+	return FALSE;
+}
 
 int CGameCallBack::CalcuSceneButton(void)
 {
@@ -12600,8 +13000,39 @@ void CGameCallBack::InitOptionButton(void)
 		m_quickBackLogButton->Init();
 	}
 
+	InitFreeButton(m_freeSaveButton,SAVE_MODE);
+	InitFreeButton(m_freeLoadButton,LOAD_MODE);
+	InitFreeButton(m_freeAutoButton,NNN_FREEBUTTON_AUTO);
+	InitFreeButton(m_freeSkipButton,NNN_FREEBUTTON_SKIP);
+	InitFreeButton(m_freeWindowOffButton,NNN_FREEBUTTON_WINDOWOFF);
 }
 
+void CGameCallBack::InitFreeButton(CSceneOptionButton* button,int md)
+{
+	int nowMode = GetGameMode();
+	if (button != NULL)
+	{
+		button->Init();
+		int f = CheckFreeButtonOkMode(nowMode,md);
+		if (f == 0)
+		{
+			button->SetEnable(0);
+		}
+		else if (f == 1)
+		{
+			button->SetEnable();
+		}
+		else if (f == 2)
+		{
+			button->SetEnable(0);
+		}
+		else
+		{
+			button->SetEnable();//error
+		}
+		button->Init();
+	}
+}
 
 
 void CGameCallBack::InitSceneButton(void)
@@ -12709,8 +13140,29 @@ void CGameCallBack::PrintOptionButton(void)
 			}
 		}
 	}
+
+
+	if (CheckSceneMode() == FALSE)
+	{
+		PrintFreeButton(m_freeSaveButton,SAVE_MODE);
+		PrintFreeButton(m_freeLoadButton,LOAD_MODE);
+	}
+	PrintFreeButton(m_freeAutoButton,NNN_FREEBUTTON_AUTO);
+	PrintFreeButton(m_freeSkipButton,NNN_FREEBUTTON_SKIP);
+	PrintFreeButton(m_freeWindowOffButton,NNN_FREEBUTTON_WINDOWOFF);
 }
 
+void CGameCallBack::PrintFreeButton(CSceneOptionButton* button,int md)
+{
+	if (button != NULL)
+	{
+		int nowMode = GetGameMode();
+		if (CheckFreeButtonOkMode(nowMode,md))
+		{
+			button->Print();
+		}
+	}
+}
 
 
 
@@ -14206,6 +14658,22 @@ void CGameCallBack::ChangeAutoExtSubDataSize(int n,int dataSize)
 	}
 }
 
+//FreeButtonも同じものを使う
+int CGameCallBack::CheckFreeButtonOkMode(int nowMode,int checkMode)
+{
+	CCommonGeneral* general = m_general[nowMode];
+	if (general != NULL)
+	{
+		int f = general->CheckOtherSetup(checkMode,1);
+		if (f == 0) return 1;
+		if (f == 1) return 0;//dont print
+		if (f == 2) return 2;//grey拡張よう
+		return 0;
+//		if (general->CheckOtherSetup(checkMode,1)) return FALSE;
+	}
+
+	return 1;
+}
 
 BOOL CGameCallBack::CheckQuickButtonOkMode(int nowMode,int checkMode)
 {
@@ -14321,6 +14789,82 @@ void CGameCallBack::SetAutoSaveSubClass(int type,CAutoSaveSubData* subClass)
 	}
 
 }
+
+void CGameCallBack::AllOnOmakeFlag(int mask)
+{
+	if (mask & 1)	//CG
+	{
+		m_cgDataControl->SetAllOn();
+	}
+
+	if (mask & 2)	//scene
+	{
+		m_sceneDataControl->SetAllOn();
+	}
+
+}
+
+void CGameCallBack::SetAnimeOff(int offMode)
+{
+	m_effect->SetAnimeOff(offMode);
+}
+
+BOOL CGameCallBack::AfterChangeSystemParamExpCheck(int para,int dat)
+{
+	//virtual! nothing to do this class
+	return FALSE;
+}
+
+BOOL CGameCallBack::AfterChangeSystemParamExpRadio(int para,int dat)
+{
+	return FALSE;
+	//virtual! nothing to do this class
+}
+
+BOOL CGameCallBack::CheckVolumeExist(int n)
+{
+	CCommonConfig* config = (CCommonConfig*)(m_general[CONFIG_MODE]);
+	if (config == NULL) return FALSE;
+	return config->CheckVolumeExist(n);
+}
+
+CPicture* CGameCallBack::GetAnimeBuffer(int n)
+{
+	return m_effect->GetAnimeBuffer(n);
+}
+
+LPSTR CGameCallBack::GetAnimeTag(void)
+{
+	return m_effect->GetAnimeTag();
+}
+
+BOOL CGameCallBack::CheckTotalVolumeOff(void)
+{
+	if (m_totalVolumeUseFlag == 0) return FALSE;
+	if (GetSystemParam(NNNPARAM_TOTALSWITCH)) return FALSE;
+
+	return TRUE;
+}
+
+void CGameCallBack::InitFreeButton(int buttonType)
+{
+	if (buttonType == NNN_FREEBUTTON_SKIP)
+	{
+		if (m_freeSkipButton != NULL)
+		{
+			m_freeSkipButton->SetNextIgnore();
+//			OutputDebugString("InitFreeButton\n");
+		}
+	}
+}
+
+int CGameCallBack::GetCGBlockNumber(int cgCharaNumber,int cgNumber)
+{
+	CCommonSelectCG* general = (CCommonSelectCG*)(m_general[SELECTCG_MODE]);
+	if (general == NULL) return 0;
+	return general->GetCGBlockNumber(cgCharaNumber,cgNumber);
+}
+
 
 /*_*/
 

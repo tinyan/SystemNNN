@@ -150,5 +150,32 @@ int CSceneDataControl::GetNextSceneFilm(void)
 	return -1;
 }
 
+void CSceneDataControl::SetAllOn(void)
+{
+	int totalKosuu = 0;
+	int getKosuu = 0;
+
+	for (int n=0;n<m_sceneCharaKosuu;n++)
+	{
+		int sceneKosuu = GetSceneKosuu(n);
+
+		for (int k=0;k<sceneKosuu;k++)
+		{
+			int filmKosuu = m_sceneList->GetFilmKosuu(n,k);
+			int sptNum = m_sceneList->GetScriptNumber(n,k);
+
+			for (int i=0;i<filmKosuu;i++)
+			{
+				int film = m_sceneList->GetCheckFilmNumber(n,k,i);
+				if (film != -1)
+				{
+					m_systemFile->SetFilm(sptNum,film);
+				}
+			}
+
+		}
+	}
+}
+
 /*_*/
 

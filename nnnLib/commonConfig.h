@@ -39,17 +39,22 @@ public:
 
 	static char m_volumeName[][16];
 	static char m_modeButtonName[][16];
+	static char m_checkButtonName[][16];
 
 	static char m_defaultPageNumberVarName[];
 
-	static int m_defaultVolumeMaxTable[];
+	static int m_defaultVolumeDevideTable[];
 	static int m_defaultBunkatsuTable[];
 	static int m_defaultIsVoiceTable[];
 
 
+	static int m_n2VolumeSystemParamTable[];
+	static int m_n2VolumeSwitchSystemParamTable[];
 
 
 	void ReloadScreenButton(void);
+	BOOL CheckVolumeExist(int n);
+
 protected:
 	BOOL m_disableCDButtonFlag;
 	BOOL m_disableMidiButtonFlag;
@@ -206,7 +211,7 @@ protected:
 	int m_windowPercentSeBunkatsu;
 
 	int* m_seTable;
-	int* m_volumeMaxTable;
+	int* m_volumeDevideTable;
 	int* m_bunkatsuTable;
 	int* m_isVoiceTable;
 
@@ -242,6 +247,8 @@ protected:
 
 	CCommonCheckButton** m_ppExpCheckButton;
 	CCommonRadioButtonGroup** m_ppModeButton;
+	CCommonCheckButton** m_ppCheckButton;
+	CCommonButton** m_ppClickButton;
 
 	CCommonRadioButtonGroup** m_ppExpModeButton;
 
@@ -261,8 +268,10 @@ protected:
 
 	void ReLoadVoiceButtonPic(int n);
 	void ReLoadModeButtonPic(int n);
+	void ReLoadCheckButtonPic(int n);
 	void ReLoadExpModeButtonPic(int n);
 	void ReLoadExpCheckButtonPic(int n);
+	void ReLoadClickButtonPic(int n);
 	void ReLoadVolumeButtonPic(int n);
 
 	int m_voiceAutoLineSetFlag;
@@ -283,15 +292,21 @@ protected:
 
 	int m_volumeKosuu;
 	int m_modeButtonKosuu;
+	int m_checkButtonKosuu;
 	int m_expModeButtonKosuu;
 	int m_expCheckButtonKosuu;
+	int m_clickButtonKosuu;
 
 	int* m_volumePrintPage;
 //	int m_messageSpeedPrintPage;
 	int m_voicePrintPage;
 	int* m_modeButtonPrintPage;
+	int* m_modeButtonExistFlag;
+
+	int* m_checkButtonPrintPage;
 	int* m_expModeButtonPrintPage;
 	int* m_expCheckButtonPrintPage;
+	int* m_clickButtonPrintPage;
 
 	int m_mustStartPage1Flag;
 
@@ -368,6 +383,35 @@ protected:
 	int m_charaVolumeSizeX;
 	int m_charaVolumeSizeY;
 
+
+	void InitAllConfig(void);
+
+
+	int m_initWindowPercent;
+	int m_initWindowNumber;
+	int m_initTotalVolume;
+//	int m_initMusicVolume;
+//	int m_initSoundVolume;
+	//int m_initVoiceVolume;
+	//int m_initSoundVoiceVolume;
+	int m_initSkipMode;
+	int m_initMessageSpeed;
+	int m_initAutoSpeed;
+	int m_initCharaVoiceVolume;
+	int m_initAnimeSwitch;
+//	int m_initMovieVolume;
+	int m_initCharaVoiceOff;
+
+	void CheckAndSetSlider(int n,int vol);
+
+	int m_realVolumeLimitMin;
+	int m_realVolumeLimitMax;
+
+	int m_initVolume[10];
+	int m_initVolumeSwitch[10];
+
+	int m_realVolumeMinTable[10];
+	int m_realVolumeMaxTable[10];
 
 private:
 

@@ -22,7 +22,7 @@ public:
 	void Print(BOOL mustPrintFlag = FALSE,BOOL badFlag = FALSE);
 
 	BOOL GetCaptureFlag(void);
-
+	void SetDigitalFlag(BOOL flg = TRUE){m_digitalFlag = flg;}
 
 private:
 	CPicture* m_pic;
@@ -55,6 +55,7 @@ private:
 	int CalcuGaze(int mouseX, int mouseY);
 
 	BOOL m_tateFlag;
+	BOOL m_digitalFlag;
 };
 
 

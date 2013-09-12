@@ -5,6 +5,8 @@
 #if !defined __TINYAN_GAMEUTIL__
 #define __TINYAN_GAMEUTIL__
 
+class CPicture;
+
 class CGameUtil
 {
 public:
@@ -24,6 +26,7 @@ public:
 	BOOL MakeMiniCG106x80(int* screenBuffer, int* makedBuffer);
 	BOOL MakeMiniCG132x100(int* screenBuffer, int* makedBuffer);
 
+	void AddMaskToMiniPic(int* buffer,CPicture* lpPic);
 
 private:
 	int m_screenSizeX;

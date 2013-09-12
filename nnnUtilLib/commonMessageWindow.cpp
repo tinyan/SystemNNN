@@ -38,9 +38,16 @@ CCommonMessageWindow::CCommonMessageWindow()
 	m_windowShuruiScript = 1;
 	m_windowShuruiFontSizeType = 1;
 
+	m_notTransWindowUse = 0;
+	m_notTransNameWindowUse = 0;
+
 	GetInitGameParam(&m_windowShuruiConfig,"windowNumberConfig");
 	GetInitGameParam(&m_windowShuruiScript,"windowNumberScript");
 	GetInitGameParam(&m_windowShuruiFontSizeType,"windowNumberFontSizeType");
+
+	GetInitGameParam(&m_notTransWindowUse,"notTransWindowUse");
+	GetInitGameParam(&m_notTransNameWindowUse,"notTransNameWindowUse");
+
 
 	m_ppWindowFileName = new LPSTR[m_windowShuruiFontSizeType * m_windowShuruiConfig * m_windowShuruiScript];
 	m_ppNameWindowFileName = new LPSTR[m_windowShuruiFontSizeType * m_windowShuruiConfig * m_windowShuruiScript];
@@ -242,6 +249,18 @@ void CCommonMessageWindow::Print(BOOL flg,BOOL namePrintFlag,POINT* lpDeltaPoint
 			LoadWindow();
 		}
 
+		if (m_notTransWindowUse & 2)
+		{
+			int y0 = m_windowSizeY;
+			if (m_notTransWindowUse & 1)
+			{
+				y0 += m_windowSizeY;
+			}
+
+			m_windowPic->Blt(m_windowPrintX+deltaPoint.x,m_windowPrintY+deltaPoint.y,0,y0,m_windowSizeX,m_windowSizeY,TRUE);
+		}
+
+
 		if (m_windowPercent >= 100)
 		{
 			m_windowPic->Blt(m_windowPrintX+deltaPoint.x,m_windowPrintY+deltaPoint.y,0,0,m_windowSizeX,m_windowSizeY,TRUE);
@@ -250,6 +269,13 @@ void CCommonMessageWindow::Print(BOOL flg,BOOL namePrintFlag,POINT* lpDeltaPoint
 		{
 			m_windowPic->TransLucentBlt3(m_windowPrintX+deltaPoint.x,m_windowPrintY+deltaPoint.y,0,0,m_windowSizeX,m_windowSizeY,m_windowPercent);
 		}
+
+		if (m_notTransWindowUse & 1)
+		{
+			int y0 = m_windowSizeY;
+			m_windowPic->Blt(m_windowPrintX+deltaPoint.x,m_windowPrintY+deltaPoint.y,0,y0,m_windowSizeX,m_windowSizeY,TRUE);
+		}
+
 
 		if (namePrintFlag)
 		{
@@ -260,6 +286,17 @@ void CCommonMessageWindow::Print(BOOL flg,BOOL namePrintFlag,POINT* lpDeltaPoint
 					LoadNameWindow();
 				}
 
+				if (m_notTransNameWindowUse & 2)
+				{
+					int y0 = m_nameWindowSizeY;
+					if (m_notTransNameWindowUse & 1)
+					{
+						y0 += m_nameWindowSizeY;
+					}
+
+					m_nameWindowPic->Blt(m_nameWindowPrintX+deltaPoint.x,m_nameWindowPrintY+deltaPoint.y,0,y0,m_nameWindowSizeX,m_nameWindowSizeY,TRUE);
+				}
+
 				if (m_windowPercent >= 100)
 				{
 					m_nameWindowPic->Blt(m_nameWindowPrintX+deltaPoint.x,m_nameWindowPrintY+deltaPoint.y,0,0,m_nameWindowSizeX,m_nameWindowSizeY,TRUE);
@@ -268,6 +305,14 @@ void CCommonMessageWindow::Print(BOOL flg,BOOL namePrintFlag,POINT* lpDeltaPoint
 				{
 					m_nameWindowPic->TransLucentBlt3(m_nameWindowPrintX+deltaPoint.x,m_nameWindowPrintY+deltaPoint.y,0,0,m_nameWindowSizeX,m_nameWindowSizeY,m_windowPercent);
 				}
+
+				if (m_notTransNameWindowUse & 1)
+				{
+					int y0 = m_nameWindowSizeY;
+
+					m_nameWindowPic->Blt(m_nameWindowPrintX+deltaPoint.x,m_nameWindowPrintY+deltaPoint.y,0,y0,m_nameWindowSizeX,m_nameWindowSizeY,TRUE);
+				}
+
 			}
 		}
 	}

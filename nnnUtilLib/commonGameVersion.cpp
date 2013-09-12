@@ -19,6 +19,7 @@ BOOL CCommonGameVersion::m_listenBGMOk = FALSE;
 BOOL CCommonGameVersion::m_cgOk = FALSE;
 BOOL CCommonGameVersion::m_sceneOk = FALSE;
 BOOL CCommonGameVersion::m_movieOk = FALSE;
+BOOL CCommonGameVersion::m_allOnOk = FALSE;
 
 
 

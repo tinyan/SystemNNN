@@ -7,7 +7,7 @@ class CMiniGameBase;
 class CMiniGameMahjongCommon : public CMiniGameBase
 {
 public:
-	CMiniGameMahjongCommon(CAllMiniGame* lpAllMiniGame);
+	CMiniGameMahjongCommon(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGameMahjongCommon();
 	virtual void End(void);
 

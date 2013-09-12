@@ -2,6 +2,7 @@
 
 #include "..\nyanlib\include\commonMacro.h"
 
+//#define ZLIB_WINAPI
 #include "d:\libpng\include\zlib.h"
 #include "d:\libpng\include\png.h"
 
@@ -261,6 +262,159 @@ BOOL CPngLoader::LoadFile(LPSTR filename)
 	return rt;
 }
 
+void CPngLoader::GetPic8AndPalette(char* lpPic8,int* lpPalette)
+{
+	//8bit color only
+	if (m_depth != 8) return;
+
+
+	int blockSize = (m_depth / 8) * m_seibun;
+
+	int sizeY = m_picSize.cy;
+	int sizeX = m_picSize.cx;
+
+	if (m_depth == 8)
+	{
+		for (int j=0;j<sizeY;j++)
+		{
+			unsigned char* src = m_imagePointer[j];
+
+			char* dst = lpPic8;
+			dst += sizeX * j;
+			memcpy(dst,src,sizeX);
+		}
+		memcpy(lpPalette,m_paletteTable,sizeof(int)*256);
+	}
+
+
+	/*
+	else if (m_depth == 4)
+	{
+		for (int j=0;j<sizeY;j++)
+		{
+			unsigned char* src = m_imagePointer[j];
+			int* dst = lpPic;
+			dst += sizeX * j;
+			
+			int sizeX2 = sizeX / 2;
+			for (int i=0;i<sizeX2;i++)
+			{
+				int pal = (int)(*src);
+				int pal0 = pal >> 4;
+				int pal1 = pal & 0xf;
+
+				*dst = m_paletteTable[pal0];
+				dst++;
+				*dst = m_paletteTable[pal1];
+				dst++;
+				src += blockSize;
+			}
+
+			if (sizeX & 1)
+			{
+				int pal = (int)(*src);
+				int pal0 = pal >> 4;
+//				int pal1 = pal & 0f;
+
+				*dst = m_paletteTable[pal0];
+				dst++;
+//				*dst = m_paletteTable[pal1];
+//				dst++;
+//				src += blockSize;
+			}
+		}
+	}
+	else if (m_depth == 2)
+	{
+		for (int j=0;j<sizeY;j++)
+		{
+			unsigned char* src = m_imagePointer[j];
+			int* dst = lpPic;
+			dst += sizeX * j;
+
+			int sizeX4 = sizeX / 4;
+			for (int i=0;i<sizeX4;i++)
+			{
+				int pal = (int)(*src);
+				int pal0 = (pal >> 6) & 0x3;
+				int pal1 = (pal >> 4) & 0x3;
+				int pal2 = (pal >> 2) & 0x3;
+				int pal3 = pal  & 0x3;
+				*dst = m_paletteTable[pal0];
+				dst++;
+				*dst = m_paletteTable[pal1];
+				dst++;
+				*dst = m_paletteTable[pal2];
+				dst++;
+				*dst = m_paletteTable[pal3];
+				dst++;
+				src += blockSize;
+			}
+
+			int loop2 = sizeX & 3;
+			if (loop2 > 0)
+			{
+				int pal = (int)(*src);
+				for (int k=0;k<loop2;k++)
+				{
+					int pal0 = (pal >> 6) & 0x3;
+					pal <<= 2;
+					*dst = m_paletteTable[pal0];
+					dst++;
+				}
+			}
+		}
+	}
+	else if (m_depth == 1)
+	{
+		for (int j=0;j<sizeY;j++)
+		{
+			unsigned char* src = m_imagePointer[j];
+			int* dst = lpPic;
+			dst += sizeX * j;
+
+			int sizeX8 = sizeX / 8;
+			for (int i=0;i<sizeX8;i++)
+			{
+				int pal = (int)(*src);
+				for (int k=0;k<8;k++)
+				{
+					if (pal & 0x80)
+					{
+						*dst = m_paletteTable[1];
+					}
+					else
+					{
+						*dst = m_paletteTable[0];
+					}
+					dst++;
+					pal <<= 1;
+				}
+				src += blockSize;
+			}
+
+			int loop3 = sizeX & 7;
+			if (loop3 > 0)
+			{
+				int pal = (int)(*src);
+				for (int k=0;k<loop3;k++)
+				{
+					if (pal & 0x80)
+					{
+						*dst = m_paletteTable[1];
+					}
+					else
+					{
+						*dst = m_paletteTable[0];
+					}
+					dst++;
+					pal <<= 1;
+				}
+			}
+		}
+	}
+*/
+}
 
 
 void CPngLoader::GetPicData(int* lpPic)

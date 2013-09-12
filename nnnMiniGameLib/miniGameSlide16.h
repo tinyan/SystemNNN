@@ -9,7 +9,7 @@ class CMiniGameBase;
 class CMiniGameSlide16 : public CMiniGameBase
 {
 public:
-	CMiniGameSlide16(CAllMiniGame* lpAllMiniGame);
+	CMiniGameSlide16(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGameSlide16();
 	virtual void End(void);
 

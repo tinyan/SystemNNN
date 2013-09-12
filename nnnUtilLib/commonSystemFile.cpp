@@ -244,12 +244,14 @@ void CCommonSystemFile::CreateInitData(void)
 	m_systemdata.voiceSwitch = 1;
 	m_systemdata.movieSwitch = 1;
 	m_systemdata.soundVoiceSwitch = 1;
+	m_systemdata.totalVolumeSwitch = 1;
 
 	m_systemdata.musicVolume = 90;
 	m_systemdata.soundVolume = 90;
 	m_systemdata.voiceVolume = 90;
 	m_systemdata.movieVolume = 90;
 	m_systemdata.soundVoiceVolume = 90;
+	m_systemdata.totalVolume = 90;
 #if !defined _TINYAN3DLIB_
 	m_systemdata.d2d3d = 2;	//2D
 #else
@@ -258,6 +260,9 @@ void CCommonSystemFile::CreateInitData(void)
 
 	m_systemdata.shader = 0;	//vshader 0:auto 1:soft 2:hard
 	m_systemdata.needShader = 2; //
+
+	m_systemdata.autoSpeedSlider = 50;
+
 
 //	if (m_netVersion == FALSE)
 //	{

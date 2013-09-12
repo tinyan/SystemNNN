@@ -2,6 +2,8 @@
 // mydirectsound.cpp
 //
 
+//#define INITGUID
+
 #include <windows.h>
 #include "..\nyanlib\include\commonmacro.h"
 

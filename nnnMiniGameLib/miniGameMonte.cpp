@@ -16,7 +16,7 @@
 
 
 
-CMiniGameMonte::CMiniGameMonte(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameMonte::CMiniGameMonte(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_trumpPic = m_allMiniGame->GetCommonPic(0);
 	m_trumpSize = m_allMiniGame->GetCommonPicSize(0);

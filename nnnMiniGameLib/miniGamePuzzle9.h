@@ -9,7 +9,7 @@ class CMiniGameBase;
 class CMiniGamePuzzle9 : public CMiniGameBase
 {
 public:
-	CMiniGamePuzzle9(CAllMiniGame* lpAllMiniGame);
+	CMiniGamePuzzle9(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGamePuzzle9();
 	virtual void End(void);
 

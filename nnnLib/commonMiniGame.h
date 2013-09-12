@@ -31,8 +31,8 @@ public:
 	static char m_defaultCongraFileName[];
 	static char m_defaultDescFileName[];
 
-	BOOL AddMiniGame(int n);
-	BOOL AddMiniGame(CMiniGameBase* lpMiniGame);
+	BOOL AddMiniGame(int n,int layoutParamKosuu = 0,int* layoutParam = NULL);
+	BOOL AddMiniGame(CMiniGameBase* lpMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 
 	CInputStatus* GetInputStatus(void);
 	CPicture* GetPicture(int n);
@@ -57,6 +57,14 @@ public:
 
 	int CalcuMiniGameButton(void);
 	CAllMiniGame* GetAllMiniGame(void){return m_allMiniGame;}
+
+	typedef struct _tagMINIGAMELAYOUTLIST
+	{
+		int type;
+		char name[32];
+	}MINIGAMELAYOUTLIST;
+	static MINIGAMELAYOUTLIST m_layoutTypeList[];
+
 
 private:
 	CAllMiniGame* m_allMiniGame;

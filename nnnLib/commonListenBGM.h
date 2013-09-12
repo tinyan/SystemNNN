@@ -24,6 +24,8 @@ class CFFT;
 class CPrintSpectrum;
 
 class CMusicControl;
+class CAnimeControl;
+
 //#define MUSIC_KOSUU_MAX 30
 
 class CCommonListenBGM : public CCommonGeneral
@@ -46,6 +48,9 @@ public:
 
 	static char m_defaultUpFileName[];
 	static char m_defaultDownFileName[];
+
+	static char m_defaultMusicTitleGraphicsFilename[];
+
 
 	//static char m_defaultBGMListFileName[];
 
@@ -250,6 +255,23 @@ protected:
 	int* m_spectrumData;
 
 	CPrintSpectrum* m_printSpectrum;
+
+	int m_useMusicTitleGraphics;
+	CPicture* m_musicTitlePic;
+//	int m_musicTitleAnimePattern;
+//	int m_musicTitleAnimeSpeed;
+//	int m_musicTitleAnimeType;
+	int m_musicTitleSizeX;
+	int m_musicTitleSizeY;
+	int m_musicTitlePrintX;
+	int m_musicTitlePrintY;
+	int m_musicTitleCount;
+	CAnimeControl* m_musicTitleAnimeControl;
+
+	int m_cursorIsUpper;
+
+
+
 
 };
 

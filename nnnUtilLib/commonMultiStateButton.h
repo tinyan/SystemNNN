@@ -16,7 +16,7 @@ class CCommonMultiStateButton
 {
 public:
 
-	CCommonMultiStateButton(CNameList* lpSetup,CPicture* lpBG,LPSTR buttonName = NULL,int n = 2,POINT* lpPoint = NULL,CSuperButtonSetup* lpCopySetup = NULL);
+	CCommonMultiStateButton(CNameList* lpSetup,CPicture* lpBG,LPSTR buttonName = NULL,int n = 2,POINT* lpPoint = NULL,CSuperButtonSetup* lpCopySetup = NULL,BOOL notSrcPicCopy = FALSE);
 	virtual ~CCommonMultiStateButton();
 	virtual void End(void);
 

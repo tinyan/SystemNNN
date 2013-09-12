@@ -13,7 +13,7 @@
 
 #include "miniGamePuzzle9.h"
 
-CMiniGamePuzzle9::CMiniGamePuzzle9(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGamePuzzle9::CMiniGamePuzzle9(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 }
 

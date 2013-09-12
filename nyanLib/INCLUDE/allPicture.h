@@ -70,6 +70,7 @@ public:
 	static void AddSubBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,char* maskData,SIZE srcSize,int percent);
 	static void StrtchAddSubBlt(POINT dstPoint,POINT srcPoint,SIZE dstSize,SIZE srcSize,LPVOID picData,LPVOID maskData,SIZE picSize,BOOL transFlag,int transPercent,int deltaR = 0,int deltaG = 0,int deltaB = 0);
 	void ReCreateAllShader(void);
+	static void ChangeBlt256Beta(POINT dstPoint,SIZE putSize,LPVOID picData1,LPVOID picData2,LPVOID paletteData1,LPVOID paletteData2,SIZE picSize,SIZE picSize2,int ps1,int ps2);
 
 protected:
 	static CRedBlt* m_redBlt;

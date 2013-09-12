@@ -17,7 +17,7 @@
 
 #include "miniGameChange.h"
 
-CMiniGameChange::CMiniGameChange(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameChange::CMiniGameChange(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 }
 

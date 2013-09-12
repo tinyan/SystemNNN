@@ -27,6 +27,7 @@
 #include "..\nyanEffectAnimeLib\effectFullAnime.h"
 #include "..\nyanEffectAnimeLib\effectKomaAnime.h"
 #include "..\nyanEffectAnimeLib\effectMepachiKuchipaku.h"
+#include "..\nyanEffectAnimeLib\effectAnimation.h"
 
 //nyanEffectCharaLib
 #include "..\nyanEffectCharaLib\effectBossDeath.h"
@@ -175,6 +176,8 @@
 #endif
 
 
+int CAllEffect::m_animeOff = 0;
+
 
 BOOL CAllEffect::m_renzokuEffectFlag[256]=
 {
@@ -209,6 +212,7 @@ CAllEffect::CAllEffect()
 	}
 
 	m_ppEffects[EFFECT_ANIME] = new CEffectAnime(this);
+	m_ppEffects[EFFECT_ANIMATION] = new CEffectAnimation(this);
 	m_ppEffects[EFFECT_BATHWINDOW] = new CEffectBathWindow(this);
 	m_ppEffects[EFFECT_BEACH] = new CEffectBeach(this);
 	m_ppEffects[EFFECT_BEZIERMOVE] = new CEffectBezierMove(this);
@@ -515,13 +519,14 @@ void CAllEffect::ClearAllEffect(BOOL b)
 			{
 				m_filename[ii][0] = 0;
 				m_makeFilename[ii][0] = 0;
+				m_effect[ii].previousEffect = -1;
 			}
 		}
 
 	}
 }
 
-void CAllEffect::ClearEffect(int n)
+void CAllEffect::ClearEffect(int n,BOOL prevClearFlag)
 {
 	RECT drc;
 	int sizeX = CMyGraphics::GetScreenSizeX();
@@ -541,6 +546,7 @@ void CAllEffect::ClearEffect(int n)
 	m_effect[n].count = 0;
 	m_effect[n].countMax = 0;
 	m_effect[n].notTransFlag = CheckBGLayer(n);
+//	if (prevClearFlag) m_effect[n].previousEffect = -1;
 }
 
 void CAllEffect::ClearMakeCGEffect(int n)
@@ -563,6 +569,7 @@ void CAllEffect::ClearMakeCGEffect(int n)
 	m_makeEffect[n].count = 0;
 	m_makeEffect[n].countMax = 0;
 	m_makeEffect[n].notTransFlag = CheckBGLayer(n);
+	m_makeEffect[n].previousEffect = -1;
 }
 
 void CAllEffect::SetLayerScript(int n,int d)
@@ -1205,7 +1212,11 @@ BOOL CAllEffect::SetEffectScript(int num,int effect,int paraKosuu,int* paraPtr)
 //OutputDebugString(mes);
 	if ((num<0) || (num>15)) return FALSE;
 
-	if (effect == -1) return FALSE;
+	if (effect == -1)
+	{
+//		m_effect[num].previousEffect = -1;
+		return FALSE;
+	}
 
 	int para[256];
 	for (int i=0;i<paraKosuu;i++)
@@ -1221,7 +1232,9 @@ BOOL CAllEffect::SetEffectScript(int num,int effect,int paraKosuu,int* paraPtr)
 		{
 			if (effect != EFFECT_MAE)
 			{
-				return lp->SetParam(&m_effect[num],paraKosuu,paraPtr,num);
+				BOOL rt = lp->SetParam(&m_effect[num],paraKosuu,paraPtr,num);
+				m_effect[num].previousEffect = effect;
+				return rt;
 			}
 			return TRUE;
 		}
@@ -1509,6 +1522,39 @@ LPSTR CAllEffect::GetTaihiEffectFileName(int n)
 void* CAllEffect::GetTaihiEffectDataPointer(int n)
 {
 	return &m_taihiEffect[n];
+}
+
+
+CPicture* CAllEffect::GetAnimeBuffer(int n)
+{
+	if (m_ppEffects[EFFECT_ANIMATION] != NULL)
+	{
+		return ((CEffectAnimation*)(m_ppEffects[EFFECT_ANIMATION]))->GetAnimeBuffer(n);
+	}
+
+	return NULL;
+}
+
+LPSTR CAllEffect::GetAnimeTag(void)
+{
+	if (m_ppEffects[EFFECT_ANIMATION] != NULL)
+	{
+		return ((CEffectAnimation*)(m_ppEffects[EFFECT_ANIMATION]))->GetAnimeTag();
+	}
+
+	return NULL;
+}
+
+LPSTR CAllEffect::GetExistEffectFileName(int n)
+{
+	if (m_taihiEffect[n].flag == FALSE) return NULL;
+	if (	m_taihiEffect[n].command == -1) return NULL;
+	if (m_taihiEffect[n].pic == -1) return NULL;
+	CPicture* lpPic = GetPicture(n);
+	if (lpPic == NULL) return NULL;
+	return lpPic->GetFileName();
+//	if (m_taihiFilename[n][0] == 0) return NULL;
+//	return m_taihiFilename[n];
 }
 
 

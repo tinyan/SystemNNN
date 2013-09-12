@@ -3,7 +3,7 @@
 //
 
 #include <windows.h>
-#include <d3dx9.h>
+//#include <d3dx9.h>
 
 #include "..\nyanLib\include\commonmacro.h"
 

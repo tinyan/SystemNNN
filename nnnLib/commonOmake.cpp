@@ -18,6 +18,7 @@
 #include "..\nnnUtilLib\nnnButtonStatus.h"
 
 #include "..\nnnUtilLib\commonButton.h"
+#include "..\nnnUtilLib\commonButtonGroup.h"
 #include "..\nnnUtilLib\menuButtonGroup.h"
 #include "..\nnnUtilLib\menuButtonSetup.h"
 
@@ -47,13 +48,18 @@
 
 char CCommonOmake::m_defaultBGFileName[] = "title_bg2";
 char CCommonOmake::m_defaultButtonFileName[] = "ta_title_bt2";
+char CCommonOmake::m_defaultAllOnDialogFileName[] = "ta_warning";
 
+char CCommonOmake::m_buttonName[][32]=
+{
+	"allOnDialogOk","allOnDialogCancel",
+};
 
 CCommonOmake::CCommonOmake(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 {
 	SetClassNumber(OMAKE_MODE);
 //	m_classNumber = OMAKE_MODE;
-	LoadSetupFile("omake",32);
+	LoadSetupFile("omake",256);
 
 	m_cgDataControl = m_game->GetCGDataControl();
 	m_sceneDataControl = m_game->GetSceneDataControl();
@@ -155,6 +161,8 @@ CCommonOmake::CCommonOmake(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		m_menu2->SetPicture(i,CSuperButtonPicture::GetPicture(superStart+i));
 	}
 
+	superStart += m_basicButtonKosuu + m_extButtonKosuu;
+
 	m_superMode = m_menu2->GetSuperMode();
 	m_menu2->SetCancelButton(3);
 
@@ -164,7 +172,76 @@ CCommonOmake::CCommonOmake(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_modeBGMNumber = 1;
 	m_modeBGMMustRestartFlag = 1;
 
+	m_allOnWarningPrintFlag = 0;
+	m_allOnButtonUseFlag = 0;
+	m_allOnButtonFlag = 0;
+	m_allOnButtonCheckVar = -1;
+	m_allOnDialogButton = NULL;
+	m_allOnButton = NULL;
+	m_allOnType = 0;
+	
+	if (CCommonGameVersion::CheckAllOnOk())
+	{
+		GetInitGameParam(&m_allOnButtonUseFlag,"allOnButtonUseFlag");	//dummy for my debug
+	}
 
+
+	if (m_allOnButtonUseFlag)
+	{
+		GetInitGameParam(&m_allOnType,"allOnType");
+
+		m_allOnButton = new CCommonButton(m_setup,"allOnButton");
+		m_allOnButton->SetPicture(CSuperButtonPicture::GetPicture(superStart));
+		superStart++;
+
+
+		LPSTR varName = NULL;
+		if (GetInitGameString(&varName,"allOnCheckVar"))
+		{
+			if (varName != NULL)
+			{
+				m_allOnButtonCheckVar = m_game->GetVarNumber(varName);
+			}
+		}
+
+		GetInitGameParam(&m_allOnWarningPrintFlag,"allOnWarningPrintFlag");
+
+
+		if (m_allOnWarningPrintFlag)
+		{
+			m_allOnDialogFileName = m_defaultAllOnDialogFileName;
+			GetInitGameString(&m_allOnDialogFileName,"fileNameAllOnDialog");
+
+		//make button
+			m_allOnDialogSizeX = 340;
+			m_allOnDialogSizeY = 145;
+			m_allOnDialogX = 236;
+			m_allOnDialogY = 160;
+
+			GetInitGameParam(&m_allOnDialogX,"allOnDialogX");
+			GetInitGameParam(&m_allOnDialogY,"allOnDialogY");
+			GetInitGameParam(&m_allOnDialogSizeX,"allOnDialogSizeX");
+			GetInitGameParam(&m_allOnDialogSizeY,"allOnDialogSizeY");
+
+
+			char* names[2];
+			names[0] = m_buttonName[0];
+			names[1] = m_buttonName[1];
+
+			m_allOnDialogButton = new CCommonButtonGroup(m_setup,2,NULL,NULL,names);
+		//change zahyo
+			for (int i=0;i<2;i++)
+			{
+				POINT pt = m_allOnDialogButton->GetZahyo(i);
+				pt.x += m_allOnDialogX;
+				pt.y += m_allOnDialogY;
+				m_allOnDialogButton->SetZahyo(i,pt);
+
+				m_allOnDialogButton->SetPicture(i,CSuperButtonPicture::GetPicture(superStart+i));
+			}
+			m_allOnDialogButton->SetCancelButton(1);
+		}
+	}
 //	m_miniGameAreaKosuu = 0;
 //	GetInitGameParam(&m_miniGameAreaKosuu,"miniGame");
 //	m_miniGameArea = NULL;
@@ -302,6 +379,9 @@ CCommonOmake::~CCommonOmake()
 
 void CCommonOmake::End(void)
 {
+	ENDDELETECLASS(m_allOnDialogButton);
+	ENDDELETECLASS(m_allOnButton);
+
 //	DELETEARRAY(m_miniGameArea);
 	ENDDELETECLASS(m_menu2);
 	ENDDELETECLASS(m_menuButtonSetup);
@@ -377,6 +457,49 @@ int CCommonOmake::Init(void)
 		m_game->InitMiniGameButton(OMAKE_MODE);
 	}
 
+	m_allOnWarningMode = 0;
+
+
+	m_allOnButtonFlag = 0;
+	if (m_allOnButtonUseFlag)
+	{
+		if (m_allOnButtonCheckVar != -1)
+		{
+			if (m_game->GetVarData(m_allOnButtonCheckVar) != 0)
+			{
+				m_allOnButtonFlag = 1;
+			}
+		}
+		else
+		{
+			m_allOnButtonFlag = 1;
+		}
+	}
+
+	if (m_allOnButtonFlag)
+	{
+		//load pic
+		char filename[256];
+		wsprintf(filename,"sys\\%s",m_allOnButton->GetFileName());
+		(m_allOnButton->GetPicture())->LoadDWQ(filename);
+
+		if (m_allOnWarningPrintFlag)
+		{
+			char filename[256];
+			wsprintf(filename,"sys\\%s",m_allOnDialogFileName);
+			m_commonParts->LoadDWQ(filename);
+
+			for (i=0;i<2;i++)
+			{
+				CPicture* lpPic = m_allOnDialogButton->GetPicture(i);
+				LPSTR name = m_allOnDialogButton->GetFileName(i);
+				char filename[256];
+				wsprintf(filename,"sys\\%s",name);
+				lpPic->LoadDWQ(filename);
+			}
+		}
+	}
+
 	m_game->StopVoice();
 
 	return -1;
@@ -385,6 +508,14 @@ int CCommonOmake::Init(void)
 
 int CCommonOmake::Calcu(void)
 {
+	if (m_allOnWarningMode == 1)
+	{
+		CAreaControl::SetNextAllPrint();
+		return CalcuAllOnWarning();
+	}
+
+
+
 
 //	if (m_backScriptFlag)
 //	{
@@ -432,6 +563,7 @@ int CCommonOmake::Calcu(void)
 	{
 		int rt = m_menu2->Calcu(m_inputStatus);
 
+
 		int st = CCommonButton::GetButtonStatus(rt);
 		int requestSoundFlag = CCommonButton::CheckRequestSound(rt);
 		int sound = 0;
@@ -439,6 +571,18 @@ int CCommonOmake::Calcu(void)
 		{
 			sound = CCommonButton::GetButtonSound(rt);
 		}
+		int rt2 = NNNBUTTON_NOTHING;
+		if (m_allOnButtonFlag)
+		{
+			rt2 = m_allOnButton->Calcu(m_inputStatus);
+			if (CCommonButton::CheckRequestSound(rt2))
+			{
+				requestSoundFlag = 1;
+				sound = CCommonButton::GetButtonSound(rt2);
+			}
+		}
+
+
 		int existDataFlag = CCommonButton::CheckExistData(rt);
 		int nm = -1;
 		if (existDataFlag)
@@ -563,6 +707,24 @@ int CCommonOmake::Calcu(void)
 
 			return -1;
 		}
+
+		if (m_allOnButtonFlag)
+		{
+			int st2 = CCommonButton::GetButtonStatus(rt2);
+
+			int existDataFlag2 = CCommonButton::CheckExistData(rt2);
+			int nm2 = -1;
+			if (existDataFlag2)
+			{
+				nm2 = CCommonButton::GetButtonData(rt2);
+			}
+
+			if ((st2 == NNNBUTTON_NUMBER) && (existDataFlag2))
+			{
+				m_allOnWarningMode = 1;
+				m_allOnDialogButton->Init();
+			}
+		}
 	}
 
 	return -1;
@@ -571,6 +733,11 @@ int CCommonOmake::Calcu(void)
 
 int CCommonOmake::Print(void)
 {
+	if (m_allOnWarningMode)
+	{
+		CAreaControl::SetNextAllPrint();
+	}
+
 	PrintBackScriptOrBG();
 	BOOL b = CAreaControl::CheckAllPrintMode();
 
@@ -578,6 +745,19 @@ int CCommonOmake::Print(void)
 	if (startMode == 0)
 	{
 		m_menu2->Print(b);
+		if (m_allOnButtonFlag)
+		{
+			m_allOnButton->Print(b);
+
+			if (m_allOnWarningPrintFlag)
+			{
+				if (m_allOnWarningMode == 1)
+				{
+					m_commonParts->Blt(m_allOnDialogX,m_allOnDialogY,0,0,m_allOnDialogSizeX,m_allOnDialogSizeY,TRUE);
+					m_allOnDialogButton->Print(b);
+				}
+			}
+		}
 	}
 	else if (startMode == 2)
 	{
@@ -634,6 +814,52 @@ void CCommonOmake::EndStartWaitMode(void)
 {
 	m_menuStartCount = m_menuStartWaitTime+m_menuStartEffectTime;
 	m_game->InitMiniGameButton(OMAKE_MODE);
+}
+
+
+int CCommonOmake::CalcuAllOnWarning(void)
+{
+	int rt = m_allOnDialogButton->Calcu(m_inputStatus);
+	if (rt == NNNBUTTON_NOTHING) return -1;
+
+	int nm = ProcessButtonGroup(rt);
+	
+	if (nm == 0)
+	{
+		//allon!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+		m_game->AllOnOmakeFlag(m_allOnType);
+
+//		SaveNowData();
+
+//		m_warningFlag = 0;
+//		m_clickingFlag = FALSE;
+
+//		InitPageButton();
+
+//		m_updownBack->Init();
+//		InitAnime();
+		CAreaControl::SetNextAllPrint();
+		m_allOnWarningMode = 0;
+		m_menu2->Init();
+		m_allOnButton->Init();
+
+	}
+	else if (nm == 1)
+	{
+		m_allOnWarningMode = 0;
+		m_menu2->Init();
+		m_allOnButton->Init();
+
+//		InitPageButton();
+
+//		m_updownBack->Init();
+//		InitAnime();
+		CAreaControl::SetNextAllPrint();
+	}
+
+	return -1;
 }
 
 /*

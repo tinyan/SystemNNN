@@ -30,6 +30,7 @@ CFaceControl::CFaceControl(CNameList* nameList,int faceMax) : CAutoSaveSubData(1
 	m_face = -1;
 	m_facePicNumber = -1;
 	m_facePicSubNumber = -1;
+	m_lastSetFace = -1;
 
 	m_pic = new CPicture();
 
@@ -172,10 +173,11 @@ void CFaceControl::End(void)
 
 void CFaceControl::Clear(void)
 {
+	m_lastSetFace = -1;
 	m_mustFace = 0;
 	for (int i=0;i<=m_faceMax;i++)
 	{
-		m_faceType[i] = 0;
+		m_faceType[i] = 1;
 	}
 	m_startCount = 0;
 	m_startCountMax = 0;
@@ -186,6 +188,7 @@ void CFaceControl::Clear(void)
 
 void CFaceControl::ChangeFace(int face,int type)
 {
+	m_lastSetFace = face;
 
 	int waitMin = 0;
 	int waitMax = 0;
@@ -246,7 +249,7 @@ void CFaceControl::Print(LPSTR name)
 
 	LoadPic(m_face,m_faceType[m_face]);
 
-	if (m_animeParamInitFlag == FALSE)
+	if ((m_animeParamInitFlag == FALSE) || (m_face != m_lastSetFace))
 	{
 		ChangeFace(m_face,m_faceType[m_face]);
 	}

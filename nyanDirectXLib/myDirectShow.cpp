@@ -1,16 +1,12 @@
-
-
 //
 //	修正とかテストとかのコードがたっぷりはいっているので注意
 //
 
+//#define INITGUID
+
 
 #include <windows.h>
 #include <stdio.h>
-
-
-
-
 
 #include <dshow.h>
 #include <D3d9.h>
@@ -20,8 +16,6 @@
 #include "mydirectShow.h"
 
 
-//ok = 4
-//codec
 
 CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 {
@@ -46,8 +40,8 @@ CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 	m_vmrFilterConfig9 = NULL;
 
 	m_videoWindow = NULL;
-	m_sourceFilter = NULL;
-	m_directSoundFilter = NULL;
+//	m_sourceFilter = NULL;
+//	m_directSoundFilter = NULL;
 
 	m_captureBuilder = NULL;
 
@@ -56,95 +50,9 @@ CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 
 	m_windowSize.cx = 800;
 	m_windowSize.cy = 600;
+	m_fullMonitorSize.cx = 800;
+	m_fullMonitorSize.cy = 600;
 
-
-//	HRESULT hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,IID_IGraphBuilder, (void **)&m_graphBuilder);
-  //  if (FAILED(hr))
-    //{
-//MessageBox(NULL,"2","error",MB_OK);
-        //printf("ERROR - Could not create the Filter Graph Manager.");
-        //return;
-    //}
-
-
-/*
-	HRESULT hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,IID_IGraphBuilder, (void **)&m_graphBuilder);
-    if (FAILED(hr))
-    {
-//MessageBox(NULL,"2","error",MB_OK);
-        //printf("ERROR - Could not create the Filter Graph Manager.");
-        //return;
-    }
-
-	CreateVMR9();
-
-*/
-
-
-
-
-	/*
-	hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER,IID_IBaseFilter, (void **)&m_pbaseFilter);
-    if (FAILED(hr))
-    {
-        printf("ERROR - Could not create the Grabber.");
-        return;
-    }
-
-	hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&m_pNullFilter);
-	sprintf(mes,"[coCreateNullFilter:%x]",hr);
-	OutputDebugString(mes);
-
-
-//	hr = m_pGrabber->QueryInterface(IID_IBaseFilter,(void**)&m_pbaseFilter);
-//	sprintf(mes,"[basefilter:%x]",hr);
-//	OutputDebugString(mes);
-	hr = m_pbaseFilter->QueryInterface(IID_ISampleGrabber,(void**)&m_pGrabber);
-	sprintf(mes,"[q:grab:%x]",hr);
-	OutputDebugString(mes);
-
-
-	AM_MEDIA_TYPE mt;
-	ZeroMemory(&mt,sizeof(mt));
-	mt.majortype = MEDIATYPE_Video;
-	mt.subtype = MEDIASUBTYPE_RGB32;
-	mt.formattype = FORMAT_VideoInfo;
-	hr = m_pGrabber->SetMediaType(&mt);
-
-	sprintf(mes,"[setmediatype:%x]",hr);
-	OutputDebugString(mes);
-
-
-
-	hr = m_pGraph->AddFilter(m_pbaseFilter,L"Grabber");
-	sprintf(mes,"[addbasefilter:%x]",hr);
-	OutputDebugString(mes);
-
-	hr = m_pGraph->AddFilter(m_pNullFilter,L"NullRenderer");
-
-	sprintf(mes,"[addnullfilter:%x]",hr);
-	OutputDebugString(mes);
-
-
-	IEnumPins* pEnum = NULL;
-
-	pEnum = NULL;
-	m_pbaseFilter->EnumPins(&pEnum);
-	pEnum->Reset();
-	pEnum->Skip(1);
-	IPin* pGrabberOutput;
-	hr = pEnum->Next(1, &pGrabberOutput, NULL); 
-
-
-
-	pEnum = NULL;
-	m_pNullFilter->EnumPins(&pEnum);
-	pEnum->Reset();
-	IPin* pNullInputPin;
-	hr = pEnum->Next(1, &pNullInputPin, NULL);
-
-	hr = m_pGraph->Connect(pGrabberOutput, pNullInputPin);
-*/
 }
 
 CMyDirectShow::~CMyDirectShow()
@@ -159,8 +67,6 @@ void CMyDirectShow::End(void)
 }
 
 
-
-
 BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 {
 	int ln = strlen(filename);
@@ -171,76 +77,23 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 	ReleaseRoutine();
 
 	HRESULT hr = CreateGraphBuilder();
-	int rt = OpenMovieFile(filename);
 
+	hr = GetMediaEventExInterface();
+	hr = ((IMediaEventEx*)m_mediaEventEx)->SetNotifyWindow((OAHWND)m_parentHWnd,m_graphNotify,0);
+	if (FAILED(hr))
+	{
+	}
+
+
+
+	int rt = OpenMovieFile(filename);
 	if (rt == 0) return FALSE;
 
+	hr = GetVideoWindowInterface();
+	hr = GetMediaControlInterface();
+	hr = GetBasicAudioInterface();
+	hr = GetMediaSeekInterface();
 
-	if (m_useVMR9Flag)
-	{
-	}
-	else
-	{
-		hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IVideoWindow,(void**)&m_videoWindow);
-		if (FAILED(hr))
-		{
-//MessageBox(NULL,"PlayMovie-2-2","error",MB_OK);
-//MessageBox(NULL,"3","error",MB_OK);
-		}
-	}
-
-
-//	((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->SetVideoClippingWindow(m_parentHWnd);
-
-
-    hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IMediaControl, (void **)&m_mediaControl);
-	if (FAILED(hr))
-	{
-#if defined _DEBUG
-//MessageBox(NULL,"PlayMovie-3","error",MB_OK);
-#endif
-	}
-
-	hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IMediaEventEx,(void**)&m_mediaEventEx);
-	if (FAILED(hr))
-	{
-#if defined _DEBUG
-//MessageBox(NULL,"PlayMovie-4","error",MB_OK);
-#endif
-	}
-
-
-	hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IBasicAudio, (void **)&m_basicAudio);
-	if (FAILED(hr))
-	{
-#if defined _DEBUG
-//MessageBox(NULL,"PlayMovie-6","error",MB_OK);
-#endif
-	}
-
-	hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IMediaSeeking, (void **)&m_mediaSeek);
-	if (FAILED(hr))
-	{
-#if defined _DEBUG
-MessageBox(NULL,"PlayMovie-7","error",MB_OK);
-#endif
-//MessageBox(NULL,"8","error",MB_OK);
-	}
-
-	IBasicAudio* basicAudio = (IBasicAudio*)m_basicAudio;
-
-
-//	char fname[128] = "闇の声異聞録_0614 OP 高画質版.mpg";
-
-	/*
-	hr = ((IGraphBuilder*)m_graphBuilder)->RenderFile(fname2, NULL);
-	if (FAILED(hr))
-	{
-//MessageBox(NULL,"PlayMovie-8","error",MB_OK);
-
-//MessageBox(NULL,"9","error",MB_OK);
-	}
-*/
 
 	if (m_useVMR9Flag)
 	{
@@ -252,12 +105,11 @@ MessageBox(NULL,"PlayMovie-7","error",MB_OK);
 		long aHeight;
 
 		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetNativeVideoSize(&width,&height,&aWidth,&aHeight);
+//		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetNativeVideoSize(&width,&height,NULL,NULL);
 		if (FAILED(hr))
 		{
-//MessageBox(NULL,"PlayMovie-9","error",MB_OK);
-	//MessageBox(NULL,"10","error",MB_OK);
 		}
-
+//		height = 720;
 
 		SetRect(&srcRect,0,0,width,height);
 
@@ -267,22 +119,12 @@ MessageBox(NULL,"PlayMovie-7","error",MB_OK);
 		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->SetVideoPosition(&srcRect,&dstRect);
 		if (FAILED(hr))
 		{
-//MessageBox(NULL,"PlayMovie-10","error",MB_OK);
-
-	//MessageBox(NULL,"11","error",MB_OK);
 		}
 	}
 	else
 	{
 		((IVideoWindow*)m_videoWindow)->put_Owner((OAHWND)m_parentHWnd);
 		((IVideoWindow*)m_videoWindow)->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
-//		((IVideoWindow*)m_videoWindow)->put_WindowStyle(WS_CHILD);
-
-//		long ws;
-//		((IVideoWindow*)m_videoWindow)->get_WindowStyleEx(&ws);
-//		((IVideoWindow*)m_videoWindow)->put_WindowStyleEx(ws | WS_EX_TOPMOST);
-
-//		((IVideoWindow*)m_videoWindow)->SetWindowForeground(OATRUE);
 
 		RECT rc;
 		long destWidth;
@@ -293,65 +135,22 @@ MessageBox(NULL,"PlayMovie-7","error",MB_OK);
 		destHeight = rc.bottom;
 		((IVideoWindow*)m_videoWindow)->SetWindowPosition(0,0,destWidth,destHeight);
 		((IVideoWindow*)m_videoWindow)->put_MessageDrain((OAHWND)m_parentHWnd);
-
-	//	((IVideoWindow*)m_videoWindow)->put_FullScreenMode(OATRUE);
 	}
 
 
-	hr = ((IMediaEventEx*)m_mediaEventEx)->SetNotifyWindow((OAHWND)m_parentHWnd,m_graphNotify,0);
-	if (FAILED(hr))
-	{
-//MessageBox(NULL,"PlayMovie-11","error",MB_OK);
 
-//MessageBox(NULL,"12","error",MB_OK);
-	}
 
-	basicAudio->put_Volume(m_volume*100-10000);
+	((IBasicAudio*)m_basicAudio)->put_Volume(m_volume*100-10000);
 	m_completeFlag = FALSE;
-
-
-	if (seekTime > 0)
-	{
-		hr = ((IMediaSeeking*)m_mediaSeek)->SetPositions(&seekTime,AM_SEEKING_AbsolutePositioning,NULL,AM_SEEKING_NoPositioning);
-		if (FAILED(hr))
-		{
-//MessageBox(NULL,"PlayMovie-12","error",MB_OK);
-
-//MessageBox(NULL,"13","error",MB_OK);
-		}
-	}
-	else
-	{
-	
-	}
 
 	hr = ((IMediaControl*)m_mediaControl)->Run();
 	if (FAILED(hr))
 	{
-//MessageBox(NULL,"PlayMovie-13","error",MB_OK);
-
-//MessageBox(NULL,"14","error",MB_OK);
 	}
 
-
-	if (hr != S_OK)
-//	if (0)
-	{
-		OAFilterState fs;
-
-		int n = 0;
-		while (TRUE)
-		{
-			hr = ((IMediaControl*)m_mediaControl)->GetState(10,&fs);
-			if (hr == S_OK) break;
-			n++;
-			if (n>=10) break;
-		}
-	}
-
+	if (hr != S_OK) WaitMediaControl(10);
 
 	m_playFlag = TRUE;
-
 	return TRUE;
 }
 
@@ -364,22 +163,7 @@ BOOL CMyDirectShow::StopMovie(void)
 	if (m_mediaControl != NULL)
 	{
 		HRESULT hr = ((IMediaControl*)m_mediaControl)->Stop();	//wait?
-		if (hr != S_OK)
-		{
-			OAFilterState fs;
-
-			int n = 0;
-			while (1)
-			{
-#if defined _DEBUG
-				OutputDebugString("*");
-#endif
-				hr = ((IMediaControl*)m_mediaControl)->GetState(50,&fs);
-				if (hr == S_OK) break;
-				n++;
-				if (n>=10) break;
-			}
-		}
+		if (hr != S_OK) WaitMediaControl();
 	}
 
 	ReleaseRoutine();
@@ -397,6 +181,15 @@ void CMyDirectShow::ReleaseBuilders(void)
 	IMediaControl* mediaControl = (IMediaControl*)m_mediaControl;
 	IGraphBuilder* graphBuilder = (IGraphBuilder*)m_graphBuilder;
 	ICaptureGraphBuilder2* captureBuilder = (ICaptureGraphBuilder2*)m_captureBuilder;
+
+	if (mediaEventEx != NULL)
+	{
+		mediaEventEx->SetNotifyWindow(NULL,0,0);
+	}
+	if (videoWindow != NULL)
+	{
+		videoWindow->put_Owner(NULL);
+	}
 
 	ENDRELEASE(videoWindow);
 	ENDRELEASE(mediaSeek);
@@ -433,9 +226,6 @@ BOOL CMyDirectShow::OnNotify(void)
 	long param2;
 
 	BOOL flg = FALSE;
-#if defined _DEBUG
-OutputDebugString("[OnNotify]");
-#endif
 	if (m_mediaEventEx == NULL) return TRUE;
 	BOOL flg2 = FALSE;
 
@@ -444,14 +234,11 @@ OutputDebugString("[OnNotify]");
 //EC_WMT_EVENT_BASE
 	while(SUCCEEDED(((IMediaEventEx*)m_mediaEventEx)->GetEvent(&evCode,&param1,&param2,0)))
 	{
-#if defined _DEBUG
-OutputDebugString("@");
-#endif
 		switch (evCode)
 		{
 		case EC_COMPLETE:
 			((IMediaControl*)m_mediaControl)->Stop();
-OutputDebugString("[EC_COMPLETE]");
+//OutputDebugString("[EC_COMPLETE]");
 //		StopMovie();
 			m_completeFlag = TRUE;
 			flg2 = TRUE;
@@ -469,6 +256,7 @@ OutputDebugString("[EC_COMPLETE]");
 	if (flg2)
 	{
 		ReleaseRoutine();
+		m_playFlag = FALSE;
 	}
 
 
@@ -510,14 +298,8 @@ BOOL CMyDirectShow::OnSize(void)
 
 int CMyDirectShow::OpenMovieFile(LPSTR filename)
 {
-	unsigned short fname2[256];
-	IGraphBuilder*	graphBuilder = NULL;
-	HRESULT hr0 = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,IID_IGraphBuilder, (void **)&graphBuilder);
-    if (FAILED(hr0))
-    {
-		return 0;
-	}
-	m_graphBuilder = graphBuilder;
+
+	unsigned short fname2[2048];
 
 	if (m_useVMR9Flag)
 	{
@@ -530,7 +312,7 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 		}
 	}
 
-	MultiByteToWideChar(CP_ACP,0,filename,-1,(LPWSTR)fname2,256);
+	MultiByteToWideChar(CP_ACP,0,filename,-1,(LPWSTR)fname2,1024);
 
 
 	if (m_useVMR9Flag)
@@ -538,19 +320,30 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 		if (m_vmr9RenderType == 1)
 		{
 			IBaseFilter* sourceFilter = NULL;
-			HRESULT hr3 = graphBuilder->AddSourceFilter((LPWSTR)fname2,L"Source1",&sourceFilter);
+			HRESULT hr3 = ((IGraphBuilder*)m_graphBuilder)->AddSourceFilter((LPWSTR)fname2,L"Source1",&sourceFilter);
 			if (SUCCEEDED(hr3))
 			{
-				m_sourceFilter = sourceFilter;
+				sourceFilter->Release();
 
-				HRESULT hr = CoCreateInstance(CLSID_DSoundRender, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&m_directSoundFilter);
-				hr = ((IGraphBuilder*)m_graphBuilder)->AddFilter((IBaseFilter*)m_directSoundFilter,L"DirectSoundFilter");
+//				m_sourceFilter = sourceFilter;
 
-				if (SUCCEEDED(SourceRenderEx(sourceFilter)))
+				IBaseFilter* directSoundFilter = NULL;
+
+				HRESULT hr = CoCreateInstance(CLSID_DSoundRender, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&directSoundFilter);
+				if (SUCCEEDED(hr))
 				{
-					if (CheckVMR9Connected())
+					hr = ((IGraphBuilder*)m_graphBuilder)->AddFilter(directSoundFilter,L"DirectSoundFilter");
+					directSoundFilter->Release();
+					if (SUCCEEDED(hr))
 					{
-						return 4;
+
+						if (SUCCEEDED(SourceRenderEx(sourceFilter)))
+						{
+							if (CheckVMR9Connected())
+							{
+								return 4;
+							}
+						}
 					}
 				}
 			}
@@ -558,22 +351,22 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 			m_vmr9RenderType = 0;
 			m_vmrErrorFlag = TRUE;
 
-			RemoveAllFilter(graphBuilder);
+			RemoveAllFilter(m_graphBuilder);
 			if (sourceFilter != NULL)
 			{
 				sourceFilter->Release();
 			}
 			ReleaseVMR9();
 			//ReleaseBuilders();
-			graphBuilder = NULL;
+			m_graphBuilder = NULL;
 
-			HRESULT hr01 = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,IID_IGraphBuilder, (void **)&graphBuilder);
+			HRESULT hr01 = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,IID_IGraphBuilder, (void **)&m_graphBuilder);
 			if (FAILED(hr01))
 			{
 				return 0;
 			}
 
-			m_graphBuilder = graphBuilder;
+		//	m_graphBuilder = graphBuilder;
 			CreateVMR9();
 			if (m_vmr9 == NULL)
 			{
@@ -581,13 +374,15 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 				m_vmrErrorFlag = TRUE;
 				m_useVMR9Flag = FALSE;
 			}
+
+			CreateGraphBuilder();
 		}
 
 
 		if (m_useVMR9Flag)	//さいちぇっく
 		{
 //OutputDebugString("[check2]");
-			HRESULT hr3 = graphBuilder->RenderFile((LPWSTR)fname2, NULL);
+			HRESULT hr3 = ((IGraphBuilder*)m_graphBuilder)->RenderFile((LPWSTR)fname2, NULL);
 			if (hr3 == S_OK)
 			{
 				if (CheckVMR9Connected())
@@ -604,16 +399,9 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 
 		m_useVMR9Flag = FALSE;	//もうつかえない
 	}
-//OutputDebugString("[check3]");
 
-	HRESULT hr02 = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,IID_IGraphBuilder, (void **)&graphBuilder);
-	if (FAILED(hr02))
-	{
-		return 0;
-	}
 
-	m_graphBuilder = graphBuilder;
-	HRESULT hr4 = graphBuilder->RenderFile((LPWSTR)fname2, NULL);
+	HRESULT hr4 = ((IGraphBuilder*)m_graphBuilder)->RenderFile((LPWSTR)fname2, NULL);
 
 	if (hr4 == VFW_S_AUDIO_NOT_RENDERED) return 2;
 	if (hr4 == VFW_S_VIDEO_NOT_RENDERED) return 1;
@@ -625,11 +413,50 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 	return 4;
 }
 
-
+//
+//新規フォルダーで2回目の再生のみが失敗するので1,3-nは問題なし
+//2かいぶんムービーファイルを開いておく
+//
+//ひどいこーどだけど原因不明すぎる。winがなにかやってるかんじ
+//
 int CMyDirectShow::CheckCodec(LPSTR filename)
 {
-	int rt = OpenMovieFile(filename);
+
+	StopMovie();
 	ReleaseRoutine();
+
+	HRESULT hr = CreateGraphBuilder();
+
+
+	int rt = OpenMovieFile(filename);
+	Sleep(10);
+
+/*
+	if (m_useVMR9Flag)
+	{
+		long width;
+		long height;
+		long aWidth;
+		long aHeight;
+
+		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetNativeVideoSize(&width,&height,&aWidth,&aHeight);
+		int kkk=0;
+		kkk++;
+	}
+*/
+
+	
+	ReleaseRoutine();
+	hr = CreateGraphBuilder();
+
+
+	int rt2 = OpenMovieFile(filename);
+	Sleep(10);
+	
+
+
+	ReleaseRoutine();
+
 	return rt;
 }
 
@@ -695,10 +522,11 @@ void CMyDirectShow::RemoveAllFilter(LPVOID graphBuilder0)
 
 	IMediaControl*	 mediaControl;
 	IFilterGraph* filterGraph;
+	IGraphConfig* graphConfig;
 
     HRESULT hr2 = graphBuilder->QueryInterface(IID_IMediaControl, (void **)&mediaControl);
     HRESULT hr3 = graphBuilder->QueryInterface(IID_IFilterGraph, (void **)&filterGraph);
-
+	HRESULT hr4 = graphBuilder->QueryInterface(IID_IGraphConfig, (void **)&graphConfig);
 	if (mediaControl != NULL)
 	{
 		mediaControl->Stop();
@@ -739,7 +567,9 @@ void CMyDirectShow::RemoveAllFilter(LPVOID graphBuilder0)
 			{
 //				OutputDebugString("[S_OK]");
 		//		flg = TRUE;
-				filterGraph->RemoveFilter(pFilter);
+			//	filterGraph->RemoveFilter(pFilter);
+
+				graphConfig->RemoveFilterEx(pFilter,0);
 				pFilter->Release();
 			}
 			if (hr99 == S_FALSE)
@@ -756,6 +586,10 @@ void CMyDirectShow::RemoveAllFilter(LPVOID graphBuilder0)
 
 	pEnum->Release();
 
+	if (graphConfig != NULL)
+	{
+		graphConfig->Release();
+	}
 
 	if (filterGraph != NULL)
 	{
@@ -781,7 +615,7 @@ BOOL CMyDirectShow::Pause(void)
 
 	return TRUE;
 
-
+	/*
 //OutputDebugString("[DirectShow::Pause]");
 	HRESULT hr = ((IMediaControl*)m_mediaControl)->Pause();
 	if (hr != S_OK)
@@ -817,7 +651,10 @@ BOOL CMyDirectShow::Pause(void)
 	}
 
 	return TRUE;
+	*/
 }
+
+
 
 BOOL CMyDirectShow::Resume(void)
 {
@@ -826,21 +663,8 @@ BOOL CMyDirectShow::Resume(void)
 	return TRUE;
 
 	HRESULT hr = ((IMediaControl*)m_mediaControl)->Run();
-	if (hr == S_FALSE)
-	{
-		OAFilterState fs;
+	if (hr == S_FALSE) WaitMediaControl();
 
-		int n = 0;
-		while (1)
-		{
-//			OutputDebugString("-");
-			hr = ((IMediaControl*)m_mediaControl)->GetState(50,&fs);
-			if (hr == S_OK) break;
-			n++;
-			if (n>=10) break;
-		}
-
-	}
 	return TRUE;
 }
 
@@ -963,12 +787,6 @@ BOOL CMyDirectShow::CheckVMR9Connected(void)
 			char mes0[1024];
 			WideCharToMultiByte(CP_ACP,0,fi.achName,-1,mes0,1024,NULL,NULL);
 
-#if defined _DEBUG
-			OutputDebugString("[");
-			OutputDebugString(mes0);
-			OutputDebugString("]\n");
-#endif
-
 			//ぜんぴんれっきょ
 
 
@@ -1021,18 +839,10 @@ BOOL CMyDirectShow::CheckVMR9Connected(void)
 						if (pPin2->ConnectedTo(&pin3) == S_OK)
 						{
 							pinConnectFlag = TRUE;
-#if defined _DEBUG
-							OutputDebugString("[接続済み]");
-//MessageBox(NULL,"[接続済み]",mes0,MB_OK);
-#endif
 							pin3->Release();
 						}
 						else
 						{
-#if defined _DEBUG
-							OutputDebugString("[未接続]");
-//MessageBox(NULL,"[未接続]",mes0,MB_OK);
-#endif
 						}
 					}
 
@@ -1057,11 +867,9 @@ BOOL CMyDirectShow::CheckVMR9Connected(void)
 					if (pinKosuu >= 4)
 					{
 						vmrFlag = TRUE;
-OutputDebugString("[4]");
 					}
 					else
 					{
-OutputDebugString("[1]");
 						vmrFlag = TRUE;
 					}
 				}
@@ -1125,6 +933,88 @@ HRESULT CMyDirectShow::CreateGraphBuilder(void)
 	return hr;
 }
 
+
+HRESULT CMyDirectShow::GetVideoWindowInterface(void)
+{
+	HRESULT hr = S_OK;
+	if (m_useVMR9Flag == 0)
+	{
+		hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IVideoWindow,(void**)&m_videoWindow);
+		if (FAILED(hr))
+		{
+//MessageBox(NULL,"PlayMovie-2-2","error",MB_OK);
+//MessageBox(NULL,"3","error",MB_OK);
+		}
+	}
+
+	return hr;
+}
+
+HRESULT CMyDirectShow::GetMediaControlInterface(void)
+{
+    HRESULT hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IMediaControl, (void **)&m_mediaControl);
+	if (FAILED(hr))
+	{
+#if defined _DEBUG
+//MessageBox(NULL,"PlayMovie-3","error",MB_OK);
+#endif
+	}
+	return hr;
+}
+
+HRESULT CMyDirectShow::GetMediaEventExInterface(void)
+{
+	HRESULT hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IMediaEventEx,(void**)&m_mediaEventEx);
+	if (FAILED(hr))
+	{
+#if defined _DEBUG
+//MessageBox(NULL,"PlayMovie-4","error",MB_OK);
+#endif
+	}
+	return hr;
+}
+
+HRESULT CMyDirectShow::GetBasicAudioInterface(void)
+{
+	HRESULT hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IBasicAudio, (void **)&m_basicAudio);
+	if (FAILED(hr))
+	{
+#if defined _DEBUG
+//MessageBox(NULL,"PlayMovie-6","error",MB_OK);
+#endif
+	}
+	return hr;
+}
+
+HRESULT CMyDirectShow::GetMediaSeekInterface(void)
+{
+	HRESULT hr = ((IGraphBuilder*)m_graphBuilder)->QueryInterface(IID_IMediaSeeking, (void **)&m_mediaSeek);
+	if (FAILED(hr))
+	{
+#if defined _DEBUG
+MessageBox(NULL,"PlayMovie-7","error",MB_OK);
+#endif
+//MessageBox(NULL,"8","error",MB_OK);
+	}
+	return hr;
+}
+
+
+HRESULT CMyDirectShow::WaitMediaControl(int ms,int loop)
+{
+	OAFilterState fs;
+	HRESULT hr = S_OK;
+	int n = 0;
+	while (1)
+	{
+		hr = ((IMediaControl*)m_mediaControl)->GetState(ms,&fs);
+		if (hr == S_OK) break;
+		n++;
+		if (n>=loop) break;
+	}
+
+	return hr;
+}
 
 /*_*/
 

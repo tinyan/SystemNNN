@@ -10,7 +10,7 @@ class CMiniGamemahjongCommon;
 class CMiniGameNikaku : public CMiniGameMahjongCommon
 {
 public:
-	CMiniGameNikaku(CAllMiniGame* lpAllMiniGame);
+	CMiniGameNikaku(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGameNikaku();
 	virtual void End(void);
 

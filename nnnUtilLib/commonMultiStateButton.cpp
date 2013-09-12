@@ -18,7 +18,7 @@
 
 char CCommonMultiStateButton::m_defaultButtonName[] = "button";
 
-CCommonMultiStateButton::CCommonMultiStateButton(CNameList* lpSetup,CPicture* lpBG,LPSTR buttonName,int n,POINT* lpPoint,CSuperButtonSetup* lpCopySetup)
+CCommonMultiStateButton::CCommonMultiStateButton(CNameList* lpSetup,CPicture* lpBG,LPSTR buttonName,int n,POINT* lpPoint,CSuperButtonSetup* lpCopySetup,BOOL notSrcPicCopy)
 {
 	m_buttonKosuu = n;
 	if (buttonName == NULL) buttonName = m_defaultButtonName;
@@ -38,7 +38,7 @@ CCommonMultiStateButton::CCommonMultiStateButton(CNameList* lpSetup,CPicture* lp
 
 	char name[256];
 	wsprintf(name,"%s%d",buttonName,0+1);
-	m_superSetup[0] = new CSuperButtonSetup(m_setup,name,lpCopySetup,NULL);
+	m_superSetup[0] = new CSuperButtonSetup(m_setup,name,lpCopySetup,NULL,notSrcPicCopy);
 	if (lpPoint != NULL) m_superSetup[0]->SetZahyoIfCan(*lpPoint);
 
 	POINT orgPoint = m_superSetup[0]->GetZahyo();

@@ -9,7 +9,7 @@ class CMiniGameBase;
 class CMiniGameCross : public CMiniGameBase
 {
 public:
-	CMiniGameCross(CAllMiniGame* lpAllMiniGame);
+	CMiniGameCross(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGameCross();
 	virtual void End(void);
 

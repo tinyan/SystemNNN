@@ -26,6 +26,10 @@
 #include "commonMode.h"
 #include "commonSystemParamName.h"
 
+#include "..\nyanEffectLIB\commoneffect.h"
+#include "..\nyanEffectAnimeLIB\effectAnimation.h"
+
+
 #include "gameCallBack.h"
 
 #include "commonGeneral.h"
@@ -72,6 +76,9 @@ CCommonPrintCG::CCommonPrintCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 	GetInitGameParam(&m_backMode,"backMode");
 
+	m_animeFrame = 1;
+	GetInitGameParam(&m_animeFrame,"animeFrame");
+	m_animeCount = 0;
 
 	m_taBGFlag = 0;
 	GetInitGameParam(&m_taBGFlag,"taBGFlag");
@@ -113,7 +120,21 @@ CCommonPrintCG::CCommonPrintCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		}
 	}
 
+	m_sabunFlag = 0;
+	m_sabunFade = 0;
+	m_sabunFadeTime = 1;
+	m_sabunFadeCount = 0;
 
+	GetInitGameParam(&m_sabunFade,"diffFadeType");
+	if (m_sabunFade > 0)
+	{
+		GetInitGameParam(&m_sabunFadeTime,"diffFadeTime");
+	}
+
+	m_returnOneLookCGSet = 0;
+	GetInitGameParam(&m_returnOneLookCGSet,"returnOneLookCGSet");
+
+	m_sabunPic = new CPicture();
 
 	m_nextSound = COMMON_SYSTEMSOUND_PON+1;
 	m_prevSound = COMMON_SYSTEMSOUND_PON+1;
@@ -142,6 +163,8 @@ CCommonPrintCG::~CCommonPrintCG()
 
 void CCommonPrintCG::End(void)
 {
+	ENDDELETECLASS(m_sabunPic);
+
 	DELETEARRAY(m_cgVoiceFileName);
 	ENDDELETECLASS(m_cgVoice);
 
@@ -154,6 +177,10 @@ int CCommonPrintCG::Init(void)
 {
 	ClearLastCGVoice();
 	ChangeCGVoice();
+
+	m_animeCount = 0;
+	m_sabunFadeCount = 0;
+	m_sabunFlag = 0;
 
 	LoadCG();
 	return -1;
@@ -267,13 +294,20 @@ int CCommonPrintCG::Calcu(void)
 
 	if (dlt != 0)
 	{
+
+
 		int old = 0;
 		if (m_cgDataControl != NULL)
 		{
 			old = m_cgDataControl->GetCGNumber();
 		}
 
+
+
+
+
 		int cg = old;
+		m_sabunFlag = 0;
 
 		if (m_cgDataControl != NULL)
 		{
@@ -285,10 +319,42 @@ int CCommonPrintCG::Calcu(void)
 			{
 				cg = m_cgDataControl->SearchPreCG();
 			}
+
+			int 	m_cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+
+			if (m_game->GetCGBlockNumber(m_cgCharaNumber,old) == m_game->GetCGBlockNumber(m_cgCharaNumber,cg))
+			{
+				m_sabunFlag = 1;
+			}
+
+			if (m_returnOneLookCGSet)
+			{
+				//last?
+				if (m_sabunFlag == 0)
+				{
+					m_game->PlayCommonSystemSound(m_backSound-1);
+					return ReturnFadeOut(m_backMode);
+				}
+			}
+
+			if (m_sabunFlag)
+			{
+				//anime
+				if (	m_cgDataControl->CheckCGIsAnime(m_cgCharaNumber,cg))
+				{
+					m_sabunFlag = 0;
+				}
+			}
 		}
 
 		if (cg != old)
 		{
+			if (m_sabunFlag && m_sabunFade)
+			{
+				m_sabunFadeCount = 0;
+				LoadCG(TRUE,old);//load old
+			}
+
 			if (m_cgDataControl != NULL)
 			{
 				m_cgDataControl->SetCGNumber(cg);
@@ -340,6 +406,36 @@ int CCommonPrintCG::Print(void)
 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+	int cgCharaNumber = 0;
+	int cgNumber = 0;
+
+	BOOL animeFlag = FALSE;
+
+	if (m_cgDataControl != NULL)
+	{
+		cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+		cgNumber = m_cgDataControl->GetCGNumber();
+		animeFlag = m_cgDataControl->CheckCGIsAnime(cgCharaNumber,cgNumber);
+		if (animeFlag)
+		{
+			b = TRUE;
+			CAreaControl::SetNextAllPrint();
+		}
+
+	}
+
+	if (m_sabunFlag && m_sabunFade)
+	{
+		if (m_sabunFade)
+		{
+			if (m_sabunFadeCount < m_sabunFadeTime)
+			{
+				b = TRUE;
+				CAreaControl::SetNextAllPrint();
+			}
+		}
+	}
 
 
 	if (b || m_scrollFlagX || m_scrollFlagY)
@@ -398,15 +494,50 @@ int CCommonPrintCG::Print(void)
 		{
 			CheckAndEraseBG();
 
-			for (int j=0;j<m_maisuuY;j++)
+			if (animeFlag)
 			{
-				for (int i=0;i<m_maisuuX;i++)
-				{
-					//CPicture* lpPic = m_commonBG;
+				int animeMaisuu = m_cgDataControl->GetAnimeMaisuu(cgCharaNumber,cgNumber);
+				int dv = m_animeFrame;
+				if (dv<1) dv = 1;
 
-					int n = i + j * m_maisuuX;
-					CPicture* lpPic = m_game->GetEffectPicture(n);
-					lpPic->Blt(i*sz.cx-dx,j*sz.cy-dy,0,0,sz.cx,sz.cy,m_taFlag[n]);
+				int anime = m_animeCount / dv;
+				if (anime>=animeMaisuu)
+				{
+					anime %= animeMaisuu;
+				}
+
+				CPicture* lpPic = m_game->GetAnimeBuffer(anime);
+				if (lpPic != NULL)
+				{
+					if (m_sabunFlag && m_sabunFade)
+					{
+						PrintSabunFade(lpPic);
+					}
+					else
+					{
+						lpPic->Put(0,0,FALSE);
+					}
+				}
+			}
+			else
+			{
+				for (int j=0;j<m_maisuuY;j++)
+				{
+					for (int i=0;i<m_maisuuX;i++)
+					{
+						//CPicture* lpPic = m_commonBG;
+
+						int n = i + j * m_maisuuX;
+						CPicture* lpPic = m_game->GetEffectPicture(n);
+						if ((i == 0) && m_sabunFlag && m_sabunFade)
+						{
+							PrintSabunFade(lpPic);
+						}
+						else
+						{
+							lpPic->Blt(i*sz.cx-dx,j*sz.cy-dy,0,0,sz.cx,sz.cy,m_taFlag[n]);
+						}
+					}
 				}
 			}
 		}
@@ -418,10 +549,49 @@ int CCommonPrintCG::Print(void)
 		}
 	}
 
+
+	//sabun fade
+	if (m_sabunFlag && m_sabunFade)
+	{
+		if (m_sabunFadeCount < m_sabunFadeTime)
+		{
+			m_sabunFadeCount++;
+		}
+	}
+
+	//anime?
+	if (m_cgDataControl != NULL)
+	{
+		int cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+		int cgNumber = m_cgDataControl->GetCGNumber();
+		if (m_cgDataControl->CheckCGIsAnime(cgCharaNumber,cgNumber))
+		{
+			int animeMaisuu = m_cgDataControl->GetAnimeMaisuu(cgCharaNumber,cgNumber);
+			m_animeCount++;
+			if (m_animeCount >= animeMaisuu * m_animeFrame)
+			{
+				m_animeCount = 0;
+			}
+		}
+	}
 	return -1;
 }
 
-void CCommonPrintCG::LoadCG(void)
+void CCommonPrintCG::PrintSabunFade(CPicture* lpToPic)
+{
+	int screenSizeX = CMyGraphics::GetScreenSizeX();
+	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+	if (m_sabunFadeTime <= 1)
+	{
+		lpToPic->Blt(0,0,0,0,screenSizeX,screenSizeY,FALSE);
+		return;
+	}
+
+	m_game->PrintSimpleWipe(m_sabunPic,lpToPic,m_sabunFadeCount,m_sabunFadeTime,m_sabunFade-1);
+}
+
+void CCommonPrintCG::LoadCG(BOOL oldFlag,int oldNumber)
 {
 	m_dragedFlag = FALSE;
 	m_dragFlag = FALSE;
@@ -434,10 +604,32 @@ void CCommonPrintCG::LoadCG(void)
 	m_scrollHoukouYSpecial = -1;
 
 
+	int cgCharaNumber = 0;
+	int cgNumber = 0;
+
+	BOOL animeFlag = FALSE;
 	if (m_cgDataControl != NULL)
 	{
-		int cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
-		int cgNumber = m_cgDataControl->GetCGNumber();
+		cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+		cgNumber = m_cgDataControl->GetCGNumber();
+	}
+
+	if (oldFlag)
+	{
+		cgNumber = oldNumber;
+	}
+
+	if (m_cgDataControl != NULL)
+	{
+//		cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+//		cgNumber = m_cgDataControl->GetCGNumber();
+		animeFlag = m_cgDataControl->CheckCGIsAnime(cgCharaNumber,cgNumber);
+	}
+
+	if (m_cgDataControl != NULL)
+	{
+//		cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+//		cgNumber = m_cgDataControl->GetCGNumber();
 
 		m_scrollHoukouXSpecial = m_cgDataControl->GetCGScrollSpecial(0,cgCharaNumber,cgNumber);
 		m_scrollHoukouYSpecial = m_cgDataControl->GetCGScrollSpecial(1,cgCharaNumber,cgNumber);
@@ -451,8 +643,8 @@ void CCommonPrintCG::LoadCG(void)
 	{
 		if (m_cgDataControl != NULL)
 		{
-			int cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
-			int cgNumber = m_cgDataControl->GetCGNumber();
+//			cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+//			cgNumber = m_cgDataControl->GetCGNumber();
 
 			m_maisuuX = m_cgDataControl->GetCGScrollSpecial(2,cgCharaNumber,cgNumber);
 		}
@@ -463,56 +655,93 @@ void CCommonPrintCG::LoadCG(void)
 	{
 		if (m_cgDataControl != NULL)
 		{
-			int cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
-			int cgNumber = m_cgDataControl->GetCGNumber();
+//			cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+//			cgNumber = m_cgDataControl->GetCGNumber();
 
 			m_maisuuY = m_cgDataControl->GetCGScrollSpecial(3,cgCharaNumber,cgNumber);
 		}
 //		m_maisuuY = 1;
 	}
 
+	if (animeFlag)
+	{
+		m_maisuuX = 1;
+		m_maisuuY = 1;
+	}
+
+
 	int maisuu = m_maisuuX * m_maisuuY;
 
 
 	if (m_cgDataControl != NULL)
 	{
-		LPSTR cgName = m_cgDataControl->GetCGFileName(m_cgDataControl->GetCGCharaNumber(),m_cgDataControl->GetCGNumber());
+		LPSTR cgName = m_cgDataControl->GetCGFileName(cgCharaNumber,cgNumber);
 		if (cgName != NULL)
 		{
 			char fname[256];
-			for (int i=0;i<maisuu;i++)
+			if (animeFlag)
 			{
-				if (i == 0)
+				int animeStart = m_cgDataControl->GetAnimeStart(cgCharaNumber,cgNumber);
+				int animeMaisuu = m_cgDataControl->GetAnimeMaisuu(cgCharaNumber,cgNumber);
+
+				LPSTR tag = m_game->GetAnimeTag();
+
+				for (int i=0;i<animeMaisuu;i++)
 				{
-					wsprintf(fname,"__\\%s",cgName);
-					fname[0] = *cgName;
-					fname[1] = *(cgName+1);
+					CPicture* lpPic = m_game->GetAnimeBuffer(i);
+					if (oldFlag)
+					{
+						lpPic = m_sabunPic;
+					}
 
-					CPicture* lpPic = m_game->GetEffectPicture(i);
-					lpPic->LoadDWQ(fname);
-	//				m_commonBG->LoadDWQ(fname);
+					wsprintf(fname,"%s%d",tag,animeStart+i);
+			//		fname[0] = *tag;
+			//		fname[1] = *(tag+1);
+					BOOL b256 = CEffectAnimation::Check256();
+					if (lpPic != NULL) lpPic->LoadDWQ(fname,b256);
 				}
-				else
+				m_taFlag[0] = FALSE;
+			}
+			else
+			{
+				for (int i=0;i<maisuu;i++)
 				{
-					wsprintf(fname,"__\\%s_%d",cgName,i+1);
-					fname[0] = *cgName;
-					fname[1] = *(cgName+1);
+					if (i == 0)
+					{
+						wsprintf(fname,"__\\%s",cgName);
+						fname[0] = *cgName;
+						fname[1] = *(cgName+1);
 
-	//				CPicture* lpPic = m_game->GetEffectPicture(i-1);
-					CPicture* lpPic = m_game->GetEffectPicture(i);
-					lpPic->LoadDWQ(fname);
-				}
+						CPicture* lpPic = m_game->GetEffectPicture(i);
+						if (oldFlag)
+						{
+							lpPic = m_sabunPic;
+						}
+						lpPic->LoadDWQ(fname);
+		//				m_commonBG->LoadDWQ(fname);
+					}
+					else
+					{
+						wsprintf(fname,"__\\%s_%d",cgName,i+1);
+						fname[0] = *cgName;
+						fname[1] = *(cgName+1);
 
-				fname[2] = 0;
-				fname[3] = 0;
+		//				CPicture* lpPic = m_game->GetEffectPicture(i-1);
+						CPicture* lpPic = m_game->GetEffectPicture(i);
+						lpPic->LoadDWQ(fname);
+					}
+
+					fname[2] = 0;
+					fname[3] = 0;
 				
-				if (_stricmp(fname,"ta") == 0)
-				{
-					m_taFlag[i] = TRUE;
-				}
-				else
-				{
-					m_taFlag[i] = FALSE;
+					if (_stricmp(fname,"ta") == 0)
+					{
+						m_taFlag[i] = TRUE;
+					}
+					else
+					{
+						m_taFlag[i] = FALSE;
+					}
 				}
 			}
 		}
@@ -521,7 +750,31 @@ void CCommonPrintCG::LoadCG(void)
 
 	//m_commonBG->GetPicSize(&m_picRect);
 	CPicture* lpPicBG = m_game->GetEffectPicture(0);
-	lpPicBG->GetPicSize(&m_picRect);
+	if (animeFlag)
+	{
+		CPicture* lpPic = m_game->GetAnimeBuffer(0);
+		if (oldFlag)
+		{
+			lpPic = m_sabunPic;
+		}
+		if (lpPic != NULL)
+		{
+			lpPic->GetPicSize(&m_picRect);
+		}
+		else
+		{
+
+			SetRect(&m_picRect,0,0,screenSizeX,screenSizeY);//dummy
+		}
+	}
+	else
+	{
+		if (oldFlag)
+		{
+			lpPicBG = m_sabunPic;
+		}
+		lpPicBG->GetPicSize(&m_picRect);
+	}
 
 	int picX = m_picRect.right;
 	int picY = m_picRect.bottom;
@@ -562,10 +815,10 @@ void CCommonPrintCG::LoadCG(void)
 
 	if (m_cgDataControl != NULL)
 	{
-		int newTimeX = m_cgDataControl->GetCGScrollSpecial(4,m_cgDataControl->GetCGCharaNumber(),m_cgDataControl->GetCGNumber());
-		int newTimeY = m_cgDataControl->GetCGScrollSpecial(5,m_cgDataControl->GetCGCharaNumber(),m_cgDataControl->GetCGNumber());
-		int newWaitX = m_cgDataControl->GetCGScrollSpecial(6,m_cgDataControl->GetCGCharaNumber(),m_cgDataControl->GetCGNumber());
-		int newWaitY = m_cgDataControl->GetCGScrollSpecial(7,m_cgDataControl->GetCGCharaNumber(),m_cgDataControl->GetCGNumber());
+		int newTimeX = m_cgDataControl->GetCGScrollSpecial(4,cgCharaNumber,cgNumber);
+		int newTimeY = m_cgDataControl->GetCGScrollSpecial(5,cgCharaNumber,cgNumber);
+		int newWaitX = m_cgDataControl->GetCGScrollSpecial(6,cgCharaNumber,cgNumber);
+		int newWaitY = m_cgDataControl->GetCGScrollSpecial(7,cgCharaNumber,cgNumber);
 
 		if (newTimeX >= 1)
 		{
@@ -621,13 +874,13 @@ void CCommonPrintCG::LoadCG(void)
 			char filename[256];
 			if (m_taBGFlag == 2)
 			{
-				int cgChara = 0;
-				if (m_cgDataControl != NULL)
-				{
-					cgChara = m_cgDataControl->GetCGCharaNumber();
-				}
+		//		int cgChara = 0;
+		//		if (m_cgDataControl != NULL)
+		//		{
+				//	cgChara = m_cgDataControl->GetCGCharaNumber();
+		//		}
 
-				wsprintf(filename,"bg\\%s",m_taBGCharaFileName[cgChara]);
+				wsprintf(filename,"bg\\%s",m_taBGCharaFileName[cgCharaNumber]);
 			}
 			else
 			{
@@ -649,6 +902,15 @@ void CCommonPrintCG::CreateEnterScreen(void)
 	//LoadCG‚ÍŽÀs‚³‚ê‚Ä‚¢‚é
 //	CreateStartScreen();
 
+	BOOL animeFlag = FALSE;
+
+	if (m_cgDataControl != NULL)
+	{
+		int cgCharaNumber = m_cgDataControl->GetCGCharaNumber();
+		int cgNumber = m_cgDataControl->GetCGNumber();
+		animeFlag = m_cgDataControl->CheckCGIsAnime(cgCharaNumber,cgNumber);
+		if (animeFlag) CAreaControl::SetNextAllPrint();
+	}
 
 
 	BOOL b = CAreaControl::CheckAllPrintMode();
@@ -699,16 +961,24 @@ void CCommonPrintCG::CreateEnterScreen(void)
 	int maisuu = m_maisuuX * m_maisuuY;
 	if (maisuu > 0)
 	{
-		CheckAndEraseBG();
-
-		for (int j=0;j<m_maisuuY;j++)
+		if (animeFlag)
 		{
-			for (int i=0;i<m_maisuuX;i++)
+			CPicture* lpPic = m_game->GetAnimeBuffer(0);
+			if (lpPic != NULL) lpPic->Put(0,0,FALSE);
+		}
+		else
+		{
+			CheckAndEraseBG();
+
+			for (int j=0;j<m_maisuuY;j++)
 			{
-//				CPicture* lpPic = m_commonBG;
-				int n = i + j * m_maisuuX;
-				CPicture* lpPic = m_game->GetEffectPicture(n);
-				lpPic->Blt(i*sz.cx-dx,j*sz.cy-dy,0,0,sz.cx,sz.cy,m_taFlag[n]);
+				for (int i=0;i<m_maisuuX;i++)
+				{
+	//				CPicture* lpPic = m_commonBG;
+					int n = i + j * m_maisuuX;
+					CPicture* lpPic = m_game->GetEffectPicture(n);
+					lpPic->Blt(i*sz.cx-dx,j*sz.cy-dy,0,0,sz.cx,sz.cy,m_taFlag[n]);
+				}
 			}
 		}
 	}

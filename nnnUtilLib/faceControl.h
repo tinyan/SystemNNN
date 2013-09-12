@@ -69,6 +69,7 @@ private:
 //	int m_count;
 
 	int m_animeParamInitFlag;
+	int m_lastSetFace;
 };
 
 

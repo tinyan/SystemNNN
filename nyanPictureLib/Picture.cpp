@@ -130,7 +130,7 @@ CPicture::CPicture(LPSTR filename,int nx,int ny, BOOL b256Flag)
 
 
 
-CPicture::CPicture(int sizeX, int sizeY,BOOL createMaskFlag)
+CPicture::CPicture(int sizeX, int sizeY,BOOL createMaskFlag,BOOL b256Flag)
 {
 	InitWork();
 
@@ -142,10 +142,14 @@ CPicture::CPicture(int sizeX, int sizeY,BOOL createMaskFlag)
 	m_charaClipYStart = 0;
 	m_charaClipYEnd= m_pictureSizeY;
 
-	m_256Flag = FALSE;
+	m_256Flag = b256Flag;
 
 
 	int sz = sizeX * sizeY*sizeof(int);
+	if (b256Flag)
+	{
+		sz = sizeX * sizeY;
+	}
 	MakeDataBuffer(sz+64);
 
 	m_maskExistFlag = FALSE;
@@ -898,7 +902,7 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 {
 	if (strcmp(filename,m_fileName)==0) return TRUE;
 
-	m_256Flag = FALSE;
+	m_256Flag = b256Flag;
 	m_maskExistFlag = FALSE;
 
 	int fln = strlen(filename);
@@ -963,8 +967,29 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 		{
 #if _MSC_VER >= 1500
 			m_pngLoader->LoadFile(file);
-			m_pngLoader->GetPicData((int*)m_pic);
-			m_maskFlag = m_pngLoader->GetMaskFlag();
+
+			if (b256Flag)
+			{
+
+				if (m_palette0 == NULL)
+				{
+					m_palette0 = new char[1024+64];
+				}
+
+				if (m_palette0 != NULL)
+				{
+					m_palette = (LPVOID) (( ((int)m_palette0) + 63) & (~63));
+					CopyMemory(m_palette,rgbTable,1024);
+				}
+
+				m_pngLoader->GetPic8AndPalette((char*)m_pic,(int*)m_palette);
+				m_maskFlag = FALSE;
+			}
+			else
+			{
+				m_pngLoader->GetPicData((int*)m_pic);
+				m_maskFlag = m_pngLoader->GetMaskFlag();
+			}
 
 			m_charaClipXStart = 0;
 			m_charaClipXEnd= m_pictureSizeX;
@@ -1054,6 +1079,8 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 		PrintLoadError(filename);
 	}
 
+	m_loadOkFlag = FALSE;
+///	m_fileName[0] = 0;	//まいかいエラーでてうざいのでこのまま
 	return FALSE;
 }
 
@@ -1817,8 +1844,15 @@ BOOL CPicture::ChangeTranslateBlt(int x, int y, int srcX, int srcY, int sizeX, i
 {
 	if (Check256()) return FALSE;
 	if (pic2->Check256()) return FALSE;
-	if (CheckMaskExist() == FALSE) return FALSE;
-	if (pic2->CheckMaskExist() == FALSE) return FALSE;
+
+	BOOL maskFlag = TRUE;
+
+	if ((CheckMaskExist() == FALSE) || (pic2->CheckMaskExist() == FALSE))
+	{
+		return ChangeBlt(x,y,srcX,srcY,sizeX,sizeY,ps1,ps2,pic2,srcX2,srcY2);
+		maskFlag = FALSE;
+	}
+
 
 
 	int x1 = x;
@@ -1922,6 +1956,144 @@ BOOL CPicture::ChangeTranslateBlt(int x, int y, int srcX, int srcY, int sizeX, i
 	srcData2 += srcSize2.cx * srcY2;
 	maskData2 += srcX2;
 	maskData2 += srcSize2.cx * srcY2;
+
+	CAllPicture::ChangeTransLucentBlt(dstPoint,putSize,srcData,srcData2,maskData,maskData2,srcSize,srcSize2,ps1,ps2);
+
+	return TRUE;
+}
+
+
+//percent2 もつかう
+//サイズは同じでないといけない
+
+BOOL CPicture::ChangeBlt(int x, int y, int srcX, int srcY, int sizeX, int sizeY, int ps1, int ps2, CPicture* pic2, int srcX2,int srcY2)
+{
+
+	int x1 = x;
+	int y1 = y;
+	int x2 = x;
+	int y2 = y;
+	int sizeX1 = sizeX;
+	int sizeY1 = sizeY;
+	int sizeX2 = sizeX;
+	int sizeY2 = sizeY;
+
+	int xOrg = x;
+	int yOrg = y;
+//	int sizeXOrg = sizeX;
+//	int sizeYOrg = sizeY;
+
+	int srcXOrg = srcX;
+	int srcYOrg = srcY;
+	int srcX2Org = srcX2;
+	int srcY2Org = srcY2;
+
+	if (!ClipChara(x1,y1,srcX,srcY,sizeX1,sizeY1)) return FALSE;
+	if (! pic2->ClipChara(x2,y2,srcX2,srcY2,sizeX2,sizeY2)) return FALSE;
+
+	RECT rc;
+	RECT rc1;
+	RECT rc2;
+	SetRect(&rc1,x1,y1,x1+sizeX1,y1+sizeY1);
+	SetRect(&rc2,x2,y2,x2+sizeX2,y2+sizeY2);
+	UnionRect(&rc,&rc1,&rc2);
+
+
+	x = rc.left;
+	y = rc.top;
+	sizeX = rc.right - rc.left;
+	sizeY = rc.bottom - rc.top;
+
+	int deltaX = x - xOrg;
+	int deltaY = y - yOrg;
+
+	srcX = srcXOrg + deltaX;
+	srcY = srcYOrg + deltaY;
+
+	srcX2 = srcX2Org + deltaX;
+	srcY2 = srcY2Org + deltaY;
+
+
+
+	xOrg = x;
+	yOrg = y;
+	if (!ClipEtc(x,y,srcX,srcY,sizeX,sizeY)) return FALSE;
+	deltaX = x - xOrg;
+	deltaY = y - yOrg;
+
+	srcX2 += deltaX;
+	srcY2 += deltaY;
+
+	int xOrg2 = x;
+	int yOrg2 = y;
+	if (! pic2->ClipEtc(x,y,srcX2,srcY2,sizeX,sizeY)) return FALSE;
+	int deltaX2 = x - xOrg2;
+	int deltaY2 = y - yOrg2;
+
+	srcX += deltaX2;
+	srcY += deltaY2;
+
+
+
+
+
+
+
+	POINT dstPoint;
+	dstPoint.x = x;
+	dstPoint.y = y;
+//	POINT srcPoint;
+//	srcPoint.x = srcX;
+//	srcPoint.y = srcY;
+	SIZE putSize;
+	putSize.cx = sizeX;
+	putSize.cy = sizeY;
+
+	SIZE srcSize=GetPicSize();
+	SIZE srcSize2=pic2->GetPicSize();
+
+//	CAllPicture::ChangeTransLucentBlt3D(texture1,texture2,dstPoint,srcPoint,srcPoint2,putSize,ps1,ps2);
+
+	if (Check256() && (pic2->Check256()))
+	{
+
+		char* srcData = (char*)GetPictureBuffer();
+		char* srcData2 = (char*)(pic2->GetPictureBuffer());
+		srcData += srcX;
+		srcData += srcSize.cx * srcY;
+		srcData2 += srcX2;
+		srcData2 += srcSize2.cx * srcY2;
+		int* paletteData = (int*)GetPalette();
+		int* paletteData2 = (int*)(pic2->GetPalette());
+
+		CAllPicture::ChangeBlt256Beta(dstPoint,putSize,srcData,srcData2,paletteData,paletteData2,srcSize,srcSize2,ps1,ps2);
+
+		return TRUE;
+	}
+
+
+	int* srcData = GetPictureBuffer();
+	int* srcData2 = pic2->GetPictureBuffer();
+
+	char* maskData = NULL;
+	char* maskData2 = NULL;
+/*
+	if (maskFlag)
+	{
+		maskData = GetMaskPic();
+		maskData2 = pic2->GetMaskPic();
+		maskData += srcX;
+		maskData += srcSize.cx * srcY;
+		maskData2 += srcX2;
+		maskData2 += srcSize2.cx * srcY2;
+	}
+*/
+
+	srcData += srcX;
+	srcData += srcSize.cx * srcY;
+	srcData2 += srcX2;
+	srcData2 += srcSize2.cx * srcY2;
+
 
 	CAllPicture::ChangeTransLucentBlt(dstPoint,putSize,srcData,srcData2,maskData,maskData2,srcSize,srcSize2,ps1,ps2);
 

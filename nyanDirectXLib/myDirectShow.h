@@ -30,6 +30,7 @@ public:
 	BOOL Resume(void);
 
 	void SetWindowSize(SIZE sz){m_windowSize = sz;}
+	void SetFullMonitorSize(SIZE sz){m_fullMonitorSize = sz;}
 	void ChangeVolume(int vol);
 	/*
 	
@@ -61,8 +62,8 @@ private:
 	LPVOID m_basicAudio;
 	LPVOID m_mediaSeek;
 
-	LPVOID m_sourceFilter;
-	LPVOID m_directSoundFilter;
+//	LPVOID m_sourceFilter;
+//	LPVOID m_directSoundFilter;
 
 	LPVOID m_captureBuilder;
 
@@ -116,10 +117,20 @@ private:
 
 	HRESULT SourceRenderEx(LPVOID pSourceFilter);
 	SIZE m_windowSize;
+	SIZE m_fullMonitorSize;
 
 	int OpenMovieFile(LPSTR filename);
 
 	HRESULT CreateGraphBuilder(void);
+
+	HRESULT GetVideoWindowInterface(void);
+	HRESULT GetMediaControlInterface(void);
+	HRESULT GetMediaEventExInterface(void);
+	HRESULT GetBasicAudioInterface(void);
+	HRESULT GetMediaSeekInterface(void);
+
+	HRESULT WaitMediaControl(int ms = 50,int loop = 10);
+
 };
 
 #endif

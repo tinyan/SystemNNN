@@ -89,7 +89,8 @@ CCommonSelectScene::CCommonSelectScene(CGameCallBack* lpGame) : CCommonGeneral(l
 		CheckSceneList();
 	}
 
-
+	m_backlogClearFlag = 0;
+	GetInitGameParam(&m_backlogClearFlag,"backlogClearFlag");
 
 	m_sceneCharaKosuu = 1;
 	if (m_sceneDataControl != NULL)
@@ -437,6 +438,12 @@ void CCommonSelectScene::End(void)
 
 int CCommonSelectScene::Init(void)
 {
+
+	if (m_backlogClearFlag)
+	{
+		m_game->ClearBackLog();
+	}
+
 	m_game->SetLayerOff();
 
 	m_game->StopScriptSoundAndVoice();

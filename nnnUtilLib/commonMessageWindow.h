@@ -61,6 +61,9 @@ protected:
 	int m_loadedNameWindowNumberScript;
 	int m_loadedNameWindowNumberFontSizeType;
 
+	int m_notTransWindowUse;
+	int m_notTransNameWindowUse;
+
 	BOOL CheckWindowLoaded(void);
 	BOOL CheckNameWindowLoaded(void);
 

@@ -13,7 +13,7 @@ class CNameList;
 class CSuperButtonSetup
 {
 public:
-	CSuperButtonSetup(CNameList* lpNameList,LPSTR buttonName,CSuperButtonSetup* lpCopyFrom = NULL,POINT* lpDelta = NULL);
+	CSuperButtonSetup(CNameList* lpNameList,LPSTR buttonName,CSuperButtonSetup* lpCopyFrom = NULL,POINT* lpDelta = NULL,BOOL notSrcPicCopy = FALSE);
 	~CSuperButtonSetup();
 	void End(void);
 
@@ -59,8 +59,10 @@ public:
 //	int GetPicUseLayerStart(void){return m_picUseLayerStart;}
 //	int GetPicUseLayerKosuu(void){return m_picUseLayerKosuu;}
 
-	void SetZahyoIfCan(POINT pt);
+	static BOOL m_notCopyFlag;
 
+	void SetZahyoIfCan(POINT pt);
+	static void SetNotCopyFlagEnable(BOOL flg = TRUE){m_notCopyFlag = flg;}
 private:
 	CSetupList* m_setupList;
 	

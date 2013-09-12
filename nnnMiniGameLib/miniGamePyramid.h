@@ -9,7 +9,7 @@ class CMiniGameBase;
 class CMiniGamePyramid : public CMiniGameBase
 {
 public:
-	CMiniGamePyramid(CAllMiniGame* lpAllMiniGame);
+	CMiniGamePyramid(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGamePyramid();
 	virtual void End(void);
 

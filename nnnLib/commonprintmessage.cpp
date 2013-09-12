@@ -26,6 +26,8 @@
 #include "..\nnnUtilLib\nnnButtonStatus.h"
 #include "..\nnnUtilLib\commonButton.h"
 
+#include "..\nnnUtilLib\printAnimeLayer.h"
+
 #include "commonSystemSoundName.h"
 
 #include "commonMode.h"
@@ -493,7 +495,11 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 
 	}
 
-
+	for (int i=0;i<5;i++)
+	{
+		m_voiceLastWaitTableAutoMode[i] = m_voiceLastWaitTable[i];
+		m_noVoiceLastWaitTableAutoMode[i] = m_noVoiceLastWaitTable[i];
+	}
 
 
 
@@ -530,6 +536,45 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 			GetInitGameParam(&m_messageSpeedTable[i],name);
 		}
 	}
+
+	for (int i=0;i<5;i++)
+	{
+		m_autoMessageSpeedTable[i] = m_messageSpeedTable[i];
+
+
+	}
+	int flg2 = 0;
+	GetInitGameParam(&flg2,"customAutoMessageSpeed");
+	if (flg2)
+	{
+		for (i=0;i<5;i++)
+		{
+			char name[256];
+			wsprintf(name,"autoMessageSpeed%d",i+1);
+			GetInitGameParam(&m_autoMessageSpeedTable[i],name);
+		}
+	}
+	m_useAutoModeWait = 0;
+	GetInitGameParam(&m_useAutoModeWait,"useAutoModeWait");
+	if (m_useAutoModeWait)
+	{
+		for (int i=0;i<5;i++)
+		{
+			char name[256];
+
+			int wait1 = m_voiceLastWaitTable[i];
+			sprintf_s(name,sizeof(name),"voiceLastWaitAuto%d",i+1);
+			GetInitGameParam(&wait1,name);
+			m_voiceLastWaitTableAutoMode[i] = wait1;
+
+			int wait2 = m_noVoiceLastWaitTable[i];
+			sprintf_s(name,sizeof(name),"noVoiceLastWaitAuto%d",i+1);
+			GetInitGameParam(&wait2,name);
+			m_noVoiceLastWaitTableAutoMode[i] = wait2;
+		}
+	}
+
+
 
 
 	m_cutinNameData = NULL;
@@ -569,6 +614,23 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 
 	}
 
+
+	m_printAutoAnimeFlag = 0;
+	m_printSkipAnimeFlag = 0;
+	m_printAutoAnime = NULL;
+	m_printSkipAnime = NULL;
+	GetInitGameParam(&m_printAutoAnimeFlag,"autoAnimePrintFlag");
+	GetInitGameParam(&m_printSkipAnimeFlag,"skipAnimePrintFlag");
+	if (m_printAutoAnimeFlag)
+	{
+		m_printAutoAnime = new CPrintAnimeLayer(m_setup,"autoAnime",NULL,m_game->GetTaihi(),30,TRUE);
+	}
+	if (m_printSkipAnimeFlag)
+	{
+		m_printSkipAnime = new CPrintAnimeLayer(m_setup,"skipAnime",NULL,m_game->GetTaihi(),31,TRUE);
+	}
+
+
 	GetFadeInOutSetup();
 
 
@@ -605,6 +667,8 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 	m_messageKosuu = 0;
 
 	m_messagePrintSpeed = 2;
+	m_autoMessagePrintSpeed = 2;
+
 
 	m_jinbutsuNameKosuu =10;
 
@@ -686,6 +750,9 @@ CCommonPrintMessage::~CCommonPrintMessage()
 
 void CCommonPrintMessage::End(void)
 {
+	ENDDELETECLASS(m_printSkipAnime);
+	ENDDELETECLASS(m_printAutoAnime);
+
 	DELETEARRAY(m_nameSpaceByFontSizeType);
 	DELETEARRAY(m_nameYByFontSizeType);
 	DELETEARRAY(m_nameXByFontSizeType);
@@ -729,6 +796,12 @@ int CCommonPrintMessage::Init(void)
 
 	if (m_messagePrintSpeed<0) m_messagePrintSpeed = 0;
 	if (m_messagePrintSpeed>4) m_messagePrintSpeed = 4;
+
+	m_autoMessagePrintSpeed = m_messagePrintSpeed;
+	if (m_game->CheckVolumeExist(NNNPARAM_AUTOSPEEDSLIDER))
+	{
+		m_autoMessagePrintSpeed = m_game->GetSystemParam(NNNPARAM_AUTOSPEEDSLIDER);
+	}
 
 	m_cutinWaitClick = FALSE;
 
@@ -897,6 +970,39 @@ int CCommonPrintMessage::CalcuPrintMode(int rt)
 		{
 			m_game->SetCommonBackMode(BACKLOG_MODE,PRINTMESSAGE_MODE);
 			return ReturnFadeOut(m_game->ChangeToSystemMode(BACKLOG_MODE,PRINTMESSAGE_MODE));
+		}
+
+		if (nm == 3)
+		{
+			m_game->SetCommonBackMode(SAVE_MODE,PRINTMESSAGE_MODE);
+			return ReturnFadeOut(m_game->ChangeToSystemMode(SAVE_MODE,PRINTMESSAGE_MODE));
+		}
+
+		if (nm == 4)
+		{
+			m_game->SetCommonBackMode(LOAD_MODE,PRINTMESSAGE_MODE);
+			return ReturnFadeOut(m_game->ChangeToSystemMode(LOAD_MODE,PRINTMESSAGE_MODE));
+		}
+
+		if (nm == 5)//auto
+		{
+			int autoMode = m_game->GetSystemParam(NNNPARAM_AUTOMODE);
+			m_game->SetSystemParam(NNNPARAM_AUTOMODE,1-autoMode);
+		}
+		if (nm == 6)//skip
+		{
+			m_game->SetMessageSkipFlag();
+			m_game->InitFreeButton(NNN_FREEBUTTON_SKIP);
+
+		}
+		if (nm == 7)//windowoff
+		{
+			if (CheckWindowOnOffEnable())
+			{
+				WindowOn(0);
+				m_game->SetSystemParam(NNNPARAM_AUTOMODE,0);
+				CAreaControl::SetNextAllPrint();
+			}
 		}
 
 		int st = CCommonButton::GetButtonStatus(rt);
@@ -1219,10 +1325,14 @@ void CCommonPrintMessage::CalcuFrameMoji(void)
 //@@@@@@@@@@@@@@@@@@@@@@@@@‚±‚±‚ÅŽÀÛ‚É‚©‚©‚Á‚½ŽžŠÔ‚Æ’²®‚·‚é•K—v‚ª‚ ‚é
 frameTime = m_game->GetNowFrameCount();
 
-	if (CheckAutoMessage())
+//	if (CheckAutoMessage())
+//	if (CheckAuto())
+	if (m_game->GetSystemParam(NNNPARAM_AUTOMODE))
 	{
-		int messagePrintSpeed = GetAutoMessageSpeed();
-		mojiTime = m_messageSpeedTable[messagePrintSpeed] * frameTime;
+//		int messagePrintSpeed = GetAutoMessageSpeed();
+//		mojiTime = m_messageSpeedTable[messagePrintSpeed] * frameTime;
+//		mojiTime = m_autoMessageSpeedTable[m_autoMessagePrintSpeed] * frameTime;
+		mojiTime = m_autoMessageSpeedTable[m_messagePrintSpeed] * frameTime;
 	}
 	else
 	{
@@ -1404,6 +1514,25 @@ int CCommonPrintMessage::Print(void)
 						m_game->PrintOptionButtonYoyaku();
 					}
 				}
+			}
+		}
+	}
+
+	if (m_printAutoAnimeFlag)
+	{
+		if (m_game->GetSystemParam(NNNPARAM_AUTOMODE))
+		{
+			m_printAutoAnime->Print(1);
+		}
+	}
+	if (m_printSkipAnimeFlag)
+	{
+		//if (m_game->GetSystemParam(NNNPARAM_SKIPMODE))
+		if (m_game->CheckMessageSkipFlag())
+		{
+			if (CheckCannotSkip() == FALSE)
+			{
+				m_printSkipAnime->Print(1);
 			}
 		}
 	}
@@ -2133,20 +2262,35 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	int frameRate = m_game->GetFrameTime();
 	if (frameRate < 1) frameRate = 1;
 
-	int autoSlider = m_game->GetSystemParam(NNNPARAM_AUTOSPEEDSLIDER);
+	int autoSlider = m_game->GetSystemParam(NNNPARAM_MESSAGESPEED);
+	int autoSlider2 = m_game->GetSystemParam(NNNPARAM_AUTOSPEEDSLIDER);
 
 	if (m_game->CheckMessageHaveVoice())
 	{
 		m_autoLastCount = m_game->GetVoiceLength();
 		m_autoLastCount2 = m_autoLastCount;
 //		m_autoLastCount += m_voiceLastWait;
-		m_autoLastCount += m_voiceLastWaitTable[autoSlider];
+		if (m_useAutoModeWait)
+		{
+			m_autoLastCount += m_voiceLastWaitTableAutoMode[autoSlider2];
+		}
+		else
+		{
+			m_autoLastCount += m_voiceLastWaitTable[autoSlider];
+		}
 		m_autoLastCount2 += m_autoMessageVoiceLastWait;
 	}
 	else
 	{
 //		m_autoLastCount = m_noVoiceLastWait;
-		m_autoLastCount = m_noVoiceLastWaitTable[autoSlider];
+		if (m_useAutoModeWait)
+		{
+			m_autoLastCount = m_noVoiceLastWaitTableAutoMode[autoSlider2];
+		}
+		else
+		{
+			m_autoLastCount = m_noVoiceLastWaitTable[autoSlider];
+		}
 		m_autoLastCount2 = 1;
 	}
 //	m_autoLastCount2 = m_autoLastCount;
@@ -2517,6 +2661,19 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 			}
 		}
 	}
+
+
+	//backlog‚É‚Â‚¢‚©‚·‚é‚à‚Ì
+	m_game->AddBacklogSeparator();
+
+
+
+
+
+
+
+
+
 
 
 	if (m_printMode == CODE_SYSTEMCOMMAND_PRINT)
@@ -3032,8 +3189,20 @@ void CCommonPrintMessage::CheckUserSkipOff(void)
 		}
 	}
 
+	BOOL leftClick = FALSE;
+	if (CheckClick())
+	{
+		POINT pt = m_mouseStatus->GetZahyo();
+
+		if (m_game->CheckOnFreeAutoSkipButton(pt) == FALSE)
+		{
+			leftClick = TRUE;
+		}
+	}
+
+
 //	if ((CheckClick()) || (m_mouseStatus->GetTrig(1)) || (m_mouseStatus->GetWheel()>0))
-	if ((CheckClick()) || rightCheck || (m_mouseStatus->GetWheel()>0))
+	if (leftClick || rightCheck || (m_mouseStatus->GetWheel()>0))
 	{
 		m_game->SetSystemParam(NNNPARAM_AUTOMODE,0);
 		if (m_skipFlag)

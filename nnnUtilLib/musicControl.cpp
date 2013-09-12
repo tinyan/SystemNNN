@@ -26,6 +26,7 @@ CMusicControl::CMusicControl(CMyDirectSound* lpMyDirectSound)
 	m_useWaveMusicNumber = 0;
 	m_defaultFadeInTime = 0;
 	m_defaultFadeOutTime = 5;
+	m_volumeData = 50;
 
 	if (lpMyDirectSound->GetDirectSound() == NULL) return;
 
@@ -76,6 +77,7 @@ void CMusicControl::PlayMusic(LPSTR filename,int loopCount,int volume,int fadeIn
 	if (m_waveMusic[m_useWaveMusicNumber] != NULL)
 	{
 		m_waveMusic[m_useWaveMusicNumber]->SetStartVolume(volume);
+		SetVolumeData(volume);
 
 		if (fadeInTime == 0)
 		{
@@ -133,6 +135,7 @@ void CMusicControl::ChangeVolume(int vol)
 {
 	if (m_waveMusic[m_useWaveMusicNumber] == NULL) return;
 	m_waveMusic[m_useWaveMusicNumber]->ChangeVolume(vol);
+	SetVolumeData(vol);
 }
 
 void CMusicControl::StartSpectrum(void)
@@ -170,8 +173,18 @@ void CMusicControl::FadeVolume(int vol, int fadeTime)
 {
 	if (m_waveMusic[m_useWaveMusicNumber] == NULL) return;
 	m_waveMusic[m_useWaveMusicNumber]->FadeVolume(vol,fadeTime);
+	SetVolumeData(vol);
 }
 
+void CMusicControl::SetVolumeData(int vol)
+{
+	m_volumeData = vol;
+}
+
+int CMusicControl::GetVolumeData(void)
+{
+	return m_volumeData;
+}
 
 /*_*/
 

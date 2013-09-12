@@ -15,7 +15,7 @@ class CMyKeyStatus;
 class CMiniGameBase
 {
 public:
-	CMiniGameBase(CAllMiniGame* lpAllMiniGame);
+	CMiniGameBase(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGameBase();
 	virtual void End(void);
 
@@ -45,6 +45,12 @@ protected:
 
 	BOOL m_clearFlag;
 	BOOL m_gameoverFlag;
+
+	int m_layoutParamKosuu;
+	int* m_layoutParam;
+
+	BOOL GetLayoutData(int* lpData,int layoutType);
+
 };
 
 #endif

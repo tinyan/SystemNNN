@@ -129,9 +129,12 @@ public:
 		int monitor;
 		int lastSaveSlot;
 		int notUseDirectDraw;
-		int pad104;
+		int coninueAuto;
 
-		int pad99[4];
+		int totalVolume;
+		int totalVolumeSwitch;
+		int pad99_3;
+		int pad99_4;
 		int user[16];
 	} SYSTEMDATA;
 

@@ -524,6 +524,7 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 
 
 	GetDisableQuickButtonSetup();
+	GetDisableFreeButtonSetup();
 
 
 //	GetInitGameParam(&m_fillColorR,"fillColorR");
@@ -663,6 +664,7 @@ int CCommonSelectMessage::Calcu(void)
 //			m_game->SearchCase(m_nowSelect);
 			//m_game->SetYoyaku();
 			m_exitModeFlag = TRUE;
+			CheckAndAutoOff();
 			return ReturnFadeOut(-1);
 			return m_nowSelect;
 		}
@@ -716,6 +718,50 @@ int CCommonSelectMessage::Calcu(void)
 			return ReturnFadeOut(m_game->ChangeToSystemMode(BACKLOG_MODE,m_classNumber));
 		}
 
+		//free button
+		if (nm == 3)
+		{
+			m_exitModeFlag = FALSE;
+			m_game->SetCommonBackMode(SAVE_MODE,SELECTMESSAGE_MODE);
+			return ReturnFadeOut(m_game->ChangeToSystemMode(SAVE_MODE,SELECTMESSAGE_MODE));
+		}
+
+		if (nm == 4)
+		{
+			m_exitModeFlag = FALSE;
+			m_game->SetCommonBackMode(LOAD_MODE,SELECTMESSAGE_MODE);
+			return ReturnFadeOut(m_game->ChangeToSystemMode(LOAD_MODE,SELECTMESSAGE_MODE));
+		}
+		
+		if (nm == 5)//auto
+		{
+			int autoMode = m_game->GetSystemParam(NNNPARAM_AUTOMODE);
+			m_game->SetSystemParam(NNNPARAM_AUTOMODE,1-autoMode);
+		}
+		if (nm == 6)//skip
+		{
+			m_game->SetMessageSkipFlag();
+		}
+		
+
+		if (nm == 7)//windowoff
+		{
+			if (m_scrollSelectFlag)
+			{
+				if (m_pageMax>1)
+				{
+					m_updown->Init();
+				}
+			}
+
+			if (m_windowOffSound != -1)
+			{
+				m_game->PlaySystemSound(m_windowOffSound-1);
+			}
+			m_windowOffFlag = !m_windowOffFlag;
+			CAreaControl::SetNextAllPrint();
+
+		}
 
 
 		int st = CCommonButton::GetButtonStatus(rt);
@@ -1112,6 +1158,7 @@ int CCommonSelectMessage::Calcu(void)
 			
 			m_exitModeFlag = TRUE;
 			m_selected = m_autoSelect;
+			CheckAndAutoOff();
 			return ReturnFadeOut(-1);
 //			m_game->SearchCase(m_autoSelect);
 //			m_game->SetYoyaku();
@@ -2118,4 +2165,12 @@ int CCommonSelectMessage::KeyMoveAction(int delta,int deltaX,int deltaY)
 	return -1;
 }
 
+
+void CCommonSelectMessage::CheckAndAutoOff(void)
+{
+	if (m_game->GetSystemParam(NNNPARAM_AUTOCONTINUESWITCH))
+	{
+		m_game->SetSystemParam(NNNPARAM_AUTOMODE,0);
+	}
+}
 

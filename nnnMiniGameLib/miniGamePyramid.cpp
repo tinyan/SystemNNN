@@ -11,6 +11,8 @@
 #include "allMiniGame.h"
 #include "miniGameBase.h"
 
+#include "minigameLayoutParamName.h"
+
 #include "miniGamePyramid.h"
 
 
@@ -19,7 +21,7 @@ int CMiniGamePyramid::m_checkTable[]=
 	1, 3,4, 6,7,8, 10,11,12,13, 15,16,17,18,19, 21,22,23,24,25,26,
 };
 
-CMiniGamePyramid::CMiniGamePyramid(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGamePyramid::CMiniGamePyramid(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_trumpPic = m_allMiniGame->GetCommonPic(0);
 	m_trumpSize = m_allMiniGame->GetCommonPicSize(0);
@@ -36,16 +38,25 @@ CMiniGamePyramid::CMiniGamePyramid(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(
 
 	int amariX = screenSizeX - sizeX * 7;
 	int sukimaX = amariX / 7;
-	int nextX = sukimaX + sizeX;
-	int startX = sukimaX / 2;
+	if (sukimaX > (sizeX*3)/4) sukimaX = (sizeX*3)/4;
+	if (sukimaX < 0) sukimaX = 0;
+	int nextX = sizeX - (sizeX - sukimaX) / 2;
+	GetLayoutData(&nextX,MINIGAME_LAYOUTPARAM_NEXTX);
+
+	int startX = screenSizeX / 2 - sizeX / 2;
+	startX -= 6 * nextX;
+	GetLayoutData(&startX,MINIGAME_LAYOUTPARAM_STARTX);
+
 	int sukimaY = 8;
 	int startY = sukimaY;
 	int lastY = screenSizeY - sukimaY - sizeY;
 	int nextY = (lastY - startY) / (7-1);
+	GetLayoutData(&nextY,MINIGAME_LAYOUTPARAM_NEXTY);
+	GetLayoutData(&startY,MINIGAME_LAYOUTPARAM_STARTY);
 
 	m_cardZahyo[0].x = startX;
 	m_cardZahyo[0].y = startY;
-	m_cardZahyo[1].x = startX + nextX;
+	m_cardZahyo[1].x = startX + nextX*2;
 	m_cardZahyo[1].y = startY;
 
 	int n = 2;
@@ -55,7 +66,7 @@ CMiniGamePyramid::CMiniGamePyramid(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(
 
 		for (int i=0;i<=j;i++)
 		{
-			int x = startX + nextX * (3+i) - (nextX * j) / 2; 
+			int x = startX + nextX*i*2 + nextX*(6-j); 
 
 			m_cardZahyo[n].x = x; 
 			m_cardZahyo[n].y = y; 

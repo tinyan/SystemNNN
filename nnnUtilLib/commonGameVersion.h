@@ -27,6 +27,7 @@ public:
 	static BOOL CheckCGOk(void){return m_cgOk;}
 	static BOOL CheckSceneOk(void){return m_sceneOk;}
 	static BOOL CheckMovieOk(void){return m_movieOk;}
+	static BOOL CheckAllOnOk(void){return m_allOnOk;}
 
 	static void SetTaikenVersion(BOOL flg = TRUE) {m_taikenVersion = flg;}
 	static void SetDemoVersion(BOOL flg = TRUE) {m_demoVersion = flg;}
@@ -40,6 +41,8 @@ public:
 	static void SetSceneOk(BOOL flg = TRUE){m_sceneOk = flg;}
 	static void SetMovieOk(BOOL flg = TRUE){m_movieOk = flg;}
 
+	static void SetAllOnOk(BOOL flg = TRUE){m_allOnOk = flg;}
+
 	static BOOL m_taikenVersion;
 	static BOOL m_demoVersion;
 	static BOOL m_netVersion;
@@ -52,6 +55,8 @@ public:
 	static BOOL m_sceneOk;
 	static BOOL m_movieOk;
 	
+	static BOOL m_allOnOk;
+
 private:
 };
 

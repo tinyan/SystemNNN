@@ -20,7 +20,7 @@ class CPicture
 {
 public:
 	CPicture(LPSTR filename = NULL,int nx = 1,int ny = 1,BOOL b256Flag = FALSE);
-	CPicture(int sizeX, int sizeY, BOOL cretaeMaskFlag = FALSE);
+	CPicture(int sizeX, int sizeY, BOOL cretaeMaskFlag = FALSE,BOOL b256Flag = FALSE);
 
 	virtual ~CPicture();
 //	void Init(void);
@@ -146,6 +146,7 @@ public:
 
 //@@	BOOL ChangeTranslateBlt(int x, int y, int srcX, int srcY, int sizeX, int sizeY, int ps1, int ps2, int* lpPic2, char* lpMask2,CPicture* pic2);
 	BOOL ChangeTranslateBlt(int x, int y, int srcX, int srcY, int sizeX, int sizeY, int ps1, int ps2, CPicture* pic2, int srcX2,int srcY2);
+	BOOL ChangeBlt(int x, int y, int srcX, int srcY, int sizeX, int sizeY, int ps1, int ps2, CPicture* pic2, int srcX2,int srcY2);
 
 //	char* GetAntiMask(void);
 

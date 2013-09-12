@@ -380,7 +380,9 @@ public:
 
 
 	virtual void PrintSimpleWipe(int count, int countMax, int type = 2);
+	virtual void PrintSimpleWipe(CPicture* lpFromPic,CPicture* lpToPic,int count, int countMax, int type = 2);
 
+	virtual int GetCGBlockNumber(int cgCharaNumber,int cgNumber);
 
 
 
@@ -530,8 +532,10 @@ public:
 	virtual BOOL CalcuSkipFilmButton(void);
 //	virtual int CalcuQuickSaveButton(void);
 //	virtual int CalcuQuickLoadButton(void);
+	virtual BOOL CalcuFreeButton(CSceneOptionButton* button,int rt,int cmd,int* lpRT,int* lpSound);
 
 	virtual void InitOptionButton(void);
+	virtual void InitFreeButton(CSceneOptionButton* button,int md);
 	virtual void InitSceneButton(void);
 	virtual void InitSkipFilmButton(void);
 //	virtual void InitQuickSaveButton(void);
@@ -548,7 +552,7 @@ public:
 	virtual void PrintSkipFilmButton(void);
 //	virtual void PrintQuickSaveButton(void);
 //	virtual void PrintQuickLoadButton(void);
-
+	virtual void PrintFreeButton(CSceneOptionButton* button,int md);
 
 	void SetDontPlay(int md);
 
@@ -775,6 +779,20 @@ public:
 	void SetMessageWindowFlag(BOOL flg = TRUE){m_messageWindowPrintFlag = flg;}
 	int GetNextMessageType(void){return m_nextMessageType;}
 
+	void AllOnOmakeFlag(int mask = 0xff);
+	BOOL CheckVolumeExist(int n);
+
+	BOOL CheckOnFreeAutoSkipButton(POINT pt);
+	void SetAnimeOff(int offMode);
+	virtual BOOL AfterChangeSystemParamExpCheck(int n,int md);
+	virtual BOOL AfterChangeSystemParamExpRadio(int n,int md);
+	virtual void AddBacklogSeparator(void);
+	CPicture* GetAnimeBuffer(int n);
+	LPSTR GetAnimeTag(void);
+
+	void InitFreeButton(int buttonType);
+	CTaihi* GetTaihi(void){return m_taihi;}
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -962,6 +980,11 @@ protected:
 	CSceneOptionButton* m_quickConfigButton;
 	CSceneOptionButton* m_quickBackLogButton;
 
+	CSceneOptionButton* m_freeSaveButton;
+	CSceneOptionButton* m_freeLoadButton;
+	CSceneOptionButton* m_freeAutoButton;
+	CSceneOptionButton* m_freeSkipButton;
+	CSceneOptionButton* m_freeWindowOffButton;
 
 
 
@@ -1619,6 +1642,7 @@ protected:
 
 
 	BOOL CheckQuickButtonOkMode(int nowMode,int checkMode);
+	int CheckFreeButtonOkMode(int nowMode,int checkMode);
 
 	int* m_layerOffVar;
 
@@ -1690,6 +1714,16 @@ protected:
 
 	int m_layerKosuuMax;
 	int m_pictureKosuuMax;
+
+	int m_totalVolumeUseFlag;
+
+	BOOL CheckTotalVolumeOff(void);
+
+	int m_useHsavemask;
+	CNameList* m_hSaveList;
+	CPicture* m_hSaveMaskPic;
+
+	int m_clearAutoAfterLoad;
 
 private:
 	//dummy

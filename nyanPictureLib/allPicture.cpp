@@ -259,7 +259,20 @@ void CAllPicture::ChangeTransLucentBlt(POINT dstPoint,SIZE putSize,LPVOID picDat
 //void CAllPicture::ChangeTransLucentBlt(POINT dstPoint,POINT srcPoint,SIZE putSize,LPVOID picData1,LPVOID picData2,LPVOID maskData1,LPVOID maskData2,SIZE picSize,int ps1,int ps2)
 {
 	if (m_changeTransLucentBlt == NULL) return;
-	m_changeTransLucentBlt->Print(dstPoint,putSize,picData1,picData2,maskData1,maskData2,picSize,picSize2,ps1,ps2);
+	if ((maskData1 != NULL) && (maskData2 != NULL))
+	{
+		m_changeTransLucentBlt->Print(dstPoint,putSize,picData1,picData2,maskData1,maskData2,picSize,picSize2,ps1,ps2);
+	}
+	else
+	{
+		m_changeTransLucentBlt->PrintBeta(dstPoint,putSize,picData1,picData2,picSize,picSize2,ps1,ps2);
+	}
+}
+
+void CAllPicture::ChangeBlt256Beta(POINT dstPoint,SIZE putSize,LPVOID picData1,LPVOID picData2,LPVOID paletteData1,LPVOID paletteData2,SIZE picSize,SIZE picSize2,int ps1,int ps2)
+{
+	if (m_changeTransLucentBlt == NULL) return;
+	m_changeTransLucentBlt->PrintBeta256(dstPoint,putSize,picData1,picData2,paletteData1,paletteData2,picSize,picSize2,ps1,ps2);
 }
 
 

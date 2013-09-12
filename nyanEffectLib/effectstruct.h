@@ -39,7 +39,8 @@
 		int countMax;
 		int para[256-32];
 		BOOL notTransFlag;
-		int pad[2];
+		int previousEffect;
+		int pad[1];
 	} EFFECT;
 
 

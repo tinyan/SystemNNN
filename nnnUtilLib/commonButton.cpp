@@ -112,6 +112,7 @@ void CCommonButton::End(void)
 
 void CCommonButton::Init(void)
 {
+	m_ignoreCount = 0;
 	m_mode = 0;
 	m_count = 0;
 	m_enterCount = 0;
@@ -129,6 +130,12 @@ void CCommonButton::Init(void)
 int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 {
 	if (GetExist() == FALSE) return NNNBUTTON_NOTHING;
+	if (m_ignoreCount > 0)
+	{
+		m_ignoreCount--;
+		lpInput = NULL;
+	}
+
 	if (lpInput == NULL)
 	{
 		if (GetEnable() == FALSE)
@@ -264,6 +271,8 @@ void CCommonButton::StartClick(void)
 
 void CCommonButton::StartEnter(void)
 {
+//	OutputDebugString("StartEnter\n");
+
 	m_enterFlag = TRUE;
 	m_mode = 1;
 	m_count = 0;
@@ -1162,6 +1171,10 @@ void CCommonButton::SetEnable(BOOL flg)
 	if (flg == FALSE) m_mode = 3;
 }
 
+void CCommonButton::SetNextIgnore(int cnt)
+{
+	m_ignoreCount = cnt;
+}
 /*_*/
 
 

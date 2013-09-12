@@ -14,7 +14,7 @@
 
 #include "miniGameNurie.h"
 
-CMiniGameNurie::CMiniGameNurie(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameNurie::CMiniGameNurie(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_sizeX = 64;
 	m_sizeY = 64;

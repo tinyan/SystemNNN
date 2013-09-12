@@ -33,7 +33,7 @@
 
 
 
-CMiniGameKushi::CMiniGameKushi(CAllMiniGame* lpAllMiniGame) : CMiniGameMahjongCommon(lpAllMiniGame)
+CMiniGameKushi::CMiniGameKushi(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameMahjongCommon(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_map = new int[20*10];
 	m_downMax = new int[20*10];

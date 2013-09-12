@@ -25,7 +25,7 @@ public:
 
 	static char m_defaultTaBGFileName[];
 protected:
-	void LoadCG(void);
+	void LoadCG(BOOL oldFlag = FALSE,int oldNumber = 0);
 
 	RECT m_picRect;
 
@@ -94,6 +94,19 @@ protected:
 	int m_cgVoiceWaitTime;
 	int m_cgVoiceCount;
 	char* m_cgVoiceFileName;
+
+	int m_animeFrame;
+	int m_animeCount;
+
+	int m_sabunFade;
+	int m_sabunFadeTime;
+	int m_sabunFadeCount;
+	int m_sabunFlag;
+	CPicture* m_sabunPic;
+
+	void PrintSabunFade(CPicture* lpToPic);
+
+	int m_returnOneLookCGSet;
 
 private:
 };

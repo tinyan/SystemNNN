@@ -11,9 +11,12 @@
 
 
 
-CMiniGameBase::CMiniGameBase(CAllMiniGame* lpAllMiniGame)
+CMiniGameBase::CMiniGameBase(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam )
 {
 	m_allMiniGame = lpAllMiniGame;
+
+	m_layoutParamKosuu = layoutParamKosuu;
+	m_layoutParam = layoutParam;
 
 	m_input = m_allMiniGame->GetInputStatus();
 	m_mouseStatus = m_input->GetMouseStatus();
@@ -69,4 +72,18 @@ int CMiniGameBase::Calcu(void)
 int CMiniGameBase::Print(void)
 {
 	return -1;
+}
+
+
+BOOL CMiniGameBase::GetLayoutData(int* lpData,int layoutType)
+{
+	for (int i=0;i<m_layoutParamKosuu;i++)
+	{
+		if (m_layoutParam[i*2] == layoutType)
+		{
+			*lpData = m_layoutParam[i*2+1];
+			return TRUE;
+		}
+	}
+	return FALSE;
 }

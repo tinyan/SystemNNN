@@ -17,6 +17,7 @@ class CGameCallBack;
 class CMyMessage;
 class CMessageCursor;
 
+class CPrintAnimeLayer;
 
 class CCommonGeneral;
 class CGameCallBack;
@@ -153,12 +154,14 @@ protected:
 	int m_printMode;
 	BOOL m_messagePrintingFlag;
 	int m_messagePrintSpeed;
+	int m_autoMessagePrintSpeed;
 	BOOL m_namePrintedFlag;
 
 	int m_messagePrintMojisuu;
 //	int m_messagePrintMojisuuPerSecond;
 
 	int m_messageSpeedTable[5];
+	int m_autoMessageSpeedTable[5];
 	int m_messageSerialNumber;
 
 	BOOL m_skipFlag;
@@ -371,9 +374,12 @@ private:
 
 	int m_noVoiceLastWaitTable[5];
 	int m_voiceLastWaitTable[5];
+	int m_noVoiceLastWaitTableAutoMode[5];
+	int m_voiceLastWaitTableAutoMode[5];
 
 	int m_checkWheelOkuri;
 	int m_cutinMode;
+	int m_useAutoModeWait;
 
 	int m_nowMessageLayer;
 //	POINT m_cutinZahyo[16];
@@ -452,6 +458,10 @@ private:
 	int m_lprintBGAddSubClipSizeX;
 	int m_lprintBGAddSubClipSizeY;
 
+	int m_printAutoAnimeFlag;
+	int m_printSkipAnimeFlag;
+	CPrintAnimeLayer* m_printAutoAnime;
+	CPrintAnimeLayer* m_printSkipAnime;
 };
 
 #endif

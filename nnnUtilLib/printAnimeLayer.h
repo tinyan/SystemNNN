@@ -2,11 +2,12 @@
 #define __NNNUTILLIB_PRINTANIMELAYER__
 
 class CPicture;
+class CTaihi;
 
 class CPrintAnimeLayer
 {
 public:
-	CPrintAnimeLayer(CNameList* setup,LPSTR tagName,CPicture* lpBG = NULL);
+	CPrintAnimeLayer(CNameList* setup,LPSTR tagName,CPicture* lpBG = NULL,CTaihi* taihi = NULL,int layer = 0,BOOL createPicFlag = FALSE);
 	~CPrintAnimeLayer();
 	void End(void);
 
@@ -28,6 +29,8 @@ private:
 
 	CPicture* m_commonBG;
 	CPicture* m_pic;
+
+	int m_picCreateFlag;
 
 	int m_bgPrintFlag;
 
@@ -52,6 +55,9 @@ private:
 	BOOL GetInitGameString(LPSTR* lpStr, LPSTR name);
 
 	POINT GetPicSrc(int n);
+
+	CTaihi* m_taihi;
+	int m_taihiLayer;
 
 	static char m_defaultPicFileName[];
 };

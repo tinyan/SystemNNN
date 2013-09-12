@@ -47,6 +47,7 @@ char CCommonSelectCG::m_defaultBGFileName[] = "cg_bg";
 char CCommonSelectCG::m_defaultAddFileName[] = "cgbg_title";
 
 char CCommonSelectCG::m_defaultFutaFileName[] = "ta_futa1";
+char CCommonSelectCG::m_defaultAnimeFileName[] = "ta_futa1";
 char CCommonSelectCG::m_defaultFont1FileName[] = "ta_font_cg1";
 char CCommonSelectCG::m_defaultFont2FileName[] = "ta_sl_font3";
 char CCommonSelectCG::m_defaultFont3FileName[] = "ta_sl_font3";
@@ -129,6 +130,7 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	}
 
 	m_miniPicState = new int[m_blockKosuuX*m_blockKosuuY];
+	m_animeFlag = new int[m_blockKosuuX*m_blockKosuuY];
 
 	m_miniPicTransFlag = 0;
 	GetInitGameParam(&m_miniPicTransFlag,"miniPicTransFlag");
@@ -228,6 +230,15 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		m_futaPic = m_game->GetSystemPicture(futaName);
 	}
 
+	LPSTR animeName = m_defaultAnimeFileName;
+	GetInitGameString(&animeName,"fileNameAnime");
+
+	m_animePrintFlag = 0;
+	GetInitGameParam(&m_animePrintFlag,"animePrintFlag");
+	if (m_animePrintFlag)
+	{ 
+		m_animePic = m_game->GetSystemPicture(animeName);
+	}
 
 
 	m_selectPrintMode = 1;
@@ -399,6 +410,7 @@ void CCommonSelectCG::End(void)
 {
 	ENDDELETECLASS(m_pagePrint);
 
+	DELETEARRAY(m_animeFlag);
 	DELETEARRAY(m_miniPicState);
 	if (m_miniPic != NULL)
 	{
@@ -822,6 +834,8 @@ void CCommonSelectCG::LoadBackCG(void)
 			int block = m_page * (m_blockKosuuX * m_blockKosuuY) + n0;
 
 			m_miniPicState[n0] = -1;
+			m_animeFlag[n0] = FALSE;
+
 
 			if (block < m_blockSabunKosuu[m_cgCharaNumber])
 			{
@@ -867,6 +881,11 @@ void CCommonSelectCG::LoadBackCG(void)
 						wsprintf(filename,"sys\\sm\\sm%s",name);
 						m_miniPic[n0]->LoadDWQ(filename);
 					}
+				}
+
+				if (m_cgDataControl->CheckCGIsAnime(m_cgCharaNumber,from))
+				{
+					m_animeFlag[n0] = TRUE;
 				}
 			}
 		}
@@ -1010,6 +1029,8 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 			{
 				if (m_futaPrintFlag)
 				{
+
+
 					BOOL msk = TRUE;
 					if (m_futaPrintFlag == 2) msk = FALSE;
 					m_futaPic->Put(putX,putY,msk);
@@ -1062,6 +1083,17 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 					}
 				}
 
+				if (m_animePrintFlag)
+				{
+					if ((m_miniPicState[n0] == 1) || (m_miniPicState[n0] == 2))
+					{
+						if (m_animeFlag[n0])
+						{
+							m_animePic->Put(putX+m_picPrintX,putY+m_picPrintY,TRUE);
+						}
+					}
+				}
+
 				//get kosuu hyoji
 
 				int total = to - from;
@@ -1109,3 +1141,27 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 	}
 }
 
+int CCommonSelectCG::GetCGBlockNumber(int cgCharaNumber,int cgNumber)
+{
+	int block = 0;
+	int blockSabunKosuu = 0;
+	if (m_cgCharaKosuu > 0)
+	{
+		blockSabunKosuu = m_blockSabunKosuu[cgCharaNumber];
+	}
+
+
+	int i = 0;
+	for (i=0;i<blockSabunKosuu;i++)
+	{
+		int from = m_blockSabunStart[cgCharaNumber][i];
+		int to = m_blockSabunStart[cgCharaNumber][i+1];
+		if ((cgNumber >= from) && (cgNumber < to))
+		{
+			block = i;
+			break;
+		}
+	}
+
+	return block;
+}

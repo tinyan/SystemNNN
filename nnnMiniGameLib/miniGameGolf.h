@@ -9,7 +9,7 @@ class CMiniGameBase;
 class CMiniGameGolf : public CMiniGameBase
 {
 public:
-	CMiniGameGolf(CAllMiniGame* lpAllMiniGame);
+	CMiniGameGolf(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGameGolf();
 	virtual void End(void);
 

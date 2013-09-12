@@ -14,6 +14,7 @@ class CMenuButtonGroup;
 class CMyButtonGroup;
 class CCGDataControl;
 class CSceneDataControl;
+class CCommonButtonGroup;
 
 class CCommonOmake : public CCommonGeneral
 {
@@ -90,6 +91,33 @@ protected:
 
 	CCGDataControl* m_cgDataControl;
 	CSceneDataControl* m_sceneDataControl;
+
+
+	int m_allOnWarningPrintFlag;
+	int m_allOnButtonUseFlag;
+	int m_allOnButtonFlag;
+	int m_allOnButtonCheckVar;
+	int m_allOnDialogSizeX;
+	int m_allOnDialogSizeY;
+	int m_allOnDialogX;
+	int m_allOnDialogY;
+
+	int m_allOnWarningMode;
+	int m_allOnType;
+
+
+	CCommonButtonGroup* m_allOnDialogButton;
+	CCommonButton* m_allOnButton;
+
+//	CCommonButton* m_allOnDialogButton2;
+	LPSTR m_allOnDialogFileName;
+
+	static char m_defaultAllOnDialogFileName[];
+	static char m_buttonName[][32];
+
+
+	int CalcuAllOnWarning(void);
+
 //	int m_miniGameAreaKosuu;
 //	RECT* m_miniGameArea;
 

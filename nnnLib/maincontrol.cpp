@@ -81,6 +81,11 @@ CMainControl::CMainControl(CCommonSystemFile* lpSystemFile,CWheelMouse* lpWheel)
 	m_windowChangingFlag = FALSE;
 	m_systemOk = FALSE;
 
+
+
+
+
+
 	//load setup(mainControl.xtx),setup2(game.xtx)
 	m_setup = new CNameList();
 	m_setup2 = new CNameList();
@@ -370,6 +375,9 @@ BOOL CMainControl::CheckSystem(void)
 
 HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC lpfnWndProc)
 {
+	CoInitialize(NULL);
+	m_coInitFlag = TRUE;
+
 	if (lpfnWndProc == NULL)
 	{
 		lpfnWndProc = MainWndProc;
@@ -511,8 +519,8 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 
 
 
-	CoInitialize(NULL);
-	m_coInitFlag = TRUE;
+//	CoInitialize(NULL);
+//	m_coInitFlag = TRUE;
 
 	//fill
 	int fillWindowFlag = 1;

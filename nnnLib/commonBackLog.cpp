@@ -52,6 +52,11 @@ char CCommonBackLog::m_defaultUpArrowFileName[]="ta_backlog_up";
 char CCommonBackLog::m_defaultDownArrowFileName[]="ta_backlog_down";
 
 
+char CCommonBackLog::m_separatorData[][16] = 
+{
+	"@","\",""
+};
+
 CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 {
 	SetClassNumber(BACKLOG_MODE);
@@ -318,6 +323,69 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_message = new CMyMessage(m_game->GetMyFont());
 
 
+	m_addSeparator = 0;
+	GetInitGameParam(&m_addSeparator,"addSeparator");
+	
+	m_separatorMessage = NULL;
+	m_separatorColorR = 255;
+	m_separatorColorG = 255;
+	m_separatorColorB = 255;
+
+	if (m_addSeparator)
+	{
+		int separatorMax = 256;
+		int n = 0;
+		while(n<256)
+		{
+			if (m_separatorData[n][0] == 0)
+			{
+				separatorMax = n;
+				break;
+			}
+			n++;
+		}
+
+		int separaterLength = 32;
+		GetInitGameParam(&separaterLength,"separatorLength");
+
+		GetInitGameParam(&m_separatorColorR,"separatorColorR");
+		GetInitGameParam(&m_separatorColorG,"separatorColorG");
+		GetInitGameParam(&m_separatorColorB,"separatorColorB");
+
+		m_separatorMessage = new char[256*m_addSeparator];
+		for (int i=0;i<m_addSeparator;i++)
+		{
+			int sepType = 0;//
+			char name[256];
+			int sepLength = 32;
+
+			wsprintf(name,"separatorType%d",i+1);
+			GetInitGameParam(&sepType,name);
+
+			if (sepType >= 0)
+			{
+				if (sepType>=separatorMax) sepType = separatorMax-1;//max
+
+				int ln = 1;
+				if (sepType>0) ln = separaterLength;
+
+				for (int k=0;k<ln;k++)
+				{
+					memcpy(m_separatorMessage+i*256+k*2,m_separatorData[sepType],2);
+				}
+				m_separatorMessage[i*256+ln*2] = 0;
+			}
+			else//custom
+			{
+				//dummy
+				memcpy(m_separatorMessage+i*256,"–",3);
+			}
+		}
+		
+	}
+
+
+
 	m_startWait = 1;
 
 	GetFadeInOutSetup();
@@ -343,6 +411,8 @@ void CCommonBackLog::End(void)
 	DELETEARRAY(m_voiceFile);
 	DELETEARRAY(m_logMessage);
 	ENDDELETECLASS(m_message);
+
+	DELETEARRAY(m_separatorMessage);
 }
 
 
@@ -723,6 +793,16 @@ void CCommonBackLog::Clear(void)
 	AddBar();
 }
 
+void CCommonBackLog::AddSeparator(void)
+{
+	if (m_addSeparator)
+	{
+		for (int i=0;i<m_addSeparator;i++)
+		{
+			AddMessage((LPSTR)(&(m_separatorMessage[i*256])),m_separatorColorR,m_separatorColorG,m_separatorColorB);
+		}
+	}
+}
 
 void CCommonBackLog::AddMessage(LPSTR mes,int colR, int colG , int colB)
 {

@@ -153,6 +153,8 @@ public:
 
 	int GetButtonNowMode(void){return m_mode;}
 
+	void SetNextIgnore(int cnt = 1);
+
 protected:
 	BOOL m_existFlag;
 	BOOL m_enableFlag;
@@ -223,6 +225,7 @@ protected:
 	CNameList* m_setup;	
 	CSuperButtonSetup* m_superButtonSetup;
 
+	int m_ignoreCount;
 };
 
 

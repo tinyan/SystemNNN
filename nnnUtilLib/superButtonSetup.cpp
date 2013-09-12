@@ -15,7 +15,10 @@
 #include "superButtonSetup.h"
 
 
-CSuperButtonSetup::CSuperButtonSetup(CNameList* nameList,LPSTR buttonName,CSuperButtonSetup* lpCopyFrom,POINT* lpDelta)
+BOOL CSuperButtonSetup::m_notCopyFlag = FALSE;
+
+
+CSuperButtonSetup::CSuperButtonSetup(CNameList* nameList,LPSTR buttonName,CSuperButtonSetup* lpCopyFrom,POINT* lpDelta,BOOL notSrcPicCopy)
 {
 	m_setupList = new CSetupList();
 	m_setupList->SetSetup(nameList);
@@ -231,7 +234,7 @@ CSuperButtonSetup::CSuperButtonSetup(CNameList* nameList,LPSTR buttonName,CSuper
 		x = m_picSrcZahyo[i].x;
 		y = m_picSrcZahyo[i].y;
 
-		if (lpCopyFrom == NULL)
+		if ((lpCopyFrom == NULL) || (notSrcPicCopy && m_notCopyFlag))
 		{
 			x = m_size.cx * i;
 			y = 0;

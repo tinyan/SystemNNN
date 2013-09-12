@@ -21,6 +21,8 @@
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\nnnButtonStatus.h"
 
+#include "..\nnnUtilLib\animeControl.h"
+
 #include "..\nnnUtilLib\musicControl.h"
 
 #include "..\nnnUtilLib\fft.h"
@@ -105,6 +107,7 @@ char CCommonListenBGM::m_defaultCursorFileName[] = "ta_bgm_selc";
 char CCommonListenBGM::m_defaultUpFileName[] = "ta_bgm_cur1";
 char CCommonListenBGM::m_defaultDownFileName[] = "ta_bgm_cur2";
 
+char CCommonListenBGM::m_defaultMusicTitleGraphicsFilename[] = "ta_musictitle";
 
 int CCommonListenBGM::m_defaultPrintX[] = {66,66+73,66+159,66+232,66+273};
 int CCommonListenBGM::m_defaultCheckSizeX[] = {72,85,72,40,42};
@@ -536,6 +539,47 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 
 
 
+	m_useMusicTitleGraphics = 0;
+	m_musicTitlePic = NULL;
+	m_musicTitleSizeX = m_cursorSizeX;
+	m_musicTitleSizeY = m_cursorSizeY;
+	m_musicTitlePrintX = 0;
+	m_musicTitlePrintY = 0;
+	m_musicTitleCount = 0;
+
+	m_musicTitleAnimeControl = NULL;
+
+	GetInitGameParam(&m_useMusicTitleGraphics,"useMusicTitleGraphics");
+	if (m_useMusicTitleGraphics)
+	{
+		LPSTR fname = m_defaultMusicTitleGraphicsFilename;
+		GetInitGameString(&fname,"filenameMusicTitle");
+		m_musicTitlePic = new CPicture();
+		char filename[256];
+		wsprintf(filename,"sys\\%s",fname);
+		m_musicTitlePic->LoadDWQ(filename);
+
+		GetInitGameParam(&m_musicTitlePrintX,"musicTitlePrintX");
+		GetInitGameParam(&m_musicTitlePrintY,"musicTitlePrintY");
+		GetInitGameParam(&m_musicTitleSizeX,"musicTitleSizeX");
+		GetInitGameParam(&m_musicTitleSizeY,"musicTitleSizeY");
+
+		int musicTitleAnimePattern = 1;
+		int musicTitleAnimeSpeed = 1;
+		int musicTitleAnimeType = 1;
+		GetInitGameParam(&musicTitleAnimePattern,"musicTitleAnimePattern");
+		GetInitGameParam(&musicTitleAnimeSpeed,"musicTitleAnimeSpeed");
+		GetInitGameParam(&musicTitleAnimeType,"musicTitleAnimeType");
+
+		m_musicTitleAnimeControl = new CAnimeControl();
+		m_musicTitleAnimeControl->SetParam(musicTitleAnimeType,musicTitleAnimePattern,musicTitleAnimeSpeed);
+
+	}
+
+	m_cursorIsUpper = 0;
+	GetInitGameParam(&m_cursorIsUpper,"cursorIsUpper");
+
+
 	int buttonPrintY = 133;
 
 	int printX[5];
@@ -736,6 +780,9 @@ void CCommonListenBGM::End(void)
 
 	ENDDELETECLASS(m_volumeSlider);
 
+	ENDDELETECLASS(m_musicTitleAnimeControl);
+	ENDDELETECLASS(m_musicTitlePic);
+
 	for (int i=0;i<5;i++)
 	{
 		ENDDELETECLASS(m_button[i]);
@@ -788,6 +835,11 @@ int CCommonListenBGM::Init(void)
 
 //	m_back->Init();
 	SetBackButtonZahyo();
+
+	if (m_musicTitleAnimeControl != NULL)
+	{
+		m_musicTitleAnimeControl->Init();
+	}
 
 
 	m_page = 0;
@@ -1236,6 +1288,11 @@ int CCommonListenBGM::Print(void)
 
 	m_volumeSlider->Print(TRUE);
 
+	if (m_musicTitleAnimeControl != NULL)
+	{
+		m_musicTitleAnimeControl->Calcu();
+	}
+
 	return -1;
 }
 
@@ -1459,7 +1516,10 @@ void CCommonListenBGM::PrintMusicName(int n)
 	//cursor
 	if (n == m_page)
 	{
-		PrintCursor(y);
+		if (m_cursorIsUpper == 0)
+		{
+			PrintCursor(y);
+		}
 	}
 
 
@@ -1474,6 +1534,8 @@ void CCommonListenBGM::PrintMusicName(int n)
 
 	LPSTR musicName	= m_bgmList->GetName(n*8);
 
+	int musicPicN = n+1;
+
 	if (m_checkListen)
 	{
 		if (m_listenedFlag[n] == 0)
@@ -1483,6 +1545,8 @@ void CCommonListenBGM::PrintMusicName(int n)
 			colR = m_cannotMusicNameColorR;
 			colG = m_cannotMusicNameColorG;
 			colB = m_cannotMusicNameColorB;
+
+			musicPicN = 0;
 		}
 	}
 
@@ -1494,7 +1558,45 @@ void CCommonListenBGM::PrintMusicName(int n)
 	{
 		putX += ((m_musicNameMax-ln)*(m_messageFontSize/2+1))/2;
 	}
-	m_message->PrintMessage(putX,putY,musicName,m_messageFontSize,colR,colG,colB,2,24,0);
+
+	if (m_useMusicTitleGraphics == 0)
+	{
+		m_message->PrintMessage(putX,putY,musicName,m_messageFontSize,colR,colG,colB,2,24,0);
+	}
+	else
+	{
+		int putXX = m_cursorPrintX + m_musicNamePrintX + y * m_cursorNextX;
+		int putYY = m_cursorPrintY + m_musicNamePrintY + y * m_cursorNextY;
+		putXX += m_musicTitlePrintX;
+		putYY += m_musicTitlePrintY;
+
+		int pic1 = m_musicTitleAnimeControl->GetAnimePic1();
+		int pic2 = m_musicTitleAnimeControl->GetAnimePic2();
+		int ps = m_musicTitleAnimeControl->GetAnimePercent();
+		int srcX1 = pic1 * m_musicTitleSizeX;
+		int srcY1 = musicPicN * m_musicTitleSizeY;
+		int srcX2 = pic2 * m_musicTitleSizeX;
+		int srcY2 = musicPicN * m_musicTitleSizeY;
+
+		if ((pic1 == pic2) || (ps == 100))
+		{
+			m_musicTitlePic->Blt(putXX,putYY,srcX1,srcY1,m_musicTitleSizeX,m_musicTitleSizeY,TRUE);
+		}
+		else
+		{
+			m_musicTitlePic->ChangeTranslateBlt(putXX,putYY,srcX1,srcY1,m_musicTitleSizeX,m_musicTitleSizeY,ps,100-ps,m_musicTitlePic,srcX2,srcY2);
+		}
+	}
+
+
+	if (n == m_page)
+	{
+		//cursor print upper title graphics
+		if (m_cursorIsUpper)
+		{
+			PrintCursor(y);
+		}
+	}
 }
 
 

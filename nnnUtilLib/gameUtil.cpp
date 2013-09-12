@@ -4,6 +4,8 @@
 
 #include <windows.h>
 
+#include "..\nyanLib\include\picture.h"
+
 #include "gameUtil.h"
 
 
@@ -458,4 +460,102 @@ LOOP3:
 
 
 	return TRUE;
+}
+
+
+void CGameUtil::AddMaskToMiniPic(int* buffer, CPicture* lpPic)
+{
+	SIZE srcSize = lpPic->GetPicSize();
+	int srcPicth = srcSize.cx * 4;
+
+	int loopX = m_miniCGSizeX;
+	int loopY = m_miniCGSizeY;
+	if (srcSize.cx<loopX) loopX = srcSize.cx;
+	if (srcSize.cy<loopY) loopY = srcSize.cy;
+
+	int dstPitch = m_miniCGSizeX * 4;
+	int maskPitch = srcSize.cx;
+
+	int* src = lpPic->GetPictureBuffer();
+	int* dst = buffer;
+	char* mask = lpPic->GetMaskPic();
+
+	__asm
+	{
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+
+		pxor mm0,mm0
+
+		mov esi,src
+		mov edi,dst
+		mov ebx,mask
+		mov ecx,loopY
+LOOP1:
+		push ecx
+		push ebx
+		push esi
+		push edi
+
+		mov ecx,loopX
+LOOP2:
+		mov eax,[esi]
+		movd mm1,eax
+		mov eax,[edi]
+		movd mm2,eax
+		punpcklbw mm1,mm0
+		punpcklbw mm2,mm0
+
+		xor eax,eax
+		mov al,[ebx]
+		shr eax,1
+		movd mm5,eax
+		neg eax
+		add eax,127
+		movd mm6,eax
+		punpcklwd mm5,mm5
+		punpcklwd mm6,mm6
+		punpckldq mm5,mm5
+		punpckldq mm6,mm6
+
+		pmullw mm1,mm5
+		pmullw mm2,mm6
+		paddw mm1,mm2
+		psrlw mm1,7
+
+		packuswb mm1,mm1
+		movd eax,mm1
+
+		mov [edi],eax
+
+		add esi,4
+		add edi,4
+		inc ebx
+		dec ecx
+		jnz LOOP2
+
+		pop edi
+		pop esi
+		pop ebx
+		pop ecx
+		add edi,dstPitch
+		add esi,srcPicth
+		add ebx,maskPitch
+		dec ecx
+		jnz LOOP1
+
+		emms
+
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+	}
+
 }

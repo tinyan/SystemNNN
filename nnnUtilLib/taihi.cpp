@@ -18,7 +18,7 @@ CTaihi::CTaihi()
 	return;
 #endif
 
-	m_bufferKosuu = 32;
+	m_bufferKosuu = 64;
 	m_lpTaihi = new CPicture* [m_bufferKosuu];
 	m_lpExistFlag = new BOOL[m_bufferKosuu];
 	m_lpZahyo = new POINT[m_bufferKosuu];

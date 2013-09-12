@@ -20,7 +20,7 @@ int CMiniGameSlide16::m_slideOkTable[]=
 };
 
 
-CMiniGameSlide16::CMiniGameSlide16(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameSlide16::CMiniGameSlide16(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 }
 

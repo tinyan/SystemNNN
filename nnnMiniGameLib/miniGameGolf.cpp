@@ -19,7 +19,7 @@ int CMiniGameGolf::m_checkTable[]=
 	1, 3,4, 6,7,8, 10,11,12,13, 15,16,17,18,19, 21,22,23,24,25,26,
 };
 
-CMiniGameGolf::CMiniGameGolf(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameGolf::CMiniGameGolf(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_trumpPic = m_allMiniGame->GetCommonPic(0);
 	m_trumpSize = m_allMiniGame->GetCommonPicSize(0);

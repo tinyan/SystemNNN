@@ -30,7 +30,7 @@
 #define NIKAKU_HINT_MODE 5
 
 
-CMiniGameNikaku::CMiniGameNikaku(CAllMiniGame* lpAllMiniGame) : CMiniGameMahjongCommon(lpAllMiniGame)
+CMiniGameNikaku::CMiniGameNikaku(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameMahjongCommon(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_map = new int[20*10];
 	m_downMax = new int[20*10];

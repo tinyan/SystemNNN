@@ -337,6 +337,9 @@ if (aaa == 0)
 
 int CCommonPrintMovie::Print(void)
 {
+
+
+
 	m_firstFrame = FALSE;
 
 	if (m_game->CheckSkipMovie())

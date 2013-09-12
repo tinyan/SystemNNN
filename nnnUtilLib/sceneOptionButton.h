@@ -35,6 +35,10 @@ public:
 	void SetEnable(BOOL flg = TRUE);
 	void SetReturnCannotClick(BOOL flg = TRUE);
 
+	BOOL CheckOn(POINT pt);
+
+	void SetNextIgnore(int cnt = 1);
+
 protected:
 	int m_kazariKosuu;
 

@@ -33,6 +33,7 @@
 #include "..\nnnUtilLib\printAnimeLayer.h"
 
 #include "commonSystemModeList.h"
+#include "commonSystemParamName.h"
 
 #include "commonMode.h"
 
@@ -70,6 +71,25 @@ char CCommonGeneral::m_disableQuickButtonCheckMode[][64]=
 	""
 };
 
+char CCommonGeneral::m_disableFreeButtonCheckMode[][64]=
+{
+	"save","load",//"config","backlog",
+	""
+};
+
+char CCommonGeneral::m_disableFreeButtonCheckName[][64]=
+{
+	"auto","skip","windowOff",
+	""
+};
+
+int CCommonGeneral::m_freeButtonNumber[] =
+{
+	NNN_FREEBUTTON_AUTO,
+	NNN_FREEBUTTON_SKIP,
+	NNN_FREEBUTTON_WINDOWOFF,
+
+};
 
 CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 {
@@ -84,6 +104,11 @@ CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 	m_miniGameFlag = 0;
 
 	m_disableQuickButtonWork = NULL;
+	m_disableFreeButtonWork = NULL;
+
+	m_freeAutoButtonDisable = 0;
+	m_freeSkipButtonDisable = 0;
+
 
 	m_gameLayerFirst = 1;
 	m_animeLayerFirst = 1;
@@ -1025,8 +1050,80 @@ void CCommonGeneral::GetDisableQuickButtonSetup(void)
 				}
 			}
 		}
+
 		n++;
 	}
+}
+
+
+void CCommonGeneral::GetDisableFreeButtonSetup(void)
+{
+	if (m_disableFreeButtonWork != NULL) return;
+
+	m_disableFreeButtonWork = new int[256+256];
+	ZeroMemory(m_disableFreeButtonWork,sizeof(int)*(256+256));
+
+	int n = 0;
+	while (n<256)
+	{
+		LPSTR checkModeName = m_disableFreeButtonCheckMode[n];
+		if ((*checkModeName) == 0)
+		{
+			break;
+		}
+
+		char name[256];
+		wsprintf(name,"disableFree%sButton",checkModeName);
+		int st = 0;
+		if (GetInitGameParam(&st,name))
+		{
+			if (st)
+			{
+				int checkMode = GetModeNumberByName(checkModeName);
+				if (checkMode > 0)
+				{
+					m_disableFreeButtonWork[checkMode] = st;
+				}
+			}
+		}
+
+		n++;
+	}
+
+	//auto skip windowoff
+	n = 0;
+	while (n<256)
+	{
+		LPSTR checkModeName = m_disableFreeButtonCheckName[n];
+		if ((*checkModeName) == 0)
+		{
+			break;
+		}
+
+		char name[256];
+		wsprintf(name,"disableFree%sButton",checkModeName);
+		int st = 0;
+
+		if ((n==0) || (n==1))
+		{
+			if (m_classNumber == SELECTMESSAGE_MODE)
+			{
+				st = 2;
+			}
+		}
+
+		GetInitGameParam(&st,name);
+//		{
+			//if (st)
+			//{
+				m_disableFreeButtonWork[m_freeButtonNumber[n]] = st;
+			//}
+//		}
+
+		n++;
+	}
+
+
 }
 
 int CCommonGeneral::CheckOtherSetup(int para1,int para2,LPVOID lpParam)
@@ -1037,6 +1134,14 @@ int CCommonGeneral::CheckOtherSetup(int para1,int para2,LPVOID lpParam)
 		if (m_disableQuickButtonWork != NULL)
 		{
 			return m_disableQuickButtonWork[para1];
+		}
+	}
+
+	if (para2 == 1)
+	{
+		if (m_disableFreeButtonWork != NULL)
+		{
+			return m_disableFreeButtonWork[para1];
 		}
 	}
 
@@ -1317,6 +1422,7 @@ void CCommonGeneral::CreateUpDownButton(void)
 {
 	m_updownButtonType = 0;	//0:‚±‚ÌÝ’è‚Å‚Â‚­‚é 1:CGame‚©‚ç‚à‚ç‚¤
 	GetInitGameParam(&m_updownButtonType,"updownButtonType");
+
 
 	m_upPrintX = 0;
 	m_upPrintY = 0;

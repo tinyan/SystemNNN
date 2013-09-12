@@ -51,6 +51,8 @@ public:
 //	BOOL CheckSpeaking(void);
 	int* GetGetBuffer(void);
 
+	int GetAnimeOff(void){return m_animeOff;}
+	void SetAnimeOff(int offData){m_animeOff = offData;}
 
 
 
@@ -58,7 +60,7 @@ public:
 
 	void SetEye(int n, BOOL md = TRUE);
 	void ClearAllEffect(BOOL b = FALSE);
-	void ClearEffect(int n);
+	void ClearEffect(int n, BOOL prevClearFlag = TRUE);
 	void ClearMakeCGEffect(int n);
 	void SetLayerScript(int n,int d);
 	void SkipAllEffectCount(void);
@@ -134,10 +136,17 @@ public:
 	void FuqueAllEffect(void);
 	LPSTR GetTaihiEffectFileName(int n);
 	void* GetTaihiEffectDataPointer(int n);
+	CPicture* GetAnimeBuffer(int n);
 
+	LPSTR GetAnimeTag(void);
+
+	static int m_animeOff;
 
 	void ReCreateAllShader(void);
 	/////
+
+	LPSTR GetExistEffectFileName(int n);
+
 private:
 	int* m_tempWork;
 

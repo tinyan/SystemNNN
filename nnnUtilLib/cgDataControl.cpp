@@ -15,6 +15,8 @@ CCGDataControl::CCGDataControl(CCommonSystemFile* systemFile)
 	m_cgKosuu = NULL;
 	m_cgList = NULL;
 
+	m_animeTable = NULL;
+
 	m_cgNumber = 0;
 	m_cgCharaNumber = 0;
 
@@ -30,6 +32,17 @@ CCGDataControl::~CCGDataControl()
 
 void CCGDataControl::End(void)
 {
+	if (m_animeTable != NULL)
+	{
+		for (int i=0;i<m_cgCharaKosuu;i++)
+		{
+			DELETEARRAY(m_animeTable[i]);
+		}
+		DELETEARRAY(m_animeTable);
+		m_animeTable = NULL;
+	}
+
+
 	if (m_cgList != NULL)
 	{
 		for (int i=0;i<m_cgCharaKosuu;i++)
@@ -61,6 +74,16 @@ void CCGDataControl::CreateCGList(int kosuu)
 		m_cgList[i]->LoadFile(cgname);
 		m_cgKosuu[i] = m_cgList[i]->GetNameKosuu();
 	}
+
+	m_animeTable = new int*[m_cgCharaKosuu];
+	for (int i=0;i<m_cgCharaKosuu;i++)
+	{
+		m_animeTable[i] = new int[m_cgKosuu[i]*2+1];
+		for (int k=0;k<m_cgKosuu[i]*2;k++)
+		{
+			m_animeTable[i][k]=-1;
+		}
+	}
 }
 
 
@@ -73,6 +96,23 @@ LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 	{
 		if ((*name) == '@') name++;
 		if ((*name) == '!') name++;
+		if ((*name) == '#')
+		{
+			name++;
+			int lna = strlen(name);
+			while (lna>0)
+			{
+				char c = *name;
+				if (c == '/')
+				{
+					name++;
+					break;
+				}
+				name++;
+				lna--;
+			}
+		}
+
 
 		int ln = strlen(name);
 		if (ln > 0)
@@ -108,6 +148,105 @@ LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 
 	return name;
 }
+
+BOOL CCGDataControl::CheckCGIsAnime(int player,int num)
+{
+	if ((player<0) || (player>=m_cgCharaKosuu)) return FALSE;
+	int cgKosuu = GetCGKosuu(player);
+	if ((num<0) || (num>=cgKosuu)) return FALSE;
+	int maisuu = m_animeTable[player][num*2+1];
+	if (maisuu == 0) return FALSE;
+	if (maisuu > 0) return TRUE;
+
+	return GetAnimeParam(player,num);
+}
+
+int CCGDataControl::GetAnimeStart(int player,int num)
+{
+	if (CheckCGIsAnime(player,num))
+	{
+		return m_animeTable[player][num*2];
+	}
+
+	return 0;//error
+}
+
+int CCGDataControl::GetAnimeMaisuu(int player,int num)
+{
+	if (CheckCGIsAnime(player,num))
+	{
+		return m_animeTable[player][num*2+1];
+	}
+
+	return 1;//error
+}
+
+BOOL CCGDataControl::GetAnimeParam(int player,int num)
+{
+	LPSTR name = m_cgList[player]->GetName(num);
+	int animeStart = 0;
+	int animeMaisuu = 0;
+
+	if (1)
+	{
+		if ((*name) == '@') name++;
+		if ((*name) == '!') name++;
+		if ((*name) == '#')
+		{
+			name++;
+
+			int lna = strlen(name);
+			int moji = 0;
+			char suuji[256];
+			char suuji2[256];
+			suuji[0] = '0';
+			suuji[1] = 0;
+			suuji2[0] = '1';
+			suuji2[1] = 0;
+
+			while (lna>0)
+			{
+				char c = *name;
+				name++;
+				lna--;
+				if ((c <'0') || (c>'9'))
+				{
+					break;
+				}
+				suuji[moji]=c;
+				moji++;
+			}
+			suuji[moji] = 0;
+
+			int moji2 = 0;
+			while (lna>0)
+			{
+				char c = *name;
+				name++;
+				lna--;
+				if ((c <'0') || (c>'9'))
+				{
+					break;
+				}
+				suuji2[moji2]=c;
+				moji2++;
+			}
+			suuji2[moji2] = 0;
+
+			animeStart = atoi(suuji);
+			animeMaisuu = atoi(suuji2);
+
+		}
+	}
+
+	m_animeTable[player][num*2] = animeStart;
+	m_animeTable[player][num*2+1] = animeMaisuu;
+
+	if (animeMaisuu > 0) return TRUE;
+
+	return FALSE;
+}
+
 
 int CCGDataControl::GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber)
 {
@@ -406,6 +545,21 @@ int CCGDataControl::SearchPreCG(void)
 
 	SetCGNumber(found);
 	return found;
+}
+
+void CCGDataControl::SetAllOn(void)
+{
+
+	for (int i=0;i<m_cgCharaKosuu;i++)
+	{
+		int cgKosuu = GetCGKosuu(i);
+
+		for (int k=0;k<cgKosuu;k++)
+		{
+			m_systemFile->SetCG(i,k);
+		}
+	}
+
 }
 
 /*_*/

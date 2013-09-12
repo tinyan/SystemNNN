@@ -63,9 +63,9 @@ CPicture* CEffect::GetPicture(int n)
 }
 
 
-void CEffect::ClearEffect(int n)
+void CEffect::ClearEffect(int n,BOOL prevClearFlag)
 {
-	m_allEffect->ClearEffect(n);
+	m_allEffect->ClearEffect(n,prevClearFlag);
 }
 
 
@@ -193,6 +193,12 @@ void CEffect::SetMakeFileName(int n,LPSTR filename)
 LPSTR CEffect::GetEffectFileName(int n)
 {
 	return m_allEffect->GetEffectFileName(n);
+}
+
+
+LPSTR CEffect::GetExistEffectFileName(int n)
+{
+	return m_allEffect->GetExistEffectFileName(n);
 }
 
 
@@ -326,7 +332,12 @@ void CEffect::SetSpeakingFlag(BOOL flg)
 
 void CEffect::SetEffect(int layer,EFFECT* lpEffect)
 {
+	int prev = m_allEffect->m_effect[layer].previousEffect;
+
 	m_allEffect->m_effect[layer] = *lpEffect;
+
+	m_allEffect->m_effect[layer].previousEffect = prev;
+
 }
 
 int CEffect::GetPictureNumber(int layer)
@@ -425,9 +436,24 @@ void CEffect::FuqueAllEffectByStaticBuffer(void)
 }
 
 
+void CEffect::SetAnimeOff(int offMode)
+{
+	m_allEffect->SetAnimeOff(offMode);
+}
+
 void CEffect::ReCreateAllShader(void)
 {
 	m_allEffect->ReCreateAllShader();
+}
+
+CPicture* CEffect::GetAnimeBuffer(int n)
+{
+	return m_allEffect->GetAnimeBuffer(n);
+}
+
+LPSTR CEffect::GetAnimeTag(void)
+{
+	return m_allEffect->GetAnimeTag();
 }
 
 

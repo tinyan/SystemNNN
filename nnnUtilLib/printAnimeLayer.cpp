@@ -7,6 +7,7 @@
 
 
 #include "..\nnnUtilLib\nameList.h"
+#include "..\nnnUtilLib\taihi.h"
 
 
 #include "printAnimeLayer.h"
@@ -14,11 +15,13 @@
 char CPrintAnimeLayer::m_defaultPicFileName[]= "ta_anime";
 
 
-CPrintAnimeLayer::CPrintAnimeLayer(CNameList* setup,LPSTR tagName,CPicture* lpBG)
+CPrintAnimeLayer::CPrintAnimeLayer(CNameList* setup,LPSTR tagName,CPicture* lpBG,CTaihi* taihi,int layer,BOOL picCreateFlag)
 {
 	m_setup = setup;
 	m_commonBG = lpBG;
-
+	m_taihi = taihi;
+	m_taihiLayer = layer;
+	m_picCreateFlag = picCreateFlag;
 	m_pic = NULL;
 	m_animeCountMax = 1;
 	m_animePicSize.cx = 16;
@@ -116,6 +119,20 @@ CPrintAnimeLayer::CPrintAnimeLayer(CNameList* setup,LPSTR tagName,CPicture* lpBG
 		m_limitFlag = 1;
 	}
 
+	if (m_taihi != NULL)
+	{
+		m_taihi->CreateBuffer(m_taihiLayer,m_animePicSize.cx,m_animePicSize.cy);
+	}
+
+	if (m_picCreateFlag)
+	{
+		CPicture* lpPic = new CPicture();
+		char filename[256];
+		wsprintf(filename,"sys\\%s",m_picFileName);
+		lpPic->LoadDWQ(filename);
+		SetPicture(lpPic);
+	}
+
 	Clear();
 }
 
@@ -129,6 +146,11 @@ CPrintAnimeLayer::~CPrintAnimeLayer()
 
 void CPrintAnimeLayer::End(void)
 {
+	if (m_picCreateFlag)
+	{
+		ENDDELETECLASS(m_pic);
+		m_picCreateFlag = FALSE;
+	}
 }
 
 
@@ -181,6 +203,11 @@ void CPrintAnimeLayer::Print(POINT pt,int anime,BOOL dontErase)
 			{
 				m_commonBG->Blt(putX,putY,putX,putY,sizeX,sizeY,FALSE);
 			}
+		}
+
+		if (m_taihi != NULL)
+		{
+			m_taihi->Taihi(m_taihiLayer,putX,putY);
 		}
 	}
 	CAreaControl::AddArea(putX,putY,sizeX,sizeY);

@@ -196,6 +196,18 @@ void CSceneOptionButton::SetEnable(BOOL flg)
 }
 
 
+BOOL CSceneOptionButton::CheckOn(POINT pt)
+{
+	if (m_button != NULL)
+	{
+		return m_button->CheckOnButtonPic(pt);
+	}
+
+	return FALSE;
+}
+
+
+
 /*
 BOOL CSceneOptionButton::CheckOn(int mouseX,int mouseY)
 {
@@ -221,6 +233,14 @@ void CSceneOptionButton::MoveZahyo(int deltaX, int deltaY)
 }
 */
 
+
+void CSceneOptionButton::SetNextIgnore(int cnt)
+{
+	if (m_button != NULL)
+	{
+		m_button->SetNextIgnore(cnt);
+	}
+}
 
 /*_*/
 

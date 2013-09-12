@@ -19,7 +19,7 @@ int CMiniGameDevil::m_slideOkTable[]=
 };
 
 
-CMiniGameDevil::CMiniGameDevil(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameDevil::CMiniGameDevil(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_trumpPic = m_allMiniGame->GetCommonPic(0);
 	m_trumpSize = m_allMiniGame->GetCommonPicSize(0);

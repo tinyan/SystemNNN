@@ -306,6 +306,8 @@ protected:
 	int m_centeringFlag;
 	int m_centerAreaSizeX;
 
+	void CheckAndAutoOff(void);
+
 private:
 
 };

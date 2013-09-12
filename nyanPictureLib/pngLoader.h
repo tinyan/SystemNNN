@@ -19,6 +19,8 @@ public:
 	void GetPicData(int* lpPic);
 	void GetMaskData(char* lpMask);
 
+	void GetPic8AndPalette(char* lpPic8,int* lpPalette);
+
 	static BOOL m_gammaAdjustFlag;
 
 private:

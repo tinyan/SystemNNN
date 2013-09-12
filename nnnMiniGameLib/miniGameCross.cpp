@@ -16,7 +16,7 @@
 
 #include "miniGameCross.h"
 
-CMiniGameCross::CMiniGameCross(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameCross::CMiniGameCross(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu, layoutParam)
 {
 }
 

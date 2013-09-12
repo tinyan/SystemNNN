@@ -58,6 +58,8 @@ public:
 	virtual void FinalExitRoutine(void);
 	virtual int EndMode(void);
 
+	void AddSeparator(void);
+
 protected:
 	BOOL UpScroll(int n = 1);
 	BOOL DownScroll(int n = 1);
@@ -201,6 +203,13 @@ protected:
 
 	void PutUpdownArrowPic(int n,int x,int y, int md);
 
+	int m_addSeparator;
+	int m_separatorColorR;
+	int m_separatorColorG;
+	int m_separatorColorB;
+
+	char* m_separatorMessage;
+	static char m_separatorData[][16];
 private:
 
 

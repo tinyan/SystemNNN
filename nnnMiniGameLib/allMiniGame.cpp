@@ -164,7 +164,7 @@ int CAllMiniGame::Print(void)
 }
 
 
-BOOL CAllMiniGame::AddMiniGame(int n)
+BOOL CAllMiniGame::AddMiniGame(int n,int layoutParamKosuu ,int* layoutParam )
 {
 	if (m_miniGameKosuu >= m_miniGameKosuuMax) return FALSE;
 	if (n<0) return FALSE;
@@ -172,34 +172,34 @@ BOOL CAllMiniGame::AddMiniGame(int n)
 	switch (n)
 	{
 	case 0:
-		m_miniGame[m_miniGameKosuu] = new CMiniGamePuzzle9(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGamePuzzle9(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 1:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameChange(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameChange(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 2:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameNurie(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameNurie(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 3:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameCross(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameCross(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 4:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameSlide16(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameSlide16(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 5:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameMonte(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameMonte(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 6:
-		m_miniGame[m_miniGameKosuu] = new CMiniGamePyramid(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGamePyramid(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 7:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameGolf(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameGolf(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 8:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameNikaku(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameNikaku(this,layoutParamKosuu ,layoutParam );
 		break;
 	case 9:
-		m_miniGame[m_miniGameKosuu] = new CMiniGameKushi(this);
+		m_miniGame[m_miniGameKosuu] = new CMiniGameKushi(this,layoutParamKosuu ,layoutParam );
 		break;
 	}
 	
@@ -209,7 +209,7 @@ BOOL CAllMiniGame::AddMiniGame(int n)
 }
 
 
-BOOL CAllMiniGame::AddMiniGame(CMiniGameBase* lpMiniGame)
+BOOL CAllMiniGame::AddMiniGame(CMiniGameBase* lpMiniGame,int layoutParamKosuu ,int* layoutParam )
 {
 	if (lpMiniGame == NULL) return FALSE;
 	if (m_miniGameKosuu >= m_miniGameKosuuMax) return FALSE;

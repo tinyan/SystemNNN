@@ -9,7 +9,7 @@ class CMiniGameBase;
 class CMiniGameNurie : public CMiniGameBase
 {
 public:
-	CMiniGameNurie(CAllMiniGame* lpAllMiniGame);
+	CMiniGameNurie(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 	virtual ~CMiniGameNurie();
 	virtual void End(void);
 

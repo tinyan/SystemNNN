@@ -27,6 +27,7 @@ public:
 	static char m_defaultAddFileName[];
 
 	static char m_defaultFutaFileName[];
+	static char m_defaultAnimeFileName[];
 	static char m_defaultFont1FileName[];
 	static char m_defaultFont2FileName[];
 	static char m_defaultFont3FileName[];
@@ -36,6 +37,8 @@ public:
 //	static char m_defaultDownFileName[];
 
 	void CreateStartScreen(void);
+
+	int GetCGBlockNumber(int cgCharaNumber,int cgNumber);
 
 private:
 //	LPSTR m_filenameBG;
@@ -58,6 +61,7 @@ private:
 	CSuuji* m_suuji2;
 //	CSuuji* m_suuji3;
 	CPicture* m_futaPic;
+	CPicture* m_animePic;
 
 //	CBackButton* m_back;
 //	CUpDownButtonGroup* m_updown;
@@ -186,8 +190,10 @@ private:
 	CPicture* m_addPic;
 	CPicture** m_miniPic;
 	int* m_miniPicState;
+	int* m_animeFlag;
 
 	int m_futaPrintFlag;
+	int m_animePrintFlag;
 	CPicture* m_suujiPic3;
 
 	int m_miniPicTransFlag;

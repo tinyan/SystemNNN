@@ -24,8 +24,8 @@ public:
 
 //	void SetBackButton(CCommonButton* button){m_backButton = button;}
 
-	BOOL AddMiniGame(int n);
-	BOOL AddMiniGame(CMiniGameBase* lpMiniGame);
+	BOOL AddMiniGame(int n,int layoutParamKosuu = 0,int* layoutParam = NULL);
+	BOOL AddMiniGame(CMiniGameBase* lpMiniGame,int layoutParamKosuu = 0,int* layoutParam = NULL);
 
 	void SetGameNumber(int n){m_miniGameNumber = n;}
 

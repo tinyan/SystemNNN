@@ -8,7 +8,7 @@
 
 
 #include <ddraw.h>
-#include <d3dx9.h>
+//#include <d3dx9.h>
 
 #if defined _TINYAN3DLIB_
 #include "..\..\systemNNN3D\nyanDirectX3DLib\myTexture.h"

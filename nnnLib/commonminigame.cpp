@@ -35,6 +35,7 @@
 #include "..\nnnMiniGameLib\allMiniGame.h"
 
 #include "commonGeneral.h"
+#include "..\nnnMiniGameLib\minigameLayoutParamName.h"
 #include "commonMiniGame.h"
 
 //#include "miniGameBase.h"
@@ -48,6 +49,16 @@
 char CCommonMiniGame::m_defaultCGFileName[] = "nnnlogo";
 char CCommonMiniGame::m_defaultCongraFileName[] = "ta_congra";
 char CCommonMiniGame::m_defaultDescFileName[] = "bg_desc";
+
+
+CCommonMiniGame::MINIGAMELAYOUTLIST CCommonMiniGame::m_layoutTypeList[] =
+{
+	{MINIGAME_LAYOUTPARAM_NEXTX,"nextX"},
+	{MINIGAME_LAYOUTPARAM_NEXTY,"nextY"},
+	{MINIGAME_LAYOUTPARAM_STARTX,"startX"},
+	{MINIGAME_LAYOUTPARAM_STARTY,"startY"},
+	{-1,""},
+};
 
 
 CCommonMiniGame::CCommonMiniGame(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
@@ -242,7 +253,24 @@ CCommonMiniGame::CCommonMiniGame(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		GetInitGameParam(&nm,name);
 		if (nm>0)
 		{
-			AddMiniGame(nm-1);
+			int layoutParamKosuu = 0;
+			int layOutParam[256];
+			int param = 0;
+
+			for (int k=0;k<4;k++)
+			{
+				if (m_layoutTypeList[k].type == -1) break;
+
+				wsprintf(name,"miniGame%d%s",i+1,m_layoutTypeList[k].name);
+				if (GetInitGameParam(&param,name))
+				{
+					layOutParam[layoutParamKosuu*2+0] = m_layoutTypeList[k].type;
+					layOutParam[layoutParamKosuu*2+1] = param;
+					layoutParamKosuu++;
+				}
+			}
+
+			AddMiniGame(nm-1,layoutParamKosuu,layOutParam);
 		}
 	}
 
@@ -894,15 +922,15 @@ int CCommonMiniGame::Print(void)
 }
 
 
-BOOL CCommonMiniGame::AddMiniGame(CMiniGameBase* lpMiniGame)
+BOOL CCommonMiniGame::AddMiniGame(CMiniGameBase* lpMiniGame,int layoutParamKosuu,int* layoutParam )
 {
-	return m_allMiniGame->AddMiniGame(lpMiniGame);
+	return m_allMiniGame->AddMiniGame(lpMiniGame,layoutParamKosuu,layoutParam);
 }
 
 
-BOOL CCommonMiniGame::AddMiniGame(int n)
+BOOL CCommonMiniGame::AddMiniGame(int n,int layoutParamKosuu,int* layoutParam)
 {
-	return m_allMiniGame->AddMiniGame(n);
+	return m_allMiniGame->AddMiniGame(n,layoutParamKosuu,layoutParam);
 }
 
 

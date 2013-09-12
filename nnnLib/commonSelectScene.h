@@ -195,6 +195,8 @@ protected:
 	CPagePrint* m_pagePrint;
 	int m_exitStopVoiceFlag;
 	int m_exitStopVoiceFadeOutTime;
+	int m_backlogClearFlag;
+
 };
 
 

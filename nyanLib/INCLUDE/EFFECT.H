@@ -39,8 +39,8 @@ public:
 
 	BOOL ChangeEffectCommandOnly(int num, int effect);
 
-	void ClearAllEffect(BOOL b = FALSE);
-	void ClearEffect(int n);
+	void ClearAllEffect(BOOL b = TRUE);
+	void ClearEffect(int n,BOOL b = TRUE);
 	void ClearMakeCGEffect(int n);
 	void SetLayerScript(int n,int d);
 
@@ -119,9 +119,15 @@ public:
 	static char m_staticTaihiFileNameBuffer[][256];
 	static EFFECT m_staticTaihiEffect[];
 
+	void SetAnimeOff(int offMode);
+
 	void ReCreateAllShader(void);
 	static int m_layerKosuuMaxSetup;
 	static int m_pictureKosuuMaxSetup;
+	CPicture* GetAnimeBuffer(int n);
+	LPSTR GetAnimeTag(void);
+
+	LPSTR GetExistEffectFileName(int n);
 
 private:
 	CAllEffect* m_allEffect;

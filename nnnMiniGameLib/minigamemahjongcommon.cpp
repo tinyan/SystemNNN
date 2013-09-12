@@ -16,7 +16,7 @@
 
 
 
-CMiniGameMahjongCommon::CMiniGameMahjongCommon(CAllMiniGame* lpAllMiniGame) : CMiniGameBase(lpAllMiniGame)
+CMiniGameMahjongCommon::CMiniGameMahjongCommon(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,int* layoutParam) : CMiniGameBase(lpAllMiniGame,layoutParamKosuu,layoutParam)
 {
 	m_paiPic = m_allMiniGame->GetCommonPic(1);
 	m_paiSize = m_allMiniGame->GetCommonPicSize(1);

@@ -31,6 +31,7 @@ CMySlider::CMySlider(CPicture* lpPic, int devide, int printX, int printY, int si
 	m_tateCutFlag = tateCutFlag;
 	m_dragFlag = FALSE;
 	m_tateFlag = FALSE;
+	m_digitalFlag = FALSE;
 
 	if (m_devide<1) m_devide = 1;
 }
@@ -144,6 +145,10 @@ void CMySlider::Print(BOOL mustPrintFlag,BOOL badFlag)
 		if (m_pic != NULL)
 		{
 			int sizeX = (m_sizeX * m_gaze) / m_devide;
+			if (m_digitalFlag)
+			{
+				sizeX = (m_sizeX * (m_gaze + 1)) / (m_devide+1);
+			}
 			int sizeY = m_sizeY;
 			if (sizeX>0)
 			{
@@ -226,6 +231,12 @@ int CMySlider::CalcuGaze(int mouseX, int mouseY)
 	if (x>m_sizeX) x = m_sizeX;
 
 	int gaze = (x * m_devide + m_sizeX / 2) / m_sizeX;
+
+	if (m_digitalFlag)
+	{
+		gaze = (x * (m_devide+1)) / m_sizeX;
+	}
+
 
 	if (gaze<0) gaze = 0;
 	if (gaze>m_devide) gaze = m_devide;

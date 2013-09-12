@@ -44,7 +44,7 @@ void CEffectSimpleWipeSudare::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 	if (m_effectHoukou == 1)
 	{
 		SwapPic();
-		c = m_countMax - c;
+		c = m_countMax - c ;
 	}
 
 
@@ -84,7 +84,9 @@ void CEffectSimpleWipeSudare::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 	{
 		int kasokuMax = 8;
 		int startLine = screenSizeY;
-		startLine -= ((screenSizeY + screenSizeY / kasokuMax + kasokuMax) * c) / dv;
+		int delta = (kasokuMax-1) * (kasokuMax+1-1) / 2;
+
+		startLine -= ((screenSizeY + screenSizeY / kasokuMax + delta) * c) / dv;
 
 		int kasoku = 0;
 
@@ -111,7 +113,9 @@ void CEffectSimpleWipeSudare::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 	{
 		int kasokuMax = 8;
 		int startLine = 0;
-		startLine += ((screenSizeY + screenSizeY / kasokuMax + kasokuMax) * c) / dv;
+		int delta = (kasokuMax-1) * (kasokuMax+1-1) / 2;
+
+		startLine += ((screenSizeY + screenSizeY / kasokuMax + delta) * c) / dv;
 
 		int kasoku = 0;
 
@@ -139,7 +143,8 @@ void CEffectSimpleWipeSudare::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 	{
 		int kasokuMax = 8;
 		int startLine = 0;
-		startLine += (((screenSizeY + screenSizeY / kasokuMax + kasokuMax)/2) * c) / dv;
+		int delta = (kasokuMax-1) * (kasokuMax+1-1) / 2;
+		startLine += (((screenSizeY + screenSizeY / kasokuMax + delta)/2) * c) / dv;
 
 		int kasoku = 0;
 
@@ -167,7 +172,7 @@ void CEffectSimpleWipeSudare::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 
 
 		startLine = screenSizeY;
-		startLine -= (((screenSizeY + screenSizeY / kasokuMax + kasokuMax)/2) * c) / dv;
+		startLine -= (((screenSizeY + screenSizeY / kasokuMax + delta)/2) * c) / dv;
 
 		kasoku = 0;
 
