@@ -113,6 +113,8 @@ class CAutoSaveDataList;
 class CAutoSaveSubData;
 class CFaceControl;
 
+class CAutoSelectControl;
+
 class CGameCallBack : public CScriptCallBack
 {
 public:
@@ -792,6 +794,11 @@ public:
 
 	void InitFreeButton(int buttonType);
 	CTaihi* GetTaihi(void){return m_taihi;}
+
+	int GetAutoDebugMode(void){return m_autoDebugMode;}
+	int GetAutoDebugWait(void){return m_autoDebugWait;}
+	void DebugF5Routine(void);
+	CAutoSelectControl* GetAutoSelectControl(void){return m_autoSelectControl;}
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1724,6 +1731,11 @@ protected:
 	CPicture* m_hSaveMaskPic;
 
 	int m_clearAutoAfterLoad;
+
+	int m_autoDebugMode;
+	int m_autoDebugWait;
+
+	CAutoSelectControl* m_autoSelectControl;
 
 private:
 	//dummy

@@ -100,6 +100,9 @@
 
 #include "..\nnnUtilLib\nnnlog.h"
 
+#include "..\nnnUtilLib\autoSelectControl.h"
+
+
 #include "commonMode.h"
 #include "commonSystemSoundName.h"
 #include "commonSystemParamName.h"
@@ -588,6 +591,15 @@ void CGameCallBack::GeneralCreate(void)
 #endif
 
 
+	m_autoSelectControl = NULL;
+	m_autoDebugMode = 0;
+	GetInitGameParam(&m_autoDebugMode,"autoDebugMode");
+	if (m_autoDebugMode)
+	{
+		m_autoSelectControl = new CAutoSelectControl();
+	}
+	m_autoDebugWait = 50;
+	GetInitGameParam(&m_autoDebugWait,"autoDebugWait");
 
 
 //	CPicture::FillScreen();
@@ -3141,6 +3153,8 @@ ENDDELETECLASS(m_waveData);	//dummy
 
 	ENDDELETECLASS(m_hSaveList);
 	ENDDELETECLASS(m_hSaveMaskPic);
+
+	ENDDELETECLASS(m_autoSelectControl);
 
 //OutputDebugString("delete ***ListX\n");
 //	if (m_cgList != NULL)
@@ -5816,6 +5830,13 @@ int CGameCallBack::InitNewGame(int uraMode, BOOL demoFlag,int setVar,int setData
 		obj->SetCutinMode(m_cutinFlag);
 	}
 
+	if (m_autoDebugMode)
+	{
+		if (m_autoSelectControl != NULL)
+		{
+			m_autoSelectControl->ClearPlayLevel();
+		}
+	}
 	SetDemoMode(demoFlag);
 
 //	m_var[m_sceneModeVar] = 0;
@@ -7744,6 +7765,13 @@ void CGameCallBack::YoyakuExecRoutine(void)
 			ClearF5();
 			SetReturnCode(TITLE_MODE);
 			m_yoyakuExecFlag = FALSE;
+			if (m_autoDebugMode)
+			{
+				if (m_autoSelectControl != NULL)
+				{
+					m_autoSelectControl->Finish();
+				}
+			}
 			return;
 		}
 
@@ -14865,6 +14893,18 @@ int CGameCallBack::GetCGBlockNumber(int cgCharaNumber,int cgNumber)
 	return general->GetCGBlockNumber(cgCharaNumber,cgNumber);
 }
 
+void CGameCallBack::DebugF5Routine(void)
+{
+//	SetMessageRead(m_lastMessageID);
+	m_skipF4Mode = FALSE;
+	m_skipF5Mode = TRUE;
+	m_skipNextCommandFlag = TRUE;
+	m_skipEffectCommandFlag = TRUE;
+	m_skipToFilmEndFlag = FALSE;
+
+//	m_effect->ClearAllEffect();
+	SetYoyaku();
+}
 
 /*_*/
 

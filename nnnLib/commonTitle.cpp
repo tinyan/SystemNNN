@@ -22,6 +22,7 @@
 #include "..\nnnUtilLib\menuButtonSetup.h"
 
 #include "..\nnnUtilLib\commonButton.h"
+#include "..\nnnUtilLib\autoSelectControl.h"
 
 #include "..\nnnUtilLib\commonGameVersion.h"
 #include "commonMode.h"
@@ -94,6 +95,7 @@ CCommonTitle::CCommonTitle(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 //	GetInitGameParam(&m_useSpecialButtonFlag,"useSpecialButtonFlag");
 
 
+	m_autoSelectControl = m_game->GetAutoSelectControl();
 
 	m_extModeCheckVar = -1;
 	m_extModeReturnVar = -1;
@@ -247,6 +249,7 @@ int CCommonTitle::Init(void)
 	m_autoRestartCount = 0;
 	m_game->SetDefaultFrameRate();
 
+	m_autoDebugWait = m_game->GetAutoDebugWait();
 
 
 	if (m_backScriptFlag == FALSE)
@@ -334,6 +337,32 @@ int CCommonTitle::Calcu(void)
 			if (sound > 0)
 			{
 				m_game->PlaySystemSound(sound - 1);
+			}
+		}
+
+		if (m_game->GetAutoDebugMode())
+		{
+			BOOL autoDebugOk = TRUE;
+
+			if (m_autoSelectControl != NULL)
+			{
+				if (m_autoSelectControl->CheckAllEnd())
+				{
+					autoDebugOk = FALSE;
+				}
+			}
+
+			if (autoDebugOk)
+			{
+				m_autoDebugWait--;
+				if (m_autoDebugWait <= 0)
+				{
+					m_game->SetBackScriptMode(FALSE);
+					m_game->SetDefaultFrameRate();
+					m_newGameFlag = TRUE;
+					m_extScenario = 0;
+					return ReturnFadeOut(-1);
+				}
 			}
 		}
 

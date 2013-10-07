@@ -834,6 +834,11 @@ int CCommonPrintMessage::Init(void)
 
 	m_game->RestartLoopSoundAndVoice();
 
+	if (m_game->GetAutoDebugMode())
+	{
+		m_game->DebugF5Routine();
+	}
+
 	return -1;
 }
 

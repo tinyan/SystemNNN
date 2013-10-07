@@ -115,6 +115,7 @@ int CCommonPrintMovie::Init(void)
 	m_firstFrame = TRUE;
 
 	m_dontSaiseiFlag = FALSE;
+	m_autoDebugWait = m_game->GetAutoDebugWait();
 
 	if (m_game->CheckSkipMovie())
 	{
@@ -289,6 +290,15 @@ int CCommonPrintMovie::Calcu(void)
 		{
 			b = TRUE;
 //OutputDebugString("[CLICKED]");
+		}
+	}
+
+	if (m_game->GetAutoDebugMode())
+	{
+		m_autoDebugWait--;
+		if (m_autoDebugWait <= 0)
+		{
+			b = TRUE;
 		}
 	}
 

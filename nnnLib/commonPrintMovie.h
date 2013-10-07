@@ -64,6 +64,8 @@ protected:
 	BOOL m_dontSaiseiFlag;
 
 	BOOL m_firstFrame;
+	int m_autoDebugWait;
+
 };
 
 #endif

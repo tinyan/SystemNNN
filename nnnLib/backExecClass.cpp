@@ -20,6 +20,7 @@
 #include "..\nnnUtilLib\scriptDefine.h"
 
 
+
 CBackExecClass::CBackExecClass(CGameCallBack* lpGame)
 {
 	m_game = lpGame;

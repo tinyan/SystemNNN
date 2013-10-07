@@ -11,6 +11,7 @@ class CGameCallBack;
 
 class CMenuButtonSetup;
 class CMenuButtonGroup;
+class CAutoSelectControl;
 
 class CCommonTitle : public CCommonGeneral
 {
@@ -107,6 +108,10 @@ protected:
 
 	int m_newGameFlag;
 	int m_extScenario;
+
+	int m_autoDebugWait;
+	CAutoSelectControl* m_autoSelectControl;
+
 };
 
 

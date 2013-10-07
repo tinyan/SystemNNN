@@ -24,6 +24,8 @@
 #include "..\nnnUtilLib\commonButton.h"
 #include "..\nnnUtilLib\commonUpDownButtonGroup.h"
 
+#include "..\nnnUtilLib\autoSelectControl.h"
+
 #include "commonSystemSoundName.h"
 
 #include "commonMode.h"
@@ -66,6 +68,7 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 		m_updown->SetBG(NULL);
 	}
 
+	m_autoSelectControl = m_game->GetAutoSelectControl();
 
 	m_windowOffMouseButton = m_game->GetWindowOffMouseButton();
 
@@ -565,6 +568,7 @@ int CCommonSelectMessage::Init(void)
 	m_clickingFlag = FALSE;
 
 	m_firstWait = 3;
+	m_autoDebugWait = m_game->GetAutoDebugWait();
 
 	m_selectAnimeCount = 0;
 
@@ -1000,7 +1004,25 @@ int CCommonSelectMessage::Calcu(void)
 			}
 		}
 
-		if (CheckClick() || rtKey)
+		BOOL autoDebug = FALSE;
+		int autoDebugSelect = m_game->GetAutoDebugMode();
+		if (autoDebugSelect)
+		{
+			m_autoDebugWait--;
+			if (m_autoDebugWait<=0)
+			{
+				int mx = m_messageKosuu;
+				if (m_autoSelectControl != NULL)
+				{
+
+					autoDebug = TRUE;
+					m_nowSelect = m_autoSelectControl->GetSelect(mx);
+
+				}
+			}
+		}
+
+		if (CheckClick() || rtKey || autoDebug)
 		{
 			if (m_nowSelect != -1)
 			{
@@ -1012,6 +1034,8 @@ int CCommonSelectMessage::Calcu(void)
 						page = m_updown->GetPage();
 					}
 				}
+
+				if (autoDebug) page = 0;
 
 	//			m_game->PlayCommonSystemSound(COMMON_SYSTEMSOUND_OK);
 				if (m_selectSound != -1)

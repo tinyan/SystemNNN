@@ -12,6 +12,8 @@ class CNameList;
 class CMyMessage;
 class CSuuji;
 
+class CAutoSelectControl;
+
 
 class CCommonSelectMessage : public CCommonGeneral
 {
@@ -53,6 +55,9 @@ public:
 
 	virtual void SetBackLogMessage(void);
 	BOOL CheckWindowOn(void);
+
+	int m_autoDebugWait;
+	CAutoSelectControl* m_autoSelectControl;
 
 protected:
 
