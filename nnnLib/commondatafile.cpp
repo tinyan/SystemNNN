@@ -471,7 +471,7 @@ BOOL CCommonDataFile::LoadHeaderAndPic(int n)
 
 //	sprintf(filename,"sav\\data%d.sav",n);
 
-	m_file = CMyFile::Open(filename,"rb");
+	m_file = CMyFile::OpenFullPath(filename,"rb");
 	if (m_file == NULL)
 	{
 		m_dataExistFlag = FALSE;
@@ -1095,7 +1095,7 @@ int CCommonDataFile::Load(int n)
 		wsprintf(filename,"%s\\tdata%d.sav",saveFolder,n);
 	}
 
-	m_file = CMyFile::Open(filename,"rb");
+	m_file = CMyFile::OpenFullPath(filename,"rb");
 	if (m_file == NULL) return -1;
 
 
@@ -1145,7 +1145,7 @@ int CCommonDataFile::Save(int n)
 
 //	sprintf(filename,"sav\\data%d.sav",n);
 
-	m_file = CMyFile::Open(filename,"wb");
+	m_file = CMyFile::OpenFullPath(filename,"wb");
 
 	if (m_file == NULL) return -1;
 

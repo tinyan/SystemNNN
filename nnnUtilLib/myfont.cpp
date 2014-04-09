@@ -1858,21 +1858,7 @@ BOOL CMyFont::LoadUserFont(LPSTR fontfilename)
 	m_userCustomFont = new CUserFont(fontfilename);
 	m_userCustomFontSize = m_userCustomFont->GetUserFontSize();
 
-/*
-	char filename[256];
-	sprintf(filename,"nya\\%s.mft",fontfilename);
-	FILE* file = fopen(filename,"rb");
-	if (file == NULL) return FALSE;
 
-	fseek(file,0,SEEK_END);
-	int sz = ftell(file);
-	fseek(file,0,SEEK_TOP);
-
-	m_userFont = new char[sz];
-	fread(m_userFont,sizeof(char),sz,file);
-
-	fclose(file);
-	*/
 
 	return TRUE;
 }

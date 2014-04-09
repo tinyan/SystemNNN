@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "..\nyanlib\include\commonMacro.h"
+#include "..\nyanlib\include\myfile.h"
 
 #include "..\nnnUtilLib\mySaveFolder.h"
 
@@ -107,12 +108,11 @@ int CCommonResultData::GetData(int resultNumber,int para)
 BOOL CCommonResultData::Load(void)
 {
 	LPSTR filename = GetFileName();
-	FILE* file = NULL;
-	fopen_s(&file,filename,"rb");
+	FILE* file = CMyFile::OpenFullPath(filename,"rb");
 	if (file == NULL)
 	{
 		filename = GetFileName(TRUE);
-		fopen_s(&file,filename,"rb");
+		file = CMyFile::OpenFullPath(filename,"rb");
 		if (file == NULL)
 		{
 			return FALSE;
@@ -129,8 +129,7 @@ BOOL CCommonResultData::Load(void)
 BOOL CCommonResultData::Save(void)
 {
 	LPSTR filename = GetFileName();
-	FILE* file = NULL;
-	fopen_s(&file,filename,"wb");
+	FILE* file = CMyFile::OpenFullPath(filename,"wb");
 	if (file == NULL)
 	{
 		return FALSE;

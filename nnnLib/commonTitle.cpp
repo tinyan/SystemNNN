@@ -209,7 +209,7 @@ void CCommonTitle::End(void)
 int CCommonTitle::Init(void)
 {
 	m_newGameFlag = FALSE;
-
+	m_game->SetupNameDefault();
 	m_game->ClearBackLog();
 	m_game->SetLayerOff();
 

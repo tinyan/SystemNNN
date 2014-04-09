@@ -1,7 +1,10 @@
 #include <windows.h>
 #include <stdio.h>
 
-#include "..\..\systemNNN\nyanLib\include\commonMacro.h"
+//#include "..\..\systemNNN\nyanLib\include\commonMacro.h"
+#include "..\nyanLib\include\commonMacro.h"
+#include "..\nyanLib\include\myFile.h"
+
 #include "nameList.h"
 
 #include "cgVoice.h"
@@ -13,13 +16,12 @@ CCGVoice::CCGVoice()
 	m_table = NULL;
 	m_playerTable = NULL;
 
-	FILE* file = NULL;
-	fopen_s(&file,"spt\\cgVoice.xtx","rb");
-	if (file == NULL)
+	if (CMyFile::CheckExistFile("spt","cgVoice.xtx") == FALSE)
 	{
 		return;
 	}
-	fclose(file);
+
+
 
 	m_list = new CNameList();
 	m_list->LoadFile("spt\\cgVoice.xtx");

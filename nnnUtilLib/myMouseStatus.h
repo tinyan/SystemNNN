@@ -32,6 +32,8 @@ public:
 	void SetTrig(int n, BOOL flg = TRUE);
 	void SetTrigOnly(int n, BOOL flg = TRUE);
 	void SetZahyo(int x, int y);
+	void AdjustOffset(int dx,int dy);
+
 	void SetWheel(int wheel);
 
 	void CheckButtonSwap(void);

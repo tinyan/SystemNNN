@@ -73,7 +73,7 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 	char filename[1024];
 	wsprintf(filename,"%s\\%s.sav",saveFolder,m_saveFileNameOnly);
 
-	FILE* file = CMyFile::Open(filename,"rb");
+	FILE* file = CMyFile::OpenFullPath(filename,"rb");
 
 	if (file == NULL)
 	{
@@ -263,6 +263,9 @@ void CCommonSystemFile::CreateInitData(void)
 
 	m_systemdata.autoSpeedSlider = 50;
 
+	m_systemdata.screenSizeType = 0;
+	m_systemdata.genericFlag = 0;
+
 
 //	if (m_netVersion == FALSE)
 //	{
@@ -342,7 +345,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 
 	char filename[256];
 	wsprintf(filename,"%s\\%s.sav",saveFolder,m_saveFileNameOnly);
-	FILE* file = CMyFile::Open(filename,"wb");
+	FILE* file = CMyFile::OpenFullPath(filename,"wb");
 
 	if (file == NULL)
 	{

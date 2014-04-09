@@ -2649,7 +2649,7 @@ int CCommonConfig::Calcu(void)
 //	int vm = m_volumeKosuu;
 //	if (vm > 6) vm = 6;
 //	for (i=1;i<vm;i++)
-	for (i=1;i<m_volumeMax;i++)
+	for (i=1;i<m_volumeKosuu;i++)
 	{
 		if ((i>=6) && (i!= 8)) continue;
 

@@ -15,12 +15,13 @@ public:
 
 	void SetSurfaceParameter(LPVOID lpSurface,int lPitch);
 	void SetBufferParameter(int* lpScreenBuffer, int screenPitch, int screenSizeX, int screenSizeY);
+	void SetViewParam(int realSizeX,int realSizeY,int viewOffsetX,int viewOffsetY);
 
-	void MMX32to16(void);
-	void MMX32to24(void);
-	void MMX32to32(void);
+	void _MMX32to16(void);
+	void _MMX32to24(void);
+	void _MMX32to32(void);
 
-	void MMXPrint(int bpp);
+	void _MMXPrint(int bpp);
 
 	void MMX32to16(int startX,int startY,int sizeX, int sizeY);
 	void MMX32to24(int startX,int startY,int sizeX, int sizeY);
@@ -40,6 +41,7 @@ public:
 	static BOOL CheckMMX(void);
 
 private:
+	BOOL Clip(int& srcX,int& srcY,int& dstX,int& dstY,int& sizeX,int& sizeY);
 
 	BOOL m_mmxExistFlag;
 
@@ -50,6 +52,12 @@ private:
 	int m_lScreenPitch;
 	int m_screenSizeX;
 	int m_screenSizeY;
+
+	int m_realWindowSizeX;
+	int m_realWindowSizeY;
+
+	int m_offsetX;
+	int m_offsetY;
 
 	BOOL m_565Mode;
 	BOOL m_RGB24Mode;

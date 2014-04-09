@@ -232,7 +232,12 @@ BOOL CWaveData::LoadPackedWave(LPSTR filenameOnly)//,LPSTR packFile, LPSTR table
 	}
 
 
-	fseek(file,seek,SEEK_CUR);
+
+	fpos_t nowPos;
+	fgetpos(file,&nowPos);
+	nowPos += seek;
+	fsetpos(file,&nowPos);
+
 
 #if defined _DEBUG
 	char emes[1024];
@@ -340,12 +345,11 @@ int CWaveData::LoadTable(LPSTR tableName)
 	//load
 	char filename[256];
 	wsprintf(filename,"cdvaw\\%s.vtb",tableName);
-	FILE* file = CMyFile::Open(filename,"rb");
+	INT64 fileSize = 0;
+	FILE* file = CMyFile::Open(filename,"rb",&fileSize);
 	if (file == NULL) return -1;
 
-	fseek(file,0,SEEK_END);
-	int sz = ftell(file);
-	fseek(file,0,SEEK_SET);
+	int sz = (int)fileSize;
 
 	m_tableData[m_tableKosuu] = new char[sz];
 	if (m_tableData[m_tableKosuu] == NULL)

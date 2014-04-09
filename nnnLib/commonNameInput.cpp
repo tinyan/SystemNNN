@@ -53,6 +53,12 @@ CCommonNameInput::CCommonNameInput(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 	GetBackExecSetup();
 	GetAllPrintSetup();
 
+	m_useDefaultName = 0;
+	GetInitGameParam(&m_useDefaultName,"useDefaultName");
+	m_noNameIsDefault = 0;
+	GetInitGameParam(&m_noNameIsDefault,"noNameIsDefault");
+
+//	m_viewControl = m_game->GetViewControl();
 	m_textInputBox = m_game->GetTextInputBox();
 
 	m_textInputBox->SetSetup(m_setup);
@@ -454,7 +460,14 @@ int CCommonNameInput::Calcu(void)
 				{
 					if (m_nullNameIsDefault[md])
 					{
-						name = m_game->GetDefaultSeiMei(md);
+						if(m_useDefaultName == 0)
+						{
+							name = m_game->GetDefaultSeiMei(md);
+						}
+						else
+						{
+							name = m_game->GetGameDefaultSeiMei(md);
+						}
 					}
 				}
 			}
@@ -606,7 +619,15 @@ void CCommonNameInput::SetTextInputBox(int n)
 	POINT pt2 = m_seimeiZahyo[n];
 	int x = pt.x + pt2.x;
 	int y = pt.y + pt2.y;
+
+	//adjust zahyo
+	POINT pt3;
+	pt3.x = x;
+	pt3.y = y;
+	POINT pt4 = m_game->GameToView(pt3);
+
 	m_textInputBox->SetZahyo(x,y,n);
+//	m_textInputBox->SetIMEZahyo(pt4.x,pt4.y,n);
 
 	m_textInputBox->Init();
 
@@ -632,6 +653,12 @@ void CCommonNameInput::SetDefaultNameToName(void)
 {
 	LPSTR sei = m_game->GetSystemSei();
 	LPSTR mei = m_game->GetSystemMei();
+
+	if (m_useDefaultName)
+	{
+		sei = m_game->GetGameDefaultSei();
+		mei = m_game->GetGameDefaultMei();
+	}
 
 	int ln1 = (int)strlen(sei);
 	int ln2 = (int)strlen(mei);

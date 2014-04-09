@@ -1,6 +1,10 @@
 #include <windows.h>
 #include <stdio.h>
 
+#include "..\nyanlib\include\commonMacro.h"
+#include "..\nyanlib\include\myfile.h"
+
+
 #include "nnnlog.h"
 
 char CNNNLog::m_logFileName[1024] = "_";
@@ -31,8 +35,7 @@ void CNNNLog::AddLog(LPSTR mes)
 {
 	if (m_errorLogFlag == 0) return;
 
-	FILE* file = NULL;
-	fopen_s(&file,m_logFileName,"ab");
+	FILE* file = CMyFile::OpenFullPath(m_logFileName,"ab");
 	if (file != NULL)
 	{
 		fwrite(mes,sizeof(char),strlen(mes),file);

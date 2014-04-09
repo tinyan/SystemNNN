@@ -190,7 +190,7 @@ void CNameList::SaveAngouRoutine(LPSTR filename)
 {
 	int tmp[8192/4];
 
-	FILE* file = CMyFile::Open(filename,"r+b");
+	FILE* file = CMyFile::OpenFullPath(filename,"r+b");
 	if (file == NULL)
 	{
 		MessageBox(NULL,filename,"save open error",MB_OK | MB_ICONEXCLAMATION);
@@ -259,13 +259,22 @@ BOOL CNameList::LoadInit(LPSTR filenameonly)
 }
 
 
-BOOL CNameList::LoadFile(LPSTR filename,BOOL angouFlag,BOOL silent)
+BOOL CNameList::LoadFile(LPSTR filename,BOOL angouFlag,BOOL silent,BOOL fullPathFlag)
 {
 	int kosuu = m_nameKosuuMax;
 
-
+	INT64 fileSize = 0;
 	int lMax = 0;
-	FILE* file = CMyFile::Open(filename,"rb");
+	FILE* file;
+
+	if (fullPathFlag == FALSE)
+	{
+		file = CMyFile::Open(filename,"rb",&fileSize);
+	}
+	else
+	{
+		file = CMyFile::OpenFullPath(filename,"rb",&fileSize);
+	}
 	if (file == NULL)
 	{
 		if (silent == 0)
@@ -275,28 +284,15 @@ BOOL CNameList::LoadFile(LPSTR filename,BOOL angouFlag,BOOL silent)
 		return FALSE;
 	}
 
-	fseek(file,0,SEEK_END);
-	int fsize = ftell(file);
-	if (fsize < 0)
-	{
-		int e = errno;
-		char mes[256];
-		wsprintf(mes,"namelistƒGƒ‰[ error=%d:%s size=%d",e,filename,fsize);
-		MessageBox(NULL,mes,"ftell",MB_OK);
-		fclose(file);
-		return FALSE;
-	}
 
-	if (fsize == 0)
+
+	if (fileSize == 0)
 	{
 		fclose(file);
 		return TRUE;
 	}
 
-//	char mes[256];
-//	wsprintf(mes,"size=%d",fsize);
-//	MessageBox(NULL,mes,"ftell",MB_OK);
-	fseek(file,0,SEEK_SET);
+
 //246-262
 
 //248-264
@@ -304,7 +300,7 @@ BOOL CNameList::LoadFile(LPSTR filename,BOOL angouFlag,BOOL silent)
 
 //	char* tmp = new char[(WORK_LENGTH+6)*kosuu];
 //	char* tmp = new char[fsize+2+1024];
-	char* tmp0 = new char[fsize+2+16+1024];
+	char* tmp0 = new char[(int)fileSize+2+16+1024];
 
 	int p = (int)tmp0;
 	p += 63;
@@ -321,7 +317,7 @@ BOOL CNameList::LoadFile(LPSTR filename,BOOL angouFlag,BOOL silent)
 
 //	ZeroMemory(tmp,fsize+2);
 
-	lMax = fread(tmp,sizeof(char),fsize,file);
+	lMax = fread(tmp,sizeof(char),(int)fileSize,file);
 	fclose(file);
 
 

@@ -82,10 +82,11 @@ BOOL COggStreamDecoder::StartDecode(LPVOID file)
 	return FALSE;//old routine
 }
 
-BOOL COggStreamDecoder::StartDecode2(HANDLE handle)
+//BOOL COggStreamDecoder::StartDecode2(HANDLE handle)
+BOOL COggStreamDecoder::StartDecode2(LPVOID file)
 {
-//	m_file = file;
-	m_fileHandle = handle;
+	m_file = file;
+//	m_fileHandle = handle;
 	char mes[256];
 	mes[0] = 0;
 
@@ -101,9 +102,9 @@ BOOL COggStreamDecoder::StartDecode2(HANDLE handle)
 	m_buffer = ogg_sync_buffer(&m_oggSyncState,4096);
 OutputDebugString("S");
 
-//	int readSize = fread(m_buffer,sizeof(char),4096,m_file);
-	int readSize;
-	ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
+	int readSize = fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
+//	int readSize;
+//	ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
 	ogg_sync_wrote(&m_oggSyncState,readSize);
 
 	if(ogg_sync_pageout(&m_oggSyncState,&m_oggPage)!=1)
@@ -185,9 +186,9 @@ OutputDebugString("S");
 
 
 
-//			readSize = fread(m_buffer,sizeof(char),4096,m_file);
-			ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
-OutputDebugString("A");
+			readSize = fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
+//			ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
+//OutputDebugString("A");
 
 			if((readSize == 0) && (i<2))
 			{
@@ -254,9 +255,9 @@ int COggStreamDecoder::Decode(void)
 		{
 //OutputDebugString("*");
 			m_buffer=ogg_sync_buffer(&m_oggSyncState,4096);
-//			int readSize = fread(m_buffer,sizeof(char),4096,m_file);
-			int readSize;
-			ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
+			int readSize = fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
+//			int readSize;
+//			ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
 			ogg_sync_wrote(&m_oggSyncState,readSize);
 			m_needRead = FALSE;
 

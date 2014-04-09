@@ -543,7 +543,15 @@ int CExecScript::Exec(int n)
 				{
 					m_callBack->PreReceiveScriptData(code,1,(LPVOID)GetStringPtr(m_data[m_pc+4]));
 				}
-				m_callBack->ReceiveScriptCommand(code,m_data[m_pc+3],&m_data[m_pc+4]);
+				int defVoice = 0;
+
+				int prk = m_data[m_pc+3];
+				if (skp > prk+4)
+				{
+					defVoice = m_data[m_pc+4+prk];//check default voice
+				}
+
+				m_callBack->ReceiveScriptCommand(code,m_data[m_pc+3],&m_data[m_pc+4],defVoice);
 
 				m_pc += m_data[m_pc];
 				continue;
@@ -889,7 +897,8 @@ BOOL CExecScript::LoadScript(LPSTR filename)
 
 	memcpy(&m_filename[0],filename,strlen(filename)+1);
 
-	FILE* file = CMyFile::Open(filename,"rb");
+	INT64 fileSize = 0;
+	FILE* file = CMyFile::Open(filename,"rb",&fileSize);
 
 	int xorCode = m_xorCode;
 	int addXorCode = m_addXorCode;
@@ -897,22 +906,17 @@ BOOL CExecScript::LoadScript(LPSTR filename)
 
 	if (file != NULL)
 	{
-		m_dataSize = (int)fread(&m_data[0],sizeof(int),m_bufferSize,file);
-
 		//–œˆê‚½‚è‚È‚©‚Á‚½‚çÄŠm•Û
-		if (m_dataSize >= m_bufferSize)
+		if (fileSize > m_bufferSize)
 		{
 			delete [] m_data;
-			fseek(file,0,SEEK_END);
-			int newSize = (ftell(file)+3) / 4;
-			fclose(file);
-
+			int newSize = ((int)fileSize+3) / 4;
 			m_bufferSize = (newSize + 1023+1024) & (~1023);
-
 			m_data = new int[m_bufferSize];
-			file = CMyFile::Open(filename,"rb");
-			m_dataSize = (int)fread(&m_data[0],sizeof(int),m_bufferSize,file);
+
 		}
+		m_dataSize = (int)fileSize;
+		fread(&m_data[0],sizeof(int),m_dataSize,file);
 
 		fclose(file);
 

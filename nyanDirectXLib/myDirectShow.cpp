@@ -47,6 +47,7 @@ CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 
 	m_vmrErrorFlag = FALSE;
 	m_vmr9RenderType = 1;
+	m_aspectFitFlag = 1;
 
 	m_windowSize.cx = 800;
 	m_windowSize.cy = 600;
@@ -114,7 +115,60 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 		SetRect(&srcRect,0,0,width,height);
 
 		RECT dstRect;
-		SetRect(&dstRect,0,0,m_windowSize.cx,m_windowSize.cy);
+		if (m_aspectFitFlag)
+		{
+			int srcSizeX = width;
+			int srcSizeY = height;
+			int srcStartX = 0;
+			int srcStartY = 0;
+			int dstSizeX = m_aspectFitSize.cx;
+			int dstSizeY = m_aspectFitSize.cy;
+
+			OutputDebugString("[a-1]");
+			char mes2[256];
+			sprintf_s(mes2,256,"%d %d %d %d %d %d %d %d ",srcSizeX,srcSizeY,dstSizeX,dstSizeY,m_windowSize.cx,m_windowSize.cy,m_aspectFitSize.cx,m_aspectFitSize.cy);
+			OutputDebugString(mes2);
+			//if window small clip
+			if ((m_windowSize.cx < m_aspectFitSize.cx) || (m_windowSize.cy < m_aspectFitSize.cy))
+			{
+			OutputDebugString("[a-2]");
+				if (m_windowSize.cx < m_aspectFitSize.cx)
+				{
+			OutputDebugString("[a-3]");
+
+					srcSizeX *= m_windowSize.cx;
+					srcSizeX /= m_aspectFitSize.cx;
+					dstSizeX = m_windowSize.cx;
+				}
+
+				if (m_windowSize.cy < m_aspectFitSize.cy)
+				{
+			OutputDebugString("[a-4]");
+
+					srcSizeY *= m_windowSize.cy;
+					srcSizeY /= m_aspectFitSize.cy;
+					dstSizeY = m_windowSize.cy;
+				}
+
+				srcStartX = (width - srcSizeX) / 2;
+				srcStartY = (height - srcSizeY) / 2;
+
+				SetRect(&srcRect,srcStartX,srcStartY,srcStartX+srcSizeX,srcStartY+srcSizeY);
+			}
+
+
+			char mes[256];
+			int amariX = (m_windowSize.cx - dstSizeX) / 2;
+			int amariY = (m_windowSize.cy - dstSizeY) / 2;
+			SetRect(&dstRect,amariX,amariY,amariX+dstSizeX,amariY+dstSizeY);
+			sprintf_s(mes,256,"movie:srcsize:%d %d dstSize:%d %d %d %d %d %d",srcSizeX,srcSizeY,dstSizeX,dstSizeY,amariX,amariY,m_aspectFitSize.cx,m_aspectFitSize.cy);
+			OutputDebugString(mes);
+		}
+		else
+		{
+			//old
+			SetRect(&dstRect,0,0,m_windowSize.cx,m_windowSize.cy);
+		}
 
 		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->SetVideoPosition(&srcRect,&dstRect);
 		if (FAILED(hr))
@@ -133,7 +187,23 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 		GetClientRect(m_parentHWnd,&rc);
 		destWidth = rc.right;
 		destHeight = rc.bottom;
-		((IVideoWindow*)m_videoWindow)->SetWindowPosition(0,0,destWidth,destHeight);
+		int dstStartX = 0;
+		int dstStartY = 0;
+		if (m_aspectFitFlag)
+		{
+			int amariX = (destWidth - m_aspectFitSize.cx) / 2;
+			int amariY = (destHeight - m_aspectFitSize.cy) / 2;
+			dstStartX = amariX;
+			dstStartY = amariY;
+			destWidth = m_aspectFitSize.cx;
+			destHeight = m_aspectFitSize.cy;
+
+			char mes[256];
+			sprintf_s(mes,256,"movie2:%d %d %d %d",amariX,amariY,destWidth,destHeight);
+			OutputDebugString(mes);
+
+		}
+		((IVideoWindow*)m_videoWindow)->SetWindowPosition(dstStartX,dstStartY,destWidth,destHeight);
 		((IVideoWindow*)m_videoWindow)->put_MessageDrain((OAHWND)m_parentHWnd);
 	}
 

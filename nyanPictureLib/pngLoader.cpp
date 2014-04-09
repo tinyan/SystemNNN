@@ -1,12 +1,15 @@
 #include <windows.h>
+#include <stdio.h>
 
 #include "..\nyanlib\include\commonMacro.h"
+#include "..\nyanlib\include\myFile.h"
 
 //#define ZLIB_WINAPI
 #include "d:\libpng\include\zlib.h"
 #include "d:\libpng\include\png.h"
 
 #include "pngLoader.h"
+
 
 
 
@@ -250,12 +253,9 @@ BOOL CPngLoader::LoadFile(FILE* file){return FALSE;}
 
 BOOL CPngLoader::LoadFile(LPSTR filename)
 {
-	FILE* file = NULL;
-	fopen_s(&file,filename,"rb");
-	if (file == NULL)
-	{
-		return FALSE;
-	}
+	FILE* file = CMyFile::Open(filename,"rb");
+	if (file == NULL) return FALSE;
+
 
 	BOOL rt = LoadFile(file);
 	fclose(file);

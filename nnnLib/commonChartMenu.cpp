@@ -2,8 +2,10 @@
 
 
 #include <windows.h>
+#include <stdio.h>
 
 #include "..\..\systemNNN\nyanlib\include\commonMacro.h"
+#include "..\..\systemNNN\nyanlib\include\myfile.h"
 #include "..\..\systemNNN\nyanlib\include\areaControl.h"
 #include "..\..\systemNNN\nyanlib\include\picture.h"
 #include "..\..\systemNNN\nyanlib\include\myGraphics.h"
@@ -3061,12 +3063,11 @@ void CCommonChartMenu::LoadMita(void)
 {
 //	int sz = (m_chartListKosuu * m_blockSize + sizeof(int) - 1) / sizeof(int);
 
-	FILE* file = NULL;
+//	FILE* file = NULL;
 	LPSTR saveFolder = CMySaveFolder::GetFullFolder();
 	char filename[1024];
 	wsprintf(filename,"%s\\mita.dat",saveFolder);
-
-	fopen_s(&file,filename,"rb");
+	FILE* file = CMyFile::OpenFullPath(filename,"rb");
 	if (file != NULL)
 	{
 //		fread(m_mita,sizeof(int),(10000/4+1),file);
@@ -3079,12 +3080,12 @@ void CCommonChartMenu::SaveMita(void)
 {
 	//int sz = (m_chartListKosuu * m_blockSize + sizeof(int) - 1) / sizeof(int);
 
-	FILE* file = NULL;
+//	FILE* file = NULL;
 	LPSTR saveFolder = CMySaveFolder::GetFullFolder();
 	char filename[1024];
 	wsprintf(filename,"%s\\mita.dat",saveFolder);
 
-	fopen_s(&file,filename,"wb");
+	FILE* file = CMyFile::OpenFullPath(filename,"wb");
 	if (file != NULL)
 	{
 		fwrite(m_mita,sizeof(int),m_mitaBufferSize,file);
@@ -3096,13 +3097,12 @@ void CCommonChartMenu::LoadTsuka(void)
 {
 //	int sz = m_chartListKosuu * m_blockSize;
 
-	FILE* file = NULL;
 
 	LPSTR saveFolder = CMySaveFolder::GetFullFolder();
 	char filename[1024];
 	wsprintf(filename,"%s\\tsuka.dat",saveFolder);
+	FILE* file = CMyFile::OpenFullPath(filename,"rb");
 
-	fopen_s(&file,filename,"rb");
 	if (file != NULL)
 	{
 		fread(m_tsuka,sizeof(char),m_tsukaBufferSize,file);
@@ -3114,12 +3114,11 @@ void CCommonChartMenu::SaveTsuka(void)
 {
 //	int sz = m_chartListKosuu * m_blockSize;
 
-	FILE* file = NULL;
 	LPSTR saveFolder = CMySaveFolder::GetFullFolder();
 	char filename[1024];
 	wsprintf(filename,"%s\\tsuka.dat",saveFolder);
 
-	fopen_s(&file,filename,"wb");
+	FILE* file = CMyFile::OpenFullPath(filename,"wb");
 	if (file != NULL)
 	{
 		fwrite(m_tsuka,sizeof(char),m_tsukaBufferSize,file);
@@ -3888,8 +3887,7 @@ void CCommonChartMenu::SaveChartData(BOOL changeModeFlag)
 	LPSTR saveFolder = CMySaveFolder::GetFullFolder();
 	wsprintf(filename,"%s\\chart%d\\slot%d.dat",saveFolder,chart+1,slot);
 //	wsprintf(filename,"sav\\mushiex\\chart%d\\slot%d.dat",chart,m_nowSlotNumber);
-	FILE* file = NULL;
-	fopen_s(&file,filename,"wb");
+	FILE* file = CMyFile::OpenFullPath(filename,"wb");
 	if (file != NULL)
 	{
 		CCommonDataFile::GAMESTATUS* gameStatus = (CCommonDataFile::GAMESTATUS*)m_commonBuffer;
@@ -4077,8 +4075,7 @@ void CCommonChartMenu::LoadChartData(int slot)
 	LPSTR saveFolder = CMySaveFolder::GetFullFolder();
 	wsprintf(filename,"%s\\chart%d\\slot%d.dat",saveFolder,chart+1,slot);
 //	wsprintf(filename,"sav\\mushiex\\chart%d\\slot%d.dat",chart,slot);
-	FILE* file = NULL;
-	fopen_s(&file,filename,"rb");
+	FILE* file = CMyFile::OpenFullPath(filename,"rb");
 	if (file != NULL)
 	{
 		CCommonDataFile::GAMESTATUS* gameStatus = (CCommonDataFile::GAMESTATUS*)m_commonBuffer;

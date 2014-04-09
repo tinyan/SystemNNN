@@ -20,16 +20,15 @@ CUserFont::CUserFont(LPSTR fontfilename)
 
 	char filename[256];
 	wsprintf(filename,"nya\\%s.mft",fontfilename);
-	FILE* file = CMyFile::Open(filename,"rb");
+	INT64 fileSize = 0;
+	FILE* file = CMyFile::Open(filename,"rb",&fileSize);
 	if (file == NULL)
 	{
 		MessageBox(NULL,fontfilename,"ユーザーフォントLOADエラー",MB_OK | MB_ICONEXCLAMATION);
 		return;
 	}
 
-	fseek(file,0,SEEK_END);
-	int sz = ftell(file);
-	fseek(file,0,SEEK_SET);
+	int sz = (int)fileSize;
 
 	m_userFontData0 = new char[sz+64];
 	int p = (int)m_userFontData0;

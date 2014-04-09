@@ -133,8 +133,8 @@ public:
 
 		int totalVolume;
 		int totalVolumeSwitch;
-		int pad99_3;
-		int pad99_4;
+		int screenSizeType;
+		int genericFlag;//bit0:screenStretchflag
 		int user[16];
 	} SYSTEMDATA;
 

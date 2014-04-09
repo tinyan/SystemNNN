@@ -67,8 +67,8 @@ public:
 	~CAllPackData();
 	void End(void);
 
-	BOOL CheckDir(LPCSTR dir);
-	INT64 SearchFile(LPCSTR filename,INT64* lpFileSize);
+	BOOL CheckDir(LPCSTR dir,BOOL errorPrintFlag = TRUE);
+	INT64 SearchFile(LPCSTR filename,INT64* lpFileSize,BOOL errorPrintFlag = TRUE);
 
 private:
 	INT64 m_fileNumber;

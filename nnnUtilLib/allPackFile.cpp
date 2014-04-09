@@ -26,7 +26,6 @@ CAllPackFile::CAllPackFile(LPCSTR filename)
 
 
 	FILE* file = NULL;
-	//file = fopen(filename,"rb");
 	fopen_s(&file,filename,"rb");
 
 	if (file != NULL)
@@ -128,3 +127,27 @@ INT64 CAllPackFile::GetFileOffset(LPCSTR filename,INT64* lpSize)
 	return -1;
 }
 
+BOOL CAllPackFile::CheckExistFile(LPCSTR dir,LPCSTR filename,BOOL errorPrintFlag)
+{
+	for (int i=0;i<m_allPackDataKosuu;i++)
+	{
+		if (m_allPackData[i]->CheckDir(dir,errorPrintFlag))
+		{
+			if (m_allPackData[i]->SearchFile(filename,NULL,errorPrintFlag) == -1) return FALSE;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+BOOL CAllPackFile::CheckExistPackDir(LPCSTR dir)
+{
+	for (int i=0;i<m_allPackDataKosuu;i++)
+	{
+		if (m_allPackData[i]->CheckDir(dir))
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}

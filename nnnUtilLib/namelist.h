@@ -16,7 +16,7 @@ public:
 
 	void End(void);
 	BOOL ExpandWork(int n = 100);
-	BOOL LoadFile(LPSTR filename,BOOL angouFlag = FALSE,BOOL silent = FALSE);
+	BOOL LoadFile(LPSTR filename,BOOL angouFlag = FALSE,BOOL silent = FALSE,BOOL fullPathFlag = FALSE);
 	BOOL SaveFile(LPSTR filename,BOOL angouFlag = FALSE);
 	BOOL SaveFile2(LPSTR filename,BOOL angouFlag = FALSE);
 

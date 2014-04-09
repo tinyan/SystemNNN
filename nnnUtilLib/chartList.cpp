@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "..\..\systemNNN\nyanLib\include\commonMacro.h"
+#include "..\..\systemNNN\nyanLib\include\myfile.h"
 #include "nameList.h"
 
 #include "chartList.h"
@@ -414,8 +415,7 @@ void CChartList::Save(void)
 //	wsprintf(filenameOrg,"chart\\chart%d.bak",m_chartNumber);
 //	CopyFile(filename,filenameOrg,FALSE);
 
-	FILE* file = NULL;
-	fopen_s(&file,filename,"wb");
+	FILE* file = CMyFile::OpenFullPath(filename,"wb");
 	if (file != NULL)
 	{
 		char mes[256];

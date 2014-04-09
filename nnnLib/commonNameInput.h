@@ -13,6 +13,7 @@ class CCommonButton;
 class CMyTextInputBox;
 
 class CMyMessage;
+//class CViewControl;
 
 class CCommonNameInput : public CCommonGeneral
 {
@@ -55,6 +56,8 @@ protected:
 	LPSTR m_seimeiDialogFileName[2];
 
 	int m_seimeiReverse;
+	int m_useDefaultName;
+	int m_noNameIsDefault;
 
 //	int m_cursorMode;
 //	int m_cursorColor[3];
@@ -97,6 +100,8 @@ protected:
 	int m_nullSeiIsDefault;
 	int m_nullMeiIsDefault;
 	int m_nullNameIsDefault[2];
+
+//	CViewControl* m_viewControl;
 
 };
 

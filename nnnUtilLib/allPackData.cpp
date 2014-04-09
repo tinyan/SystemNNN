@@ -114,7 +114,7 @@ CAllPackData::CAllPackData(FILE* file)
 	fread(((char*)m_fileStartStruct) + sizeof(INT64),sizeof(char),sizeof(MYFILESTARTSTRUCT) + sizeof(INT64)*((int)m_fileNumber + 1 -1 -1),file);
 
 	INT64 seekSize = m_fileStartStruct->dataSize;
-//	fseek(file,(int)seekSize,SEEK_CUR);
+
 	fpos_t seek;
 	fgetpos(file,&seek);
 	seek += seekSize;
@@ -155,13 +155,13 @@ void CAllPackData::End(void)
 	}
 }
 
-BOOL CAllPackData::CheckDir(LPCSTR dir)
+BOOL CAllPackData::CheckDir(LPCSTR dir,BOOL errorPrintFlag)
 {
 	if (_stricmp(m_folderNameStruct->fullFolder,dir) == 0) return TRUE;
 	return FALSE;
 }
 
-INT64 CAllPackData::SearchFile(LPCSTR filename,INT64* lpFileSize)
+INT64 CAllPackData::SearchFile(LPCSTR filename,INT64* lpFileSize,BOOL errorPrintFlag)
 {
 	INT64 fileStart = -1;
 

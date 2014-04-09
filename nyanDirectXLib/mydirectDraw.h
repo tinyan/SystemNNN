@@ -19,6 +19,8 @@ public:
 	HRESULT Unlock(void);
 	HRESULT Flip(void);
 	HRESULT NiseFlip(int x, int y, int sizeX,int sizeY,BOOL waitVSync = FALSE);
+	HRESULT NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,int srcX,int srcY,int srcSizeX,int srcSizeY,BOOL waitVSync = FALSE);
+	HRESULT NiseFlip2(RECT dstRect,RECT srcRect,BOOL waitVSync = FALSE);
 
 	LPVOID GetSurfaceAddr(void);
 	int GetLPitch(void);

@@ -25,6 +25,8 @@ public:
 	void End(void);
 
 	INT64 GetFileOffset(LPCSTR filename,INT64* lpSize = NULL);
+	BOOL CheckExistPackDir(LPCSTR dir);
+	BOOL CheckExistFile(LPCSTR dir,LPCSTR filename,BOOL errorPrintFlag = TRUE);
 
 
 private:

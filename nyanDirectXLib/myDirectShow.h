@@ -32,6 +32,8 @@ public:
 	void SetWindowSize(SIZE sz){m_windowSize = sz;}
 	void SetFullMonitorSize(SIZE sz){m_fullMonitorSize = sz;}
 	void ChangeVolume(int vol);
+	void SetAspectFitSize(SIZE sz){m_aspectFitSize = sz;}
+	void SetAspectFitFlag(int flag){m_aspectFitFlag = flag;}
 	/*
 	
 	
@@ -118,6 +120,8 @@ private:
 	HRESULT SourceRenderEx(LPVOID pSourceFilter);
 	SIZE m_windowSize;
 	SIZE m_fullMonitorSize;
+	SIZE m_aspectFitSize;
+	int m_aspectFitFlag;
 
 	int OpenMovieFile(LPSTR filename);
 

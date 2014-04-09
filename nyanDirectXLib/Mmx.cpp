@@ -15,6 +15,9 @@ CMMX::CMMX()
 	m_RGB24Mode = TRUE;
 	m_RGB32Mode = TRUE;
 
+//	m_offsetX = (1024-800)/2;
+//	m_offsetY = (768-600)/2;
+
 
 	if (CheckMMX())
 	{
@@ -35,6 +38,15 @@ CMMX::~CMMX()
 
 void CMMX::End(void)
 {
+}
+
+
+void CMMX::SetViewParam(int realSizeX,int realSizeY,int viewOffsetX,int viewOffsetY)
+{
+	m_offsetX = viewOffsetX;
+	m_offsetY = viewOffsetY;
+	m_realWindowSizeX = realSizeX;
+	m_realWindowSizeY = realSizeY;
 }
 
 
@@ -125,11 +137,89 @@ void CMMX::SetBufferParameter(int* lpScreenBuffer, int screenPitch, int screenSi
 }
 
 
-void CMMX::MMXPrint(int bpp)
+BOOL CMMX::Clip(int& srcX,int& srcY,int& dstX,int& dstY,int& sizeX,int& sizeY)
 {
-	if (bpp == 16) MMX32to16();
-	if (bpp == 24) MMX32to24();
-	if (bpp == 32) MMX32to32();
+	int dltx = dstX & 7;
+	dstX &= ~7;
+	sizeX += dltx;
+	srcX -= dltx;
+
+	sizeX += 7;
+	sizeX &= ~7;
+
+
+	if (srcX<0)
+	{
+		int delta = -srcX;
+		srcX += delta;
+		dstX += delta;
+		sizeX -= delta;
+		if (sizeX <= 0) return FALSE;
+	}
+
+	if (srcY<0)
+	{
+		int delta = -srcY;
+		srcY += delta;
+		dstY += delta;
+		sizeY -= delta;
+		if (sizeY <= 0) return FALSE;
+	}
+
+	if ((srcX + sizeX) > m_screenSizeX)
+	{
+		int delta = srcX + sizeX - m_screenSizeX;
+		sizeX -= delta;
+		if (sizeX <= 0) return FALSE;
+	}
+
+	if ((srcY + sizeY) > m_screenSizeY)
+	{
+		int delta = srcY + sizeY - m_screenSizeY;
+		sizeY -= delta;
+		if (sizeY <= 0) return FALSE;
+	}
+
+	if (dstX<0)
+	{
+		int delta = -dstX;
+		srcX += delta;
+		dstX += delta;
+		sizeX -= delta;
+		if (sizeX <= 0) return FALSE;
+	}
+
+	if (dstY<0)
+	{
+		int delta = -dstY;
+		srcY += delta;
+		dstY += delta;
+		sizeY -= delta;
+		if (sizeY <= 0) return FALSE;
+	}
+
+	if ((dstX + sizeX) > m_realWindowSizeX)
+	{
+		int delta = dstX + sizeX - m_realWindowSizeX;
+		sizeX -= delta;
+		if (sizeX <=0) return FALSE;
+	}
+
+	if ((dstY + sizeY) > m_realWindowSizeY)
+	{
+		int delta = dstY + sizeY - m_realWindowSizeY;
+		sizeY -= delta;
+		if (sizeY <=0) return FALSE;
+	}
+
+	return TRUE;
+}
+
+void CMMX::_MMXPrint(int bpp)
+{
+	if (bpp == 16) _MMX32to16();
+	if (bpp == 24) _MMX32to24();
+	if (bpp == 32) _MMX32to32();
 }
 
 void CMMX::MMXPrint(int bpp, int startX, int startY,int sizeX,int sizeY)
@@ -142,28 +232,45 @@ void CMMX::MMXPrint(int bpp, int startX, int startY,int sizeX,int sizeY)
 
 void CMMX::MMX32to16(int startX,int startY,int sizeX,int sizeY)
 {
-	int dltx = startX & 7;
-	startX &= ~7;
+	int dstX = startX;
+	int dstY = startY;
+	int srcX = startX;
+	int srcY = startY;
+	dstX += m_offsetX;
+	dstY += m_offsetY;
+
+	if (!Clip(srcX,srcY,dstX,dstY,sizeX,sizeY)) return;
+	/*
+	int dltx = dstX & 7;
+	dstX &= ~7;
 	sizeX += dltx;
+	srcX -= dltx;
+
+//	startX &= ~7;
+//	sizeX += dltx;
 
 	sizeX += 7;
 	sizeX &= ~7;
+	*/
+//clip
+
+
 
 	int lPitch = m_lPitch;
 	int screenPitch = m_lScreenPitch;
 	int* src = m_lpScreenBuffer;
 	int* dst = (int*)m_lpSurface;
 
+	src += srcX;
+	src += srcY * (screenPitch / 4);
 
-	src += startX;
-	src += startY * (screenPitch / 4);
-
-	dst += (startX / 4 * 2);
-	dst += startY * (lPitch / 4);
+	dst += (dstX / 4 * 2);
+	dst += dstY * (lPitch / 4);
 
 	int loopX = sizeX / 8;
 	int loopY = sizeY;
 
+	if ((loopX<=0) || (loopY<=0)) return;
 
 
 	//‚Æ‚è‚ ‚¦‚¸ 5:6:5‚É‘Î‰ž ‚½‚¾‚µÂ‚Í1bit‚¨‚Æ‚·
@@ -485,12 +592,28 @@ void CMMX::MMX32to24(int startX,int startY,int sizeX,int sizeY)
 		return;
 	}
 
-	int dltx = startX & 7;
-	startX &= ~7;
-	sizeX += dltx;
+	int dstX = startX;
+	int dstY = startY;
+	int srcX = startX;
+	int srcY = startY;
+	dstX += m_offsetX;
+	dstY += m_offsetY;
 
-	sizeX += 7;
-	sizeX &= ~7;
+	if (!Clip(srcX,srcY,dstX,dstY,sizeX,sizeY)) return;
+/*
+	int dltx = dstX & 7;
+	dstX &= ~7;
+	sizeX += dltx;
+	srcX -= dltx;
+	*/
+
+	
+//	int dltx = startX & 7;
+	//startX &= ~7;
+	//sizeX += dltx;
+
+	//sizeX += 7;
+	//sizeX &= ~7;
 
 	int lPitch = m_lPitch;
 	int screenPitch = m_lScreenPitch;
@@ -498,14 +621,17 @@ void CMMX::MMX32to24(int startX,int startY,int sizeX,int sizeY)
 	int* dst = (int*)m_lpSurface;
 
 
-	src += startX;
-	src += startY * (screenPitch / 4);
+	src += srcX;
+	src += srcY * (screenPitch / 4);
 
-	dst += (startX / 4 * 3);
-	dst += startY * (lPitch / 4);
+	dst += (dstX / 4 * 3);
+	dst += dstY * (lPitch / 4);
 
 	int loopX = sizeX / 8;
 	int loopY = sizeY;
+
+	if ((loopX<=0) || (loopY<=0)) return;
+
 
 	__asm
 	{
@@ -608,12 +734,28 @@ LOOP2:
 //‚¨‚»‚¢??
 void CMMX::MMX32to24BGR(int startX,int startY,int sizeX,int sizeY)
 {
-	int dltx = startX & 7;
-	startX &= ~7;
-	sizeX += dltx;
+	int dstX = startX;
+	int dstY = startY;
+	int srcX = startX;
+	int srcY = startY;
+	dstX += m_offsetX;
+	dstY += m_offsetY;
 
-	sizeX += 7;
-	sizeX &= ~7;
+	if (!Clip(srcX,srcY,dstX,dstY,sizeX,sizeY)) return;
+/*
+	int dltx = dstX & 7;
+	dstX &= ~7;
+	sizeX += dltx;
+	srcX -= dltx;
+	*/
+
+
+//	int dltx = startX & 7;
+//	startX &= ~7;
+//	sizeX += dltx;
+
+//	sizeX += 7;
+//	sizeX &= ~7;
 
 	int lPitch = m_lPitch;
 	int screenPitch = m_lScreenPitch;
@@ -621,14 +763,17 @@ void CMMX::MMX32to24BGR(int startX,int startY,int sizeX,int sizeY)
 	int* dst = (int*)m_lpSurface;
 
 
-	src += startX;
-	src += startY * (screenPitch / 4);
+	src += srcX;
+	src += srcY * (screenPitch / 4);
 
-	dst += (startX / 4 * 3);
-	dst += startY * (lPitch / 4);
+	dst += (dstX / 4 * 3);
+	dst += dstY * (lPitch / 4);
 
 	int loopX = sizeX / 8;
 	int loopY = sizeY;
+
+	if ((loopX<=0) || (loopY<=0)) return;
+
 
 	__asm
 	{
@@ -817,19 +962,33 @@ void CMMX::MMX32to32(int startX,int startY,int sizeX,int sizeY)
 		return;
 	}
 
+	int dstX = startX;
+	int dstY = startY;
+	int srcX = startX;
+	int srcY = startY;
+	dstX += m_offsetX;
+	dstY += m_offsetY;
+
+	if (!Clip(srcX,srcY,dstX,dstY,sizeX,sizeY)) return;
+
+	//clip
+
+
 	int lPitch = m_lPitch;
 	int screenPitch = m_lScreenPitch;
 	int* src = m_lpScreenBuffer;
 	int* dst = (int*)m_lpSurface;
 
-	src += startX;
-	src += startY * (screenPitch / 4);
+	src += srcX;
+	src += srcY * (screenPitch / 4);
 
-	dst += startX;
-	dst += startY * (lPitch / 4);
+	dst += dstX;
+	dst += dstY * (lPitch / 4);
 
 	int loopX = sizeX;
 	int loopY = sizeY;
+
+	if ((loopX<=0) || (loopY<=0)) return;
 
 	__asm
 	{
@@ -875,14 +1034,24 @@ LOOP1:
 
 void CMMX::MMX32to32BGR(int startX,int startY,int sizeX,int sizeY)
 {
+	int dstX = startX;
+	int dstY = startY;
+	int srcX = startX;
+	int srcY = startY;
+	dstX += m_offsetX;
+	dstY += m_offsetY;
+
+	if (!Clip(srcX,srcY,dstX,dstY,sizeX,sizeY)) return;
+
 	int lPitch = m_lPitch;
 	int screenPitch = m_lScreenPitch;
 	int* src = m_lpScreenBuffer;
 	int* dst = (int*)m_lpSurface;
 
-	if (startX & 1)
+	if (dstX & 1)
 	{
-		startX &= ~1;
+		srcX--;
+		dstX &= ~1;
 		sizeX++;
 	}
 
@@ -892,12 +1061,14 @@ void CMMX::MMX32to32BGR(int startX,int startY,int sizeX,int sizeY)
 	}
 
 
+	//clip
 
-	src += startX;
-	src += startY * (screenPitch / 4);
 
-	dst += startX;
-	dst += startY * (lPitch / 4);
+	src += srcX;
+	src += srcY * (screenPitch / 4);
+
+	dst += dstX;
+	dst += dstY * (lPitch / 4);
 
 	int loopX = sizeX / 2;
 	int loopY = sizeY;
@@ -976,7 +1147,7 @@ LOOP2:
 	}
 }
 
-void CMMX::MMX32to16(void)
+void CMMX::_MMX32to16(void)
 {
 	int lPitch = m_lPitch;
 	LPVOID src = m_lpScreenBuffer;
@@ -1286,7 +1457,7 @@ LOOP2_555:
 }
 
 
-void CMMX::MMX32to24(void)
+void CMMX::_MMX32to24(void)
 {
 	int screenSizeX = m_screenSizeX;
 	int screenSizeY = m_screenSizeY;
@@ -1400,7 +1571,7 @@ LOOP2:
 
 }
 
-void CMMX::MMX32to32(void)
+void CMMX::_MMX32to32(void)
 {
 	//MMX‚ð‚Â‚©‚Á‚Ä64byte‚²‚Æ“]‘—‚·‚é‚É‚á
 

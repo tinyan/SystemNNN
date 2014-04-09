@@ -144,7 +144,7 @@ void CEffectFullAnime::Print(LPVOID lpEffect,int layer)
 
 	wsprintf(filename,"dwq\\an\\an%d%d%d%d%d%d.dwq",ah,am,al,ch,cm,cl);
 
-//	FILE* file = fopen(filename,"rb");
+
 	FILE* file = CMyFile::Open(filename,"rb");
 
 	if (file == NULL) return;

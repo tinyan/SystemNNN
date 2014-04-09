@@ -28,6 +28,8 @@
 
 #include "..\nnnUtilLib\mySaveFolder.h"
 
+#include "..\nnnUtilLib\CViewControl.h"
+
 #include "mainControl.h"
 
 #include "..\nnnUtilLib\commonSystemFile.h" 
@@ -81,7 +83,7 @@ CMainControl::CMainControl(CCommonSystemFile* lpSystemFile,CWheelMouse* lpWheel)
 	m_windowChangingFlag = FALSE;
 	m_systemOk = FALSE;
 
-
+	m_myFile = new CMyFile(TRUE);
 
 
 
@@ -245,6 +247,11 @@ CMainControl::CMainControl(CCommonSystemFile* lpSystemFile,CWheelMouse* lpWheel)
 		m_createSystemFileFlag = TRUE;
 	}
 
+	//dummy
+//	m_realWindowSizeX = 1024;
+//	m_realWindowSizeY = 768;
+
+
 	if (lpWheel != NULL)
 	{
 		m_wheelMouse = lpWheel;
@@ -256,6 +263,11 @@ CMainControl::CMainControl(CCommonSystemFile* lpSystemFile,CWheelMouse* lpWheel)
 	}
 
 	m_systemFile->Load(TRUE);
+
+	m_viewControl = new CViewControl();
+
+
+
 
 
 	GetSystemDeviceInfo();
@@ -271,6 +283,8 @@ CMainControl::~CMainControl()
 
 void CMainControl::End(void)
 {
+	ENDDELETECLASS(m_viewControl);
+
 	if (m_userIcon != NULL)
 	{
 		DestroyIcon(m_userIcon);
@@ -319,6 +333,8 @@ void CMainControl::End(void)
 		CloseHandle(m_mutex);
 		m_mutex = NULL;
 	}
+
+	ENDDELETECLASS(m_myFile);
 }
 
 
@@ -331,6 +347,17 @@ SIZE CMainControl::GetWindowSize(void)
 
 	return sz;
 }
+/*
+SIZE CMainControl::GetRealWindowSize(void)
+{
+	SIZE sz;
+
+	sz.cx = m_realWindowSizeX;
+	sz.cy = m_realWindowSizeY;
+
+	return sz;
+}
+*/
 
 SIZE CMainControl::GetDesktopWindowSize(void)
 {
@@ -466,16 +493,19 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 //		windowY = lpWindowZahyo->y;
 //	}
 
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 
-	int sizeX = m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME);
+
+	int sizeX = realWindowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME);
 //	int sizeY = m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYMENU);
-	int sizeY = m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
+	int sizeY = realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
 
 
-	if ((windowX+m_windowSizeX) > m_desktopWindowSizeX) windowX = m_desktopWindowSizeX - sizeX;
+	if ((windowX+realWindowSizeX) > m_desktopWindowSizeX) windowX = m_desktopWindowSizeX - sizeX;
 	if (windowX<0) windowX = 0;
 
-	if ((windowY+m_windowSizeY) > m_desktopWindowSizeY) windowY = m_desktopWindowSizeY - sizeY;
+	if ((windowY+realWindowSizeY) > m_desktopWindowSizeY) windowY = m_desktopWindowSizeY - sizeY;
 	if (windowY<0) windowY = 0;
 
 
@@ -499,6 +529,12 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 	}
 
 #endif
+	
+//	MessageBox(NULL,"1","2",MB_OK);
+//	char mes[256];
+//	sprintf_s(mes,256,"\\x00d\x00a\x00d\x00a****** size=%d %d",sizeX,sizeY);
+//	OutputDebugString(mes);
+
 
 	HWND hWnd = CreateWindowEx(dwExStyle ,m_className,windowTitle,
 								
@@ -561,8 +597,8 @@ BOOL ff = m_systemFile->m_systemdata.fullScreenFlag;
 		ZeroMemory(&devMode,sizeof(devMode));
 		devMode.dmSize = sizeof(devMode);
 
-		devMode.dmPelsWidth = m_windowSizeX;
-		devMode.dmPelsHeight = m_windowSizeY;
+		devMode.dmPelsWidth = realWindowSizeX;
+		devMode.dmPelsHeight = realWindowSizeY;
 		devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT; 
 
 //		SetWindowLong(m_hWnd,GWL_EXSTYLE,GetWindowLong(m_hWnd,GWL_EXSTYLE) | WS_EX_TOPMOST);
@@ -582,8 +618,8 @@ BOOL ff = m_systemFile->m_systemdata.fullScreenFlag;
 	DEVMODE devMode;
 	ZeroMemory(&devMode,sizeof(devMode));
 	devMode.dmSize = sizeof(devMode);
-	devMode.dmPelsWidth = m_windowSizeX;
-	devMode.dmPelsHeight = m_windowSizeY;
+	devMode.dmPelsWidth = realWindowSizeX;
+	devMode.dmPelsHeight = realWindowSizeY;
 	devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT; 
 	int hr = ChangeDisplaySettings(&devMode, CDS_FULLSCREEN); 
 	Sleep(100);
@@ -615,7 +651,7 @@ BOOL ff = m_systemFile->m_systemdata.fullScreenFlag;
 
 		while (EnumDisplaySettings(NULL,devNum,&devMode2))
 		{
-			if ((devMode2.dmPelsWidth == m_windowSizeX) && (devMode2.dmPelsHeight == m_windowSizeY))
+			if ((devMode2.dmPelsWidth == realWindowSizeX) && (devMode2.dmPelsHeight == realWindowSizeY))
 			{
 				if (devMode2.dmDisplayFrequency > 0)
 				{
@@ -665,7 +701,7 @@ BOOL ff = m_systemFile->m_systemdata.fullScreenFlag;
 
 		SetWindowLong(m_hWnd,GWL_STYLE,WS_POPUP | WS_VISIBLE);
 
-		MoveWindow(m_hWnd,0,0, m_windowSizeX,m_windowSizeY,TRUE);
+		MoveWindow(m_hWnd,0,0, realWindowSizeX,realWindowSizeY,TRUE);
 	}
 
 
@@ -727,18 +763,23 @@ HWND CMainControl::ReCreateWindow(void)
 		}
 	}
 
+
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
+
 	//??
 	int windowX = m_systemFile->m_systemdata.windowX;
 	int windowY = m_systemFile->m_systemdata.windowY;
 
-	int sizeX = m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME);
+	int sizeX = realWindowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME);
 //	int sizeY = m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYMENU);
-	int sizeY = m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
+	int sizeY = realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
 
-	if ((windowX+m_windowSizeX) > m_desktopWindowSizeX) windowX = m_desktopWindowSizeX - sizeX;
+	if ((windowX+realWindowSizeX) > m_desktopWindowSizeX) windowX = m_desktopWindowSizeX - sizeX;
 	if (windowX<0) windowX = 0;
 
-	if ((windowY+m_windowSizeY) > m_desktopWindowSizeY) windowY = m_desktopWindowSizeY - sizeY;
+	if ((windowY+realWindowSizeY) > m_desktopWindowSizeY) windowY = m_desktopWindowSizeY - sizeY;
 	if (windowY<0) windowY = 0;
 
 	m_windowChangingFlag = FALSE;
@@ -880,7 +921,30 @@ BOOL CMainControl::CheckScreenSize(void)
 	m_windowSizeY = 600;
 	GetInitGameParam(&m_windowSizeY,"windowSizeY");
 
-	if ((m_desktopWindowSizeX < m_windowSizeX) || (m_desktopWindowSizeY < m_windowSizeY))
+	int realWindowSizeX = m_windowSizeX;
+	int realWindowSizeY = m_windowSizeY;
+
+	int screenSizeType = m_systemFile->m_systemdata.screenSizeType;
+//	char mes[256];
+	char name[256];
+	sprintf_s(name,256,"realWindowSizeX%d",screenSizeType+1);
+	GetInitGameParam(&realWindowSizeX,name);
+	sprintf_s(name,256,"realWindowSizeY%d",screenSizeType+1);
+	GetInitGameParam(&realWindowSizeY,name);
+
+//	sprintf_s(mes,256,"%d %d %d",screenSizeType,realWindowSizeX,realWindowSizeY);
+//	MessageBox(NULL,mes,"aaa",MB_OK);
+
+
+	m_viewControl->SetBufferSize(m_windowSizeX,m_windowSizeY);
+	m_viewControl->SetRealWindowSize(realWindowSizeX,realWindowSizeY);
+	m_viewControl->SetStretchFlag(m_systemFile->m_systemdata.genericFlag & 1);
+	m_viewControl->CalcuParam();
+
+//	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+//	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
+	if ((m_desktopWindowSizeX < realWindowSizeX) || (m_desktopWindowSizeY < realWindowSizeY))
 	{
 		GetWindowSizeErrorSetup();
 
@@ -973,6 +1037,8 @@ void CMainControl::GetWindowSizeErrorSetup(void)
 	GetInitGameString(&m_windowSizeErrorTitle,"windowSizeErrorTitle");
 	GetInitGameParam(&m_windowSizeErrorMustAbortFlag,"windowSizeErrorMustAbortFlag");
 
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 	
 	int windowSizeErrorMesAddNumFlag = 1;
 	GetInitGameParam(&windowSizeErrorMesAddNumFlag,"windowSizeErrorMesAddNumFlag");
@@ -983,7 +1049,7 @@ void CMainControl::GetWindowSizeErrorSetup(void)
 	}
 	else
 	{
-		wsprintf(m_makedWindowSizeErrorMessage,m_windowSizeErrorMessage,m_windowSizeX,m_windowSizeY);
+		wsprintf(m_makedWindowSizeErrorMessage,m_windowSizeErrorMessage,realWindowSizeX,realWindowSizeY);
 	}
 }
 

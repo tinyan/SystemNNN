@@ -42,8 +42,7 @@ BOOL CMMLControl::LoadMML(LPSTR filename)
 //	memcpy(filename2+4,filename,ln00);
 //	memcpy(filename2+4+ln00,".mml",5);
 
-//	FILE* file = fopen(filename2,"rb");
-//	if (file == NULL)
+
 
 	HANDLE filea = CreateFile(filename2,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
 	if (filea == INVALID_HANDLE_VALUE)
@@ -59,9 +58,7 @@ BOOL CMMLControl::LoadMML(LPSTR filename)
 		CloseHandle(file3a);
 
 
-//		FILE* file3 = fopen(filename3,"rb");
-//		if (file3 == NULL) return FALSE;
-//		fclose(file3);
+
 
 		int ln = strlen(filename);	//さいてい256あるので再取得はチェックしない
 		memcpy(m_mml,filename,ln);
@@ -72,11 +69,6 @@ BOOL CMMLControl::LoadMML(LPSTR filename)
 
 
 
-//	fseek(file,0,SEEK_END);
-//	int sz = ftell(file);
-//	fseek(file,0,SEEK_SET);
-//	int sz = SetFilePointer(filea,0,NULL,FILE_END);
-//	SetFilePointer();
 
 	int sz = GetFileSize(filea,NULL);
 	if (sz+1 > m_mmlBufferSize)

@@ -48,7 +48,7 @@ public:
 	HANDLE m_threadHandle;
 	FILE* m_filePointer;
 
-	HANDLE m_fileHandle;
+//	HANDLE m_fileHandle;
 //	static CWaveMusic* m_this;
 	BOOL m_dataEndFlag;
 	LPSTR m_filename;

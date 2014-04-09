@@ -3,6 +3,7 @@
 //
 
 #include <windows.h>
+#include <stdio.h>
 #include <winuser.h>
 #include "myMouseStatus.h"
 
@@ -325,6 +326,18 @@ void CMyMouseStatus::SetZahyo(int x, int y)
 {
 	m_mouseStatus.mouseX = x;
 	m_mouseStatus.mouseY = y;
+}
+
+void CMyMouseStatus::AdjustOffset(int dx,int dy)
+{
+//	char mes[256];
+//	sprintf_s(mes,256,"[%d %d %d %d ->",m_mouseStatus.mouseX,m_mouseStatus.mouseY,dx,dy);
+//	OutputDebugString(mes);
+
+	m_mouseStatus.mouseX -= dx;
+	m_mouseStatus.mouseY -= dy;
+//	sprintf_s(mes,256," %d %d ]",m_mouseStatus.mouseX,m_mouseStatus.mouseY);
+//	OutputDebugString(mes);
 }
 
 void CMyMouseStatus::SetWheel(int wheel)

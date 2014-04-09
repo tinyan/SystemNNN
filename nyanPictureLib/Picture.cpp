@@ -921,7 +921,6 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 
 	FILE* file = OpenDWQFile(m_makedFileName,filename);
 
-//	FILE* file = fopen(m_makedFileName,"rb");
 
 	if (file != NULL)
 	{
@@ -3566,12 +3565,12 @@ void CPicture::InitStaticData(int tmpMegaBytes)
 					if ((*tagName) != 0)
 					{
 						wsprintf(filename,"dwq\\%s%d.gtb",m_packTagName[k],i);
-						FILE* file = CMyFile::Open(filename,"rb");
+						INT64 fileSize;
+						FILE* file = CMyFile::Open(filename,"rb",&fileSize);
 						if (file != NULL)
 						{
-							fseek(file,0,SEEK_END);
-							int sz = ftell(file);
-							fseek(file,0,SEEK_SET);
+
+							int sz = (int)fileSize;
 							m_ppPackTable[i*10+k] = new  char[sz];
 							fread(m_ppPackTable[i*10+k],sizeof(char),sz,file);
 							fclose(file);
@@ -3954,12 +3953,15 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 		offset64 = *(m_ppPackTable64[foundLevel*10+tagNumber] + foundNumber);
 	}
 
-	//fsetpos(file,&offset64);
+	fpos_t nowPos;
+	fgetpos(file,&nowPos);
+	nowPos += offset64;
+	fsetpos(file,&nowPos);
+//	fsetpos(file,&offset64);
 
-	_fseeki64(file,offset64,SEEK_SET);
+	//_fseeki64(file,offset64,SEEK_SET);
 
-//	fseek(file,offset,SEEK_SET);
-//	fseek(file,offset,SEEK_CUR);
+
 
 	m_packFileFlag = TRUE;
 

@@ -4,11 +4,12 @@
 
 class CMyMessage;
 class CNameList;
+class CViewControl;
 
 class CMyTextInputBox
 {
 public:
-	CMyTextInputBox(HWND hwnd,CMyMessage* message);
+	CMyTextInputBox(HWND hwnd,CMyMessage* message,CViewControl* viewControl);
 	~CMyTextInputBox();
 	void End(void);
 
@@ -50,6 +51,8 @@ private:
 
 	CMyMessage* m_message;
 	HWND m_hWnd;
+	CViewControl* m_viewControl;
+
 
 
 	POINT* m_zahyo;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "..\nyanLib\include\commonMacro.h"
+#include "..\nyanLib\include\myFile.h"
 #include "autoSelectControl.h"
 
 
@@ -22,8 +23,7 @@ CAutoSelectControl::CAutoSelectControl()
 	char mes[1024];
 	wsprintf(mes,"\n%d”N %dŒŽ %d“ú %d:%d:%d\n",tm.wYear,tm.wMonth,tm.wDay, tm.wHour,tm.wMinute,tm.wSecond);
 
-	FILE* file = NULL;
-	fopen_s(&file,"selectlog.txt","ab");
+	FILE* file = CMyFile::OpenFullPath("selectlog.txt","ab");
 	if (file != NULL)
 	{
 		fwrite(mes,sizeof(char),strlen(mes),file);
@@ -113,8 +113,7 @@ void CAutoSelectControl::Finish(void)
 		wsprintf(mes+ln,"-[%d] ",m_selected[i]+1);
 	}
 
-	FILE* file = NULL;
-	fopen_s(&file,"selectlog.txt","ab");
+	FILE* file = CMyFile::OpenFullPath("selectlog.txt","ab");
 	if (file != NULL)
 	{
 		fwrite(mes,sizeof(char),strlen(mes),file);

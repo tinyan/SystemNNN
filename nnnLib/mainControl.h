@@ -8,9 +8,11 @@
 
 class CWheelMouse;
 class CCommonSystemFile;
+class CViewControl;
 
 class CGameCallBack;
 class CNameList;
+class CMyFile;
 
 class CMainControl
 {
@@ -24,6 +26,7 @@ public:
 	SIZE GetDesktopWindowSize(void);
 	POINT GetDesktopWindowStart(void);
 	POINT GetDesktopWindowEnd(void);
+//	SIZE GetRealWindowSize(void);
 
 	int GetBpp(void) {return m_systemBpp;}
 //	HWND CreateWindowRoutine(HINSTANCE hInstance,WNDPROC lpfnWndProc, POINT* lpWindowZahyo = NULL,HICON icon = NULL);
@@ -42,6 +45,7 @@ public:
 	static LRESULT CALLBACK MainWndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 	
 	CCommonSystemFile* GetSystemFile(void) {return m_systemFile;}
+	CViewControl* GetViewControl(void){return m_viewControl;}
 
 	static unsigned int __stdcall ThreadAddr(void* dummy);
 
@@ -55,12 +59,15 @@ public:
 	HWND ReCreateWindow(void);
 
 	static MSG m_msg;
+	CMyFile* m_myFile;
+
 protected:
 	HANDLE m_eventHandle[16];
 	HANDLE m_threadHandle[16];
 	unsigned int m_threadID[16];
 private:
 	CCommonSystemFile* m_systemFile;
+	CViewControl* m_viewControl;
 
 	BOOL m_createSystemFileFlag;
 	BOOL m_createWheelFlag;
@@ -94,6 +101,9 @@ private:
 	LPSTR m_windowTitle;
 	int m_windowSizeX;
 	int m_windowSizeY;
+
+//	int m_realWindowSizeX;
+//	int m_realWindowSizeY;
 
 	int m_randomSeed;
 	int m_needBpp;

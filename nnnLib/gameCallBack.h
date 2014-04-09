@@ -41,6 +41,7 @@ class CSceneList;
 class CSceneDataControl;
 class CCGDataControl;
 
+//class CViewControl;
 
 class CExecScript;
 class CMIDIPlayer;
@@ -112,6 +113,8 @@ class CScriptVoiceControl;
 class CAutoSaveDataList;
 class CAutoSaveSubData;
 class CFaceControl;
+
+class CViewControl;
 
 class CAutoSelectControl;
 
@@ -695,7 +698,11 @@ public:
 
 	virtual LPSTR GetSystemSei(void);
 	virtual LPSTR GetSystemMei(void);
+	virtual LPSTR GetGameDefaultSei(void);
+	virtual LPSTR GetGameDefaultMei(void);
 	virtual void SetSeiMei(LPSTR sei,LPSTR mei);
+
+	void SetupNameDefault(void);
 
 	void ClearFontCache(void);
 	void ClearBackLog(void);
@@ -744,6 +751,7 @@ public:
 	int GetBackLogOk(int mode);
 
 	LPSTR GetDefaultSeiMei(int md);
+	LPSTR GetGameDefaultSeiMei(int md);
 
 	BOOL CheckExpModeByVar(int mode);
 
@@ -800,6 +808,10 @@ public:
 	void DebugF5Routine(void);
 	CAutoSelectControl* GetAutoSelectControl(void){return m_autoSelectControl;}
 
+	POINT GameToView(POINT pt);
+	CViewControl* GetViewControl(void){return m_viewControl;}
+
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -830,6 +842,9 @@ protected:
 	HWND m_hWnd;
 	HINSTANCE m_hInstance;
 	int m_windowSizeX,m_windowSizeY;
+//	int m_realWindowSizeX,m_realWindowSizeY;
+//	int m_viewOffsetX,m_viewOffsetY;
+
 	int m_bpp;
 
 //	int m_cgCharaKosuu;
@@ -905,6 +920,8 @@ protected:
 	BOOL m_messageSkipFlag;
 
 	CCommonSystemFile* m_systemFile;
+	CViewControl* m_viewControl;
+
 	CEffect* m_effect;
 	CAllEffect* m_allEffect;
 	CSceneList* m_sceneList;
@@ -1447,7 +1464,7 @@ protected:
 	void SystemFunctionPrepareOverrap(int para1,LPVOID para2);
 
 	void SystemFunctionSound(int para1,LPVOID para2);
-	void SystemFunctionVoice(int para1,LPVOID para2);
+	void SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag = 0);
 	void SystemFunctionMusic(int para1,LPVOID para2);
 
 	void SystemFunctionVolumeOnlySe(int para1,LPVOID para2);
@@ -1736,6 +1753,15 @@ protected:
 	int m_autoDebugWait;
 
 	CAutoSelectControl* m_autoSelectControl;
+	BOOL m_displaySettingChanged;
+
+	int m_resetNameByStartTitle;
+
+	int m_specialVoiceNameKosuu;
+	char* m_specialVoiceName;
+	int m_nameIsSpecialVoiceFlag;
+
+	BOOL CheckNameIsSpecialVoice(void);
 
 private:
 	//dummy

@@ -169,6 +169,8 @@
 
 
 #include "..\nnnUtilLib\commonSystemFile.h"
+#include "..\nnnUtilLib\\CViewControl.h"
+
 
 #include "commonGeneral.h"
 #include "scriptCallBack.h"
@@ -321,8 +323,7 @@ void CGameCallBack::LogMessage(int msg,WPARAM wParam,LPARAM lParam)
 	}
 	int ln = strlen(mes);
 
-	FILE* file = NULL;
-	fopen_s(&file,"wmlog.txt","ab");
+	FILE* file = CMyFile::OpenFullPath("wmlog.txt","ab");
 	if (file != NULL)
 	{
 		fwrite(mes,sizeof(char),ln,file);
@@ -337,8 +338,7 @@ void CGameCallBack::LogMessage(LPSTR mes)
 
 	int ln = strlen(mes);
 
-	FILE* file = NULL;
-	fopen_s(&file,"wmlog.txt","ab");
+	FILE* file = CMyFile::OpenFullPath("wmlog.txt","ab");
 	if (file != NULL)
 	{
 		fwrite("\x00d\x00a",sizeof(char),2,file);
@@ -377,6 +377,8 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 	m_renameLayer = 0;
 
+	m_displaySettingChanged = FALSE;
+
 
 	//旧バージョンとの互換性のため初期値16
 	m_layerKosuuMax = 16;
@@ -384,6 +386,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 
 
+	m_specialVoiceName = NULL;
 
 
 	for (int i=0;i<LAYER_KOSUU_MAX;i++)
@@ -474,6 +477,9 @@ void CGameCallBack::GeneralCreate(void)
 #endif
 	}
 
+	m_viewControl = m_mainControl->GetViewControl();
+
+
 	m_setup = new CNameList();
 //	m_setup2 = new CNameList();
 //	m_setup3 = new CNameList();
@@ -544,6 +550,15 @@ void CGameCallBack::GeneralCreate(void)
 	SetForegroundWindow(m_hWnd);
 	SetFocus(m_hWnd);
 
+
+//	m_realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+//	m_realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+//	m_viewOffsetX = m_viewControl->GetViewOffsetX();
+//	m_viewOffsetY = m_viewControl->GetViewOffsetY();
+
+
+
+
 	int notUseDirectDraw = m_systemFile->m_systemdata.notUseDirectDraw;
 	if (notUseDirectDraw == 0)
 	{
@@ -575,6 +590,9 @@ void CGameCallBack::GeneralCreate(void)
 	{
 		CJpegDecoder::SetCalcuFloat();
 	}
+//	int realWindowSizeX = 1024;
+//	int realWindowSizeY = 768;
+
 	m_myGraphics = new CMyGraphics(m_windowSizeX,m_windowSizeY,notUseDirectDraw);
 
 
@@ -904,6 +922,7 @@ void CGameCallBack::GeneralCreate(void)
 	m_frameTime = 50;
 	GetInitGameParam(&m_frameTime,"frameTime");
 	m_defaultFrameTime = m_frameTime;
+
 
 
 	m_scriptRunMode = 0;
@@ -1387,6 +1406,8 @@ void CGameCallBack::GeneralCreate(void)
 
 //OutputDebugString("\nGeneralCreate -3-B");
 
+int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 
 #if defined _TINYAN3DLIB_
 //	if (0)
@@ -1505,7 +1526,8 @@ void CGameCallBack::GeneralCreate(void)
 #else
 
 //AddErrorLog("createDirectDraw");
-	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,m_windowSizeX,m_windowSizeY,m_bpp,m_systemFile->m_systemdata.fullScreenFlag*0);
+
+m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSizeY,m_bpp,m_systemFile->m_systemdata.fullScreenFlag*0);
 
 #endif
 
@@ -1542,7 +1564,14 @@ void CGameCallBack::GeneralCreate(void)
 
 //OutputDebugString("\nGeneralCreate -3-E");
 
+
 	m_mmx = new CMMX();
+	int offsetX = m_viewControl->GetBackBufferOffsetX();
+	int offsetY = m_viewControl->GetBackBufferOffsetY();
+//	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+//	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+	m_mmx->SetViewParam(realWindowSizeX,realWindowSizeY,offsetX,offsetY);
+	
 
 	if (m_directDraw != NULL)
 	{
@@ -1558,7 +1587,10 @@ void CGameCallBack::GeneralCreate(void)
 	{
 		if (m_directDraw != NULL)
 		{
-			m_directDraw->SetWindowSize(m_windowSizeX,m_windowSizeY);
+			int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+			int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
+			m_directDraw->SetWindowSize(realWindowSizeX,realWindowSizeY);
 		}
 	}
 //OutputDebugString("\nGeneralCreate -3-G");
@@ -2029,10 +2061,14 @@ void CGameCallBack::GeneralCreate(void)
 	int vmr = m_systemFile->m_systemdata.useVMR9;
 	m_directShow = new CMyDirectShow(m_hWnd,WM_APP+1,vmr);
 	SIZE dsSize;
-	dsSize.cx = m_windowSizeX;
-	dsSize.cy = m_windowSizeY;
+	dsSize.cx = m_viewControl->GetRealWindowSizeX();
+	dsSize.cy = m_viewControl->GetRealWindowSizeY();
+	int aspectFitFlag = 1;
+	GetInitGameParam(&aspectFitFlag,"movieAspectFit");
+	if (m_directShow != NULL) m_directShow->SetAspectFitFlag(aspectFitFlag);
 	if (m_directShow != NULL) m_directShow->SetWindowSize(dsSize);
 	if (m_directShow != NULL) m_directShow->SetFullMonitorSize(dsSize);
+	if (m_directShow != NULL) m_directShow->SetAspectFitSize(m_viewControl->GetAspectFitSize());
 	if (m_directShow != NULL) m_directShow->OnDisplayChanged();
 
 
@@ -2603,7 +2639,7 @@ void CGameCallBack::GeneralCreate(void)
 	m_inputStatus->SetMouseStatus(m_mouseStatus);
 	m_inputStatus->SetKeyStatus(m_keyStatus);
 
-	m_textInputBox = new CMyTextInputBox(m_hWnd,m_message);
+	m_textInputBox = new CMyTextInputBox(m_hWnd,m_message,m_viewControl);
 
 	m_imeAutoOpenFlag = 1;
 	GetInitGameParam(&m_imeAutoOpenFlag,"imeAutoOpenFlag");
@@ -2757,6 +2793,10 @@ void CGameCallBack::GeneralCreate(void)
 
 //AddErrorLog("8.3");
 
+
+	m_resetNameByStartTitle = 0;
+	GetInitGameParam(&m_resetNameByStartTitle,"resetNameByStartTitle");
+
 	LPSTR sei = m_systemFile->m_systemdata.sei;
 	int ln1 = (int)strlen(sei);
 	if (ln1 == 0)
@@ -2806,6 +2846,11 @@ void CGameCallBack::GeneralCreate(void)
 
 	memcpy(CMyMessage::m_sei,sei,strlen(sei)+1);
 	memcpy(CMyMessage::m_mei,mei,strlen(mei)+1);
+
+
+
+
+
 
 	int santenUseFlag = 1;
 	int dashUseFlag = 1;
@@ -2857,7 +2902,22 @@ void CGameCallBack::GeneralCreate(void)
 
 //AddErrorLog("8.5");
 
-
+	m_nameIsSpecialVoiceFlag = -1;
+	m_specialVoiceNameKosuu = 0;
+	GetInitGameParam(&m_specialVoiceNameKosuu,"specialVoiceNameNumber");
+	m_specialVoiceName = new char[m_specialVoiceNameKosuu * 64 + 1];
+	for (int i=0;i<m_specialVoiceNameKosuu;i++)
+	{
+		LPSTR name = GetGameDefaultSeiMei(1);
+		char key[256];
+		sprintf_s(key,"specialVoiceName%d",i+1);
+		GetInitGameString(&name,key);
+		int ln = strlen(name);
+		if (ln>62) ln = 62;
+		memcpy(m_specialVoiceName + i*64,name,ln);
+		m_specialVoiceName[i*64+ln] = 0;
+		m_specialVoiceName[i*64+ln+1] = 0;
+	}
 
 
 	m_effect->ClearAllEffect();
@@ -2968,6 +3028,8 @@ CGameCallBack::~CGameCallBack()
 void CGameCallBack::End(void)
 {
 	if (m_gameCreateFlagGeneral == FALSE) return;
+
+	DELETEARRAY(m_specialVoiceName);
 
 
 	DELETEARRAY(m_expSystemMenuSound);
@@ -3243,7 +3305,10 @@ ENDDELETECLASS(m_waveData);	//dummy
 		devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
 
 //		ChangeDisplaySettings(&devMode, 0);
-		ChangeDisplaySettings(NULL, 0);
+		if (	m_displaySettingChanged)
+		{
+			ChangeDisplaySettings(NULL, 0);
+		}
 		m_startFrequency = -1;
 	}
 
@@ -3573,6 +3638,28 @@ void CGameCallBack::PlayCommonBgm(int commonBgmNumber, BOOL mustRestartFlag)
 */
 
 
+void CGameCallBack::SetupNameDefault(void)
+{
+	m_nameIsSpecialVoiceFlag = -1;
+
+	if (m_resetNameByStartTitle)
+	{
+		LPSTR sei = GetGameDefaultSei();
+		LPSTR mei = GetGameDefaultMei();
+
+		if (sei != NULL)
+		{
+			memcpy(CMyMessage::m_sei,sei,strlen(sei)+1);
+		}
+
+		if (mei != NULL)
+		{
+			memcpy(CMyMessage::m_mei,mei,strlen(mei)+1);
+		}
+	}
+}
+
+
 BOOL CGameCallBack::CheckClickKey(int keyNumber)
 {
 	if (keyNumber == MYLEFT_KEY)		{if (m_keyStatus->CheckKey(VK_LEFT,TRUE)) return TRUE;}
@@ -3711,6 +3798,8 @@ void CGameCallBack::ToWindowScreen(BOOL directFlag)
 
 void CGameCallBack::ToWindowScreenRoutine(void)
 {
+	m_displaySettingChanged = TRUE;
+
 LogMessage("ToWindowScreen Start");
 
 	ENDDELETECLASS(m_directDraw);
@@ -3987,6 +4076,7 @@ void CGameCallBack::ToFullScreen(BOOL directFlag)
 
 void CGameCallBack::ToFullScreenRoutine(void)
 {
+	m_displaySettingChanged = TRUE;
 
 	ENDDELETECLASS(m_directDraw);
 	Sleep(100);
@@ -5808,6 +5898,7 @@ int CGameCallBack::InitNewGame(int uraMode, BOOL demoFlag,int setVar,int setData
 
 	m_messageWindowPrintFlag = FALSE;
 	m_messageFontSizeType = 0;
+	m_nameIsSpecialVoiceFlag = -1;
 
 	SetBackScriptMode(FALSE);
 	SetDontPlay(0);
@@ -6023,7 +6114,17 @@ void CGameCallBack::AdjustMouseZahyo(void)
 	POINT pt;
 	GetCursorPos(&pt);
 	ScreenToClient(m_hWnd,&pt);
+	if (m_viewControl != NULL)
+	{
+		pt = m_viewControl->WindowToGame(pt.x,pt.y);
+	}
 	m_mouseStatus->SetZahyo(pt.x,pt.y);
+//	if (m_viewControl != NULL)
+//	{
+//		m_mouseStatus->AdjustOffset(m_viewControl->GetViewOffsetX(),m_viewControl->GetViewOffsetY());
+//	}
+
+
 
 	if (m_downed1) m_mouseStatus->SetTrig(0,TRUE);
 	if (m_downed2) m_mouseStatus->SetTrig(1,TRUE);
@@ -6587,7 +6688,14 @@ LRESULT CGameCallBack::GameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (m_mouseStatus != NULL)
 		{
 			m_mouseStatus->SetZahyo( LOWORD(lParam), HIWORD(lParam) );
-		
+			if (m_viewControl != NULL)
+			{
+				POINT p = m_mouseStatus->GetZahyo();
+				p = m_viewControl->WindowToGame(p.x,p.y);
+				m_mouseStatus->SetZahyo(p.x,p.y);
+				//m_mouseStatus->AdjustOffset(m_viewControl->GetViewOffsetX(),m_viewControl->GetViewOffsetY());
+			}
+
 			if (wParam & MK_LBUTTON)
 			{
 	//OutputDebugString("M");
@@ -7044,6 +7152,7 @@ void CGameCallBack::InitLoadGame(void)
 
 	ClearFontCache();
 
+	m_nameIsSpecialVoiceFlag = -1;
 
 //	m_effect->Calcu(256);
 //	m_effect->CalcuZahyo();
@@ -8285,13 +8394,41 @@ BOOL CGameCallBack::PlayScriptSe(int ch)
 }
 
 
-void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2)
+void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 {
 	int paraKosuu = para1;
 	int* pData = (int*)para2;
 
 	int voiceNum = *pData;
+
+
 	LPSTR name = m_preReceiveFileName;
+	if (defVoiceFlag)
+	{
+		//check name is default name?
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		if (CheckNameIsSpecialVoice())
+		{
+			char names[256];
+			if (name != NULL)
+			{
+				int ln = strlen(name);
+				memcpy_s(names,256,name,ln+1);
+				char c = names[3];
+				c += 'a';
+				c -= '0';
+				names[3] = c;
+
+				name = names;
+			}
+		}
+	}
+
+
+
+
+
+
 
 	int voicenum = *pData;
 	int ch = *(pData+1);
@@ -9906,7 +10043,7 @@ void CGameCallBack::ReceiveScriptCommand(int cmd, int para1, LPVOID para2,int pa
 	if (cmd == CODE_SYSTEMCOMMAND_OVERRAP) SystemCommandOverrap(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_MUSIC) SystemFunctionMusic(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_SOUND) SystemFunctionSound(para1,para2);
-	if (cmd == CODE_SYSTEMFUNCTION_VOICE) SystemFunctionVoice(para1,para2);
+	if (cmd == CODE_SYSTEMFUNCTION_VOICE) SystemFunctionVoice(para1,para2,para3);
 	if (cmd == CODE_SYSTEMFUNCTION_SETCG) SystemFunctionSetCG(para1,para2);
 
 	if (cmd == CODE_SYSTEMFUNCTION_VOLUMEONLY_SE) SystemFunctionVolumeOnlySe(para1,para2);
@@ -10049,6 +10186,11 @@ void CGameCallBack::PrintBackBuffer(void)
 #endif
 
 
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
+	int offsetX = (realWindowSizeX - m_windowSizeX) / 2;
+	int offsetY = (realWindowSizeY - m_windowSizeY) / 2;
 
 	//スピードアップさせる必要ありにゃ
 	if (m_directDraw->Lock())
@@ -10100,15 +10242,25 @@ void CGameCallBack::BltToFront(void)
 	return;
 #endif
 
+//	int offsetx = m_viewControl->GetViewOffsetX();
+//	int offsety = m_viewControl->GetViewOffsetY();
+//	offsetx = 0;
+//	offsety = 0;
+
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
 	if (CAreaControl::CheckAllPrintMode())
 	{
+		RECT srcRect = m_viewControl->GetSrcRect(0,0,realWindowSizeX,realWindowSizeY);
+		RECT dstRect = m_viewControl->GetDstRect(0,0,realWindowSizeX,realWindowSizeY);
 		if (m_notUseDirectDraw == 0)
 		{
-			m_directDraw->NiseFlip(0,0,screenSizeX,screenSizeY,waitFlag);
+			m_directDraw->NiseFlip2(dstRect,srcRect, waitFlag);
 		}
 		else
 		{
-			m_myGraphics->NiseFlip(m_hWnd,0,0,screenSizeX,screenSizeY,waitFlag);
+			m_myGraphics->NiseFlip(m_hWnd,0,0,realWindowSizeX,realWindowSizeY,waitFlag);
 		}
 	}
 	else
@@ -10118,11 +10270,19 @@ void CGameCallBack::BltToFront(void)
 		{
 			int startX,startY,sizeX,sizeY;
 			CAreaControl::GetArea(i,startX,startY,sizeX,sizeY);
+		//	startX += offsetx;
+		//	startY += offsety;
+
+			RECT srcRect = m_viewControl->GetSrcRect(startX,startY,sizeX,sizeY);
+			RECT dstRect = m_viewControl->GetDstRect(startX,startY,sizeX,sizeY);
+
+
 //			BOOL waitFlag = FALSE;
 			if (i>0) waitFlag = FALSE;
 			if (m_notUseDirectDraw == 0)
 			{
-				m_directDraw->NiseFlip(startX,startY,sizeX,sizeY,waitFlag);
+				m_directDraw->NiseFlip2(dstRect,srcRect,waitFlag);
+//				m_directDraw->NiseFlip2(startX,startY,sizeX,sizeY,waitFlag);
 			}
 			else
 			{
@@ -10885,11 +11045,11 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 			if (pm->CheckFirstFrame())
 			{
 				//movieFlag = FALSE;
-				OutputDebugString("[x]");
+		//		OutputDebugString("[x]");
 			}
 			else
 			{
-				OutputDebugString("[o]");
+		//		OutputDebugString("[o]");
 			}
 		}
 	}
@@ -14213,6 +14373,7 @@ void CGameCallBack::FuqueByScreenChange0(void)
 
 }
 
+//used default
 LPSTR CGameCallBack::GetSystemSei(void)
 {
 	return m_systemFile->m_systemdata.sei;
@@ -14221,6 +14382,17 @@ LPSTR CGameCallBack::GetSystemSei(void)
 LPSTR CGameCallBack::GetSystemMei(void)
 {
 	return m_systemFile->m_systemdata.mei;
+}
+
+//game default
+LPSTR CGameCallBack::GetGameDefaultSei(void)
+{
+	return GetGameDefaultSeiMei(0);
+}
+
+LPSTR CGameCallBack::GetGameDefaultMei(void)
+{
+	return GetGameDefaultSeiMei(1);
 }
 
 void CGameCallBack::SetSeiMei(LPSTR sei,LPSTR mei)
@@ -14592,6 +14764,20 @@ LPSTR CGameCallBack::GetDefaultSeiMei(int md)
 	return name;
 }
 
+LPSTR CGameCallBack::GetGameDefaultSeiMei(int md)
+{
+	LPSTR name = m_errorName;
+	if (md == 0)
+	{
+		GetInitGameString(&name,"defaultNameSei");
+	}
+	else if (md == 1)
+	{
+		GetInitGameString(&name,"defaultNameMei");
+	}
+
+	return name;
+}
 
 BOOL CGameCallBack::CheckExpModeByVar(int mode)
 {
@@ -14905,6 +15091,44 @@ void CGameCallBack::DebugF5Routine(void)
 //	m_effect->ClearAllEffect();
 	SetYoyaku();
 }
+
+
+POINT CGameCallBack::GameToView(POINT pt)
+{
+	return m_viewControl->GameToView(pt);
+}
+
+
+BOOL CGameCallBack::CheckNameIsSpecialVoice(void)
+{
+	if (m_nameIsSpecialVoiceFlag != -1)
+	{
+		if (m_nameIsSpecialVoiceFlag == 0) return FALSE;
+		return TRUE;
+	}
+
+	BOOL f = FALSE;
+	m_nameIsSpecialVoiceFlag = 0;
+
+	LPSTR checkName = CMyMessage::m_mei;
+
+	for (int i=0;i<m_specialVoiceNameKosuu;i++)
+	{
+		LPSTR name = &m_specialVoiceName[i*64];
+		if ((*name) != 0)
+		{
+			if (strcmp(name,checkName) == 0)
+			{
+				m_nameIsSpecialVoiceFlag = 1;
+				f = TRUE;
+				break;
+			}
+		}
+	}
+	
+	return f;
+}
+
 
 /*_*/
 

@@ -16,14 +16,14 @@ public:
 
 
 	BOOL StartDecode(LPVOID file);
-	BOOL StartDecode2(HANDLE handle);
+	BOOL StartDecode2(LPVOID file);
 	int Decode(void);
 	void EndDecode(void);
 
 private:
 	ogg_int16_t* m_convBuffer;
 	LPVOID m_file;
-	HANDLE m_fileHandle;
+//	HANDLE m_fileHandle;
 	char* m_buffer;
 	BOOL m_decodeStartFlag;
 

@@ -17,6 +17,8 @@
 #include "..\nnnUtilLib\myMessage.h"
 
 #include "..\nnnUtilLib\nameList.h"
+#include "..\nnnUtilLib\cviewControl.h"
+
 
 #include "myTextInputBox.h"
 
@@ -38,10 +40,11 @@ char CMyTextInputBox::m_to2byteTable[]= "\
 
 
 
-CMyTextInputBox::CMyTextInputBox(HWND hwnd,CMyMessage* message)
+CMyTextInputBox::CMyTextInputBox(HWND hwnd,CMyMessage* message,CViewControl* viewControl)
 {
 	m_hWnd = hwnd;
 	m_message = message;
+	m_viewControl = viewControl;
 
 	m_setupList = NULL;
 
@@ -430,6 +433,14 @@ void CMyTextInputBox::MoveIMEWindow(void)
 
 
 	POINT pt = GetCursorZahyo();
+	pt = m_viewControl->GameToView(pt);
+
+
+
+
+
+
+
 	cf.ptCurrentPos = pt;
 	ImmSetCompositionWindow(himc,&cf);
 

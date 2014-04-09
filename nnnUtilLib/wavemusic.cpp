@@ -9,6 +9,7 @@
 #include <dsound.h>
 
 #include "..\nyanLib\include\commonMacro.h"
+#include "..\nyanLib\include\myFile.h"
 
 #include "..\nyanDirectXLib\myDirectSound.h"
 
@@ -71,7 +72,7 @@ CWaveMusic::CWaveMusic(LPVOID myDirectSound,int number)
 	m_bufferNumber = number;
 
 	m_filePointer = NULL;
-	m_fileHandle = INVALID_HANDLE_VALUE;
+//	m_fileHandle = INVALID_HANDLE_VALUE;
 
 	m_spectrumCalcuMode = 0;
 
@@ -333,11 +334,11 @@ void CWaveMusic::End(void)
 		m_filePointer = NULL;
 	}
 
-	if (m_fileHandle != INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(m_fileHandle);
-		m_fileHandle = INVALID_HANDLE_VALUE;
-	}
+//	if (m_fileHandle != INVALID_HANDLE_VALUE)
+//	{
+//		CloseHandle(m_fileHandle);
+//		m_fileHandle = INVALID_HANDLE_VALUE;
+//	}
 
 	//
 	DELETEARRAY(m_convBuffer);
@@ -534,8 +535,8 @@ OutputDebugString(mes);
 			m_dataEndFlag = FALSE;
 			m_nokoriDataSize = 0;
 
-//			if (m_filePointer != NULL)
-			if (m_fileHandle != INVALID_HANDLE_VALUE)
+			if (m_filePointer != NULL)
+//			if (m_fileHandle != INVALID_HANDLE_VALUE)
 			{
 				if (GetBlock(0) == 0) m_dataEndFlag = TRUE;//???
 			}
@@ -589,16 +590,16 @@ OutputDebugString(mes);
 			break;
 		case WAIT_OBJECT_0+4:	//stop command
 			directSoundBuffer->Stop();
-//			if (m_filePointer != NULL)
-//			{
-//				fclose(m_filePointer);
-//				m_filePointer = NULL;
-//			}
-			if (m_fileHandle != INVALID_HANDLE_VALUE)
+			if (m_filePointer != NULL)
 			{
-				CloseHandle(m_fileHandle);
-				m_fileHandle = INVALID_HANDLE_VALUE;
+				fclose(m_filePointer);
+				m_filePointer = NULL;
 			}
+//			if (m_fileHandle != INVALID_HANDLE_VALUE)
+//			{
+//				CloseHandle(m_fileHandle);
+//				m_fileHandle = INVALID_HANDLE_VALUE;
+//			}
 			m_playFlag0 = FALSE;
 			SetEvent(m_hReturnEvent[STOPBGM_COMMAND]);
 			break;
@@ -818,17 +819,17 @@ void CWaveMusic::OnWaveTime(void)
 
 				directSoundBuffer->Stop();
 
-				if (m_fileHandle != INVALID_HANDLE_VALUE)
-				{
-					CloseHandle(m_fileHandle);
-					m_fileHandle = INVALID_HANDLE_VALUE;
-				}
-
-//				if (m_filePointer != NULL)
+//				if (m_fileHandle != INVALID_HANDLE_VALUE)
 //				{
-//					fclose(m_filePointer);
-//					m_filePointer = NULL;
+//					CloseHandle(m_fileHandle);
+//					m_fileHandle = INVALID_HANDLE_VALUE;
 //				}
+
+				if (m_filePointer != NULL)
+				{
+					fclose(m_filePointer);
+					m_filePointer = NULL;
+				}
 			}
 			m_playFlag0 = FALSE;
 			m_fadeOutFlag = FALSE;
@@ -879,8 +880,8 @@ void CWaveMusic::OnWaveTime(void)
 //もどり：有効データサイズ
 int CWaveMusic::GetBlock(int n)
 {
-//	if (m_filePointer == NULL)
-	if (m_fileHandle == INVALID_HANDLE_VALUE)
+	if (m_filePointer == NULL)
+//	if (m_fileHandle == INVALID_HANDLE_VALUE)
 	{
 		ZeroMemory(m_blockBuffer,44100*2*2);
 		return 0;
@@ -921,17 +922,17 @@ int CWaveMusic::GetBlock(int n)
 			m_oggStreamDecoder->EndDecode();
 			BOOL flg = TRUE;
 
-//			if (m_filePointer != NULL)
-//			{
-//				fclose(m_filePointer);
-//				m_filePointer = NULL;
-//			}
-
-			if (m_fileHandle != INVALID_HANDLE_VALUE)
+			if (m_filePointer != NULL)
 			{
-				CloseHandle(m_fileHandle);
-				m_fileHandle = INVALID_HANDLE_VALUE;
+				fclose(m_filePointer);
+				m_filePointer = NULL;
 			}
+
+//			if (m_fileHandle != INVALID_HANDLE_VALUE)
+//			{
+//				CloseHandle(m_fileHandle);
+//				m_fileHandle = INVALID_HANDLE_VALUE;
+//			}
 
 			//nextdecode?
 
@@ -1191,28 +1192,35 @@ BOOL CWaveMusic::OpenNewFile(LPSTR filename)
 //	memcpy(allfilename+4,filename,ln);
 //	memcpy(allfilename+4+ln,".wgq",5);
 
-//	m_filePointer = fopen(allfilename,"rb");
-	m_fileHandle = CreateFile(allfilename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
 
-//	if (m_filePointer != NULL)
-	if (m_fileHandle != INVALID_HANDLE_VALUE)
+	m_filePointer = CMyFile::Open(allfilename,"rb");
+//	m_fileHandle = CreateFile(allfilename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
+
+	if (m_filePointer != NULL)
+//	if (m_fileHandle != INVALID_HANDLE_VALUE)
 	{
-//		fseek(m_filePointer,64,SEEK_SET);
+
 		//packtypeでわける
 		char header[64];
 		DWORD readed = 0;
-		ReadFile(m_fileHandle,header,64,&readed,NULL);
+		//ReadFile(m_fileHandle,header,64,&readed,NULL);
+		fread(header,sizeof(char),64,m_filePointer);
 		if (header[57] == '2')
 		{
 			char waveheader[20];
-			ReadFile(m_fileHandle,waveheader,20,&readed,NULL);
+		//	ReadFile(m_fileHandle,waveheader,20,&readed,NULL);
+			fread(waveheader,sizeof(char),20,m_filePointer);
 
 			int* ptr = (int*)waveheader;
 			ptr += 4;
 
 			int skp = *ptr;
 
-			SetFilePointer(m_fileHandle,skp,NULL,FILE_CURRENT);
+		//	SetFilePointer(m_fileHandle,skp,NULL,FILE_CURRENT);
+			fpos_t nowPos;
+			fgetpos(m_filePointer,&nowPos);
+			nowPos += skp;
+			fsetpos(m_filePointer,&nowPos);
 
 		}
 
@@ -1220,8 +1228,8 @@ BOOL CWaveMusic::OpenNewFile(LPSTR filename)
 //		SetFilePointer(m_fileHandle,64,NULL,FILE_BEGIN);
 
 		m_dataEndFlag = FALSE;
-//		m_oggStreamDecoder->StartDecode(m_filePointer);
-		m_oggStreamDecoder->StartDecode2(m_fileHandle);
+		m_oggStreamDecoder->StartDecode2(m_filePointer);
+//		m_oggStreamDecoder->StartDecode2(m_fileHandle);
 		return TRUE;
 	}
 
