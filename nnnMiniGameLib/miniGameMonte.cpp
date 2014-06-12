@@ -8,6 +8,7 @@
 #include "..\nyanLib\include\myGraphics.h"
 #include "..\nnnUtilLib\myMouseStatus.h"
 
+#include "minigameLayoutParamName.h"
 
 #include "allMiniGame.h"
 #include "miniGameBase.h"
@@ -26,10 +27,24 @@ CMiniGameMonte::CMiniGameMonte(CAllMiniGame* lpAllMiniGame,int layoutParamKosuu,
 	m_tsumeruCountMax = 15;
 	m_naraberuCountMax = 4*6 + 10;
 
-	m_cardPrintStart.x = 4;
-	m_cardPrintStart.y = 2;
-	m_cardPrintNext.x = 100;
-	m_cardPrintNext.y = 150;
+	int nextX = 100;
+	GetLayoutData(&nextX,MINIGAME_LAYOUTPARAM_NEXTX);
+	m_cardPrintNext.x = nextX;
+
+	int startX = 4;
+	GetLayoutData(&startX,MINIGAME_LAYOUTPARAM_STARTX);
+	m_cardPrintStart.x = startX;
+
+	int nextY = 150;
+	GetLayoutData(&nextY,MINIGAME_LAYOUTPARAM_NEXTY);
+	m_cardPrintNext.y = nextY;
+
+	int startY = 2;
+	GetLayoutData(&startY,MINIGAME_LAYOUTPARAM_STARTY);
+	m_cardPrintStart.y = startY;
+
+
+
 	m_yamaPrint.x = m_cardPrintStart.x + m_cardPrintNext.x * 7;
 	m_yamaPrint.y = m_cardPrintStart.y;
 

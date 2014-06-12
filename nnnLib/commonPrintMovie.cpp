@@ -64,6 +64,16 @@ CCommonPrintMovie::CCommonPrintMovie(CGameCallBack* lpGame) : CCommonGeneral(lpG
 	m_noSkipFlag = 0;
 	GetInitGameParam(&m_noSkipFlag,"noSKipFlag");
 
+	int fixedMovieSizeX = 0;
+	int fixedMovieSizeY = 0;
+	if (GetInitGameParam(&fixedMovieSizeX,"fixedMovieSizeX"))
+	{
+		if (GetInitGameParam(&fixedMovieSizeY,"fixedMovieSizeY"))
+		{
+			CMyDirectShow::SetFixedMovieSize(fixedMovieSizeX,fixedMovieSizeY);
+		}
+	}
+
 	m_selectMovieByVarFlag = 0;
 	m_selectMovieVarNumber = -1;
 	GetInitGameParam(&m_selectMovieByVarFlag,"selectByVarFlag");

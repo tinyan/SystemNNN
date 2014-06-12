@@ -436,6 +436,7 @@ int CCommonNameInput::Calcu(void)
 	if (m_count > 9999) m_count = 9999;
 
 	int rt1 = m_okButton->Calcu(m_inputStatus);
+	if (m_game->GetAutoDebugMode()) rt1 = NNNBUTTON_NUMBER | NNNBUTTON_DATAEXISTMASK | 0;
 	if (rt1 != -1)
 	{
 		int nm1 = ProcessCommonButton(rt1);
@@ -506,6 +507,7 @@ int CCommonNameInput::Calcu(void)
 	}
 
 	int rt2 = m_cancelButton->Calcu(m_inputStatus);
+	if (m_game->GetAutoDebugMode()) rt1 = NNNBUTTON_NUMBER | NNNBUTTON_DATAEXISTMASK | 0;
 	if (rt2 != -1)
 	{
 		int nm2 = ProcessCommonButton(rt2);

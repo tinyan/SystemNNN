@@ -15,6 +15,9 @@
 #include "..\nyanLib\include\commonmacro.h"
 #include "mydirectShow.h"
 
+BOOL CMyDirectShow::m_fixedMovieSizeFlag = FALSE;
+int CMyDirectShow::m_fixedMovieSizeX = 800;
+int CMyDirectShow::m_fixedMovieSizeY = 600;
 
 
 CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
@@ -100,10 +103,10 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 	{
 		RECT srcRect;
 
-		long width;
-		long height;
-		long aWidth;
-		long aHeight;
+		LONG width;
+		LONG height;
+		LONG aWidth;
+		LONG aHeight;
 
 		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetNativeVideoSize(&width,&height,&aWidth,&aHeight);
 //		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetNativeVideoSize(&width,&height,NULL,NULL);
@@ -112,7 +115,15 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 		}
 //		height = 720;
 
+		if (m_fixedMovieSizeFlag)
+		{
+			width = m_fixedMovieSizeX;
+			height = m_fixedMovieSizeY;
+		}
+
 		SetRect(&srcRect,0,0,width,height);
+		if (height < 0) srcRect.top = -height-1;
+
 
 		RECT dstRect;
 		if (m_aspectFitFlag)
@@ -179,6 +190,7 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 	{
 		((IVideoWindow*)m_videoWindow)->put_Owner((OAHWND)m_parentHWnd);
 		((IVideoWindow*)m_videoWindow)->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
+		((IVideoWindow*)m_videoWindow)->HideCursor(OATRUE);
 
 		RECT rc;
 		long destWidth;
@@ -1085,6 +1097,14 @@ HRESULT CMyDirectShow::WaitMediaControl(int ms,int loop)
 
 	return hr;
 }
+
+void CMyDirectShow::SetFixedMovieSize(int sizeX,int sizeY)
+{
+	m_fixedMovieSizeFlag = TRUE;
+	m_fixedMovieSizeX = sizeX;
+	m_fixedMovieSizeY = sizeY;
+}
+
 
 /*_*/
 

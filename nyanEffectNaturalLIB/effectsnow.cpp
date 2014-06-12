@@ -252,8 +252,8 @@ void CEffectSnow::SetNewSnow(int n)
 
 
 	m_snow[n].pat = rand() % 4;
-	m_snow[n].x = rand() % (screenSizeX*40);
-	m_snow[n].y = rand() % (screenSizeY*40);
+	m_snow[n].x = (rand() + 32768 * (rand() % 16)) % (screenSizeX*40);
+	m_snow[n].y = (rand() + 32768 * (rand() % 16)) % (screenSizeY*40);
 	m_snow[n].speedX = (rand() % 300) - 150;
 	m_snow[n].speedY = (rand() % 200) + 500;
 	m_snow[n].count = 0;

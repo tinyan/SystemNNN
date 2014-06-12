@@ -643,6 +643,9 @@ void CGameCallBack::GeneralCreate(void)
 			}
 		}
 	}
+	//全バージョンallprintMode
+	CAreaControl::SetVista();
+
 
 	int notSrcCopyFlagEnable = 0;
 	GetInitGameParam(&notSrcCopyFlagEnable,"notSrcCopyFlagEnable");
@@ -3928,7 +3931,12 @@ LogMessage("ToWindowScreen Start");
 //	SetWindowLong(m_hWnd,GWL_STYLE,WS_POPUP | WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
 //	SetWindowLong(m_hWnd,GWL_EXSTYLE,GetWindowLong(m_hWnd,GWL_EXSTYLE) & ~WS_EX_TOPMOST);
 
-	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,m_windowSizeX,m_windowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE)*0);
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
+	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE)*0);
+//	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,m_windowSizeX,m_windowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE)*0);
+
 	m_directDraw->SetGDIFullScreen(FALSE);
 LogMessage("ToWindowScreen Mid 1");
 
@@ -3960,7 +3968,8 @@ LogMessage("ToWindowScreen Mid 3");
 	
 //	int wx = m_windowX - GetSystemMetrics(SM_CXFIXEDFRAME);
 //	int wy = 
-	if (MoveWindow(m_hWnd,m_windowX, m_windowY, m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
+	if (MoveWindow(m_hWnd,m_windowX, m_windowY, realWindowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
+//	if (MoveWindow(m_hWnd,m_windowX, m_windowY, m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
 	{
 		/*
 		DWORD er = GetLastError();
@@ -4007,7 +4016,7 @@ LogMessage("ToWindowScreen Mid 5");
 
 //	if (MoveWindow(m_hWnd,m_windowX, m_windowY, m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
 
-	SetWindowPos(m_hWnd,HWND_NOTOPMOST,m_windowX,m_windowY,m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),0);
+	SetWindowPos(m_hWnd,HWND_NOTOPMOST,m_windowX,m_windowY,realWindowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),0);
 //	SetWindowPos(m_hWnd,HWND_NOTOPMOST,0,0,windowSizeX,windowSizeY,SWP_NOMOVE | SWP_NOSIZE);
 
 	Sleep(20);
@@ -4078,6 +4087,9 @@ void CGameCallBack::ToFullScreenRoutine(void)
 {
 	m_displaySettingChanged = TRUE;
 
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
 	ENDDELETECLASS(m_directDraw);
 	Sleep(100);
 
@@ -4098,8 +4110,10 @@ void CGameCallBack::ToFullScreenRoutine(void)
 	DEVMODE devMode;
 	ZeroMemory(&devMode,sizeof(devMode));
 	devMode.dmSize = sizeof(devMode);
-	devMode.dmPelsWidth = m_windowSizeX;
-	devMode.dmPelsHeight = m_windowSizeY;
+//	devMode.dmPelsWidth = m_windowSizeX;
+//	devMode.dmPelsHeight = m_windowSizeY;
+	devMode.dmPelsWidth = realWindowSizeX;
+	devMode.dmPelsHeight = realWindowSizeY;
 	devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT; 
 
 	//test 20130822
@@ -4124,7 +4138,7 @@ void CGameCallBack::ToFullScreenRoutine(void)
 		if (hr == DISP_CHANGE_NOTUPDATED) nn = 7;
 		wsprintf(mes,"%d:%d",hr,nn);
 		//fordebug@@@@@@@@@@@@@@@@@
-//		MessageBox(NULL,mes,"fullerrorret",MB_OK);
+		//MessageBox(NULL,mes,"fullerrorret",MB_OK);
 
 		int devNum = 0;
 		DEVMODE devMode2;
@@ -4140,7 +4154,8 @@ void CGameCallBack::ToFullScreenRoutine(void)
 
 		while (EnumDisplaySettings(NULL,devNum,&devMode2))
 		{
-			if ((devMode2.dmPelsWidth == m_windowSizeX) && (devMode2.dmPelsHeight == m_windowSizeY))
+			if ((devMode2.dmPelsWidth == realWindowSizeX) && (devMode2.dmPelsHeight == realWindowSizeY))
+//			if ((devMode2.dmPelsWidth == m_windowSizeX) && (devMode2.dmPelsHeight == m_windowSizeY))
 			{
 				if (devMode2.dmDisplayFrequency > 0)
 				{
@@ -4200,7 +4215,9 @@ void CGameCallBack::ToFullScreenRoutine(void)
 	if (m_effect != NULL) m_effect->ReCreateAllShader();
 #endif
 
-	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,m_windowSizeX,m_windowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE) * 0);
+
+	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE) * 0);
+//	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,m_windowSizeX,m_windowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE) * 0);
 
 
 	m_directDraw->SetGDIFullScreen(TRUE);
@@ -4220,9 +4237,11 @@ void CGameCallBack::ToFullScreenRoutine(void)
 
 	SetWindowLong(m_hWnd,GWL_STYLE,WS_POPUP | WS_VISIBLE);
 //	SetWindowLong(m_hWnd,GWL_EXSTYLE,GetWindowLong(m_hWnd,GWL_EXSTYLE) | WS_EX_TOPMOST);
-	MoveWindow(m_hWnd,0,0, m_windowSizeX,m_windowSizeY,TRUE);
+	MoveWindow(m_hWnd,0,0, realWindowSizeX,realWindowSizeY,TRUE);
+//	MoveWindow(m_hWnd,0,0, m_windowSizeX,m_windowSizeY,TRUE);
 
-	m_directDraw->SetWindowSize(m_windowSizeX,m_windowSizeY);
+	m_directDraw->SetWindowSize(realWindowSizeX,realWindowSizeY);
+//	m_directDraw->SetWindowSize(m_windowSizeX,m_windowSizeY);
 	m_directDraw->WindowIsMoved(0,0);
 
 
@@ -10896,8 +10915,10 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 				devMode.dmSize = sizeof(DEVMODE);
 				if (EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&devMode))
 				{
-					int checkX = CMyGraphics::GetScreenSizeX();
-					int checkY = CMyGraphics::GetScreenSizeY();
+//					int checkX = CMyGraphics::GetScreenSizeX();
+//					int checkY = CMyGraphics::GetScreenSizeY();
+					int checkX = m_viewControl->GetRealWindowSizeX();
+					int checkY = m_viewControl->GetRealWindowSizeY();
 
 					int fs = devMode.dmFields & CDS_FULLSCREEN;
 

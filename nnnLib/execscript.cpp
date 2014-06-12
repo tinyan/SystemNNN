@@ -915,7 +915,7 @@ BOOL CExecScript::LoadScript(LPSTR filename)
 			m_data = new int[m_bufferSize];
 
 		}
-		m_dataSize = (int)fileSize;
+		m_dataSize = (int)((fileSize+3)/4);
 		fread(&m_data[0],sizeof(int),m_dataSize,file);
 
 		fclose(file);

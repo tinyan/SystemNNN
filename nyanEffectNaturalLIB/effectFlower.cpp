@@ -220,8 +220,8 @@ void CEffectFlower::SetNewFlower(int n)
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
 	m_flower[n].pat = 0;
-	m_flower[n].x = rand() % (screenSizeX*40);
-	m_flower[n].y = rand() % (screenSizeY*40);
+	m_flower[n].x = (rand() + 32768 * (rand() % 16)) % (screenSizeX*40);
+	m_flower[n].y = (rand() + 32768 * (rand() % 16)) % (screenSizeY*40);
 	m_flower[n].speedX = (rand() % 600) - 300;
 	m_flower[n].speedY = (rand() % 150) + 200;
 	m_flower[n].count = 0;

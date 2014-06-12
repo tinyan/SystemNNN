@@ -2358,6 +2358,34 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		}
 	}
 
+	//appendで先頭が人名だったら飛ばす
+	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+	{
+		char check[256];
+		int ln = (int)strlen(mes);
+		check[0] = 0;
+		int skps = 0;
+		for (int i=0;i<ln;i++)
+		{
+			char c = *(mes+i);
+			if ((c == 0) || (c == 0x0d))
+			{
+				check[i] = 0;
+				if (c == 0) skps = i+1;
+				if (c == 0x0d) skps = i+2;
+				break;
+			}
+			check[i] = c;
+		}
+		check[ln]=0;
+		if (m_nameColor->SearchName(check))
+		{
+			mes += skps;
+		}
+	}
+
+
+
 	//メッセージ分割
 
 	int ln = (int)strlen(mes);

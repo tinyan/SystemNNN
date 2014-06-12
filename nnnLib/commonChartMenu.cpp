@@ -1935,9 +1935,16 @@ void CCommonChartMenu::PrintBackChara(void)
 //	int kosuu = 4;//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	int kosuu = m_backPicKosuu[m_printChartNumber];
 
+	int printSizeY = 0;
+
 	for (int i=0;i<kosuu;i++)
 	{
-		m_backChara[i]->Blt(0,i*screenSizeY+dy,0,0,screenSizeX,screenSizeY,FALSE);
+		//m_backChara[i]->Blt(0,i*screenSizeY+dy,0,0,screenSizeX,screenSizeY,FALSE);
+//		m_backChara[i]->Blt(0,printSizeY+dy,0,0,screenSizeX,screenSizeY,FALSE);
+		
+		m_backChara[i]->Put(0,printSizeY+dy,FALSE);
+		SIZE sz = m_backChara[i]->GetPicSize();
+		printSizeY += sz.cy;
 	}
 }
 
@@ -1960,30 +1967,42 @@ void CCommonChartMenu::PrintCenter(void)
 		}
 	}
 
+	SIZE sz = m_centerPic->GetPicSize();
+
 //	int dy = -((m_scrollY+300)*1200) / m_scrollSize;
 	if (dy<0)
 	{
 		dy *= -1;
-		dy %= screenSizeY;
+	//	dy %= screenSizeY;
+		dy %= sz.cy;
 		dy *= -1;
 	}
 
 	if (dy>0)
 	{
-		dy %= screenSizeY;
+//		dy %= screenSizeY;
+		dy %= sz.cy;
 	}
 
-	int putX = 0;
+//	int putX = 0;
 
-	for (int i=0;i<2;i++)
+	int loopX = 2;
+	loopX = (screenSizeX*2 + sz.cx - 1) / sz.cx;
+
+	int loopY = 3;
+	loopY = (screenSizeX*2 + sz.cy - 1) / sz.cx;
+	loopY += 1;
+
+	for (int i=0;i<loopX;i++)
 	{
-		int putX = i * screenSizeX - m_scrollX;
-		for (int j=0;j<3;j++)
+		int putX = i * sz.cx - m_scrollX;
+		for (int j=0;j<loopY;j++)
 		{
-			int putY = (j-1)*screenSizeY+dy;
-			if ((putY > -screenSizeY) && (putY<screenSizeY))
+//			int putY = (j-1)*screenSizeY+dy;
+			int putY = (j-1)*sz.cy+dy;
+			if ((putY > -sz.cy) && (putY<screenSizeY))
 			{
-				m_centerPic->Blt(putX,putY,0,0,screenSizeX,screenSizeY,TRUE);
+				m_centerPic->Blt(putX,putY,0,0,sz.cx,sz.cx,TRUE);
 			}
 		}
 	}
@@ -2491,7 +2510,10 @@ void CCommonChartMenu::EraseButton(POINT pt,int md,BOOL ok)
 	for (int i=0;i<kosuu;i++)
 	{
 		m_backChara[i]->Blt(putX,putY,srcX2,srcY2,sizeX,sizeY,FALSE);
-		srcY2 -= screenSizeY;
+
+		//srcY2 -= screenSizeY;
+		SIZE sz = m_backChara[i]->GetPicSize();
+		srcY2 -= sz.cy;
 	}
 
 //	int srcX3 = srcX2;

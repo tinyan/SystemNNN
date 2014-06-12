@@ -42,6 +42,12 @@ public:
 
 	void SetWindowMode(int md){m_fullScreenFlag = md;}
 */
+	static void SetFixedMovieSize(int sizeX,int sizeY);
+	static BOOL m_fixedMovieSizeFlag;
+
+	static int m_fixedMovieSizeX;
+	static int m_fixedMovieSizeY;
+
 private:
 	HWND m_parentHWnd;
 	int m_graphNotify;

@@ -8,6 +8,7 @@
 #include "..\nyanLib\include\myGraphics.h"
 #include "..\nnnUtilLib\myMouseStatus.h"
 
+#include "minigameLayoutParamName.h"
 
 #include "allMiniGame.h"
 #include "miniGameBase.h"
@@ -39,6 +40,8 @@ CMiniGameNikaku::CMiniGameNikaku(CAllMiniGame* lpAllMiniGame,int layoutParamKosu
 
 	m_printX = 0;
 	m_printY = 0;
+	GetLayoutData(&m_printX,MINIGAME_LAYOUTPARAM_STARTX);
+	GetLayoutData(&m_printY,MINIGAME_LAYOUTPARAM_STARTY);
 
 	m_eraseCountMax = 25;
 	m_gettingCountMax = 10;
