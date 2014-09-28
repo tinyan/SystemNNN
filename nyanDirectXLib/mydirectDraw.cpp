@@ -18,6 +18,10 @@ int CMyDirectDraw::m_deviceNumber = 0;
 int CMyDirectDraw::m_deviceCount = 0;
 GUID CMyDirectDraw::m_deviceGUID;
 
+int CMyDirectDraw::m_fillColorR = 0;
+int CMyDirectDraw::m_fillColorG = 0;
+int CMyDirectDraw::m_fillColorB = 0;
+
 int CMyDirectDraw::m_notUseDirectDraw = 0;
 
 BOOL WINAPI CMyDirectDraw::DDEnumCallbackEx(
@@ -71,7 +75,7 @@ BOOL WINAPI CMyDirectDraw::DDEnumCallbackEx(
 
 
 
-
+void ClearBackSurface(void);
 
 
 
@@ -215,6 +219,7 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 	}
 
 
+
 //	if (bFullScreen)
 	if (0)
 	{
@@ -265,9 +270,14 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 	m_maskGreen = ddpf.dwGBitMask;
 	m_maskBlue = ddpf.dwBBitMask;
 
-	m_shiftRed = 24-GetTopBit(m_maskRed);
-	m_shiftGreen = 24-GetTopBit(m_maskGreen);
-	m_shiftBlue = 24-GetTopBit(m_maskBlue);
+//	char mes[256];
+//	sprintf_s(mes,256,"[%d %d %d]",m_maskRed,m_maskGreen,m_maskBlue);
+
+	m_bitCount = ddpf.dwRGBBitCount;
+	//OutputDebugString(mes);
+	//m_shiftRed = 24-GetTopBit(m_maskRed);
+	//m_shiftGreen = 24-GetTopBit(m_maskGreen);
+	//m_shiftBlue = 24-GetTopBit(m_maskBlue);
 
 	if (ddpf.dwRGBBitCount == 16)
 	{
@@ -325,6 +335,12 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 			}
 		}
 	}
+
+
+	ClearBackSurface();
+
+
+
 
 	WindowIsMoved(0,0);
 }
@@ -447,6 +463,8 @@ BOOL CMyDirectDraw::Restore(BOOL flg)
 			if (hr == DDERR_SURFACELOST)
 			{
 				m_lpBack->Restore();
+				ClearBackSurface();
+
 				b = TRUE;
 			}
 		}
@@ -487,6 +505,8 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 			if (hr == DDERR_SURFACELOST)
 			{
 				m_lpBack->Restore();
+				ClearBackSurface();
+
 				b = TRUE;
 			}
 		}
@@ -608,6 +628,7 @@ HRESULT CMyDirectDraw::NiseFlip(int x,int y, int sizeX, int sizeY,BOOL waitVSync
 		if (m_lpBack->IsLost() == DDERR_SURFACELOST)
 		{
 			m_lpBack->Restore();
+			ClearBackSurface();
 		}
 	}
 
@@ -750,6 +771,7 @@ HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,i
 		if (m_lpBack->IsLost() == DDERR_SURFACELOST)
 		{
 			m_lpBack->Restore();
+			ClearBackSurface();
 		}
 	}
 
@@ -1088,6 +1110,8 @@ BOOL CMyDirectDraw::OnActivate(BOOL bActive)
 		if (m_lpBack->IsLost() == DDERR_SURFACELOST)
 		{
 			m_lpBack->Restore();
+			ClearBackSurface();
+
 		}
 	}
 
@@ -1262,6 +1286,114 @@ void CMyDirectDraw::ErrorLog(LPSTR mes)
 	}
 }
 
+void CMyDirectDraw::ClearBackSurface(void)
+{
+	if (m_lpBack == NULL) return;
+
+	if (Lock())
+	{
+
+
+		int sz = m_bitCount / 8;
+		int sizeX = sz * m_sizeX;
+
+		unsigned char* ptr = (unsigned char*)m_addr;
+
+		unsigned char col0 = 0;
+		unsigned char col1 = 0;
+		unsigned char col2 = 0;
+		unsigned char col3 = 0;
+
+		int type = 0;
+		if ((m_fillColorR == 0) && (m_fillColorG == 0) && (m_fillColorB == 0))
+		{
+		}
+		else
+		{
+			type = sz;
+			col0 = m_fillColorB;
+			col1 = m_fillColorG;
+			col2 = m_fillColorR;
+			col3 = 0;
+
+			if (m_bitCount == 2)
+			{
+				int col = 0;
+
+				if (m_565Flag)
+				{
+					col = (m_fillColorB >> 3) | ((m_fillColorG >> 2) << 5) | ((m_fillColorR >> 3) << 11);
+				}
+				else if (m_555Flag)
+				{
+					col = (m_fillColorB >> 3) | ((m_fillColorG >> 3) << 5) | ((m_fillColorR >> 3) << 10);
+				}
+
+				col0 = col & 0xff;
+				col1 = (col >> 8) & 0xff;
+			}
+		}
+
+		unsigned char* ptr0 = ptr;
+		for (int j=0;j<m_sizeY;j++)
+		{
+			ptr = ptr0;
+
+		//	memset(ptr,0x55,sizeX);
+			if (type == 0)
+			{
+				ZeroMemory(ptr,sizeX);
+			}
+			else if (type == 2)
+			{
+				for (int i=0;i<m_sizeX;i++)
+				{
+					*ptr = col0;
+					ptr++;
+					*ptr = col1;
+					ptr++;
+				}
+			}
+			else if (type == 3)
+			{
+				for (int i=0;i<m_sizeX;i++)
+				{
+					*ptr = col0;
+					ptr++;
+					*ptr = col1;
+					ptr++;
+					*ptr = col2;
+					ptr++;
+				}
+			}
+			else if (type == 4)
+			{
+				for (int i=0;i<m_sizeX;i++)
+				{
+					*ptr = col0;
+					ptr++;
+					*ptr = col1;
+					ptr++;
+					*ptr = col2;
+					ptr++;
+					*ptr = col3;
+					ptr++;
+				}
+			}
+
+			ptr0 += m_lPitch;
+		}
+
+		Unlock();
+	}
+}
+
+void CMyDirectDraw::SetOutColor(int r,int g,int b)
+{
+	m_fillColorR = r;
+	m_fillColorG = g;
+	m_fillColorB = b;
+}
 
 
 /*_*/

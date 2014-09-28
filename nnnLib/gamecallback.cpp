@@ -557,6 +557,13 @@ void CGameCallBack::GeneralCreate(void)
 //	m_viewOffsetY = m_viewControl->GetViewOffsetY();
 
 
+	int outerFillColorR = 0;
+	int outerFillColorG = 0;
+	int outerFillColorB = 0;
+	GetInitGameParam(&outerFillColorR,"outerFillColorR");
+	GetInitGameParam(&outerFillColorG,"outerFillColorG");
+	GetInitGameParam(&outerFillColorB,"outerFillColorB");
+	CMyDirectDraw::SetOutColor(outerFillColorR,outerFillColorG,outerFillColorB);
 
 
 	int notUseDirectDraw = m_systemFile->m_systemdata.notUseDirectDraw;

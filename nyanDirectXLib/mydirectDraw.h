@@ -60,6 +60,7 @@ public:
 	BOOL Restore(BOOL flg = TRUE);
 
 	static int m_notUseDirectDraw;
+	static void SetOutColor(int r,int g,int b);
 
 private:
 
@@ -117,7 +118,14 @@ private:
 
 	BOOL m_gdiFullScreenFlag;
 
+	int m_bitCount;
+	static int m_fillColorR;
+	static int m_fillColorG;
+	static int m_fillColorB;
+
 	void ErrorLog(LPSTR mes);
+	void ClearBackSurface(void);
+
 };
 
 #endif
