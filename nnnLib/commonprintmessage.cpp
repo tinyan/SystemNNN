@@ -1336,8 +1336,8 @@ frameTime = m_game->GetNowFrameCount();
 	{
 //		int messagePrintSpeed = GetAutoMessageSpeed();
 //		mojiTime = m_messageSpeedTable[messagePrintSpeed] * frameTime;
-//		mojiTime = m_autoMessageSpeedTable[m_autoMessagePrintSpeed] * frameTime;
-		mojiTime = m_autoMessageSpeedTable[m_messagePrintSpeed] * frameTime;
+		mojiTime = m_autoMessageSpeedTable[m_autoMessagePrintSpeed] * frameTime;
+//		mojiTime = m_autoMessageSpeedTable[m_messagePrintSpeed] * frameTime;
 	}
 	else
 	{

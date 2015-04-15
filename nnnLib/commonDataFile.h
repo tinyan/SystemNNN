@@ -173,7 +173,7 @@ public:
 		char sptFilename[32-16];	//未使用
 		char guid[16];
 //		char bgmFilename[32];	//未使用
-		short varcontrollayer[16];
+		short varcontrollayer[16];//16layer:short 32layer:(highByte = layer+16,lowByte=layer)
 
 		int m_PC;
 		int m_PC2;

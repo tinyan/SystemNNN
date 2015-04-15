@@ -113,6 +113,7 @@ class CScriptVoiceControl;
 class CAutoSaveDataList;
 class CAutoSaveSubData;
 class CFaceControl;
+class COkikaeData;
 
 class CViewControl;
 
@@ -810,6 +811,10 @@ public:
 
 	POINT GameToView(POINT pt);
 	CViewControl* GetViewControl(void){return m_viewControl;}
+
+	COkikaeData* GetOkikae(void){return m_okikaeData;}
+	void SetOkikaeMessage(int n,char* mes);
+	void SetSystemOkikaeMessage(int n,char* mes);
 
 
 protected:
@@ -1715,6 +1720,7 @@ protected:
 	int m_facePrintFlag;
 
 	CFaceControl* m_faceControl;
+	COkikaeData* m_okikaeData;
 
 	void SetAutoSaveSubClass(int type,CAutoSaveSubData* subClass);
 

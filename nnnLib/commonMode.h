@@ -48,7 +48,7 @@
 //38
 //39
 #define MINIGAME_MODE 40
-//41
+#define SELECTOBJECT_MODE 41
 //42
 //43
 //44

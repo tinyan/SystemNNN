@@ -6,6 +6,7 @@
 #define __NNNUTILLIB_SYSTEMFILE__
 
 
+#define OKIKAE_SYSTEM_MAX 100
 
 class CCommonSystemFile
 {
@@ -38,6 +39,9 @@ public:
 	virtual int GetCharaVoiceVolumeSlider(int chara);
 
 	virtual BOOL CreateGUID(BOOL existCheck = TRUE);
+
+	virtual char* GetOkikae(int n);
+	virtual void SetOkikae(int n,char* mes);
 
 //	void SetScene(int paraKosuu, int* paraPtr);
 //	void SetScene(int sceneNumber);
@@ -229,6 +233,18 @@ public:
 		int flag[256];
 	} MUSICFLAG;
 
+	typedef struct tagOKIKAE
+	{
+		int size;
+		int code;
+		int dummy;
+		int dummy2;
+
+		char message[16];
+
+		char okikae[64*OKIKAE_SYSTEM_MAX];
+	} OKIKAE;
+
 
 	SYSTEMDATAINFO m_dataHeader;	
 	SYSTEMDATA m_systemdata;
@@ -241,6 +257,7 @@ public:
 	VOICEFLAG m_voiceFlag;
 	MOVIEFLAG m_movieFlag;
 	MUSICFLAG m_musicFlag;
+	OKIKAE m_okikae;
 
 //	int GetSceneSubKosuuMax(int sceneNumber);
 //	int GetSceneSubKosuu(int sceneNumber);
@@ -284,6 +301,7 @@ public:
 	void ClearAllVoiceFlag(void);
 	void ClearAllMovieFlag(void);
 	void ClearAllMusicFlag(void);
+	void ClearAllOkikae(void);
 
 
 protected:

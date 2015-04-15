@@ -29,23 +29,27 @@ public:
 private:
 
 	int m_faceMax;
-	int m_face;
+	int m_face[2];
 	int m_facePicNumber;//dummy
 	int m_facePicSubNumber;
+	int m_facePrintNumber;
 
 	BOOL LoadPic(int face,int faceSubNumber);
+	BOOL LoadPlayer2Pic(int face,int faceSubNumber);
 	CNameList* m_nameList;
 
 	int* m_faceType;
 	CPicture* m_pic;
+	CPicture* m_player2Pic;
+
 
 	int m_maxSaveData;
 
 	LPSTR* m_customTagName;
 	int m_customTagFlag;
 
-	int m_printX;
-	int m_printY;
+	int m_printX[2];
+	int m_printY[2];
 	int m_sizeX;
 	int m_sizeY;
 	LPSTR m_tagName;
@@ -54,6 +58,10 @@ private:
 	int** m_faceParam;
 
 	int m_mustFace;
+	int m_koteiFace;
+	int m_koteiType;
+	BOOL m_koteiYoyaku;
+
 
 	BOOL GetInitGameParam(int* lpVar, LPSTR name,int initData);
 	BOOL GetInitGameParam(int* lpVar, LPSTR name);

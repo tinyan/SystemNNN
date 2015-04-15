@@ -10,6 +10,9 @@
 #include "..\nyanLib\include\areaControl.h"
 #include "..\nyanLib\include\picture.h"
 
+#include "..\nnnUtilLib\autoSaveSubData.h"
+#include "..\nnnUtilLib\okikaeData.h"
+
 #include "myfont.h"
 #include "rubiFont.h"
 
@@ -40,8 +43,8 @@
 #define OKIKAE_KYOCHO_END OKIKAE_RUBI_END
 
 
-//‚ß‚Á‚¹[‚¶‚Í‚P‚O‚±
-#define OKIKAE_MESSAGE 10
+#define OKIKAE_SYSTEM_MESSAGE 1000
+#define OKIKAE_MESSAGE 2000
 
 //ŠOŽš‚Í50‚±‚Ü‚Å
 #define OKIKAE_GAIJI 50
@@ -159,8 +162,9 @@ CMyMessage::COLORNAMETABLE CMyMessage::m_colorNameTable[100]=
 	{'I',0x000000},
 };
 
+//int CMyMessage::m_okikaeMessageMax = 0;
 
-char CMyMessage::m_numMessage[10][34]=
+char CMyMessage::m_numMessage[10][OKIKAE_MESSAGE_LENGTH+2]=
 {
 	"’u‚«Š·‚¦‚O",
 	"’u‚«Š·‚¦‚P",
@@ -173,6 +177,11 @@ char CMyMessage::m_numMessage[10][34]=
 	"’u‚«Š·‚¦‚W",
 	"’u‚«Š·‚¦‚X",
 };
+
+
+COkikaeData* CMyMessage::m_okikaeData = NULL;
+
+//char* CMyMessage::m_okikaeMessage = NULL;
 
 char CMyMessage::m_defaultKyochoMessage[] = "E";
 
@@ -240,6 +249,14 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 
 	int rubiFlag = 0;
 	int kyochoFlag = 0;
+
+	int okikaeMessageMax = 0;
+	int okikaeSystemMessageMax = 0;
+	if (m_okikaeData != NULL)
+	{
+		okikaeMessageMax = m_okikaeData->GetOkikaeMax();
+		okikaeSystemMessageMax = m_okikaeData->GetSystemOkikaeMax();
+	}
 
 	while (k<=ln)
 	{
@@ -322,6 +339,58 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 				continue;
 			}
 
+			if ((cmd >= OKIKAE_MESSAGE) && (cmd < OKIKAE_MESSAGE + okikaeMessageMax))
+			{
+				if (codeByte == 2)
+				{
+					k -= 2;
+					int newSkip = GetNewSkip(message+k);
+					int okikae = GetOkikae(message+k);
+					if (okikae < okikaeMessageMax)
+					{
+//						realLen += strlen(m_okikaeMessage + (OKIKAE_MESSAGE_LENGTH + 2) * okikae) / 2;
+						realLen += strlen(m_okikaeData->GetOkikaeMessage(okikae)) / 2;
+					}
+					else
+					{
+						//error
+					}
+					k += newSkip;
+				}
+				else
+				{
+					// not support
+				}
+
+				continue;
+			}
+
+			if ((cmd >= OKIKAE_SYSTEM_MESSAGE) && (cmd < OKIKAE_SYSTEM_MESSAGE + okikaeSystemMessageMax))
+			{
+				if (codeByte == 2)
+				{
+//					k -= 2;
+					int newSkip = GetNewSkip(message+k);
+					int okikae = GetOkikae(message+k);//‹¤’Ê‚Å‚¢‚¯‚é
+					if (okikae < okikaeSystemMessageMax)
+					{
+//						realLen += strlen(m_okikaeMessage + (OKIKAE_MESSAGE_LENGTH + 2) * okikae) / 2;
+						realLen += strlen(m_okikaeData->GetSystemOkikaeMessage(okikae)) / 2;
+					}
+					else
+					{
+						//error
+					}
+					k += newSkip;
+				}
+				else
+				{
+					// not support
+				}
+
+				continue;
+			}
+
 			if (cmd != 2)
 			{
 				continue;	//unknown
@@ -377,6 +446,61 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 	return realLen;
 
 }
+
+int CMyMessage::GetNewSkip(char* mes)
+{
+	short* ptr = (short*)mes;
+
+	int skip = 0;
+
+	while(skip < 4)
+	{
+		short d = *ptr;
+		int d0 = ((d>>8)& 0xff) | ((d<<8) & 0xff00);
+		d0 -= '‚O';
+		if ((d0 >= 0) && (d0 <= 9))
+		{
+			ptr += 1;
+			skip++;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return skip * 2;
+
+}
+
+int CMyMessage::GetOkikae(char* mes)
+{
+	short* ptr = (short*)mes;
+
+	int rt = 0;
+	int skip = 0;
+
+	while(skip < 4)
+	{
+		short d = *ptr;
+		int d0 = ((d>>8)& 0xff) | ((d<<8) & 0xff00);
+		d0 -= '‚O';
+		if ((d0 >= 0) && (d0 <= 9))
+		{
+			ptr += 1;
+			skip++;
+			rt *= 10;
+			rt += d0;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return rt;
+}
+
 
 
 //1s‚Ì‚Ý‘Î‰ž‚ÉC³
@@ -438,6 +562,14 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 	char orgMessage[MYMESSAGE_MAX];
 
 
+	int okikaeMessageMax = 0;
+	int okikaeSystemMessageMax = 0;
+	if (m_okikaeData != NULL)
+	{
+		okikaeMessageMax = m_okikaeData->GetOkikaeMax();
+		okikaeSystemMessageMax = m_okikaeData->GetSystemOkikaeMax();
+	}
+
 	int rubiKosuu = 0;
 
 	while (k<=ln)
@@ -457,6 +589,26 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 				short dt = *ptr;
 				cmd = GetCommand(dt);
+
+
+				if ((cmd >= OKIKAE_MESSAGE) && (cmd < OKIKAE_MESSAGE + okikaeMessageMax))
+				{
+					k -= 2;
+					int newSkip = GetNewSkip(message+k);
+					cmd = GetOkikae(message+k) + OKIKAE_MESSAGE;
+
+					k += newSkip;
+				}
+				else if ((cmd >= OKIKAE_SYSTEM_MESSAGE) && (cmd < OKIKAE_SYSTEM_MESSAGE + okikaeSystemMessageMax))
+				{
+					int newSkip = GetNewSkip(message+k);
+					cmd = GetOkikae(message+k) + OKIKAE_SYSTEM_MESSAGE;
+					k += newSkip;
+				}
+
+
+
+
 			}
 			else
 			{
@@ -466,6 +618,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				dt <<= 8;
 
 				cmd = GetCommand(dt);
+				//’u‚«Š·‚¦•¶Žš—ñ‚Ìê‡‚³‚ç‚ÉƒXƒLƒbƒv–¢ŽÀ‘•
 			}
 
 			if (cmd == OKIKAE_SEI)
@@ -722,20 +875,48 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 
 
-			if ((cmd >= OKIKAE_MESSAGE) && (cmd<(OKIKAE_MESSAGE+10)))
+			if ((cmd >= OKIKAE_MESSAGE) && (cmd<(OKIKAE_MESSAGE+okikaeMessageMax)))
 			{
-				int ln3 = strlen(&m_numMessage[cmd-10][0]) / 2;
-				if ((nowLen + ln3) <= MYMESSAGE_MAX)
+//				int ln3 = strlen(&m_numMessage[cmd-OKIKAE_MESSAGE][0]) / 2;
+				if (m_okikaeData != NULL)
 				{
-					memcpy(m_messageWork + 2 * nowLen,&m_numMessage[cmd-10][0],ln3*2);
-					if (bNewCol)
+					char* okikaeMessage = m_okikaeData->GetOkikaeMessage(cmd-OKIKAE_MESSAGE);
+					int ln3 = strlen(okikaeMessage) / 2;
+					if ((nowLen + ln3) <= MYMESSAGE_MAX)
 					{
-						for (int i=0;i<ln3;i++)
+						memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+						if (bNewCol)
 						{
-							m_colorPtr[nowLen+i] = col;
+							for (int i=0;i<ln3;i++)
+							{
+								m_colorPtr[nowLen+i] = col;
+							}
 						}
+						nowLen += ln3;
 					}
-					nowLen += ln3;
+				}
+				continue;
+			}
+
+			if ((cmd >= OKIKAE_SYSTEM_MESSAGE) && (cmd<(OKIKAE_SYSTEM_MESSAGE+okikaeSystemMessageMax)))
+			{
+//				int ln3 = strlen(&m_numMessage[cmd-OKIKAE_MESSAGE][0]) / 2;
+				if (m_okikaeData != NULL)
+				{
+					char* okikaeMessage = m_okikaeData->GetSystemOkikaeMessage(cmd-OKIKAE_SYSTEM_MESSAGE);
+					int ln3 = strlen(okikaeMessage) / 2;
+					if ((nowLen + ln3) <= MYMESSAGE_MAX)
+					{
+						memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+						if (bNewCol)
+						{
+							for (int i=0;i<ln3;i++)
+							{
+								m_colorPtr[nowLen+i] = col;
+							}
+						}
+						nowLen += ln3;
+					}
 				}
 				continue;
 			}
@@ -1111,6 +1292,7 @@ int CMyMessage::GetCommand(short d)
 	int owari1byte = 'e';
 
 	int nums[10] = {'‚O','‚P','‚Q','‚R','‚S','‚T','‚U','‚V','‚W','‚X'};
+	int systemOkikae = 'ƒV';
 
 	sei &= 0xffff;
 	mei &= 0xffff;
@@ -1145,6 +1327,8 @@ int CMyMessage::GetCommand(short d)
 	{
 		if (d0 == nums[i]) return i+OKIKAE_MESSAGE;
 	}
+
+	if (d0 == systemOkikae) return OKIKAE_SYSTEM_MESSAGE;
 
 //	int dd = (int)d;
 //	dd &= 0xffff;
@@ -1245,6 +1429,53 @@ int CMyMessage::GetRubiFontSize(void)
 
 	return 12;//dummy@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 }
+/*
+void CMyMessage::InitStaticData(int param)
+{
+	int messageMax = 100;
+	if (param != -1)
+	{
+		messageMax = param;
+	}
+
+	m_okikaeMessageMax = messageMax;
+	m_okikaeMessage = new char[(OKIKAE_MESSAGE_LENGTH+2) * messageMax];
+
+	for (int i=0;i<messageMax;i++)
+	{
+		int k = i;
+		if (k>10) k= 0;
+		char* src = m_numMessage[k];
+		char* dst = m_okikaeMessage + (OKIKAE_MESSAGE_LENGTH+2) * i;
+		memcpy(dst,src,OKIKAE_MESSAGE_LENGTH+2);
+	}
+}
+
+
+void CMyMessage::ReleaseStaticData(void)
+{
+	DELETEARRAY(m_okikaeMessage);
+}
+*/
+
+char* CMyMessage::GetOkikaeMessage(int n)
+{
+	if (m_okikaeData != NULL)
+	{
+		return m_okikaeData->GetOkikaeMessage(n);
+	}
+
+	return NULL;//error
+}
+
+void CMyMessage::SetOkikaeMessage(int n,char* mes)
+{
+	if (m_okikaeData != NULL)
+	{
+		m_okikaeData->SetOkikaeMessage(n,mes);
+	}
+}
+
 
 
 /*_*/

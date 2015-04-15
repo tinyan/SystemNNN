@@ -113,6 +113,7 @@
 
 #include "..\nnnUtilLib\autoSaveSubData.h"
 #include "..\nnnUtilLib\faceControl.h"
+#include "..\nnnUtilLib\OkikaeData.h"
 
 
 
@@ -198,6 +199,7 @@
 #include "commonSelectScene.h"
 #include "commonSelectSceneChara.h"
 #include "commonSelectPlace.h"
+#include "commonSelectObject.h"
 #include "commonPrintCG.h"
 #include "commonSelectZukan.h"
 #include "commonSelectMovieChara.h"
@@ -601,6 +603,22 @@ void CGameCallBack::GeneralCreate(void)
 //	int realWindowSizeY = 768;
 
 	m_myGraphics = new CMyGraphics(m_windowSizeX,m_windowSizeY,notUseDirectDraw);
+	int okikaeMax = 100;
+	GetInitGameParam(&m_autoDebugWait,"okikae");
+	m_okikaeData = new COkikaeData(okikaeMax);
+	for (int i=0;i<100;i++)
+	{
+		char* okikaeMessage = m_systemFile->GetOkikae(i);
+		if (okikaeMessage != NULL)
+		{
+			m_okikaeData->SetSystemOkikaeMessage(i,okikaeMessage);
+		}
+	}
+
+
+
+	CMyMessage::m_okikaeData = m_okikaeData;
+	SetAutoSaveSubClass(m_autoSaveDataList->SearchName("okikae"),m_okikaeData);
 
 
 //	CMyGraphics::SetScreenBufferSize(m_windowSizeX,m_windowSizeY);
@@ -781,6 +799,21 @@ void CGameCallBack::GeneralCreate(void)
 			m_autoExtSubDataLoadKosuu++;
 		}
 	}
+
+	if (TRUE)
+	{
+		int s = m_autoSaveDataList->SearchName("okikae");
+
+		if (s > 0)
+		{
+			m_autoExtDataLoadSub[m_autoExtSubDataLoadKosuu] = s;
+			m_autoExtSubDataLoadKosuu++;
+		}
+	}
+
+
+
+
 
 	m_clearAutoAfterLoad = 0;
 	GetInitGameParam(&m_clearAutoAfterLoad,"clearAutoAfterLoad");
@@ -3269,7 +3302,9 @@ ENDDELETECLASS(m_waveData);	//dummy
 
 //OutputDebugString("ReleaseStaticData() 1;\n");
 
+//	CMyMessage::ReleaseStaticData();
 
+	ENDDELETECLASS(m_okikaeData);
 	ENDDELETECLASS(m_myGraphics);
 
 //OutputDebugString("ReleaseStaticData() 2;\n");
@@ -4991,9 +5026,26 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 
 	m_renameLayer = lp->renameLayer;
 
-	for (int i=0;i<m_layerKosuuMax;i++)
+	if (m_layerKosuuMax == 32)
 	{
-		m_varControlLayer[i] = lp->varcontrollayer[i];
+		for (int i=0;i<m_layerKosuuMax;i++)
+		{
+			if (i < 16)
+			{
+				m_varControlLayer[i] = (short)(char)(lp->varcontrollayer[i] & 0xff);
+			}
+			else
+			{
+				m_varControlLayer[i] = (short)(char)((lp->varcontrollayer[i-16] >> 8)& 0xff);
+			}
+		}
+	}
+	else
+	{
+		for (int i=0;i<m_layerKosuuMax;i++)
+		{
+			m_varControlLayer[i] = lp->varcontrollayer[i];
+		}
 	}
 
 	m_controlScript->SetPC(lp->m_PC);
@@ -5360,9 +5412,21 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	lp->cannotSkip = m_cannotSkip;
 	lp->renameLayer = m_renameLayer;
 
-	for (int i=0;i<m_layerKosuuMax;i++)
+	if (m_layerKosuuMax == 32)
 	{
-		lp->varcontrollayer[i] = m_taihiVarControlLayer[i];
+		for (int i=0;i<m_layerKosuuMax/2;i++)
+		{
+			int d = (m_taihiVarControlLayer[i] & 0xff) | ((m_taihiVarControlLayer[i+16] << 8) & 0xff00);
+			lp->varcontrollayer[i] = (short)d;
+		}
+
+	}
+	else
+	{
+		for (int i=0;i<m_layerKosuuMax;i++)
+		{
+			lp->varcontrollayer[i] = m_taihiVarControlLayer[i];
+		}
 	}
 
 
@@ -8973,6 +9037,10 @@ void CGameCallBack::SystemFunctionStartKoma(int para1,LPVOID para2)
 {
 	//if have message ID then read flag,and F4
 
+	if (m_faceControl != NULL)
+	{
+		m_faceControl->Clear();
+	}
 
 	int paraKosuu = para1;
 	if (paraKosuu>0)
@@ -11961,6 +12029,9 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 	case SELECTPLACE2_MODE:
 		general = new CCommonSelectPlace(this,1);
 		break;
+	case SELECTOBJECT_MODE:
+		general = new CCommonSelectObject(this);
+		break;
 	case PRINTCG_MODE:
 		general = new CCommonPrintCG(this);
 		break;
@@ -13760,6 +13831,7 @@ void CGameCallBack::SetLastSaveOkGameMode(int md)
 	if (md == PRINTMESSAGE_MODE) flg = TRUE;
 	if (md == SELECTMESSAGE_MODE) flg = TRUE;
 	if (md == SELECTPLACE_MODE) flg = TRUE;
+	if (md == SELECTOBJECT_MODE) flg = TRUE;
 	if ((md >= SELECTPLACE2_MODE) && (md < (SELECTPLACE2_MODE+5))) flg = TRUE;
 	if (md == SELECTHEROIN_MODE) flg = TRUE;
 	if ((md >= 50) && (md<=99)) flg = TRUE;
@@ -15155,6 +15227,23 @@ BOOL CGameCallBack::CheckNameIsSpecialVoice(void)
 	}
 	
 	return f;
+}
+
+void CGameCallBack::SetOkikaeMessage(int n,char* mes)
+{
+	if (m_okikaeData != NULL)
+	{
+		m_okikaeData->SetOkikaeMessage(n,mes);
+	}
+}
+
+void CGameCallBack::SetSystemOkikaeMessage(int n,char* mes)
+{
+	m_systemFile->SetOkikae(n,mes);
+	if (m_okikaeData != NULL)
+	{
+		m_okikaeData->SetSystemOkikaeMessage(n,mes);
+	}
 }
 
 

@@ -20,6 +20,7 @@
 
 
 
+
 char CCommonSystemFile::m_saveFileNameNormal[] = "sysfile";
 char CCommonSystemFile::m_saveFileNameTaiken[] = "tsysfile";
 
@@ -166,6 +167,12 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 		fread(&m_musicFlag.code,sizeof(char),m_musicFlag.size-4,file);
 	}
 
+	if (dataKosuu>10)
+	{
+		fread(&m_okikae.size,sizeof(m_okikae.size),1,file);
+		fread(&m_okikae.code,sizeof(char),m_okikae.size-4,file);
+	}
+
 	fclose(file);
 
 	return TRUE;
@@ -185,11 +192,12 @@ void CCommonSystemFile::CreateInitData(void)
 	ZeroMemory(&m_voiceFlag,sizeof(m_voiceFlag));
 	ZeroMemory(&m_movieFlag,sizeof(m_movieFlag));
 	ZeroMemory(&m_musicFlag,sizeof(m_musicFlag));
+	ZeroMemory(&m_okikae,sizeof(m_okikae));
 
 	//Make Info
 	m_dataHeader.size = sizeof(m_dataHeader);
 	m_dataHeader.code = 0;	//dummy
-	m_dataHeader.dataKosuu = 10;
+	m_dataHeader.dataKosuu = 11;
 	CopyMemory(&m_dataHeader.message[0],"FILE INFO      ",16);
 
 
@@ -321,6 +329,10 @@ void CCommonSystemFile::CreateInitData(void)
 	m_musicFlag.size = sizeof(m_musicFlag);
 	m_musicFlag.code = 12;
 	CopyMemory(m_musicFlag.message,"MUSICFLAG      ",16);
+
+	m_okikae.size = sizeof(m_okikae);
+	m_okikae.code = 13;
+	CopyMemory(m_okikae.message,"OKIKAE         ",16);
 }
 
 BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
@@ -328,7 +340,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 
-	m_dataHeader.dataKosuu = 10;
+	m_dataHeader.dataKosuu = 11;
 
 	m_systemdata.year = st.wYear;
 	m_systemdata.month = st.wMonth;
@@ -379,6 +391,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	fwrite(&m_voiceFlag,sizeof(m_voiceFlag),1,file);
 	fwrite(&m_movieFlag,sizeof(m_movieFlag),1,file);
 	fwrite(&m_musicFlag,sizeof(m_musicFlag),1,file);
+	fwrite(&m_okikae,sizeof(m_okikae),1,file);
 
 	fclose(file);
 
@@ -680,6 +693,32 @@ int CCommonSystemFile::GetCharaVoiceVolumeSlider(int chara)
 	return d;
 }
 
+char* CCommonSystemFile::GetOkikae(int n)
+{
+	if ((n>=0) && (n<OKIKAE_SYSTEM_MAX))
+	{
+		return &(m_okikae.okikae[64*n]);
+	}
+
+	return NULL;
+}
+
+void CCommonSystemFile::SetOkikae(int n,char* mes)
+{
+	if (mes == NULL) return;
+
+	if ((n>=0) && (n<OKIKAE_SYSTEM_MAX))
+	{
+		char* ptr = &(m_okikae.okikae[64*n]);
+		int ln = strlen(mes);
+		if (ln>32) ln = 32;
+		memcpy(ptr,mes,ln);
+		*(ptr+ln) = 0;
+		*(ptr+ln+1) = 0;
+	}
+}
+
+
 
 void CCommonSystemFile::ClearAllCGFlag(void)
 {
@@ -727,6 +766,13 @@ void CCommonSystemFile::ClearAllMusicFlag(void)
 {
 	LPVOID ptr = &(m_musicFlag.flag);
 	int sz = sizeof(m_musicFlag.flag);
+	ZeroMemory(ptr,sz);
+}
+
+void CCommonSystemFile::ClearAllOkikae(void)
+{
+	LPVOID ptr = &(m_okikae.okikae);
+	int sz = sizeof(m_okikae.okikae);
 	ZeroMemory(ptr,sz);
 }
 

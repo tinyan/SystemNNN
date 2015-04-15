@@ -13,12 +13,15 @@
 #include "..\nyanLib\include\picture.h"
 #include "..\nyanLib\include\areaControl.h"
 
+
+
 #if defined _TINYAN3DLIB_
 #include "..\..\systemNNN3D\nyanDirectX3DLib\commonShader.h"
 #endif
 
 #include "commonEffect.h"
 #include "allEffect.h"
+#include "..\nyanLib\include\effect.h"
 
 #include "effectList.h"
 
@@ -574,7 +577,9 @@ void CAllEffect::ClearMakeCGEffect(int n)
 
 void CAllEffect::SetLayerScript(int n,int d)
 {
-	if ((n<0) || (n>15)) return;
+	int layerMax = CEffect::m_layerKosuuMaxSetup;
+
+	if ((n<0) || (n>=layerMax)) return;
 
 	m_effect[n].flag = TRUE;
 	m_effect[n].pic = d;
@@ -1011,7 +1016,9 @@ void CAllEffect::ResetCount(int n)
 	if (n == -1)
 	{
 		st = 0;
-		ed = 15;
+		int layerMax = CEffect::m_layerKosuuMaxSetup;
+
+		ed = layerMax-1;
 	}
 
 	for (int i=st;i<=ed;i++)
@@ -1148,7 +1155,9 @@ BOOL CAllEffect::ResizePicture(int n, int sizeX, int sizeY)
 		sizeY = CMyGraphics::GetScreenSizeY();
 	}
 
-	if ((n>=0) && (n<=15))
+	int pictureMax = CEffect::m_pictureKosuuMaxSetup;
+
+	if ((n>=0) && (n<=pictureMax))
 	{
 		CPicture* pic = m_pic[n];
 		if (pic != NULL)
@@ -1210,7 +1219,10 @@ BOOL CAllEffect::SetEffectScript(int num,int effect,int paraKosuu,int* paraPtr)
 //char mes[256];
 //sprintf(mes,"[E=%d]",effect);
 //OutputDebugString(mes);
-	if ((num<0) || (num>15)) return FALSE;
+
+	int layerMax = CEffect::m_layerKosuuMaxSetup;
+
+	if ((num<0) || (num>=layerMax)) return FALSE;
 
 	if (effect == -1)
 	{

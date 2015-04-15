@@ -8,6 +8,9 @@
 class CPicture;
 class CMyFont;
 class CRubiFont;
+class COkikaeData;
+
+#define OKIKAE_MESSAGE_LENGTH 32
 
 class CMyMessage
 {
@@ -23,7 +26,10 @@ public:
 
 	int GetMessageRealLength(LPSTR message);
 
+	//static void InitStaticData(int param = -1);
+	//static void ReleaseStaticData(void);
 
+	//static int m_okikaeMessageMax;
 
 	static char m_sei[16];
 	static char m_mei[16];
@@ -33,10 +39,14 @@ public:
 	static COLORREF m_colorPtr[];
 	static char m_messageWork[];
 
-	static char m_numMessage[10][34];
+	static char m_numMessage[10][OKIKAE_MESSAGE_LENGTH+2];
 //	static short m_rubiWork[][32];
 //	static int m_rubiColor[][32];
 //	static int m_rubiZahyo[][32];
+
+//	static char* m_okikaeMessage;
+
+	static COkikaeData* m_okikaeData;
 
 	static char m_userGaiji[31*2];
 	typedef struct _tagCOLORNAMETABLE
@@ -55,6 +65,9 @@ public:
 
 	static int m_santenCheckFlag;
 	static int m_dashCheckFlag;
+
+	static char* GetOkikaeMessage(int n);
+	static void SetOkikaeMessage(int n,char* mes);
 
 	void SetUserGaiji(LPSTR gaijiList);
 protected:
@@ -80,6 +93,8 @@ private:
 
 	static char m_defaultKyochoMessage[];
 
+	int GetNewSkip(char* mes);
+	int GetOkikae(char* mes);
 
 
 };

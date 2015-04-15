@@ -19,6 +19,7 @@ CCommonUserCommandList::NNNUSERCOMMANDLIST CCommonUserCommandList::m_list[]=
 	{SELECTPLACE2_MODE,"selectplace2"},
 	{SELECTZUKAN_MODE,"selectzukan"},
 	{CARDSYSTEM_MODE,"cardsystem"},
+	{SELECTOBJECT_MODE,"selectobject"},
 
 	{-1,""},
 };

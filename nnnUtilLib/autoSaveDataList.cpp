@@ -8,6 +8,7 @@ char CAutoSaveDataList::m_list[][32]=
 	"dummy",
 
 	"face",
+	"okikae",
 
 	"",//endmark
 };

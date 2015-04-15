@@ -16,6 +16,7 @@
 #include "include\allGeo.h"
 #include "include\allPicture.h"
 
+
 int* CMyGraphics::m_lpScreenBuffer = NULL;
 int* CMyGraphics::m_commonX8Buffer = NULL;
 SIZE CMyGraphics::m_screenSize = {800,600};
