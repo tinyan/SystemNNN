@@ -20,6 +20,8 @@ CCommonUserCommandList::NNNUSERCOMMANDLIST CCommonUserCommandList::m_list[]=
 	{SELECTZUKAN_MODE,"selectzukan"},
 	{CARDSYSTEM_MODE,"cardsystem"},
 	{SELECTOBJECT_MODE,"selectobject"},
+	{PRINTACHIEVEMENT_MODE,"printachievement"},
+	{PRINTTERM_MODE,"printterm"},
 
 	{-1,""},
 };

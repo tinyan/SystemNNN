@@ -57,6 +57,26 @@ CCommonNothing::CCommonNothing(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 	m_startupJumpScriptFlag = 0;
 	GetInitGameParam(&m_startupJumpScriptFlag,"startupJumpScriptFlag");
+
+	LPSTR limitVarName = NULL;
+	if (GetInitGameString(&limitVarName,"limitVar1"))
+	{
+		int var = m_game->GetVarNumber(limitVarName);
+		if (var != -1)
+		{
+			int limitVarData = 1;
+			GetInitGameParam(&limitVarData,"limitData1");
+			int old = m_game->GetVarData(var);
+			if (limitVarData > old)
+			{
+				m_game->SetVarData(var,limitVarData);
+				char mes[256];
+				sprintf_s(mes,256,"limitvar %d %d",var,limitVarData);
+				OutputDebugString(mes);
+			}
+		}
+	}
+
 }
 
 

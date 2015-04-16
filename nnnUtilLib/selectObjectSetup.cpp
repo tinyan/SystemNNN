@@ -22,6 +22,20 @@ CSelectObjectSetup::CSelectObjectSetup(int n)
 	GetInitGameString(&m_filenameBG,"filenameBG");
 
 
+	m_addPrintX = 0;
+	m_addPrintY = 0;
+	GetInitGameParam(&m_addPrintX,"addPrintX");
+	GetInitGameParam(&m_addPrintY,"addPrintY");
+
+	m_addPrint = new POINT[m_objectNumber+1];
+	POINT pt;
+	pt.x = 0;
+	pt.y = 0;
+	for (int i=0;i<m_objectNumber;i++)
+	{
+		m_addPrint[i] = pt;
+	}
+
 	m_placeExistVarNumber = new int[m_objectNumber+1];
 	m_placeSelectOkVarNumber = new int[m_objectNumber+1];
 	for (int i=0;i<m_objectNumber;i++)
@@ -50,6 +64,7 @@ void CSelectObjectSetup::End(void)
 	DELETEARRAY(m_addVarNumber);
 	DELETEARRAY(m_placeSelectOkVarNumber);
 	DELETEARRAY(m_placeExistVarNumber);
+	DELETEARRAY(m_addPrint);
 	ENDDELETECLASS(m_nameList);
 }
 
@@ -84,6 +99,23 @@ BOOL CSelectObjectSetup::GetInitGameString(LPSTR* lpStr, LPSTR name)
 
 	return TRUE;
 }
+
+POINT CSelectObjectSetup::GetAddPrint(int n)
+{
+	POINT pt;
+	pt.x = 0;
+	pt.y = 0;
+	if ((n>=0) && (n<m_objectNumber))
+	{
+		pt = m_addPrint[n];
+	}
+
+	pt.x += m_addPrintX;
+	pt.y += m_addPrintY;
+
+	return pt;
+}
+
 
 /*_*/
 

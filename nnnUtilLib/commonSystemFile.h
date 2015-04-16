@@ -43,6 +43,11 @@ public:
 	virtual char* GetOkikae(int n);
 	virtual void SetOkikae(int n,char* mes);
 
+	virtual void SetAchievement(int n,int ps = 100);
+	virtual int GetAchievement(int n);
+	virtual void SetTerm(int n,BOOL flag = TRUE);
+	virtual BOOL GetTerm(int n);
+
 //	void SetScene(int paraKosuu, int* paraPtr);
 //	void SetScene(int sceneNumber);
 
@@ -245,6 +250,30 @@ public:
 		char okikae[64*OKIKAE_SYSTEM_MAX];
 	} OKIKAE;
 
+	typedef struct tagACHIEVEMENT
+	{
+		int size;
+		int code;
+		int dummy;
+		int dummy2;
+
+		char message[16];
+
+		int achievement[1024];
+	} ACHIEVEMENT;
+
+	typedef struct tagNNNTERM
+	{
+		int size;
+		int code;
+		int dummy;
+		int dummy2;
+
+		char message[16];
+
+		int term[1024];
+	} NNNTERM;
+
 
 	SYSTEMDATAINFO m_dataHeader;	
 	SYSTEMDATA m_systemdata;
@@ -258,6 +287,8 @@ public:
 	MOVIEFLAG m_movieFlag;
 	MUSICFLAG m_musicFlag;
 	OKIKAE m_okikae;
+	ACHIEVEMENT m_achievement;
+	NNNTERM m_term;
 
 //	int GetSceneSubKosuuMax(int sceneNumber);
 //	int GetSceneSubKosuu(int sceneNumber);
@@ -302,6 +333,9 @@ public:
 	void ClearAllMovieFlag(void);
 	void ClearAllMusicFlag(void);
 	void ClearAllOkikae(void);
+	void ClearAllAchievement(void);
+	void ClearAllTerm(void);
+
 
 
 protected:

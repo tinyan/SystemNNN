@@ -434,8 +434,11 @@ int CCommonSelectObject::Init(void)
 
 				//zahyo
 				POINT pt = m_placeButtonGroup->GetZahyo(place-1);
+				POINT pt2 = setup->GetAddPrint(i);
 				pt.x += m_addPrintX;
 				pt.y += m_addPrintY;
+				pt.x += pt2.x;
+				pt.y += pt2.y;
 				m_charaButtonGroup->SetZahyo(i,pt);
 
 				//enable
@@ -726,7 +729,7 @@ int CCommonSelectObject::Calcu(void)
 			int objectNumber = setup->m_objectNumber;
 			for (int i=0;i<objectNumber;i++)
 			{
-				if (m_chara[i] == nm)
+				if (m_chara[i] == nm + 1)
 				{
 					m_selectedNumber = i;
 					m_exitModeFlag = TRUE;

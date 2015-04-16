@@ -200,6 +200,8 @@
 #include "commonSelectSceneChara.h"
 #include "commonSelectPlace.h"
 #include "commonSelectObject.h"
+#include "commonPrintAchievement.h"
+#include "commonPrintTerm.h"
 #include "commonPrintCG.h"
 #include "commonSelectZukan.h"
 #include "commonSelectMovieChara.h"
@@ -2572,6 +2574,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		GetInitGameParam(&m_autoResultNotice,"autoResultNotice");
 	}
 
+	m_setachievementFunction = m_functionList->SearchBlock("setachievement");
 
 	m_gameUtil = new CGameUtil();
 	m_gameUtil->SetScreenSize(screenSizeX,screenSizeY);
@@ -3512,6 +3515,13 @@ void CGameCallBack::ReceiveUserFunction0(int cmd, int paraKosuu, int* paraPtr)
 			}
 		}
 	}
+
+	if (cmd == m_setachievementFunction)
+	{
+		proceed = TRUE;
+		SystemFunctionSetAchievement(paraKosuu,paraPtr);
+	}
+
 
 	if (cmd == m_setresultFunction)
 	{
@@ -8009,6 +8019,46 @@ void CGameCallBack::PreReceiveScriptData(int cmd, int para1, LPVOID para2)
 }
 
 //////////////////////////////////
+void CGameCallBack::SystemFunctionSetAchievement(int para1,LPVOID para2)
+{
+	int paraKosuu = para1;
+	int* pData = (int*)para2;
+
+	int achievement = 0;
+	int ps = 100;
+	if (paraKosuu>0)
+	{
+		achievement = *pData;;
+	}
+	if (paraKosuu > 1)
+	{
+		ps = *(pData+1);
+	}
+
+	if (achievement == -1)
+	{
+		m_systemFile->ClearAllAchievement();
+		return;
+	}
+
+	m_systemFile->SetAchievement(achievement,ps);
+	CCommonPrintAchievement* general = (CCommonPrintAchievement*)m_general[PRINTACHIEVEMENT_MODE];
+	if (general != NULL)
+	{
+		general->AchievementChanged(achievement,ps);
+	}
+}
+
+int CGameCallBack::GetAchievement(int achievement)
+{
+	return m_systemFile->GetAchievement(achievement);
+}
+
+void CGameCallBack::SetAchievement(int achievement,int ps)
+{
+	m_systemFile->SetAchievement(achievement,ps);
+}
+
 void CGameCallBack::SystemFunctionSetCG(int para1,LPVOID para2)
 {
 	int paraKosuu = para1;
@@ -12032,6 +12082,12 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 	case SELECTOBJECT_MODE:
 		general = new CCommonSelectObject(this);
 		break;
+	case PRINTACHIEVEMENT_MODE:
+		general = new CCommonPrintAchievement(this);
+		break;
+	case PRINTTERM_MODE:
+		general = new CCommonPrintTerm(this);
+		break;
 	case PRINTCG_MODE:
 		general = new CCommonPrintCG(this);
 		break;
@@ -13832,6 +13888,7 @@ void CGameCallBack::SetLastSaveOkGameMode(int md)
 	if (md == SELECTMESSAGE_MODE) flg = TRUE;
 	if (md == SELECTPLACE_MODE) flg = TRUE;
 	if (md == SELECTOBJECT_MODE) flg = TRUE;
+	if (md == PRINTTERM_MODE) flg = TRUE;
 	if ((md >= SELECTPLACE2_MODE) && (md < (SELECTPLACE2_MODE+5))) flg = TRUE;
 	if (md == SELECTHEROIN_MODE) flg = TRUE;
 	if ((md >= 50) && (md<=99)) flg = TRUE;

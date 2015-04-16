@@ -173,6 +173,18 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 		fread(&m_okikae.code,sizeof(char),m_okikae.size-4,file);
 	}
 
+	if (dataKosuu>11)
+	{
+		fread(&m_achievement.size,sizeof(m_achievement.size),1,file);
+		fread(&m_achievement.code,sizeof(char),m_achievement.size-4,file);
+	}
+
+	if (dataKosuu>12)
+	{
+		fread(&m_term.size,sizeof(m_term.size),1,file);
+		fread(&m_term.code,sizeof(char),m_term.size-4,file);
+	}
+
 	fclose(file);
 
 	return TRUE;
@@ -193,6 +205,8 @@ void CCommonSystemFile::CreateInitData(void)
 	ZeroMemory(&m_movieFlag,sizeof(m_movieFlag));
 	ZeroMemory(&m_musicFlag,sizeof(m_musicFlag));
 	ZeroMemory(&m_okikae,sizeof(m_okikae));
+	ZeroMemory(&m_achievement,sizeof(m_achievement));
+	ZeroMemory(&m_term,sizeof(m_term));
 
 	//Make Info
 	m_dataHeader.size = sizeof(m_dataHeader);
@@ -333,6 +347,14 @@ void CCommonSystemFile::CreateInitData(void)
 	m_okikae.size = sizeof(m_okikae);
 	m_okikae.code = 13;
 	CopyMemory(m_okikae.message,"OKIKAE         ",16);
+
+	m_achievement.size = sizeof(m_achievement);
+	m_achievement.code = 14;
+	CopyMemory(m_achievement.message,"ACHIEVEMENT    ",16);
+
+	m_term.size = sizeof(m_term);
+	m_term.code = 15;
+	CopyMemory(m_term.message,"TERM           ",16);
 }
 
 BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
@@ -340,7 +362,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 
-	m_dataHeader.dataKosuu = 11;
+	m_dataHeader.dataKosuu = 13;
 
 	m_systemdata.year = st.wYear;
 	m_systemdata.month = st.wMonth;
@@ -392,7 +414,9 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	fwrite(&m_movieFlag,sizeof(m_movieFlag),1,file);
 	fwrite(&m_musicFlag,sizeof(m_musicFlag),1,file);
 	fwrite(&m_okikae,sizeof(m_okikae),1,file);
-
+	fwrite(&m_achievement,sizeof(m_achievement),1,file);
+	fwrite(&m_term,sizeof(m_term),1,file);
+	
 	fclose(file);
 
 	return TRUE;
@@ -719,6 +743,49 @@ void CCommonSystemFile::SetOkikae(int n,char* mes)
 }
 
 
+void CCommonSystemFile::SetAchievement(int n,int ps)
+{
+	if ((n>=0) && (n<1024))
+	{
+		m_achievement.achievement[n] = ps;
+	}
+}
+
+int CCommonSystemFile::GetAchievement(int n)
+{
+	if ((n>=0) && (n<1024))
+	{
+		return m_achievement.achievement[n];
+	}
+	return 0;
+}
+
+void CCommonSystemFile::SetTerm(int n,BOOL flag)
+{
+	if ((n>=0) && (n<1024))
+	{
+		int d = m_term.term[n];
+		if (flag)
+		{
+			d |= 1;
+		}
+		else
+		{
+			d &= ~1;
+		}
+		m_term.term[n] = d;
+	}
+}
+
+BOOL CCommonSystemFile::GetTerm(int n)
+{
+	if ((n>=0) && (n<1024))
+	{
+		if (m_term.term[n] & 1) return TRUE;
+	}
+	return FALSE;
+}
+
 
 void CCommonSystemFile::ClearAllCGFlag(void)
 {
@@ -773,6 +840,20 @@ void CCommonSystemFile::ClearAllOkikae(void)
 {
 	LPVOID ptr = &(m_okikae.okikae);
 	int sz = sizeof(m_okikae.okikae);
+	ZeroMemory(ptr,sz);
+}
+
+void CCommonSystemFile::ClearAllAchievement(void)
+{
+	LPVOID ptr = &(m_achievement.achievement);
+	int sz = sizeof(m_achievement.achievement);
+	ZeroMemory(ptr,sz);
+}
+
+void CCommonSystemFile::ClearAllTerm(void)
+{
+	LPVOID ptr = &(m_term.term);
+	int sz = sizeof(m_term.term);
 	ZeroMemory(ptr,sz);
 }
 

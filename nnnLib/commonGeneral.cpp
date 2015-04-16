@@ -1197,7 +1197,7 @@ void CCommonGeneral::CreateEnterScreen(void)
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
 	CreateStartScreen();
-OutputDebugString("[[commongeneral enterscreen::getscreen]]");
+//OutputDebugString("[[commongeneral enterscreen::getscreen]]");
 	m_enterScreen->GetScreen();
 
 	//•K—v‚È‚çexitScreen‚Ê‚è‚Â‚Ô‚µ

@@ -785,6 +785,9 @@ public:
 	void StopReplayVoice(int fadeTime = 0);
 
 	void SetCG(int cgPlayer,int cgParam);
+	void SetAchievement(int achievement,int param=100);
+	int GetAchievement(int achievement);
+
 
 	BOOL CheckMessageWindowFlag(void){return m_messageWindowPrintFlag;}
 	void SetMessageWindowFlag(BOOL flg = TRUE){m_messageWindowPrintFlag = flg;}
@@ -1090,7 +1093,8 @@ protected:
 	int m_noticeFunction;
 	int m_getresultFunction;
 	int m_setresultFunction;
-	
+	int m_setachievementFunction;
+
 	int m_useSaijitsu;
 	CSaijitsuList* m_saijitsuList;
 
@@ -1464,6 +1468,7 @@ protected:
 
 	CShakin* m_shakinControl;
 
+	void SystemFunctionSetAchievement(int para1,LPVOID para2);
 	void SystemFunctionSetCG(int para1,LPVOID para2);
 	void SystemFunctionSetFilm(int para1,LPVOID para2);
 	void SystemFunctionPrepareOverrap(int para1,LPVOID para2);

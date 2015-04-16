@@ -18,6 +18,7 @@ public:
 	int* m_addVarNumber;
 	int m_addOnlyFlag;
 
+
 	BOOL GetInitGameParam(int* lpVar, LPSTR name,int initData);
 	BOOL GetInitGameParam(int* lpVar, LPSTR name);
 	BOOL GetInitGameString(LPSTR* lpStr, LPSTR name,LPSTR initString);
@@ -25,8 +26,11 @@ public:
 
 	CNameList* m_nameList;
 
+	POINT GetAddPrint(int n);
 protected:
-
+	int m_addPrintX;
+	int m_addPrintY;
+	POINT* m_addPrint;
 
 };
 

@@ -14,7 +14,7 @@ char CCommonSystemModeList::m_systemClassNameList[][32]=
 	"selectmoviechara","selectmovie","printmovie","","nameinput",
 	"printcalendar","selectheroin","codecerror","printresult","selectchart",
 	"selectplace2","","","","",
-	"minigame","selectobject","","","",
+	"minigame","selectobject","printachievement","printterm","",
 	"cardsystem","","","","",
 
 	"","","","","",
