@@ -313,8 +313,8 @@ void CCommonPrintAchievement::CheckAllResult(BOOL noticePrint)
 				{
 					for (int k=st;k<=ed;k++)
 					{
-						int param = m_achievementTable[i].param[k];
-						p += m_game->GetAchievement(param);
+//						int param = m_achievementTable[i].param[k];
+						p += m_game->GetAchievement(k);
 					}
 					ps = p / dv;
 					if ((ps == 0) && (p>0))

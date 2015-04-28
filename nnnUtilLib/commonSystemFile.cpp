@@ -185,6 +185,12 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 		fread(&m_term.code,sizeof(char),m_term.size-4,file);
 	}
 
+	if (dataKosuu>13)
+	{
+		fread(&m_charaVoiceFlag.size,sizeof(m_charaVoiceFlag.size),1,file);
+		fread(&m_charaVoiceFlag.code,sizeof(char),m_charaVoiceFlag.size-4,file);
+	}
+
 	fclose(file);
 
 	return TRUE;
@@ -207,6 +213,7 @@ void CCommonSystemFile::CreateInitData(void)
 	ZeroMemory(&m_okikae,sizeof(m_okikae));
 	ZeroMemory(&m_achievement,sizeof(m_achievement));
 	ZeroMemory(&m_term,sizeof(m_term));
+	ZeroMemory(&m_charaVoiceFlag,sizeof(m_charaVoiceFlag));
 
 	//Make Info
 	m_dataHeader.size = sizeof(m_dataHeader);
@@ -355,6 +362,11 @@ void CCommonSystemFile::CreateInitData(void)
 	m_term.size = sizeof(m_term);
 	m_term.code = 15;
 	CopyMemory(m_term.message,"TERM           ",16);
+
+	m_charaVoiceFlag.size = sizeof(m_charaVoiceFlag);
+	m_charaVoiceFlag.code = 16;
+	CopyMemory(m_charaVoiceFlag.message,"CHARAVOICEFLAG ",16);
+
 }
 
 BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
@@ -362,7 +374,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 
-	m_dataHeader.dataKosuu = 13;
+	m_dataHeader.dataKosuu = 14;
 
 	m_systemdata.year = st.wYear;
 	m_systemdata.month = st.wMonth;
@@ -416,6 +428,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	fwrite(&m_okikae,sizeof(m_okikae),1,file);
 	fwrite(&m_achievement,sizeof(m_achievement),1,file);
 	fwrite(&m_term,sizeof(m_term),1,file);
+	fwrite(&m_charaVoiceFlag,sizeof(m_charaVoiceFlag),1,file);
 	
 	fclose(file);
 
@@ -786,6 +799,63 @@ BOOL CCommonSystemFile::GetTerm(int n)
 	return FALSE;
 }
 
+void CCommonSystemFile::SetTermLook(int n,BOOL flag)
+{
+	if ((n>=0) && (n<1024))
+	{
+		int d = m_term.term[n];
+		if (flag)
+		{
+			d |= 2;
+		}
+		else
+		{
+			d &= ~2;
+		}
+		m_term.term[n] = d;
+	}
+}
+
+BOOL CCommonSystemFile::GetTermLook(int n)
+{
+	if ((n>=0) && (n<1024))
+	{
+		if (m_term.term[n] & 2) return TRUE;
+	}
+	return FALSE;
+}
+
+void CCommonSystemFile::SetCharaVoiceFlag(int flagNumber,BOOL flag)
+{
+	if ((flagNumber >= 0) && (flagNumber < 65536*8))
+	{
+		int n = flagNumber / 32;
+		int bit = m_bitTable[flagNumber & 31];
+		if (flag)
+		{
+			m_charaVoiceFlag.flag[n] |= bit;
+		}
+		else
+		{
+			m_charaVoiceFlag.flag[n] &= ~bit;
+		}
+	}
+}
+
+BOOL CCommonSystemFile::CheckCharaVoiceFlag(int flagNumber)
+{
+	if ((flagNumber >= 0) && (flagNumber < 65536*8))
+	{
+		int n = flagNumber / 32;
+		int bit = m_bitTable[flagNumber & 31];
+		if (m_charaVoiceFlag.flag[n] & bit)
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 void CCommonSystemFile::ClearAllCGFlag(void)
 {
@@ -856,6 +926,14 @@ void CCommonSystemFile::ClearAllTerm(void)
 	int sz = sizeof(m_term.term);
 	ZeroMemory(ptr,sz);
 }
+
+void CCommonSystemFile::ClearAllCharaVoiceFlag(void)
+{
+	LPVOID ptr = &(m_charaVoiceFlag.flag);
+	int sz = sizeof(m_charaVoiceFlag.flag);
+	ZeroMemory(ptr,sz);
+}
+
 
 void CCommonSystemFile::SetCGCharaNinzu(int n)
 {

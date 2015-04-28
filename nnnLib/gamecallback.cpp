@@ -202,6 +202,7 @@
 #include "commonSelectObject.h"
 #include "commonPrintAchievement.h"
 #include "commonPrintTerm.h"
+#include "commonListenVoice.h"
 #include "commonPrintCG.h"
 #include "commonSelectZukan.h"
 #include "commonSelectMovieChara.h"
@@ -8059,6 +8060,23 @@ void CGameCallBack::SetAchievement(int achievement,int ps)
 	m_systemFile->SetAchievement(achievement,ps);
 }
 
+void CGameCallBack::SystemFunctionSetVoiceFlag(int para1,LPVOID para2)
+{
+	int paraKosuu = para1;
+	int* pData = (int*)para2;
+	int flagNumber = *pData;
+	m_systemFile->SetCharaVoiceFlag(flagNumber);
+}
+
+void CGameCallBack::SystemFunctionSetTerm(int para1,LPVOID para2)
+{
+	int paraKosuu = para1;
+	int* pData = (int*)para2;
+	int term = *pData;
+	m_systemFile->SetTerm(term);
+}
+
+
 void CGameCallBack::SystemFunctionSetCG(int para1,LPVOID para2)
 {
 	int paraKosuu = para1;
@@ -10188,7 +10206,9 @@ void CGameCallBack::ReceiveScriptCommand(int cmd, int para1, LPVOID para2,int pa
 	if (cmd == CODE_SYSTEMFUNCTION_MUSIC) SystemFunctionMusic(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_SOUND) SystemFunctionSound(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_VOICE) SystemFunctionVoice(para1,para2,para3);
+	if (cmd == CODE_SYSTEMFUNCTION_SETVOICEFLAG) SystemFunctionSetVoiceFlag(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_SETCG) SystemFunctionSetCG(para1,para2);
+	if (cmd == CODE_SYSTEMFUNCTION_SETTERM) SystemFunctionSetTerm(para1,para2);
 
 	if (cmd == CODE_SYSTEMFUNCTION_VOLUMEONLY_SE) SystemFunctionVolumeOnlySe(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_VOLUMEONLY_VOICE) SystemFunctionVolumeOnlyVoice(para1,para2);
@@ -12087,6 +12107,9 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 		break;
 	case PRINTTERM_MODE:
 		general = new CCommonPrintTerm(this);
+		break;
+	case LISTENVOICE_MODE:
+		general = new CCommonListenVoice(this);
 		break;
 	case PRINTCG_MODE:
 		general = new CCommonPrintCG(this);
@@ -15302,6 +15325,33 @@ void CGameCallBack::SetSystemOkikaeMessage(int n,char* mes)
 		m_okikaeData->SetSystemOkikaeMessage(n,mes);
 	}
 }
+
+BOOL CGameCallBack::CheckCharaVoice(int flagNumber)
+{
+	return m_systemFile->CheckCharaVoiceFlag(flagNumber);
+}
+
+BOOL CGameCallBack::CheckTerm(int term)
+{
+	return m_systemFile->GetTerm(term);
+}
+
+BOOL CGameCallBack::CheckTermLook(int term)
+{
+	return m_systemFile->GetTermLook(term);
+}
+
+void CGameCallBack::SetTermLook(int term,BOOL flag)
+{
+	m_systemFile->SetTermLook(term,flag);
+}
+
+
+
+
+
+
+
 
 
 /*_*/

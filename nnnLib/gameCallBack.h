@@ -819,6 +819,10 @@ public:
 	void SetOkikaeMessage(int n,char* mes);
 	void SetSystemOkikaeMessage(int n,char* mes);
 
+	BOOL CheckCharaVoice(int flagNumber);
+	BOOL CheckTerm(int term);
+	BOOL CheckTermLook(int term);
+	void SetTermLook(int term,BOOL flag = TRUE);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1470,6 +1474,8 @@ protected:
 
 	void SystemFunctionSetAchievement(int para1,LPVOID para2);
 	void SystemFunctionSetCG(int para1,LPVOID para2);
+	void SystemFunctionSetVoiceFlag(int para1,LPVOID para2);
+	void SystemFunctionSetTerm(int para1,LPVOID para2);
 	void SystemFunctionSetFilm(int para1,LPVOID para2);
 	void SystemFunctionPrepareOverrap(int para1,LPVOID para2);
 

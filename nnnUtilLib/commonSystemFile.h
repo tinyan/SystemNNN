@@ -47,6 +47,10 @@ public:
 	virtual int GetAchievement(int n);
 	virtual void SetTerm(int n,BOOL flag = TRUE);
 	virtual BOOL GetTerm(int n);
+	virtual void SetTermLook(int n,BOOL flag = TRUE);
+	virtual BOOL GetTermLook(int n);
+	virtual void SetCharaVoiceFlag(int flagNumber,BOOL flag = TRUE);
+	virtual BOOL CheckCharaVoiceFlag(int flagNumber);
 
 //	void SetScene(int paraKosuu, int* paraPtr);
 //	void SetScene(int sceneNumber);
@@ -274,6 +278,17 @@ public:
 		int term[1024];
 	} NNNTERM;
 
+	typedef struct tagCHARAVOICEFLAG
+	{
+		int size;
+		int code;
+		int dummy;
+		int dummy2;
+
+		char message[16];
+
+		int flag[65536*8/32];
+	} CHARAVOICEFLAG;
 
 	SYSTEMDATAINFO m_dataHeader;	
 	SYSTEMDATA m_systemdata;
@@ -289,6 +304,8 @@ public:
 	OKIKAE m_okikae;
 	ACHIEVEMENT m_achievement;
 	NNNTERM m_term;
+	CHARAVOICEFLAG m_charaVoiceFlag;
+
 
 //	int GetSceneSubKosuuMax(int sceneNumber);
 //	int GetSceneSubKosuu(int sceneNumber);
@@ -335,6 +352,7 @@ public:
 	void ClearAllOkikae(void);
 	void ClearAllAchievement(void);
 	void ClearAllTerm(void);
+	void ClearAllCharaVoiceFlag(void);
 
 
 
