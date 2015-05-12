@@ -555,7 +555,8 @@ void CCommonPrintTerm::ListAndSortTerm(void)
 		qsort(m_termData,m_termNumber,sizeof(TERMDATA),MyCompare);
 	}
 
-	m_pageMax = m_termNumber / m_termPerPage;
+
+	m_pageMax = (m_termNumber+m_termPerPage-1) / m_termPerPage;
 	if (m_pageMax < 1) m_pageMax = 1;
 	m_page = 0;
 }

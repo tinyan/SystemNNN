@@ -5,6 +5,7 @@
 #include "..\nyanLib\include\areaControl.h"
 #include "..\nyanLib\include\picture.h"
 
+#include "..\nyanLib\include\myFile.h"
 
 #include "..\nnnUtilLib\nameList.h"
 
@@ -13,7 +14,7 @@
 
 #define OKIKAE_BUFFER_SIZE 64
 
-COkikaeData::COkikaeData(int mx,int sysMax) : CAutoSaveSubData(mx*OKIKAE_BUFFER_SIZE)
+COkikaeData::COkikaeData(int mx,int sysMax,BOOL useDefault) : CAutoSaveSubData(mx*OKIKAE_BUFFER_SIZE)
 {
 	m_okikaeMax = mx;
 	m_systemOkikaeMax = sysMax;
@@ -32,6 +33,20 @@ COkikaeData::COkikaeData(int mx,int sysMax) : CAutoSaveSubData(mx*OKIKAE_BUFFER_
 		*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+23) = ((i / 10) % 10) + 0x4f;
 		*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+25) = (i % 10) + 0x4f;
 	}
+
+	m_defaultText = NULL;
+	if (useDefault)
+	{
+		m_defaultText = new CNameList();
+		m_defaultText->LoadFile("nya\\okikae.xtx");
+		int ln = m_defaultText->GetNameKosuu() / 2;
+		for (int i=0;i<ln;i++)
+		{
+			int n = atoi(m_defaultText->GetName(i*2));
+			LPSTR text = m_defaultText->GetName(i*2+1);
+			SetOkikaeMessage(n,text);
+		}
+	}
 }
 
 COkikaeData::~COkikaeData()
@@ -41,6 +56,7 @@ COkikaeData::~COkikaeData()
 
 void COkikaeData::End(void)
 {
+	ENDDELETECLASS(m_defaultText);
 	DELETEARRAY(m_okikaeMessage);
 }
 
@@ -75,8 +91,8 @@ void COkikaeData::SetOkikaeMessage(int n,char* mes)
 		int ln = strlen(mes);
 		if (ln>32) ln = 32;
 		memcpy(ptr,mes,ln);
-		*(ptr+32) = 0;
-		*(ptr+32+1) = 0;
+		*(ptr+ln) = 0;
+		*(ptr+ln+1) = 0;
 	}
 }
 
@@ -90,8 +106,8 @@ void COkikaeData::SetSystemOkikaeMessage(int n,char* mes)
 		int ln = strlen(mes);
 		if (ln>32) ln = 32;
 		memcpy(ptr,mes,ln);
-		*(ptr+32) = 0;
-		*(ptr+32+1) = 0;
+		*(ptr+ln) = 0;
+		*(ptr+ln+1) = 0;
 	}
 }
 

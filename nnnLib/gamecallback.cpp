@@ -203,6 +203,7 @@
 #include "commonPrintAchievement.h"
 #include "commonPrintTerm.h"
 #include "commonListenVoice.h"
+#include "commonKanjiInput.h"
 #include "commonPrintCG.h"
 #include "commonSelectZukan.h"
 #include "commonSelectMovieChara.h"
@@ -608,7 +609,10 @@ void CGameCallBack::GeneralCreate(void)
 	m_myGraphics = new CMyGraphics(m_windowSizeX,m_windowSizeY,notUseDirectDraw);
 	int okikaeMax = 100;
 	GetInitGameParam(&m_autoDebugWait,"okikae");
-	m_okikaeData = new COkikaeData(okikaeMax);
+	int useDefaultOkikae = 0;
+	GetInitGameParam(&useDefaultOkikae,"useDefaultOkikae");
+
+	m_okikaeData = new COkikaeData(okikaeMax,okikaeMax,useDefaultOkikae);
 	for (int i=0;i<100;i++)
 	{
 		char* okikaeMessage = m_systemFile->GetOkikae(i);
@@ -12110,6 +12114,9 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 		break;
 	case LISTENVOICE_MODE:
 		general = new CCommonListenVoice(this);
+		break;
+	case KANJIINPUT_MODE:
+		general = new CCommonKanjiInput(this);
 		break;
 	case PRINTCG_MODE:
 		general = new CCommonPrintCG(this);

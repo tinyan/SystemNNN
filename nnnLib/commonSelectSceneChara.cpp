@@ -113,10 +113,16 @@ CCommonSelectSceneChara::CCommonSelectSceneChara(CGameCallBack* lpGame) : CCommo
 		GetInitGameParam(&m_cursorColorB,"cursorColorB");
 	}
 
+
 	m_cursorPrintType = 1;
+	m_cursorPic = NULL;
 	if (m_cursorMode == 2)
 	{
 		GetInitGameParam(&m_cursorPrintType,"cursorPrintType");
+		m_cursorPic = new CPicture();
+		char cfilename[256];
+		sprintf_s(cfilename,256,"sys\\%s",m_filenameCursor);
+		m_cursorPic->LoadDWQ(cfilename);
 	}
 
 	m_cursorPercent = 50;
@@ -358,6 +364,7 @@ CCommonSelectSceneChara::~CCommonSelectSceneChara()
 
 void CCommonSelectSceneChara::End(void)
 {
+	ENDDELETECLASS(m_cursorPic);
 	ENDDELETECLASS(m_heartPic);
 	DELETEARRAY(m_sceneHMode);
 	DELETEARRAY(m_zahyo);

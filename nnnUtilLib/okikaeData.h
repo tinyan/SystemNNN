@@ -4,11 +4,12 @@
 
 
 class CAutoSaveSubData;
+class CNameList;
 
 class COkikaeData : public CAutoSaveSubData
 {
 public:
-	COkikaeData(int okikae = 100,int sysMax = 100);
+	COkikaeData(int okikae = 100,int sysMax = 100,BOOL useDefault = FALSE);
 	~COkikaeData();
 	void End(void);
 
@@ -27,6 +28,8 @@ private:
 	char* m_okikaeMessage;
 	int m_systemOkikaeMax;
 	char* m_systemOkikaeMessage;
+
+	CNameList* m_defaultText;
 
 //	BOOL GetInitGameParam(int* lpVar, LPSTR name,int initData);
 //	BOOL GetInitGameParam(int* lpVar, LPSTR name);

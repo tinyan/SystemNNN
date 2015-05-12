@@ -22,6 +22,7 @@ CCommonUserCommandList::NNNUSERCOMMANDLIST CCommonUserCommandList::m_list[]=
 	{SELECTOBJECT_MODE,"selectobject"},
 	{PRINTACHIEVEMENT_MODE,"printachievement"},
 	{PRINTTERM_MODE,"printterm"},
+	{KANJIINPUT_MODE,"kanjiinput"},
 
 	{-1,""},
 };
