@@ -3,7 +3,7 @@
 //
 
 #if !defined __NNNLIB_COMMONSELECTOBJECT__
-#define __NNNLIB_COMMONSELECTOBJECT
+#define __NNNLIB_COMMONSELECTOBJECT__
 
 class CCommonGeneral;
 class CGameCallBack;
@@ -13,6 +13,7 @@ class CNameList;
 
 class CCommonButtonGroup;
 class CSelectObjectSetup;
+class CPicture;
 
 class CCommonSelectObject : public CCommonGeneral
 {

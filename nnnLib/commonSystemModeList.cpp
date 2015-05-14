@@ -15,7 +15,7 @@ char CCommonSystemModeList::m_systemClassNameList[][32]=
 	"printcalendar","selectheroin","codecerror","printresult","selectchart",
 	"selectplace2","","","","",
 	"minigame","selectobject","printachievement","printterm","listenvoice",
-	"cardsystem","kanjiinput","","","",
+	"cardsystem","kanjiinput","printitem","","",
 
 	"","","","","",
 	"","","","","",

@@ -219,7 +219,7 @@
 #include "commonPrintResult.h"
 #include "commonChartMenu.h"
 #include "commonCardSystem.h"
-
+#include "commonPrintItem.h"
 
 #include "gameCallBack.h"
 
@@ -12117,6 +12117,9 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 		break;
 	case KANJIINPUT_MODE:
 		general = new CCommonKanjiInput(this);
+		break;
+	case PRINTITEM_MODE:
+		general = new CCommonPrintItem(this);
 		break;
 	case PRINTCG_MODE:
 		general = new CCommonPrintCG(this);
