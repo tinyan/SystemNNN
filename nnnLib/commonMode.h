@@ -55,7 +55,7 @@
 #define CARDSYSTEM_MODE 45
 #define KANJIINPUT_MODE 46
 #define PRINTITEM_MODE 47
-//48
+#define SHOP_MODE 48
 //49
 
 

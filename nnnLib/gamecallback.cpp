@@ -12121,6 +12121,9 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 	case PRINTITEM_MODE:
 		general = new CCommonPrintItem(this);
 		break;
+	case SHOP_MODE:
+		general = new CCommonPrintShop(this);
+		break;
 	case PRINTCG_MODE:
 		general = new CCommonPrintCG(this);
 		break;
