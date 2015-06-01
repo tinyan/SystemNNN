@@ -6,425 +6,211 @@
 
 #include "..\nyanLib\include\\commonMacro.h"
 
-#include "nameList.h"
 #include "myTextStore.h"
-#include "myIme.h"
+//#include <atlcomcli.h>
+//#include <atlbase.h>
+//#include <atlcom.h>
+//#include <STComPtr.h>
 
-char m_test[][64]=
-{
-	"候補１",
-	"候補２",	
-	"候補３",
-};
+//typedef STComPtr <ISTEventSubInfo> ISTEventSubInfoPtr;
 
-CMyIME::CMyIME()
+// Compare two objects for equivalence
+
+ bool IsEqualObject(IUnknown* pFirst,IUnknown* pOther)
+ {
+ if (pFirst == NULL && pOther == NULL)
+ return true; // They are both NULL objects
+
+ if (pFirst == NULL || pOther == NULL)
+ return false; // One is NULL the other is not
+
+// STComPtr<IUnknown> punk1;
+ //STComPtr<IUnknown> punk2;
+ IUnknown* punk1;
+ IUnknown* punk2;
+
+ pFirst->QueryInterface(IID_IUnknown, (void**)&punk1);
+ pOther->QueryInterface(IID_IUnknown, (void**)&punk2);
+ return punk1 == punk2;
+ }
+
+
+
+STDMETHODIMP_(DWORD) CMyTextStore::AddRef()
 {
+	m_ref_count++;
+	return m_ref_count;
 }
 
-CMyIME::~CMyIME()
+
+//! 参照カウントのデクリメントおよび解放
+STDMETHODIMP_(DWORD) CMyTextStore::Release()
 {
-	End();
+	m_ref_count--;
+	DWORD retval = m_ref_count;
+  
+	if( retval == 0 )
+	{
+		delete this;
+	}
+
+	return retval;
 }
 
-void CMyIME::End(void)
+
+//要求するインターフェイスのIDが渡されるのでそれに応じて 2 番目の引数を通じて返してやります。 これもほとんどお約束の処理です。 
+//! インターフェイスの問い合わせ
+STDMETHODIMP CMyTextStore::QueryInterface(
+  REFIID    i_riid,
+  LPVOID*   o_interface_cp_p
+)
 {
-	
+	HRESULT   retval = E_FAIL;
+
+    if( IsBadWritePtr(o_interface_cp_p, sizeof(LPVOID)) )
+    {
+		retval = E_INVALIDARG;
+    }
+	else
+	{
+		if( IsEqualIID(i_riid, IID_IUnknown) || IsEqualIID(i_riid, IID_ITextStoreACP) )
+		{
+			retval = S_OK;
+			*o_interface_cp_p = (ITextStoreACP*)this;
+			// 成功した場合は参照カウントを増やす
+			AddRef();
+		}
+		else
+		{
+			*o_interface_cp_p = NULL;
+			retval = E_NOINTERFACE;
+		}
+	}
+  
+	return retval;
 }
 
 
-LPSTR CMyIME::Start(LPSTR text)
-{
-	m_dummy = 0;
-	m_max = 3;
-	return m_test[m_dummy];
-}
-
-LPSTR CMyIME::GetNext(void)
-{
-	m_dummy++;
-	m_dummy %= m_max;
-	return m_test[m_dummy];
-}
-
-/*
-
-
-// mbstowcs関数でワイド文字列へ変換
-char    strm[]  = "Testストリング";
-wchar_t strwfm[32];
-setlocale( LC_ALL, "Japanese" );  
-mbstowcs( strwfm, strm, strlen( strm )+1 );
-wprintf( L"%s(文字数=%d)\n", strwfm, wcslen( strwfm ) );
 
 
 
-wcstombs関数 - ワイド文字列→マルチバイト文字列
 
 
 
-// wcstombs関数でマルチバイト文字列へ変換
-wchar_t strw[]  = L"Testすとりんぐ";
-char    strmfw[32];
-setlocale( LC_ALL, "Japanese" );  
-wcstombs( strmfw, strw, sizeof( strmfw ) );
-printf( "%s(文字数=%d)\n", strmfw, strlen( strmfw ) );
-
-
-
-*/
-
-/*
-ReconvTextStore.h
-   1 : #ifndef __RECONV_TEXT_STORE_H_INCLUDED__
-   2 : #define __RECONV_TEXT_STORE_H_INCLUDED__
-   3 : #include <olectl.h>
-   4 : #include <msctf.h>
-   5 : #include <msaatext.h>
-   6 : 
-   7 : 
-   8 : //! 変換候補リスト取得用のテキストストア
-   9 : class ReconvTextStore : public ITextStoreACP
-  10 : {
-  11 : public:
-  12 :   //! オブジェクトの生成
-  13 :   static HRESULT CreateInstance(ReconvTextStore*& o_text_store_cp);
-  14 :   //! デストラクタ
-  15 :   virtual ~ReconvTextStore();
-  16 : 
-  17 :   //! ドキュメントのロックを行う。成功した場合 true, 失敗した場合 false を返す。
-  18 :   bool LockDocument(DWORD i_lock_flags);
-  19 :   //! ドキュメントのロックを解除する。ロックしてない状況で呼ばないこと。
-  20 :   bool UnlockDocument();
-  21 :   //! ドキュメントをロック中か？
-  22 :   bool IsLocked(DWORD i_lock_flags);
-  23 :   //! 変換候補リストを取得したい文字列をセットする。
-  24 :   bool SetString(const wchar_t* i_string);
-  25 : 
-  26 :   //==========================================================================
-  27 :   // IUnknown から継承するメソッド
-  28 :   //==========================================================================
-  29 :   
-  30 :   //! 参照カウントのインクリメント
-  31 :   STDMETHOD_ (DWORD, AddRef)();
-  32 :   //! 参照カウントのデクリメントおよび解放
-  33 :   STDMETHOD_ (DWORD, Release)();
-  34 :   //! インターフェイスの問い合わせ
-  35 :   STDMETHOD (QueryInterface)(REFIID, LPVOID*);
-  36 : 
-  37 :   //==========================================================================
-  38 :   // ITextStoreACP から継承するメソッド
-  39 :   //==========================================================================
-  40 :   
-  41 :   //! シンクの登録を行う。
-  42 :   STDMETHODIMP AdviseSink(
-  43 :     REFIID      i_riid,
-  44 :     IUnknown*   io_unknown_cp,
-  45 :     DWORD       i_mask
-  46 :   );
-  47 :   //! シンクの登録を解除する。
-  48 :   STDMETHODIMP UnadviseSink(
-  49 :     IUnknown*   io_unknown_cp
-  50 :   );
-  51 :   //! ドキュメントをロックして登録済みシンクのメソッドをコールする。
-  52 :   STDMETHODIMP RequestLock(
-  53 :     DWORD       i_lock_flags,
-  54 :     HRESULT*    o_session_result_p
-  55 :   );
-  56 :   //! ドキュメントのステータスを取得する。
-  57 :   STDMETHODIMP GetStatus(
-  58 :     TS_STATUS*  o_document_status_p
-  59 :   );
-  60 :   //! ドキュメントの選択範囲を取得する。
-  61 :   STDMETHODIMP GetSelection(
-  62 :     ULONG               i_index,
-  63 :     ULONG               i_selection_buffer_length,
-  64 :     TS_SELECTION_ACP*   o_selections,
-  65 :     ULONG*              o_fetched_length_p
-  66 :   );
-  67 :   //! テキストを取得する。
-  68 :   STDMETHODIMP GetText(
-  69 :     LONG          i_start_index,
-  70 :     LONG          i_end_index,
-  71 :     WCHAR*        o_plain_text,
-  72 :     ULONG         i_plain_text_length,
-  73 :     ULONG*        o_plain_text_length_p,
-  74 :     TS_RUNINFO*   o_run_info_p,
-  75 :     ULONG         i_run_info_length,
-  76 :     ULONG*        o_run_info_length_p,
-  77 :     LONG*         o_next_unread_char_pos_p
-  78 :   );
-  79 : 
-  80 :   //! テキストのインサートまたは選択範囲の変更が可能か問い合わせる。
-  81 :   STDMETHODIMP QueryInsert(
-  82 :     LONG    i_start_index,
-  83 :     LONG    i_end_index,
-  84 :     ULONG   i_length,
-  85 :     LONG*   o_start_index_p,
-  86 :     LONG*   o_end_index_p
-  87 :   );
-  88 : 
-  89 :   //==========================================================================
-  90 :   // ReconvTextStore では実装しないメソッド。E_NOTIMPL を返す。 
-  91 :   //==========================================================================
-  92 : 
-  93 :   STDMETHODIMP GetActiveView(
-  94 :     TsViewCookie*
-  95 :   );
-  96 :   STDMETHODIMP SetSelection(
-  97 :     ULONG, const TS_SELECTION_ACP*
-  98 :   );
-  99 :   STDMETHODIMP SetText(
- 100 :     DWORD, LONG, LONG, const WCHAR*, ULONG, TS_TEXTCHANGE*
- 101 :   );
- 102 :   STDMETHODIMP GetFormattedText(
- 103 :     LONG, LONG, IDataObject**
- 104 :   );
- 105 :   STDMETHODIMP RequestSupportedAttrs(
- 106 :     DWORD, ULONG, const TS_ATTRID*
- 107 :   );
- 108 :   STDMETHODIMP RequestAttrsAtPosition(
- 109 :     LONG, ULONG, const TS_ATTRID*, DWORD
- 110 :   );
- 111 :   STDMETHODIMP RetrieveRequestedAttrs(
- 112 :     ULONG, TS_ATTRVAL*, ULONG*
- 113 :   );
- 114 :   STDMETHODIMP GetEndACP(
- 115 :     LONG*
- 116 :   );
- 117 :   STDMETHODIMP GetTextExt(
- 118 :     TsViewCookie, LONG, LONG, RECT*, BOOL*
- 119 :   );
- 120 :   STDMETHODIMP GetScreenExt(
- 121 :     TsViewCookie, RECT*
- 122 :   );
- 123 :   STDMETHODIMP GetWnd(
- 124 :     TsViewCookie, HWND*
- 125 :   );
- 126 :   STDMETHODIMP InsertTextAtSelection(
- 127 :     DWORD, const WCHAR*, ULONG, LONG*, LONG*, TS_TEXTCHANGE*
- 128 :   );
- 129 :   STDMETHODIMP RequestAttrsTransitioningAtPosition(
- 130 :     LONG, ULONG, const TS_ATTRID*, DWORD
- 131 :   );
- 132 :   STDMETHODIMP FindNextAttrTransition(
- 133 :     LONG, LONG, ULONG, const TS_ATTRID*, DWORD, LONG*, BOOL*, LONG*
- 134 :   );
- 135 :   STDMETHODIMP GetEmbedded(
- 136 :     LONG, REFGUID, REFIID, IUnknown**
- 137 :   );
- 138 :   STDMETHODIMP QueryInsertEmbedded(
- 139 :     const GUID*, const FORMATETC*, BOOL*
- 140 :   );
- 141 :   STDMETHODIMP InsertEmbedded(
- 142 :     DWORD, LONG, LONG, IDataObject*, TS_TEXTCHANGE*
- 143 :   );
- 144 :   STDMETHODIMP GetACPFromPoint(
- 145 :     TsViewCookie, const POINT*, DWORD, LONG*
- 146 :   );
- 147 :   STDMETHODIMP InsertEmbeddedAtSelection(
- 148 :     DWORD, IDataObject*, LONG*, LONG*, TS_TEXTCHANGE*
- 149 :   );
- 150 : 
- 151 : protected:
- 152 :   //! コンストラクタ。CreateInstance() かサブクラスからのみ呼び出し可能。
- 153 :   ReconvTextStore();
- 154 : 
- 155 : private:
- 156 :   //! コピーコンストラクタは使用禁止とする。
- 157 :   ReconvTextStore(const ReconvTextStore&);
- 158 :   //! 代入演算子は使用禁止とする。
- 159 :   const ReconvTextStore& operator=(const ReconvTextStore&);
- 160 : 
- 161 :   //==========================================================================
- 162 :   // メンバ
- 163 :   //==========================================================================
- 164 : protected:
- 165 :   ULONG               m_ref_count;    //!< 参照カウント
- 166 :   wchar_t             m_text[128];    //!< 変換したい文字列の格納領域
- 167 :   ITextStoreACPSink*  m_sink_cp;      //!< AdviseSink() で登録されたシンク
- 168 :   DWORD               m_sink_mask;    //!< AdviseSink() に渡されたマスク
- 169 :   volatile LONG       m_lock_count;   //!< ロックカウント
- 170 :   volatile DWORD      m_lock_flags;   //!< ロックのタイプ(RW)
- 171 : };
- 172 : 
- 173 : 
- 174 : #endif  // #ifndef __RECONV_TEXT_STORE_H_INCLUDED__
  
- 　では定義のほうを見ていきましょう。 
+//名前からは何をするものなのか分かりにくいのですが、端的に言えばコールバックの登録です。テキストストアは、ドキュメントの変更などイベントが発生した時に、登録されているシンクの対応するメソッドを呼び出してやらなければいけません。TSF マネージャーにテキストストアを登録すると、TSF マネージャーから呼び出されます。
+//1番目の引数は登録したいシンクのインターフェイスID、2番目の引数は登録するシンクへのポインタ、3番目の引数はコールバックして欲しいイベントの種類を指定するフラグです。
+//サンプルの tsfapp 同様、1つのシンクだけしか登録できないようにします。登録要求のあったシンクをメンバ変数の m_sink_cp に、マスクを m_sink_mask に保存しておきます。 
+//ReconvTextStore.cpp
+//! シンクの登録を行う。
 
-AddRef(), Release()
-
-　COM のお約束の処理です。AddRef() は参照カウントをインクリメントし、Release() は参照カウントをデク リメントし、0 になった場合は delete で自身を解放します。 
-ReconvTextStore.cpp
- 137 : //! 参照カウントのインクリメント
- 138 : STDMETHODIMP_(DWORD) ReconvTextStore::AddRef()
- 139 : {
- 140 :   return ++m_ref_count;
- 141 : }
-
-
-ReconvTextStore.cpp
- 147 : //! 参照カウントのデクリメントおよび解放
- 148 : STDMETHODIMP_(DWORD) ReconvTextStore::Release()
- 149 : {
- 150 :   DWORD retval = --m_ref_count;
- 151 :   
- 152 :   if( retval == 0 )
- 153 :     delete this;
- 154 : 
- 155 :   return retval;
- 156 : }
-
- QueryInterface()
-
-　REFIID で要求するインターフェイスのIDが渡されるのでそれに応じて 2 番目の引数を通じて返してやります。 これもほとんどお約束の処理です。 
-ReconvTextStore.cpp
- 162 : //! インターフェイスの問い合わせ
- 163 : STDMETHODIMP ReconvTextStore::QueryInterface(
- 164 :   REFIID    i_riid,
- 165 :   LPVOID*   o_interface_cp_p
- 166 : )
- 167 : {
- 168 :   HRESULT   retval = E_FAIL;
- 169 : 
- 170 :   do
- 171 :   {
- 172 :     if( IsBadWritePtr(o_interface_cp_p, sizeof(LPVOID)) )
- 173 :     {
- 174 :       retval = E_INVALIDARG;
- 175 :       break;
- 176 :     }
- 177 : 
- 178 :     if( IsEqualIID(i_riid, IID_IUnknown) || IsEqualIID(i_riid, IID_ITextStoreACP) )
- 179 :     {
- 180 :       retval = S_OK;
- 181 :       *o_interface_cp_p = (ITextStoreACP*)this;
- 182 :       // 成功した場合は参照カウントを増やす
- 183 :       AddRef();
- 184 :     }
- 185 :     else
- 186 :     {
- 187 :       *o_interface_cp_p = NULL;
- 188 :       retval = E_NOINTERFACE;
- 189 :     }
- 190 :   }
- 191 :   while( 0 );
- 192 :   
- 193 :   return retval;
- 194 : }
+STDMETHODIMP CMyTextStore::AdviseSink(
+  REFIID      i_riid,
+  IUnknown*   io_unknown_cp,
+  DWORD       i_mask
+)
+{
+  HRESULT   retval    = E_FAIL;
+  
+  do
+  {
+    // io_unknown_cp に正しいポインタが渡されたかチェックする。
+    // また、登録できるシンクは ITextStoreACPSink だけ。
+    if( IsBadReadPtr(io_unknown_cp, sizeof(IUnknown*))
+    ||  IsEqualIID(i_riid, IID_ITextStoreACPSink) == false )
+    {
+//      _RPTF0(_CRT_WARN, "*** Error *** bad ptr or object.\n");
+      OutputDebugString("_CRT_WARN, *** Error *** bad ptr or object.\n");
+      retval = E_INVALIDARG;
+      break;
+    }
+    
+    // 既に登録されているシンクと同じ場合はマスクの更新を行う。
+    if( IsEqualObject(m_sink_cp, io_unknown_cp) )
+    {
+      m_sink_mask = i_mask;
+      retval = S_OK;
+    }
+    // 既にシンクが登録されている場合は失敗。
+    else if( m_sink_cp )
+    {
+//      _RPTF0(_CRT_WARN, "*** Error *** sink already exists.\n");
+      OutputDebugString("_RPTF0(_CRT_WARN, *** Error *** sink already exists.\n");
+      retval = CONNECT_E_ADVISELIMIT;
+    }
+    // 新しく登録
+    else
+    {
+      // ITextStoreACPSink インターフェイスを取得する。
+      retval = io_unknown_cp->QueryInterface(
+                 IID_ITextStoreACPSink,
+                 (void**)&m_sink_cp
+               );
+      // 成功した場合はマスクを保存する。
+      if( SUCCEEDED(retval) )
+        m_sink_mask = i_mask;
+    }
+  }
+  while( 0 );
+  
+  return retval;
+}
 
 
 
- AdviseSink()
+//シンクの登録を解除します。1番目の引数は解除したいシンクへのポインタです。 
+//ReconvTextStore.cpp
+//! シンクの登録を解除する。
+STDMETHODIMP CMyTextStore::UnadviseSink(
+  IUnknown*   io_unknown_cp
+)
+{
+  HRESULT     retval      = E_FAIL;
+  IUnknown*   unk_id_cp   = NULL;
+  
+  do
+  {
+    // 有効なポインタが渡されたか調べる。
+    if( IsBadReadPtr(io_unknown_cp, sizeof(void*)) )
+    {
+//      _RPTF0(_CRT_WARN, "*** Error *** io_unknown_cp is bad ptr.\n");
+      OutputDebugString("_RPTF0(_CRT_WARN, *** Error *** io_unknown_cp is bad ptr.\n");
+      retval = E_INVALIDARG;
+      break;
+    }
+  
+    // 登録されていないシンクの場合はエラー。
+    if( IsEqualObject(io_unknown_cp, m_sink_cp) == false )
+    {
+//      _RPTF0(_CRT_WARN, "*** Error *** no connection.\n");
+      OutputDebugString("_RPTF0(_CRT_WARN, *** Error *** no connection.\n");
+      retval = CONNECT_E_NOCONNECTION;
+      break;
+    }
 
-　名前からは何をするものなのか分かりにくいのですが、端的に言えばコールバックの登録です。テキストストアは、ドキュメントの変更などイベントが発生した時に、登録されているシンクの対応するメソッドを呼び出してやらなければいけません。TSF マネージャーにテキストストアを登録すると、TSF マネージャーから呼び出されます。
- 　1番目の引数は登録したいシンクのインターフェイスID、2番目の引数は登録するシンクへのポインタ、3番目の引数はコールバックして欲しいイベントの種類を指定するフラグです。
- 　サンプルの tsfapp 同様、1つのシンクだけしか登録できないようにします。登録要求のあったシンクをメンバ変数の m_sink_cp に、マスクを m_sink_mask に保存しておきます。 
-ReconvTextStore.cpp
- 229 : //! シンクの登録を行う。
- 230 : STDMETHODIMP ReconvTextStore::AdviseSink(
- 231 :   REFIID      i_riid,
- 232 :   IUnknown*   io_unknown_cp,
- 233 :   DWORD       i_mask
- 234 : )
- 235 : {
- 236 :   HRESULT   retval    = E_FAIL;
- 237 :   
- 238 :   do
- 239 :   {
- 240 :     // io_unknown_cp に正しいポインタが渡されたかチェックする。
- 241 :     // また、登録できるシンクは ITextStoreACPSink だけ。
- 242 :     if( IsBadReadPtr(io_unknown_cp, sizeof(IUnknown*))
- 243 :     ||  IsEqualIID(i_riid, IID_ITextStoreACPSink) == false )
- 244 :     {
- 245 :       _RPTF0(_CRT_WARN, "*** Error *** bad ptr or object.\n");
- 246 :       retval = E_INVALIDARG;
- 247 :       break;
- 248 :     }
- 249 :     
- 250 :     // 既に登録されているシンクと同じ場合はマスクの更新を行う。
- 251 :     if( IsEqualObject(m_sink_cp, io_unknown_cp) )
- 252 :     {
- 253 :       m_sink_mask = i_mask;
- 254 :       retval = S_OK;
- 255 :     }
- 256 :     // 既にシンクが登録されている場合は失敗。
- 257 :     else if( m_sink_cp )
- 258 :     {
- 259 :       _RPTF0(_CRT_WARN, "*** Error *** sink already exists.\n");
- 260 :       retval = CONNECT_E_ADVISELIMIT;
- 261 :     }
- 262 :     // 新しく登録
- 263 :     else
- 264 :     {
- 265 :       // ITextStoreACPSink インターフェイスを取得する。
- 266 :       retval = io_unknown_cp->QueryInterface(
- 267 :                  IID_ITextStoreACPSink,
- 268 :                  (void**)&m_sink_cp
- 269 :                );
- 270 :       // 成功した場合はマスクを保存する。
- 271 :       if( SUCCEEDED(retval) )
- 272 :         m_sink_mask = i_mask;
- 273 :     }
- 274 :   }
- 275 :   while( 0 );
- 276 :   
- 277 :   return retval;
- 278 : }
+    // 解放
+    ENDRELEASE(m_sink_cp);
+    m_sink_mask = 0;
+    retval = S_OK;
+  }
+  while( 0 );
+  
+  return retval;
+}
 
-
- UnadviseSink()
-
-　シンクの登録を解除します。1番目の引数は解除したいシンクへのポインタです。 
-ReconvTextStore.cpp
- 284 : //! シンクの登録を解除する。
- 285 : STDMETHODIMP ReconvTextStore::UnadviseSink(
- 286 :   IUnknown*   io_unknown_cp
- 287 : )
- 288 : {
- 289 :   HRESULT     retval      = E_FAIL;
- 290 :   IUnknown*   unk_id_cp   = NULL;
- 291 :   
- 292 :   do
- 293 :   {
- 294 :     // 有効なポインタが渡されたか調べる。
- 295 :     if( IsBadReadPtr(io_unknown_cp, sizeof(void*)) )
- 296 :     {
- 297 :       _RPTF0(_CRT_WARN, "*** Error *** io_unknown_cp is bad ptr.\n");
- 298 :       retval = E_INVALIDARG;
- 299 :       break;
- 300 :     }
- 301 :   
- 302 :     // 登録されていないシンクの場合はエラー。
- 303 :     if( IsEqualObject(io_unknown_cp, m_sink_cp) == false )
- 304 :     {
- 305 :       _RPTF0(_CRT_WARN, "*** Error *** no connection.\n");
- 306 :       retval = CONNECT_E_NOCONNECTION;
- 307 :       break;
- 308 :     }
- 309 : 
- 310 :     // 解放
- 311 :     RELEASE(m_sink_cp);
- 312 :     m_sink_mask = 0;
- 313 :     retval = S_OK;
- 314 :   }
- 315 :   while( 0 );
- 316 :   
- 317 :   return retval;
- 318 : }
-
+/*
 
  RequestLock()
 
-　ドキュメントに対してロックを要求し、ロックが成功した場合に登録してあるシンクの OnLockGranted() メソッドを 呼ぶメソッドです。
- 　TSF では複数のテキストサービスから同時に入力がくる可能性があります。例えばキーボードを押しながら音声入力を 行った場合などです。他にも、アプリケーション側でドキュメントを読み込んだり変更したい場合だってあります。 そのような場合に一つのドキュメントに対して各々が好き勝手にアクセスできてしまっては困ります。
- 　TSF の作法では自身が管理していないドキュメントへアクセスするには必ず RequestLock() でロック要求を出して、 呼び出された OnLockGranted() メソッドの中で行います。OnLockGranted() を直訳すると「ロックが認められた時」 なのでそのままですね。
- 　ロックされていない状況でドキュメントにアクセスするメソッドが呼ばれた場合、テキストストアは TS_E_NOLOCK エラーを返す必要があります。
- 　なお、RequestLock() に対応するアンロックの要求というのはありません。テキストストアは OnLockGranted() から 制御が返されたらドキュメントへのアクセスが終了したということでロックを解除します。
- 　自身の管理しているドキュメントへアクセスする場合には上記の作法に従う (OnLockGranted() 内でのみドキュメントへアクセスする)必要はないようです。
+//ドキュメントに対してロックを要求し、ロックが成功した場合に登録してあるシンクの OnLockGranted() メソッドを 呼ぶメソッドです。
+//TSF では複数のテキストサービスから同時に入力がくる可能性があります。例えばキーボードを押しながら音声入力を 行った場合などです。他にも、アプリケーション側でドキュメントを読み込んだり変更したい場合だってあります。 そのような場合に一つのドキュメントに対して各々が好き勝手にアクセスできてしまっては困ります。
+//TSF の作法では自身が管理していないドキュメントへアクセスするには必ず RequestLock() でロック要求を出して、 呼び出された OnLockGranted() メソッドの中で行います。OnLockGranted() を直訳すると「ロックが認められた時」 なのでそのままですね。
+//ロックされていない状況でドキュメントにアクセスするメソッドが呼ばれた場合、テキストストアは TS_E_NOLOCK エラーを返す必要があります。
+//なお、RequestLock() に対応するアンロックの要求というのはありません。テキストストアは OnLockGranted() から 制御が返されたらドキュメントへのアクセスが終了したということでロックを解除します。
+//自身の管理しているドキュメントへアクセスする場合には上記の作法に従う (OnLockGranted() 内でのみドキュメントへアクセスする)必要はないようです。
 
- 　1番目の引数は読取専用や読み書きの両方を行うといったロックのタイプを表すフラグです。
- 　2番目の引数はシンクの OnLockGranted() メソッドの戻り値の格納先です。
+//1番目の引数は読取専用や読み書きの両方を行うといったロックのタイプを表すフラグです。
+//2番目の引数はシンクの OnLockGranted() メソッドの戻り値の格納先です。
 
 ReconvTextStore.cpp
  324 : //! ドキュメントをロックして登録済みシンクのメソッドをコールする。
@@ -1234,6 +1020,34 @@ C:\TsfReconverter>tsftest.exe へんかん
  4/ 4 : ヘンカン
 
 
+
+
+
+*/
+
+
+/*
+
+
+// mbstowcs関数でワイド文字列へ変換
+char    strm[]  = "Testストリング";
+wchar_t strwfm[32];
+setlocale( LC_ALL, "Japanese" );  
+mbstowcs( strwfm, strm, strlen( strm )+1 );
+wprintf( L"%s(文字数=%d)\n", strwfm, wcslen( strwfm ) );
+
+
+
+wcstombs関数 - ワイド文字列→マルチバイト文字列
+
+
+
+// wcstombs関数でマルチバイト文字列へ変換
+wchar_t strw[]  = L"Testすとりんぐ";
+char    strmfw[32];
+setlocale( LC_ALL, "Japanese" );  
+wcstombs( strmfw, strw, sizeof( strmfw ) );
+printf( "%s(文字数=%d)\n", strmfw, strlen( strmfw ) );
 
 
 

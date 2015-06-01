@@ -378,26 +378,31 @@ void CMyTextInputBox::Start(void)
 	if (m_immWindowParamGetFlag == FALSE)
 	{
 		HIMC himc = ImmGetContext(m_hWnd);
-		COMPOSITIONFORM cf;
-		cf.dwStyle = CFS_POINT;
-		ImmGetCompositionWindow(himc,&cf);
-		m_immZahyo = cf.ptCurrentPos;
-		m_immRect = cf.rcArea;
+		if (himc != NULL)
+		{
+			COMPOSITIONFORM cf;
+			cf.dwStyle = CFS_POINT;
+			ImmGetCompositionWindow(himc,&cf);
+			m_immZahyo = cf.ptCurrentPos;
+			m_immRect = cf.rcArea;
 
-		ImmReleaseContext(m_hWnd,himc);
-
-		m_immWindowParamGetFlag = TRUE;
+			ImmReleaseContext(m_hWnd,himc);
+			m_immWindowParamGetFlag = TRUE;
+		}
 	}
 
 	if (m_autoOpenFlag)
 	{
 		HIMC himc = ImmGetContext(m_hWnd);
-		if (ImmGetOpenStatus(himc) == FALSE)
+		if (himc != NULL)
 		{
-			ImmSetOpenStatus(himc,TRUE);
-		}
+			if (ImmGetOpenStatus(himc) == FALSE)
+			{
+				ImmSetOpenStatus(himc,TRUE);
+			}
 
-		ImmReleaseContext(m_hWnd,himc);
+			ImmReleaseContext(m_hWnd,himc);
+		}
 	}
 }
 
@@ -413,12 +418,15 @@ void CMyTextInputBox::AutoClose(void)
 	if (m_autoCloseFlag)
 	{
 		HIMC himc = ImmGetContext(m_hWnd);
-		if (ImmGetOpenStatus(himc))
+		if (himc != NULL)
 		{
-			ImmSetOpenStatus(himc,FALSE);
-		}
+			if (ImmGetOpenStatus(himc))
+			{
+				ImmSetOpenStatus(himc,FALSE);
+			}
 
-		ImmReleaseContext(m_hWnd,himc);
+			ImmReleaseContext(m_hWnd,himc);
+		}
 	}
 }
 
@@ -426,57 +434,23 @@ void CMyTextInputBox::AutoClose(void)
 void CMyTextInputBox::MoveIMEWindow(void)
 {
 	HIMC himc = ImmGetContext(m_hWnd);
-	COMPOSITIONFORM cf;
+	if (himc != NULL)
+	{
+		COMPOSITIONFORM cf;
 
-//	cf.dwStyle = CFS_RECT;
-	cf.dwStyle = CFS_POINT;
+	//	cf.dwStyle = CFS_RECT;
+		cf.dwStyle = CFS_POINT;
 
+		POINT pt = GetCursorZahyo();
+		pt = m_viewControl->GameToView(pt);
 
-	POINT pt = GetCursorZahyo();
-	pt = m_viewControl->GameToView(pt);
+		cf.ptCurrentPos = pt;
+		ImmSetCompositionWindow(himc,&cf);
 
-
-
-
-
-
-
-	cf.ptCurrentPos = pt;
-	ImmSetCompositionWindow(himc,&cf);
-
-	ImmReleaseContext(m_hWnd,himc);
+		ImmReleaseContext(m_hWnd,himc);
+	}
 
 
-	/*
-	HWND hwnd = m_game->GetHWND();
-	HIMC himc = ImmGetContext(hwnd);
-	COMPOSITIONFORM cf;
-
-	int ln = 0;
-	if (m_mode == 0) ln = strlen(m_sei) / 2;
-	if (m_mode == 1) ln = strlen(m_mei) / 2;
-
-
-	int x = m_dialogPrintX + m_dialogSizeX / 2 + (m_mojiNextX * ln) / 2;
-	int xe = m_dialogPrintX + m_dialogSizeX;
-	int sx = xe - x;
-
-	int y = m_namePrintY;
-
-
-	POINT pt;
-	RECT rc;
-	pt.x = x;
-	pt.y = y;
-
-	SetRect(&rc,x,m_namePrintY,xe,m_namePrintY+21);
-//	cf.dwStyle = CFS_FORCE_POSITION;
-	cf.dwStyle = CFS_RECT;
-	cf.ptCurrentPos = pt;
-	cf.rcArea = rc;
-
-	ImmSetCompositionWindow(himc,&cf);
-*/
 }
 
 
@@ -486,16 +460,20 @@ void CMyTextInputBox::RemoveIMEWindow(void)
 
 
 	HIMC himc = ImmGetContext(m_hWnd);
-	COMPOSITIONFORM cf;
-	cf.ptCurrentPos = m_immZahyo;
-	cf.rcArea = m_immRect;
+	if (himc != NULL)
+	{
+		COMPOSITIONFORM cf;
+		cf.ptCurrentPos = m_immZahyo;
+	//	cf.rcArea = m_immRect;
 
 //	cf.dwStyle = CFS_RECT;
-	cf.dwStyle = CFS_POINT;
+		cf.dwStyle = CFS_POINT;
 
-	ImmSetCompositionWindow(himc,&cf);
+		ImmSetCompositionWindow(himc,&cf);
 
-	ImmReleaseContext(m_hWnd,himc);
+		ImmReleaseContext(m_hWnd,himc);
+	}
+
 	m_immMovedFlag = FALSE;
 }
 

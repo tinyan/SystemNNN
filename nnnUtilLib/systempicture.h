@@ -7,7 +7,7 @@
 
 class CPicture;
 
-#define SYSTEM_PICKOSUU_MAX 200
+#define SYSTEM_PICKOSUU_MAX 500
 #define SYSTEMPICFILENAME_MAX 64
 
 class CSystemPicture

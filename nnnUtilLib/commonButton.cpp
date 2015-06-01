@@ -1175,6 +1175,26 @@ void CCommonButton::SetNextIgnore(int cnt)
 {
 	m_ignoreCount = cnt;
 }
+
+BOOL CCommonButton::LoadFile(LPSTR dirName)
+{
+	char filename[256];
+	if (dirName == NULL)
+	{
+		sprintf_s(filename,256,"%s",GetFileName());
+	}
+	else
+	{
+		sprintf_s(filename,256,"%s\\%s",dirName,GetFileName());
+	}
+	CPicture* lpPic = GetPicture();
+	if (lpPic == NULL) return FALSE;	//no pic
+
+	return lpPic->LoadDWQ(filename);
+}
+
+
+
 /*_*/
 
 

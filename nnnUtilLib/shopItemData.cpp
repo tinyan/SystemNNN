@@ -28,7 +28,7 @@ CShopItemData::CShopItemData(BOOL angouFlag)
 	}
 	else
 	{
-		m_list->LoadFile("nnndir\\shopItem.xtx");
+		m_list->LoadFile("nnndir\\shopItem.txt");
 	}
 
 	m_typeMax = 256;
@@ -209,6 +209,18 @@ int CShopItemData::GetType(int n)
 {
 	if (!CheckN(n)) return 0;
 	return m_table[n].type;
+}
+
+int CShopItemData::GetPrice(int n)
+{
+	if (!CheckN(n)) return 0;
+	return m_table[n].price;
+}
+
+int CShopItemData::GetLimit(int n)
+{
+	if (!CheckN(n)) return 0;
+	return m_table[n].limit;
 }
 
 LPSTR CShopItemData::GetName(int n,int md)

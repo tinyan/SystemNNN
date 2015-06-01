@@ -220,6 +220,8 @@
 #include "commonChartMenu.h"
 #include "commonCardSystem.h"
 #include "commonPrintItem.h"
+#include "commonShop.h"
+#include "commonPrintStatus.h"
 
 #include "gameCallBack.h"
 
@@ -12121,8 +12123,11 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 	case PRINTITEM_MODE:
 		general = new CCommonPrintItem(this);
 		break;
+	case PRINTSTATUS_MODE:
+		general = new CCommonPrintStatus(this);
+		break;
 	case SHOP_MODE:
-		general = new CCommonPrintShop(this);
+		general = new CCommonShop(this);
 		break;
 	case PRINTCG_MODE:
 		general = new CCommonPrintCG(this);
@@ -13925,7 +13930,7 @@ void CGameCallBack::SetLastSaveOkGameMode(int md)
 	if (md == SELECTPLACE_MODE) flg = TRUE;
 	if (md == SELECTOBJECT_MODE) flg = TRUE;
 	if (md == PRINTTERM_MODE) flg = TRUE;
-	if ((md >= SELECTPLACE2_MODE) && (md < (SELECTPLACE2_MODE+5))) flg = TRUE;
+	if ((md >= SELECTPLACE2_MODE) && (md < (SELECTPLACE2_MODE+3))) flg = TRUE;
 	if (md == SELECTHEROIN_MODE) flg = TRUE;
 	if ((md >= 50) && (md<=99)) flg = TRUE;
 

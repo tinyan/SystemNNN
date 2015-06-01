@@ -25,7 +25,9 @@ CCommonUserCommandList::NNNUSERCOMMANDLIST CCommonUserCommandList::m_list[]=
 	{KANJIINPUT_MODE,"kanjiinput"},
 	{PRINTITEM_MODE,"printitem"},
 	{SHOP_MODE,"shop"},
-
+	{PRINTSTATUS_MODE,"printstatus"},
+	{LISTENVOICE_MODE,"listenvoice"},
+	
 	{-1,""},
 };
 

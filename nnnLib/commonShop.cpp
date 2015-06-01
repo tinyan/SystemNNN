@@ -68,7 +68,10 @@ CCommonShop::CCommonShop(CGameCallBack* lpGame,int extMode) : CCommonGeneral(lpG
 	LoadSetupFile("shop",256);
 
 
-	m_shopItem = new CShopItemData();
+	int angouFlag = 1;
+	GetInitGameParam(&angouFlag,"angouFlag");
+
+	m_shopItem = new CShopItemData(angouFlag);
 
 	m_message = m_game->GetMyMessage();
 
@@ -119,8 +122,8 @@ CCommonShop::CCommonShop(CGameCallBack* lpGame,int extMode) : CCommonGeneral(lpG
 	m_newMarkPrintY = 0;
 	m_soldoutPrintX = 0;
 	m_soldoutPrintY = 0;
-	GetInitGameParam(&m_printNewMarkFlag,"printNewMarkFlag");
-	GetInitGameParam(&m_printSoldOutFlag,"printSoldOutFlag");
+	GetInitGameParam(&m_printNewMarkFlag,"newMarkPrintFlag");
+	GetInitGameParam(&m_printSoldOutFlag,"soldOutPrintFlag");
 	if (m_printNewMarkFlag)
 	{
 		GetInitGameParam(&m_newMarkPrintX,"newMarkPrintX");
@@ -190,14 +193,15 @@ CCommonShop::CCommonShop(CGameCallBack* lpGame,int extMode) : CCommonGeneral(lpG
 		m_radio = new CCommonRadioButtonGroup(m_setup,"shopitemType",NULL,m_itemTypeKosuu);
 		for (int i=0;i<m_itemTypeKosuu;i++)
 		{
-			CPicture* lpPic = CSuperButtonPicture::GetPicture(3+i);
+			CPicture* lpPic = CSuperButtonPicture::GetPicture(5+i);
 			m_radio->SetPicture(lpPic,i,-1);
 		}
 	}
 
 	m_okButton = new CCommonButton(m_setup,"ok");
 	m_cancelButton = new CCommonButton(m_setup,"cancel");
-
+	m_okButton->SetPicture(CSuperButtonPicture::GetPicture(3));
+	m_cancelButton->SetPicture(CSuperButtonPicture::GetPicture(4));
 
 	m_lowCursor = 0;
 	GetInitGameParam(&m_lowCursor,"lowCursor");
@@ -281,6 +285,7 @@ CCommonShop::CCommonShop(CGameCallBack* lpGame,int extMode) : CCommonGeneral(lpG
 	m_allItemNumber = m_shopItem->GetListKosuu();
 	m_itemTable = new int[m_allItemNumber*4+1];
 	m_appearFlag = new int[m_allItemNumber+1];
+	m_soldOutFlag = new int[m_allItemNumber+1];
 	m_appearControlVarNumber = new int[(m_allItemNumber+31) / 32 + 1];
 	for (int i=0;i<(m_allItemNumber+31) / 32;i++)
 	{
@@ -390,6 +395,7 @@ void CCommonShop::End(void)
 	ENDDELETECLASS(m_pricePointSuuji);
 
 	DELETEARRAY(m_appearControlVarNumber);
+	DELETEARRAY(m_soldOutFlag);
 	DELETEARRAY(m_appearFlag);
 	DELETEARRAY(m_itemTable);
 
@@ -423,15 +429,22 @@ int CCommonShop::Init(void)
 	{
 		m_appearFlag[i] = CheckAppearFlag(i);
 	}
+	
+	GetGamePoint();
+
 
 	CreateTable();
 	SetupButton();
-	GetGamePoint();
 
 	char filename[256];
 	sprintf_s(filename,256,"sys\\%s",m_plateFilename);
 	m_commonParts->LoadDWQ(filename);
 
+	m_okButton->Init();
+	m_cancelButton->Init();
+
+	m_okButton->LoadFile();
+	m_cancelButton->LoadFile();
 
 	m_onNumber = -1;
 
@@ -441,9 +454,10 @@ int CCommonShop::Init(void)
 
 int CCommonShop::Calcu(void)
 {
-	int udb = m_updownBack->Calcu(m_inputStatus);
+	int udb = NNNBUTTON_NOTHING;
 	if (m_selectedItemNumber == -1)
 	{
+		udb = m_updownBack->Calcu(m_inputStatus);
 		if (udb != NNNBUTTON_NOTHING)
 		{
 			int nm = ProcessUpDownBack(udb);
@@ -484,6 +498,7 @@ int CCommonShop::Calcu(void)
 
 					m_updownBack->Init();
 					m_updownBack->SetPage(m_page);
+					LoadItemPic();
 				}
 			}
 		}
@@ -506,13 +521,14 @@ int CCommonShop::Calcu(void)
 
 				CreateTable();
 
+
 				m_updownBack->Init();
 				m_updownBack->SetPageMax(m_pageMax);
 				m_updownBack->SetPage(m_page);
 
-				m_radio->SetRadio(nm);
+				m_radio->SetRadio(0);
 				ReloadButtonPic();
-				m_radio->Init(nm);
+				m_radio->Init(0);
 
 				return -1;
 			}
@@ -533,9 +549,9 @@ int CCommonShop::Calcu(void)
 				m_updownBack->SetPageMax(m_pageMax);
 				m_updownBack->SetPage(m_page);
 
-				m_radio->SetRadio(nm);
+				m_radio->SetRadio(0);
 				ReloadButtonPic();
-				m_radio->Init(nm);
+				m_radio->Init(0);
 
 				return -1;
 			}
@@ -559,7 +575,7 @@ int CCommonShop::Calcu(void)
 
 	if (m_mouseStatus->CheckClick(0))
 	{
-		if (m_onNumber != -1)
+		if ((m_onNumber != -1) && (m_selectedItemNumber == -1))
 		{
 			if (m_itemTable[(m_onNumber + m_page * m_itemPerPage)*4+3] > 0)
 			{
@@ -617,7 +633,10 @@ int CCommonShop::Print(void)
 
 	if (m_updownBack != NULL)
 	{
-		m_updownBack->Print(TRUE);
+		if (m_selectedItemNumber == -1)
+		{
+			m_updownBack->Print(TRUE);
+		}
 	}
 
 
@@ -651,7 +670,12 @@ int CCommonShop::Print(void)
 		{
 			int item = m_itemTable[(st+i)*4];
 			int md = m_itemTable[(st+i)*4+1];
+			
 			LPSTR itemName = m_shopItem->GetName(item,md);
+			if (md == 0)
+			{
+				itemName = m_notAppearName;
+			}
 			m_message->PrintMessage(pt.x+m_itemNamePrintX,pt.y+m_itemNamePrintY,itemName,m_itemNameFontSize,m_itemNameFontColorR,m_itemNameFontColorG,m_itemNameFontColorB);
 
 
@@ -862,6 +886,8 @@ void CCommonShop::CreateTable(void)
 
 			m_itemTable[m_itemListNumber*4] = i;
 
+			int selok = 0;
+
 			int varNumber = m_shopItem->GetAppearVarNumber(i);
 			int varData = 0;
 			if (varNumber != -1)
@@ -869,6 +895,10 @@ void CCommonShop::CreateTable(void)
 				varData = m_game->GetVarData(varNumber);
 			}
 			m_itemTable[m_itemListNumber*4+1] = varData;
+			if (varData > 0)
+			{
+				selok = 1;
+			}
 
 			varNumber = m_shopItem->GetTargetVarNumber(i);
 			varData = 0;
@@ -879,7 +909,9 @@ void CCommonShop::CreateTable(void)
 			m_itemTable[m_itemListNumber*4+2] = varData;
 
 
-			int selok = 1;
+
+
+
 			if (m_canSelectLimit == 0)
 			{
 				//check limit
@@ -891,7 +923,7 @@ void CCommonShop::CreateTable(void)
 					{
 						if (m_game->GetVarData(limitVarNumber) >= limit)
 						{
-							selok = 0;
+							selok &= ~1;
 							m_soldOutFlag[m_itemListNumber] = 1;
 						}
 					}
@@ -904,7 +936,7 @@ void CCommonShop::CreateTable(void)
 				int price = m_shopItem->GetPrice(i);
 				if (m_gamePoint < price)
 				{
-					selok = 0;
+					selok &= ~1;
 				}
 			}
 
@@ -1038,8 +1070,8 @@ void CCommonShop::LoadItemPic(void)
 	for (int i=0;i<mx;i++)
 	{
 		int n = m_page * m_itemPerPage + i;
-		int k = m_itemTable[n*3];
-		int st = m_itemTable[n*3+1];
+		int k = m_itemTable[n*4];
+		int st = m_itemTable[n*4+1];
 		//int serial = m_haveItem->GetSerial(k);
 		LPSTR filenamebase = m_shopItem->GetFilename(k);
 		char filename[256];

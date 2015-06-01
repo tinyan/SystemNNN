@@ -354,6 +354,7 @@ int CCommonPrintItem::Calcu(void)
 
 				m_updownBack->Init();
 				m_updownBack->SetPage(m_page);
+				LoadItemPic();
 			}
 		}
 	}

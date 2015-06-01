@@ -7,6 +7,8 @@
 
 class CNameList;
 
+class CMyTextStore;
+
 class CMyIME
 {
 public:
@@ -19,9 +21,19 @@ public:
 	LPSTR GetNext(void);
 
 
+
+
+
+
+
+
+
+
 private:
 	int m_dummy;
 	int m_max;
+
+	CMyTextStore* m_textStore;
 };
 
 #endif

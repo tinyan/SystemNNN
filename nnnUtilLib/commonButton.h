@@ -155,6 +155,8 @@ public:
 
 	void SetNextIgnore(int cnt = 1);
 
+	BOOL LoadFile(LPSTR dirName = "sys");
+
 protected:
 	BOOL m_existFlag;
 	BOOL m_enableFlag;

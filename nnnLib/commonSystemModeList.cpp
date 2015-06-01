@@ -13,7 +13,7 @@ char CCommonSystemModeList::m_systemClassNameList[][32]=
 	"selectscenechara","","selectplace","printcg","selectzukan",
 	"selectmoviechara","selectmovie","printmovie","","nameinput",
 	"printcalendar","selectheroin","codecerror","printresult","selectchart",
-	"selectplace2","","","","",
+	"selectplace2","","","printstatus","",
 	"minigame","selectobject","printachievement","printterm","listenvoice",
 	"cardsystem","kanjiinput","printitem","shop","",
 
