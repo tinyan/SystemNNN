@@ -343,6 +343,7 @@ public:
 	virtual void PreReceiveScriptData(int cmd, int para1, LPVOID para2);
 
 	BOOL CreateCommonClass(int modeNumber);
+	void CreateAllClass(BOOL taikenFlag = FALSE);
 
 
 

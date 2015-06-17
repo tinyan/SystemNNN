@@ -50,6 +50,7 @@ CMyTextInputBox::CMyTextInputBox(HWND hwnd,CMyMessage* message,CViewControl* vie
 
 	m_parameterShuruiKosuu = 3;
 
+	m_notControlIME = 0;
 
 	m_zahyo = new POINT[m_parameterShuruiKosuu];
 	m_fontSize = new int[m_parameterShuruiKosuu];
@@ -375,6 +376,10 @@ BOOL CMyTextInputBox::DelKanji(void)
 void CMyTextInputBox::Start(void)
 {
 	m_enableFlag = TRUE;
+
+	if (m_notControlIME) return;
+
+
 	if (m_immWindowParamGetFlag == FALSE)
 	{
 		HIMC himc = ImmGetContext(m_hWnd);
@@ -415,6 +420,8 @@ void CMyTextInputBox::Stop(void)
 
 void CMyTextInputBox::AutoClose(void)
 {
+	if (m_notControlIME) return;
+
 	if (m_autoCloseFlag)
 	{
 		HIMC himc = ImmGetContext(m_hWnd);
@@ -433,6 +440,8 @@ void CMyTextInputBox::AutoClose(void)
 
 void CMyTextInputBox::MoveIMEWindow(void)
 {
+	if (m_notControlIME) return;
+
 	HIMC himc = ImmGetContext(m_hWnd);
 	if (himc != NULL)
 	{
@@ -458,6 +467,7 @@ void CMyTextInputBox::RemoveIMEWindow(void)
 {
 	if (m_immMovedFlag == FALSE) return;
 
+	if (m_notControlIME) return;
 
 	HIMC himc = ImmGetContext(m_hWnd);
 	if (himc != NULL)
@@ -678,6 +688,9 @@ void CMyTextInputBox::SetTextColor(int r,int g,int b,int n)
 void CMyTextInputBox::SetSetup(CNameList* nameList)
 {
 	m_setupList = nameList;
+
+	GetInitGameParam(&m_notControlIME,"notControlIME");
+
 
 	for (int i=0;i<m_parameterShuruiKosuu;i++)
 	{

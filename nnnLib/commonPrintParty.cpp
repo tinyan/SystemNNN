@@ -48,17 +48,17 @@
 #include "commonGeneral.h"
 
 
-#include "..\nnnUtilLib\commonPlayStatusData.h"
-#include "commonPrintStatus.h"
+#include "..\nnnUtilLib\commonPartyStatusData.h"
+#include "commonPrintParty.h"
 
 #include "commonKeyList.h"
 
 
 
-CCommonPrintStatus::CCommonPrintStatus(CGameCallBack* lpGame,int extMode) : CCommonGeneral(lpGame)
+CCommonPrintParty::CCommonPrintParty(CGameCallBack* lpGame,int extMode) : CCommonGeneral(lpGame)
 {
-	SetClassNumber(PRINTSTATUS_MODE);
-	LoadSetupFile("PrintStatus",256);
+	SetClassNumber(PRINTPARTY_MODE);
+	LoadSetupFile("PrintParty",256);
 
 	m_message = m_game->GetMyMessage();
 
@@ -67,27 +67,47 @@ CCommonPrintStatus::CCommonPrintStatus(CGameCallBack* lpGame,int extMode) : CCom
 	m_mustAllPrintFlag = TRUE;
 	GetInitGameString(&m_filenameBG,"filenameBG");
 
-	m_setNumber = 1;
-	GetInitGameParam(&m_setNumber,"setNumber");
 
-	m_playStatusData = new CCommonPlayStatusData*[m_setNumber];
-	for (int i=0;i<m_setNumber;i++)
+	m_partyStatusData = new CCommonPartyStatusData(m_setup,m_message);
+	m_partyNumber = m_partyStatusData->GetPartyNumber();
+	m_printNumberMax = m_partyStatusData->GetPrintNumberMax();
+	m_statusNumber = m_partyStatusData->GetStatusNumber();
+	m_etcNumber = m_partyStatusData->GetEtcNumber();
+
+	for (int i=0;i<m_partyNumber;i++)
 	{
-		char name[256];
-		sprintf_s(name,256,"set%d",i+1);
-		m_playStatusData[i] = new CCommonPlayStatusData(m_setup,name);
-
-		int graphNumber = m_playStatusData[i]->GetGraphNumber();
-		for (int k=0;k<graphNumber;k++)
+		for (int k=1;k<=m_statusNumber;k++)
 		{
-			LPSTR varName = m_playStatusData[i]->GetVarName(k);
-			int varNumber = m_game->GetVarNumber(varName);
-			m_playStatusData[i]->SetVarNumber(k,varNumber);
+			LPSTR varName = m_partyStatusData->GetVarName(i,k);
+			int varNumber = -1;
+			if (varName != NULL)
+			{
+				varNumber = m_game->GetVarNumber(varName);
+			}
+			m_partyStatusData->SetVarNumber(i,k,varNumber);
 		}
 	}
 
-	m_effectTime = 0;
-	GetInitGameParam(&m_effectTime,"effectTime");
+	for (int i=0;i<m_etcNumber;i++)
+	{
+		LPSTR varName = m_partyStatusData->GetEtcVarName(i);
+		int varNumber = m_game->GetVarNumber(varName);
+		m_partyStatusData->SetEtcVarNumber(i,varNumber);
+	}
+
+	for (int i=0;i<m_printNumberMax;i++)
+	{
+		LPSTR varName = m_partyStatusData->GetPrintVarName(i);
+		if (varName != NULL)
+		{
+			int varNumber = m_game->GetVarNumber(varName);
+			m_partyStatusData->SetPrintVarNumber(i,varNumber);
+		}
+	}
+
+
+//	m_effectTime = 0;
+//	GetInitGameParam(&m_effectTime,"effectTime");
 
 
 
@@ -105,39 +125,60 @@ CCommonPrintStatus::CCommonPrintStatus(CGameCallBack* lpGame,int extMode) : CCom
 
 
 
-CCommonPrintStatus::~CCommonPrintStatus()
+CCommonPrintParty::~CCommonPrintParty()
 {
 	End();
 }
 
-void CCommonPrintStatus::End(void)
+void CCommonPrintParty::End(void)
 {
-	if (m_playStatusData != NULL)
-	{
-		for (int i=0;i<m_setNumber;i++)
-		{
-			ENDDELETECLASS(m_playStatusData[i]);
-		}
-		DELETEARRAY(m_playStatusData);
-	}
+	ENDDELETECLASS(m_partyStatusData);
 }
 
 
-int CCommonPrintStatus::Init(void)
+int CCommonPrintParty::Init(void)
 {
 	LoadBackBG();
 	m_effectCount = 0;
 
-	for (int i=0;i<m_setNumber;i++)
+
+	for (int i=0;i<m_partyNumber;i++)
 	{
-		int graphNumber = m_playStatusData[i]->GetGraphNumber();
-		for (int k=0;k<graphNumber;k++)
+		for (int k=1;k<=m_statusNumber;k++)
 		{
-			int varNumber = m_playStatusData[i]->GetVarNumber(k);
-			int varData = m_game->GetVarData(varNumber);
-			m_playStatusData[i]->SetData(k,varData);
+			int type = m_partyStatusData->GetType(i,k);
+			if (type == 1)
+			{
+				int varNumber = m_partyStatusData->GetVarNumber(i,k);
+				if (varNumber != -1)
+				{
+					int varData = m_game->GetVarData(varNumber);
+					m_partyStatusData->SetData(i,k,varData);
+				}
+			}
 		}
 	}
+
+	for (int i=0;i<m_etcNumber;i++)
+	{
+		int varNumber = m_partyStatusData->GetEtcVarNumber(i);
+		if (varNumber != -1)
+		{
+			int varData = m_game->GetVarData(varNumber);
+			m_partyStatusData->SetEtcData(i,varData);
+		}
+	}
+
+	for (int i=0;i<m_printNumberMax;i++)
+	{
+		int varNumber = m_partyStatusData->GetPrintVarNumber(i);
+		if (varNumber != -1)
+		{
+			int varData = m_game->GetVarData(varNumber);
+			m_partyStatusData->SetPrintData(i,varData);
+		}
+	}
+
 
 	m_back->Init();
 	LoadBackButtonPic();
@@ -147,7 +188,7 @@ int CCommonPrintStatus::Init(void)
 }
 
 
-int CCommonPrintStatus::Calcu(void)
+int CCommonPrintParty::Calcu(void)
 {
 	int back = m_back->Calcu(m_inputStatus);
 
@@ -159,7 +200,6 @@ int CCommonPrintStatus::Calcu(void)
 			if (nm == 0)
 			{
 				m_game->FuqueAllEffectYoyaku();
-
 				return ReturnFadeOut(m_backMode);
 			}
 		}
@@ -171,7 +211,7 @@ int CCommonPrintStatus::Calcu(void)
 	return -1;
 }
 
-int CCommonPrintStatus::Print(void)
+int CCommonPrintParty::Print(void)
 {
 	CAreaControl::SetNextAllPrint();
 
@@ -183,10 +223,7 @@ int CCommonPrintStatus::Print(void)
 		ps = (100 * m_effectCount) / m_effectTime;
 	}
 
-	for (int i=0;i<m_setNumber;i++)
-	{
-		m_playStatusData[i]->Print(ps);
-	}
+	m_partyStatusData->Print(ps);
 
 	if (m_back != NULL)
 	{
@@ -205,7 +242,7 @@ int CCommonPrintStatus::Print(void)
 
 
 
-void CCommonPrintStatus::FinalExitRoutine(void)
+void CCommonPrintParty::FinalExitRoutine(void)
 {
 
 //	if (m_exitModeFlag)
@@ -215,7 +252,7 @@ void CCommonPrintStatus::FinalExitRoutine(void)
 
 }
 
-int CCommonPrintStatus::EndMode(void)
+int CCommonPrintParty::EndMode(void)
 {
 	return -1;
 
@@ -234,7 +271,7 @@ int CCommonPrintStatus::EndMode(void)
 
 
 
-void CCommonPrintStatus::CreateStartScreen(void)
+void CCommonPrintParty::CreateStartScreen(void)
 {
 	Print();
 }

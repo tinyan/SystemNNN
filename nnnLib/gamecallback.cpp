@@ -222,6 +222,7 @@
 #include "commonPrintItem.h"
 #include "commonShop.h"
 #include "commonPrintStatus.h"
+#include "commonPrintParty.h"
 
 #include "gameCallBack.h"
 
@@ -12126,6 +12127,9 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 	case PRINTSTATUS_MODE:
 		general = new CCommonPrintStatus(this);
 		break;
+	case PRINTPARTY_MODE:
+		general = new CCommonPrintParty(this);
+		break;
 	case SHOP_MODE:
 		general = new CCommonShop(this);
 		break;
@@ -12177,6 +12181,66 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 
 
 	return TRUE;
+}
+
+
+void CGameCallBack::CreateAllClass(BOOL taikenFlag)
+{
+	CreateCommonClass(NOTHING_MODE);
+	CreateCommonClass(LOGO_MODE);
+	CreateCommonClass(TITLE_MODE);
+	CreateCommonClass(OPENING_MODE);
+	CreateCommonClass(CONFIG_MODE);
+	CreateCommonClass(PRINTMESSAGE_MODE);
+	CreateCommonClass(SELECTPLACE_MODE);
+	CreateCommonClass(SELECTPLACE2_MODE);
+	CreateCommonClass(SELECTOBJECT_MODE);
+	CreateCommonClass(PRINTACHIEVEMENT_MODE);
+	CreateCommonClass(PRINTTERM_MODE);
+	CreateCommonClass(PRINTSTATUS_MODE);
+	CreateCommonClass(PRINTPARTY_MODE);
+	CreateCommonClass(LISTENVOICE_MODE);
+	CreateCommonClass(KANJIINPUT_MODE);
+	CreateCommonClass(PRINTITEM_MODE);
+	CreateCommonClass(SHOP_MODE);
+	CreateCommonClass(BACKLOG_MODE);
+	CreateCommonClass(PRINTOVERRAP_MODE);
+	CreateCommonClass(SELECTMESSAGE_MODE);
+	CreateCommonClass(SYSTEMMENU_MODE);
+
+	CreateCommonClass(CODECERROR_MODE);
+	CreateCommonClass(PRINTMOVIE_MODE);
+
+	CreateCommonClass(SELECTHEROIN_MODE);
+	CreateCommonClass(PRINTCALENDAR_MODE);
+
+	CreateCommonClass(PRINTMOVIE_MODE);
+	CreateCommonClass(NAMEINPUT_MODE);
+	CreateCommonClass(MYPRINTRESULT_MODE);
+	CreateCommonClass(SELECTCHART_MODE);
+	CreateCommonClass(SELECTZUKAN_MODE);
+	CreateCommonClass(CARDSYSTEM_MODE);
+
+	
+
+	
+	
+	if (taikenFlag == FALSE)
+	{
+		CreateCommonClass(OMAKE_MODE);
+		CreateCommonClass(SELECTCGCHARA_MODE);
+		CreateCommonClass(SELECTCG_MODE);
+		CreateCommonClass(SELECTSCENECHARA_MODE);
+		CreateCommonClass(SELECTSCENE_MODE);
+		CreateCommonClass(LISTENBGM_MODE);
+		CreateCommonClass(PRINTCG_MODE);
+	}
+
+	CreateCommonClass(LOAD_MODE);
+	CreateCommonClass(SAVE_MODE);
+
+	CreateCommonClass(MINIGAME_MODE);
+
 }
 
 

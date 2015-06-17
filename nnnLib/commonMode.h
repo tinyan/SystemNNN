@@ -56,7 +56,8 @@
 #define KANJIINPUT_MODE 46
 #define PRINTITEM_MODE 47
 #define SHOP_MODE 48
-//49
+#define PRINTPARTY_MODE 49
+
 
 
 

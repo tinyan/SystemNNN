@@ -32,6 +32,7 @@ CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 	m_playFlag = FALSE;
 	m_completeFlag = FALSE;
 
+
 	m_mediaSeek = NULL;
 	m_basicAudio = NULL;
 	m_mediaEventEx = NULL;
@@ -112,6 +113,7 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 //		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetNativeVideoSize(&width,&height,NULL,NULL);
 		if (FAILED(hr))
 		{
+			OutputDebugString("error IVMRWindowlessControl9::GetNativeVideoSize");
 		}
 //		height = 720;
 
@@ -181,9 +183,23 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 			SetRect(&dstRect,0,0,m_windowSize.cx,m_windowSize.cy);
 		}
 
+
+
+	//	RECT srcRect88,dstRect88;
+	//	HRESULT hr88 = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetVideoPosition(&srcRect88,&dstRect88);
 		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->SetVideoPosition(&srcRect,&dstRect);
+//		hr = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->SetVideoPosition(NULL,&dstRect);
 		if (FAILED(hr))
 		{
+		//	HRESULT hr89 = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->GetVideoPosition(&srcRect88,&dstRect88);
+			OutputDebugString("error IVMRWindowlessControl9::SetVideoPosition");
+			HRESULT hr99 = ((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->SetVideoPosition(NULL,&dstRect);
+			if (FAILED(hr99))
+			{
+			OutputDebugString("error IVMRWindowlessControl9::SetVideoPosition NULL,dst");
+
+			}
+
 		}
 	}
 	else
@@ -319,7 +335,10 @@ BOOL CMyDirectShow::OnNotify(void)
 		switch (evCode)
 		{
 		case EC_COMPLETE:
-			((IMediaControl*)m_mediaControl)->Stop();
+			if (m_mediaControl != NULL)
+			{
+				((IMediaControl*)m_mediaControl)->Stop();
+			}
 //OutputDebugString("[EC_COMPLETE]");
 //		StopMovie();
 			m_completeFlag = TRUE;
@@ -399,13 +418,15 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 
 	if (m_useVMR9Flag)
 	{
+
+//if (0)
 		if (m_vmr9RenderType == 1)
 		{
 			IBaseFilter* sourceFilter = NULL;
 			HRESULT hr3 = ((IGraphBuilder*)m_graphBuilder)->AddSourceFilter((LPWSTR)fname2,L"Source1",&sourceFilter);
 			if (SUCCEEDED(hr3))
 			{
-				sourceFilter->Release();
+//				sourceFilter->Release();
 
 //				m_sourceFilter = sourceFilter;
 
@@ -423,6 +444,7 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 						{
 							if (CheckVMR9Connected())
 							{
+								sourceFilter->Release();
 								return 4;
 							}
 						}
@@ -440,6 +462,10 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 			}
 			ReleaseVMR9();
 			//ReleaseBuilders();
+
+			IGraphBuilder* graphBuilder = (IGraphBuilder*)m_graphBuilder;
+			ENDRELEASE(graphBuilder);
+
 			m_graphBuilder = NULL;
 
 			HRESULT hr01 = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,IID_IGraphBuilder, (void **)&m_graphBuilder);
@@ -457,10 +483,10 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 				m_useVMR9Flag = FALSE;
 			}
 
-			CreateGraphBuilder();
+			//CreateGraphBuilder();
 		}
 
-
+//if (0)
 		if (m_useVMR9Flag)	//‚³‚¢‚¿‚¥‚Á‚­
 		{
 //OutputDebugString("[check2]");
@@ -480,6 +506,7 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 //		ReleaseBuilders();
 
 		m_useVMR9Flag = FALSE;	//‚à‚¤‚Â‚©‚¦‚È‚¢
+		CreateGraphBuilder();
 	}
 
 
@@ -602,9 +629,9 @@ void CMyDirectShow::RemoveAllFilter(LPVOID graphBuilder0)
 
 	IGraphBuilder* graphBuilder = (IGraphBuilder*)graphBuilder0;
 
-	IMediaControl*	 mediaControl;
-	IFilterGraph* filterGraph;
-	IGraphConfig* graphConfig;
+	IMediaControl*	 mediaControl = NULL;
+	IFilterGraph* filterGraph = NULL;
+	IGraphConfig* graphConfig = NULL;
 
     HRESULT hr2 = graphBuilder->QueryInterface(IID_IMediaControl, (void **)&mediaControl);
     HRESULT hr3 = graphBuilder->QueryInterface(IID_IFilterGraph, (void **)&filterGraph);
@@ -800,23 +827,28 @@ BOOL CMyDirectShow::CreateVMR9(void)
 
 	if (SUCCEEDED(hr))
 	{
-		((IVMRFilterConfig9*)m_vmrFilterConfig9)->Release();
-		m_vmrFilterConfig9 = NULL;
-
+	
 		if (m_vmrWindowLessControl9 == NULL)
 		{
 			hr = ((IBaseFilter*)m_vmr9)->QueryInterface(IID_IVMRWindowlessControl9, (void**)&m_vmrWindowLessControl9);
 		}
 
+
+		BOOL rt = TRUE;
 		if (SUCCEEDED(hr)) 
 		{
 			((IVMRWindowlessControl9*)m_vmrWindowLessControl9)->SetVideoClippingWindow(m_parentHWnd);
-			return TRUE;
+			rt = TRUE;
 		}
 		else
 		{
-			return FALSE;
+			rt = FALSE;
 		}
+
+		((IVMRFilterConfig9*)m_vmrFilterConfig9)->Release();
+		m_vmrFilterConfig9 = NULL;
+
+		return rt;
 	}
 
 	return FALSE;
@@ -1087,6 +1119,8 @@ HRESULT CMyDirectShow::WaitMediaControl(int ms,int loop)
 	OAFilterState fs;
 	HRESULT hr = S_OK;
 	int n = 0;
+	if (m_mediaControl == NULL) return hr;
+
 	while (1)
 	{
 		hr = ((IMediaControl*)m_mediaControl)->GetState(ms,&fs);

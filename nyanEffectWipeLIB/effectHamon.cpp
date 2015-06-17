@@ -69,7 +69,9 @@ BOOL CEffectHamon::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int lay
 
 	if (m_vector == NULL)
 	{
-		m_vector = new int[(screenSizeX * screenSizeY * 3) / 2 + 8];
+		int asx = (screenSizeX + 3) & ~3;
+
+		m_vector = new int[(asx * screenSizeY * 3) / 2 + 8];
 		int pt = (int)m_vector;
 		pt += 31;
 		pt &= ~31;
@@ -512,6 +514,9 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 
 	int* vectorTable = m_vectorAdjusted;
 
+	int asx = (screenSizeX + 3) & ~3;
+	int tablePitch = asx / 4 * sizeof(int) * 6;
+
 	__asm
 	{
 		push eax
@@ -537,6 +542,7 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 		mov ecx,0
 LOOP1:
 		push ecx
+		push esi
 		push edi
 
 		mov tmpY,ecx
@@ -746,7 +752,9 @@ SKIP6:
 		jb LOOP2
 
 		pop edi
+		pop esi
 		pop ecx
+		add esi,tablePitch
 		add edi,lPitch
 		inc ecx
 		cmp ecx,screenSizeY

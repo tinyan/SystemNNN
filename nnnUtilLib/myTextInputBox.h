@@ -53,7 +53,7 @@ private:
 	HWND m_hWnd;
 	CViewControl* m_viewControl;
 
-
+	int m_notControlIME;
 
 	POINT* m_zahyo;
 	int* m_fontSize;
