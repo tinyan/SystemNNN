@@ -172,6 +172,7 @@ CCommonPartyStatusData::CCommonPartyStatusData(CNameList* setup,CMyMessage* mess
 		m_partyParam[i].statusVar = new int[m_statusNumber+1];
 		for (int k=0;k<=m_statusNumber;k++)
 		{
+
 			int varNumber = -1;
 			int textNumber = -1;
 			int type = m_statusParam[k].type;
@@ -180,10 +181,10 @@ CCommonPartyStatusData::CCommonPartyStatusData(CNameList* setup,CMyMessage* mess
 			{
 				sprintf_s(name,256,"party%d_%dtextNumber",i+1,k);
 				GetInitGameParam(&textNumber,name);
-				m_partyParam[i].data[k] = textNumber;
 			}
 
 
+			m_partyParam[i].data[k] = textNumber;
 			m_partyParam[i].statusVar[k] = varNumber;
 		}
 
@@ -215,22 +216,22 @@ CCommonPartyStatusData::CCommonPartyStatusData(CNameList* setup,CMyMessage* mess
 		m_etcParam[i].zahyo.x = printX;
 		m_etcParam[i].zahyo.y = printY;
 
-		sprintf_s(name,256,"etc%dLeftFlag",i);
+		sprintf_s(name,256,"etc%dLeftFlag",i+1);
 		GetInitGameParam(&left,name);
-		sprintf_s(name,256,"etc%dUpZero",i);
+		sprintf_s(name,256,"etc%dUpZero",i+1);
 		GetInitGameParam(&upzero,name);
-		sprintf_s(name,256,"etc%dketa",i);
+		sprintf_s(name,256,"etc%dketa",i+1);
 		GetInitGameParam(&keta,name);
 
-		sprintf_s(name,256,"etc%dSuujiSizeX",i);
+		sprintf_s(name,256,"etc%dSuujiSizeX",i+1);
 		GetInitGameParam(&suujiSizeX,name);
-		sprintf_s(name,256,"etc%dSuujiSizeY",i);
+		sprintf_s(name,256,"etc%dSuujiSizeY",i+1);
 		GetInitGameParam(&suujiSizeY,name);
-		sprintf_s(name,256,"etc%dSuujiNextX",i);
+		sprintf_s(name,256,"etc%dSuujiNextX",i+1);
 		suujiNextX = suujiSizeX;
 		GetInitGameParam(&suujiNextX,name);
 
-		sprintf_s(name,256,"etc%dsuujiFilename",i);
+		sprintf_s(name,256,"etc%dsuujiFilename",i+1);
 		GetInitGameString(&suujiFilename,name);
 
 		CPicture* pic = CSystemPicture::GetSystemPicture(suujiFilename);

@@ -43,6 +43,9 @@ public:
 	int GetHenkanLength(void);
 	int GetInputLength(void);
 
+	void SetTextLengthMax(int* table);
+	BOOL CheckEnableCommandKey(int cmd);
+
 private:
 	static char m_to2byteTable[];
 	static MYSOFTKEY m_defaultKeySet[];
@@ -56,6 +59,7 @@ private:
 	int m_textTypeMax;
 	int m_textLength[3];
 	int m_textLengthMax[3];
+	int m_textLengthMaxDefault[3];
 
 //	int m_kakuteiLength;
 //	int m_inputLength;
@@ -93,6 +97,11 @@ private:
 	int m_fontColorR;
 	int m_fontColorG;
 	int m_fontColorB;
+
+	int m_selectColorR;
+	int m_selectColorG;
+	int m_selectColorB;
+	int m_selectColorA;
 
 
 	POINT GetKeyZahyo(int nx,int ny,int page = 0);

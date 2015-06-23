@@ -32,6 +32,34 @@ protected:
 	int m_targetNumber;
 	int m_targetType;
 
+	int m_fontSize;
+	int m_printX;
+	int m_printY;
+	int m_kakuteiFontColorR;
+	int m_kakuteiFontColorG;
+	int m_kakuteiFontColorB;
+	int m_henkanFontColorR;
+	int m_henkanFontColorG;
+	int m_henkanFontColorB;
+	int m_inputFontColorR;
+	int m_inputFontColorG;
+	int m_inputFontColorB;
+	int m_henkanSelectColorR;
+	int m_henkanSelectColorG;
+	int m_henkanSelectColorB;
+	int m_henkanSelectColorA;
+	int m_inputSelectColorR;
+	int m_inputSelectColorG;
+	int m_inputSelectColorB;
+	int m_inputSelectColorA;
+
+	int m_debugPrintFlag;
+	int m_debugFontSize;
+	int m_debugPrintX;
+	int m_debugPrintY;
+	int m_debugNextY;
+
+	int m_textMax[4][3];
 
 };
 

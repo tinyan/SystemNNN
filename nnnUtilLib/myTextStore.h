@@ -5,6 +5,7 @@
 #if !defined __NNNUTILLIB_MYTEXTSTORE__
 #define __NNNUTILLIB_MYTEXTSTORE__
 
+
 #include <olectl.h>
 #include <msctf.h>
 #include <msaatext.h>

@@ -3,10 +3,27 @@
 //
 
 #include <windows.h>
-
 #include "..\nyanLib\include\\commonMacro.h"
 
 #include "myTextStore.h"
+
+
+#define _UNICODE
+
+
+#define numberof(A) (sizeof(A)/sizeof(*(A)))
+
+CMyTextStore::CMyTextStore()
+{
+	m_lock_count = 0;
+	m_lock_flags = false;
+	m_ref_count = 0;
+}
+
+CMyTextStore::~CMyTextStore()
+{
+}
+
 //#include <atlcomcli.h>
 //#include <atlbase.h>
 //#include <atlcom.h>
@@ -15,6 +32,12 @@
 //typedef STComPtr <ISTEventSubInfo> ISTEventSubInfoPtr;
 
 // Compare two objects for equivalence
+HRESULT CMyTextStore::CreateInstance(CMyTextStore*& o_text_store_cp)
+{
+	o_text_store_cp = new CMyTextStore();
+	return S_OK;
+}
+
 
  bool IsEqualObject(IUnknown* pFirst,IUnknown* pOther)
  {
@@ -198,9 +221,8 @@ STDMETHODIMP CMyTextStore::UnadviseSink(
   return retval;
 }
 
-/*
 
- RequestLock()
+
 
 //ドキュメントに対してロックを要求し、ロックが成功した場合に登録してあるシンクの OnLockGranted() メソッドを 呼ぶメソッドです。
 //TSF では複数のテキストサービスから同時に入力がくる可能性があります。例えばキーボードを押しながら音声入力を 行った場合などです。他にも、アプリケーション側でドキュメントを読み込んだり変更したい場合だってあります。 そのような場合に一つのドキュメントに対して各々が好き勝手にアクセスできてしまっては困ります。
@@ -212,359 +234,496 @@ STDMETHODIMP CMyTextStore::UnadviseSink(
 //1番目の引数は読取専用や読み書きの両方を行うといったロックのタイプを表すフラグです。
 //2番目の引数はシンクの OnLockGranted() メソッドの戻り値の格納先です。
 
-ReconvTextStore.cpp
- 324 : //! ドキュメントをロックして登録済みシンクのメソッドをコールする。
- 325 : STDMETHODIMP ReconvTextStore::RequestLock(
- 326 :   DWORD       i_lock_flags,
- 327 :   HRESULT*    o_session_result_p
- 328 : )
- 329 : {
- 330 :   HRESULT   retval      = E_FAIL;
- 331 :   LONG      lock_count  = InterlockedIncrement(&m_lock_count);
- 332 :   
- 333 :   do
- 334 :   {
- 335 :     // シンクが登録されていない場合はエラー
- 336 :     if( m_sink_cp == NULL )
- 337 :     {
- 338 :       _RPTF0(_CRT_WARN, "*** Error *** m_sink_cp is NULL.\n");
- 339 :       retval = E_UNEXPECTED;
- 340 :       break;
- 341 :     }
- 342 :     
- 343 :     // 有効な引数か？
- 344 :     if( IsBadWritePtr(o_session_result_p, sizeof(HRESULT)) )
- 345 :     {
- 346 :       _RPTF0(_CRT_WARN, "*** Error *** o_session_result_p is bad ptr.\n");
- 347 :       retval = E_INVALIDARG;
- 348 :       break;
- 349 :     }
- 350 :     
- 351 :     *o_session_result_p = E_FAIL;
- 352 : 
- 353 :     // ロックに失敗した場合。
- 354 :     if( lock_count != 1 )
- 355 :     {
- 356 :       _RPTF1(_CRT_WARN, "*** Error *** unable to lock. count : %d.\n", lock_count);
- 357 : 
- 358 :       // 同期ロックを要求。
- 359 :       if( (i_lock_flags & TS_LF_SYNC) == TS_LF_SYNC )
- 360 :         *o_session_result_p = TS_E_SYNCHRONOUS;
- 361 :       else  // 非同期要求
- 362 :         *o_session_result_p = E_NOTIMPL;
- 363 : 
- 364 :       retval = S_OK;  // 戻り値は S_OK
- 365 :       break;
- 366 :     }
- 367 :     
- 368 :     // OnLockGranted() をコールする。
- 369 :     m_lock_flags = i_lock_flags;
- 370 :     try
- 371 :     {
- 372 :       *o_session_result_p = m_sink_cp->OnLockGranted(i_lock_flags);
- 373 :     }
- 374 :     catch(...)
- 375 :     {
- 376 :       _RPTF0(_CRT_WARN, "*** ERROR *** exception occured.\n");
- 377 :       *o_session_result_p = E_FAIL;
- 378 :     }
- 379 :     m_lock_flags = 0;
- 380 : 
- 381 :     retval = S_OK;
- 382 :   }
- 383 :   while( 0 );
- 384 :   
- 385 :   InterlockedDecrement(&m_lock_count);
- 386 :   
- 387 :   return retval;
- 388 : }
+STDMETHODIMP CMyTextStore::RequestLock(
+  DWORD       i_lock_flags,
+  HRESULT*    o_session_result_p
+)
+{
+  HRESULT   retval      = E_FAIL;
+  LONG      lock_count  = InterlockedIncrement(&m_lock_count);
+  
+  do
+  {
+    // シンクが登録されていない場合はエラー
+    if( m_sink_cp == NULL )
+    {
+//      _RPTF0(_CRT_WARN, "*** Error *** m_sink_cp is NULL.\n");
+      OutputDebugString("_CRT_WARN, *** Error *** m_sink_cp is NULL.\n");
+      retval = E_UNEXPECTED;
+      break;
+    }
+    
+    // 有効な引数か？
+    if( IsBadWritePtr(o_session_result_p, sizeof(HRESULT)) )
+    {
+//      _RPTF0(_CRT_WARN, "*** Error *** o_session_result_p is bad ptr.\n");
+      OutputDebugString("_CRT_WARN, *** Error *** o_session_result_p is bad ptr.\n");
+      retval = E_INVALIDARG;
+      break;
+    }
+    
+    *o_session_result_p = E_FAIL;
+
+    // ロックに失敗した場合。
+    if( lock_count != 1 )
+    {
+//      _RPTF1(_CRT_WARN, "*** Error *** unable to lock. count : %d.\n", lock_count);
+      OutputDebugString("_CRT_WARN, *** Error *** unable to lock. count : %d.\n, lock_count");
+
+      // 同期ロックを要求。
+      if( (i_lock_flags & TS_LF_SYNC) == TS_LF_SYNC )
+        *o_session_result_p = TS_E_SYNCHRONOUS;
+      else  // 非同期要求
+        *o_session_result_p = E_NOTIMPL;
+
+      retval = S_OK;  // 戻り値は S_OK
+      break;
+    }
+    
+    // OnLockGranted() をコールする。
+    m_lock_flags = i_lock_flags;
+    try
+    {
+      *o_session_result_p = m_sink_cp->OnLockGranted(i_lock_flags);
+    }
+    catch(...)
+    {
+//      _RPTF0(_CRT_WARN, "*** ERROR *** exception occured.\n");
+      OutputDebugString("_CRT_WARN, *** ERROR *** exception occured.\n");
+      *o_session_result_p = E_FAIL;
+    }
+    m_lock_flags = 0;
+
+    retval = S_OK;
+  }
+  while( 0 );
+  
+  InterlockedDecrement(&m_lock_count);
+  
+  return retval;
+}
 
 
- ReconvTextStore.cpp
-  42 : //! ドキュメントのロックを行う。成功した場合 true, 失敗した場合 false を返す。
-  43 : bool ReconvTextStore::LockDocument(DWORD i_lock_flags)
-  44 : {
-  45 :   bool    retval      = false;
-  46 :   LONG    lock_count  = InterlockedIncrement(&m_lock_count);
-  47 :   
-  48 :   if( lock_count == 1 )
-  49 :   {
-  50 :     m_lock_flags  = i_lock_flags;
-  51 :     retval        = true;
-  52 :   }
-  53 :   else
-  54 :   {
-  55 :     InterlockedDecrement(&m_lock_count);
-  56 :   }
-  57 :   
-  58 :   return retval;
-  59 : }
 
 
-ReconvTextStore.cpp
-  65 : //! ドキュメントのロックを解除する。ロックしてない状況で呼ばないこと。
-  66 : bool ReconvTextStore::UnlockDocument()
-  67 : {
-  68 :   bool    retval      = false;
-  69 :   
-  70 :   if( m_lock_flags )
-  71 :   {
-  72 :     m_lock_flags = 0;
-  73 :     retval = true;
-  74 :     InterlockedDecrement(&m_lock_count);
-  75 :   }
-  76 :   
-  77 :   return retval;
-  78 : }
 
 
-ReconvTextStore.cpp
-  84 : //! ドキュメントをロック中か？
-  85 : bool ReconvTextStore::IsLocked(DWORD i_lock_flags)
-  86 : {
-  87 :   return (m_lock_flags & i_lock_flags) == i_lock_flags;
-  88 : }
+//! ドキュメントのロックを行う。成功した場合 true, 失敗した場合 false を返す。
+bool CMyTextStore::LockDocument(DWORD i_lock_flags)
+{
+  bool    retval      = false;
+  LONG    lock_count  = InterlockedIncrement(&m_lock_count);
+  
+  if( lock_count == 1 )
+  {
+    m_lock_flags  = i_lock_flags;
+    retval        = true;
+  }
+  else
+  {
+    InterlockedDecrement(&m_lock_count);
+  }
+  
+  return retval;
+}
 
 
-SetString()
-
-　変換候補リストを取得したい文字列をテキストストアに突っ込むメソッドです。 
-ReconvTextStore.cpp
-  94 : //! 変換候補リストを取得したい文字列をセットする。
-  95 : bool ReconvTextStore::SetString(const wchar_t* i_string)
-  96 : {
-  97 :   bool    retval      = false;
-  98 :   
-  99 :   do
- 100 :   {
- 101 :     if( IsBadReadPtr(i_string, sizeof(wchar_t)) )
- 102 :     {
- 103 :       _RPTF0(_CRT_WARN, "*** ERROR *** i_string is bad ptr.\n");
- 104 :       break;
- 105 :     }
- 106 : 
- 107 :     if( LockDocument(TS_LF_READWRITE) == false )
- 108 :     {
- 109 :       _RPTF0(_CRT_WARN, "*** Error *** unable to lock.\n");
- 110 :       break;
- 111 :     }
- 112 : 
- 113 :     TS_TEXTCHANGE text_change = { 0 };
- 114 :     text_change.acpStart  = 0;
- 115 :     text_change.acpOldEnd = lstrlen(m_text);
- 116 :     text_change.acpNewEnd = lstrlen(i_string);
- 117 :     
- 118 :     lstrcpyn(m_text, i_string, numberof(m_text) - 1);
- 119 :     UnlockDocument();
- 120 :       
- 121 :     if( m_sink_cp && (m_sink_mask & TS_AS_TEXT_CHANGE) )
- 122 :       m_sink_cp->OnTextChange(0, &text_change);
- 123 : 
- 124 :     retval = true;
- 125 :   }
- 126 :   while( 0 );
- 127 :   
- 128 :   return retval;
- 129 : }
+//! ドキュメントのロックを解除する。ロックしてない状況で呼ばないこと。
+bool CMyTextStore::UnlockDocument()
+{
+  bool    retval      = false;
+  
+  if( m_lock_flags )
+  {
+    m_lock_flags = 0;
+    retval = true;
+    InterlockedDecrement(&m_lock_count);
+  }
+  
+  return retval;
+}
 
 
- GetStatus()
-
-　ドキュメントのステータスを返すメソッドです。ステータスとは読取専用や処理中などの状態のことです。 他にも複数の選択を許可するかどうかを返さなければいけません。今回、テキストサービスから入力を受け付ける 必要はありませんので、読取専用、一つの選択しか許可しない、と返します。 
-ReconvTextStore.cpp
- 394 : //! ドキュメントのステータスを取得する。
- 395 : STDMETHODIMP ReconvTextStore::GetStatus(
- 396 :   TS_STATUS*  o_document_status_p
- 397 : )
- 398 : {
- 399 :   HRESULT   retval = E_INVALIDARG;
- 400 :   
- 401 :   do
- 402 :   {
- 403 :     if( IsBadWritePtr(o_document_status_p, sizeof TS_STATUS) )
- 404 :     {
- 405 :       _RPTF0(_CRT_WARN, "*** ERROR *** o_document_status_p is bad ptr.\n");
- 406 :       retval = E_INVALIDARG;
- 407 :       break;
- 408 :     }
- 409 :     
- 410 :     o_document_status_p->dwDynamicFlags = TS_SD_READONLY;
- 411 :     // 一つの選択しか許可しない
- 412 :     o_document_status_p->dwStaticFlags = TS_SS_REGIONS;
- 413 :     
- 414 :     retval = S_OK;
- 415 :   }
- 416 :   while( 0 );
- 417 : 
- 418 :   return retval;
- 419 : }
+//! ドキュメントをロック中か？
+bool CMyTextStore::IsLocked(DWORD i_lock_flags)
+{
+  return (m_lock_flags & i_lock_flags) == i_lock_flags;
+}
 
 
-GetSelection()
-
-　ドキュメントの選択範囲を返すメソッドです。 終了位置の文字は含みません。「あいうえお」で「うえ」を選択して いる場合は開始位置が 2 、終了位置が 4 となります。
- 　ドキュメントにアクセスするメソッドなのでロック状態でない場合は TS_E_NOLOCK を返します。 
-ReconvTextStore.cpp
- 425 : //! ドキュメントの選択範囲を取得する。
- 426 : STDMETHODIMP ReconvTextStore::GetSelection(
- 427 :   ULONG               i_index,
- 428 :   ULONG               i_selection_buffer_length,
- 429 :   TS_SELECTION_ACP*   o_selections,
- 430 :   ULONG*              o_fetched_length_p
- 431 : )
- 432 : {
- 433 :   HRESULT   retval = E_INVALIDARG;
- 434 :   
- 435 :   do
- 436 :   {
- 437 :     if( IsBadWritePtr(o_selections, sizeof TS_SELECTION_ACP)
- 438 :     ||  IsBadWritePtr(o_fetched_length_p, sizeof(ULONG)) )
- 439 :     {
- 440 :       _RPTF0(_CRT_WARN, "*** ERROR *** invalid parameter.\n");
- 441 :       retval = E_INVALIDARG;
- 442 :       break;
- 443 :     }
- 444 :     
- 445 :     *o_fetched_length_p = 0;
- 446 :     
- 447 :     if( IsLocked(TS_LF_READ) == false )
- 448 :     {
- 449 :       _RPTF0(_CRT_WARN, "*** ERROR *** no lock.\n");
- 450 :       retval = TS_E_NOLOCK;
- 451 :       break;
- 452 :     }
- 453 :     
- 454 :     if( i_index != TF_DEFAULT_SELECTION && i_index > 0 )
- 455 :     {
- 456 :       _RPTF0(_CRT_WARN, "*** ERROR *** i_index is not valid.\n");
- 457 :       retval = E_INVALIDARG;
- 458 :       break;
- 459 :     }
- 460 :     
- 461 :     memset(o_selections, 0, sizeof(o_selections[0]));
- 462 :     o_selections[0].acpStart = 0;
- 463 :     if( m_text[0] )
- 464 :       o_selections[0].acpEnd = lstrlen(m_text);
- 465 :     else
- 466 :       o_selections[0].acpEnd = 0;
- 467 :     o_selections[0].style.fInterimChar  = FALSE;
- 468 :     o_selections[0].style.ase           = TS_AE_START;
- 469 : 
- 470 :     *o_fetched_length_p = 1;
- 471 :     retval = S_OK;
- 472 :   }
- 473 :   while( 0 );
- 474 :   
- 475 :   return retval;
- 476 : }
 
 
-GetText()
 
-　ドキュメントの指定した範囲の文字列を返すメソッドです。GetSelection() と同様に終了位置の文字は含みません。終了位置が -1 の場合は終わりまで、という意味になります。
- 　ドキュメントにアクセスするメソッドなのでロック状態でない場合は TS_E_NOLOCK を返します。 
-ReconvTextStore.cpp
- 482 : //! テキストを取得する。
- 483 : STDMETHODIMP ReconvTextStore::GetText(
- 484 :   LONG          i_start_index,
- 485 :   LONG          i_end_index,
- 486 :   WCHAR*        o_plain_text,
- 487 :   ULONG         i_plain_text_length,
- 488 :   ULONG*        o_plain_text_length_p,
- 489 :   TS_RUNINFO*   o_run_info_p,
- 490 :   ULONG         i_run_info_length,
- 491 :   ULONG*        o_run_info_length_p,
- 492 :   LONG*         o_next_unread_char_pos_p
- 493 : )
- 494 : {
- 495 :   HRESULT   retval = E_INVALIDARG;
- 496 :   
- 497 :   do
- 498 :   {
- 499 :     if( IsLocked(TS_LF_READ) == false )
- 500 :     {
- 501 :       retval = TS_E_NOLOCK;
- 502 :       break;
- 503 :     }
- 504 :     
- 505 :     ULONG   text_length = lstrlen(m_text);
- 506 :     ULONG   copy_length = min(text_length, i_plain_text_length);
- 507 :     
- 508 :     // 文字列を格納。コピー先は L'\0' で終わっている必要は無い。
- 509 :     if( IsBadWritePtr(o_plain_text, i_plain_text_length * sizeof(wchar_t)) == FALSE )
- 510 :     {
- 511 :       memset(o_plain_text, 0, i_plain_text_length * sizeof(wchar_t));
- 512 :       memcpy(o_plain_text, m_text, copy_length * sizeof(wchar_t));
- 513 :     }
- 514 :     
- 515 :     // 格納した文字列の文字数を格納。
- 516 :     if( IsBadWritePtr(o_plain_text_length_p, sizeof ULONG) == FALSE )
- 517 :     {
- 518 :       *o_plain_text_length_p = copy_length;
- 519 :     }
- 520 :     
- 521 :     // RUNINFO を格納。
- 522 :     if( IsBadWritePtr(o_run_info_p, sizeof TS_RUNINFO) == FALSE )
- 523 :     {
- 524 :       o_run_info_p[0].type   = TS_RT_PLAIN;
- 525 :       o_run_info_p[0].uCount = text_length;
- 526 :     }
- 527 :     
- 528 :     // RUNINFO を格納した数を格納。
- 529 :     if( IsBadWritePtr(o_run_info_length_p, sizeof ULONG) == FALSE )
- 530 :       *o_run_info_length_p = 1;
- 531 :     
- 532 :     // 次の文字の位置を格納。
- 533 :     if( IsBadWritePtr(o_next_unread_char_pos_p, sizeof LONG) == FALSE )
- 534 :       *o_next_unread_char_pos_p = i_start_index + text_length;
- 535 :     
- 536 :     retval = S_OK;
- 537 :   }
- 538 :   while( 0 );
- 539 :   
- 540 :   return retval;
- 541 : }
+//! 変換候補リストを取得したい文字列をセットする。
+bool CMyTextStore::SetString(const wchar_t* i_string)
+{
+  bool    retval      = false;
+  
+  do
+  {
+    if( IsBadReadPtr(i_string, sizeof(wchar_t)) )
+    {
+      //_RPTF0(_CRT_WARN, "*** ERROR *** i_string is bad ptr.\n");
+      OutputDebugString("_CRT_WARN, *** ERROR *** i_string is bad ptr.\n");
+      break;
+    }
+
+    if( LockDocument(TS_LF_READWRITE) == false )
+    {
+//      _RPTF0(_CRT_WARN, "*** Error *** unable to lock.\n");
+      OutputDebugString("_CRT_WARN, *** Error *** unable to lock.\n");
+      break;
+    }
+
+    TS_TEXTCHANGE text_change = { 0 };
+    text_change.acpStart  = 0;
+    text_change.acpOldEnd = lstrlen((LPCSTR)m_text);
+    text_change.acpNewEnd = lstrlen((LPCSTR)i_string);
+    
+    lstrcpyn((LPSTR)m_text, (LPCSTR)i_string, numberof(m_text) - 1);
+    UnlockDocument();
+      
+    if( m_sink_cp && (m_sink_mask & TS_AS_TEXT_CHANGE) )
+      m_sink_cp->OnTextChange(0, &text_change);
+
+    retval = true;
+  }
+  while( 0 );
+  
+  return retval;
+}
 
 
- QueryInsert()
+ 
+//ドキュメントのステータスを返すメソッドです。ステータスとは読取専用や処理中などの状態のことです。 他にも複数の選択を許可するかどうかを返さなければいけません。今回、テキストサービスから入力を受け付ける 必要はありませんので、読取専用、一つの選択しか許可しない、と返します。 
+//! ドキュメントのステータスを取得する。
+STDMETHODIMP CMyTextStore::GetStatus(
+  TS_STATUS*  o_document_status_p
+)
+{
+  HRESULT   retval = E_INVALIDARG;
+  
+  do
+  {
+    if( IsBadWritePtr(o_document_status_p, sizeof TS_STATUS) )
+    {
+//      _RPTF0(_CRT_WARN, "*** ERROR *** o_document_status_p is bad ptr.\n");
+      OutputDebugString("_CRT_WARN, *** ERROR *** o_document_status_p is bad ptr.\n");
+      retval = E_INVALIDARG;
+      break;
+    }
+    
+    o_document_status_p->dwDynamicFlags = TS_SD_READONLY;
+    // 一つの選択しか許可しない
+    o_document_status_p->dwStaticFlags = TS_SS_REGIONS;
+    
+    retval = S_OK;
+  }
+  while( 0 );
 
-　ドキュメントに対してインサートまたは選択範囲の変更が可能か問い合わせるメソッドです。これを実装してやらないと ITfFnReconversion の一部のメソッドが失敗してしまいます。ドキュメントのステータスによらず、操作が有効かどうかを問い合わせるメソッドみたいですね。 
-ReconvTextStore.cpp
- 547 : //! テキストのインサートまたは選択範囲の変更が可能か問い合わせる。
- 548 : STDMETHODIMP ReconvTextStore::QueryInsert(
- 549 :   LONG    i_start_index,
- 550 :   LONG    i_end_index,
- 551 :   ULONG   i_length,
- 552 :   LONG*   o_start_index_p,
- 553 :   LONG*   o_end_index_p
- 554 : )
- 555 : {
- 556 :   HRESULT retval = E_FAIL;
- 557 : 
- 558 :   if( i_start_index < 0
- 559 :   ||  i_start_index > i_end_index
- 560 :   ||  i_end_index   > lstrlen(m_text) )
- 561 :   {
- 562 :     retval = E_INVALIDARG;
- 563 :   }
- 564 :   else
- 565 :   {
- 566 :     if( o_start_index_p )
- 567 :       *o_start_index_p = i_start_index;
- 568 :     
- 569 :     if( o_end_index_p )
- 570 :       *o_end_index_p   = i_end_index;
- 571 : 
- 572 :     retval = S_OK;
- 573 :   }
- 574 :   
- 575 :   return retval;
- 576 : }
+  return retval;
+}
 
 
-　今回、テキストストアに実装したメソッドは以上です。他は E_NOTEMPL エラーを返すだけです。テキストサービスから入力を受け付けたい場合は他にいろいろと実装してやらなければいけませんし、メッセージループにも手を加えなければいけません。 
+
+//　ドキュメントの選択範囲を返すメソッドです。 終了位置の文字は含みません。「あいうえお」で「うえ」を選択して いる場合は開始位置が 2 、終了位置が 4 となります。
+// 　ドキュメントにアクセスするメソッドなのでロック状態でない場合は TS_E_NOLOCK を返します。 
+//! ドキュメントの選択範囲を取得する。
+STDMETHODIMP CMyTextStore::GetSelection(
+  ULONG               i_index,
+  ULONG               i_selection_buffer_length,
+  TS_SELECTION_ACP*   o_selections,
+  ULONG*              o_fetched_length_p
+)
+{
+  HRESULT   retval = E_INVALIDARG;
+  
+  do
+  {
+    if( IsBadWritePtr(o_selections, sizeof TS_SELECTION_ACP)
+    ||  IsBadWritePtr(o_fetched_length_p, sizeof(ULONG)) )
+    {
+//      _RPTF0(_CRT_WARN, "*** ERROR *** invalid parameter.\n");
+      OutputDebugString("_CRT_WARN, *** ERROR *** invalid parameter.\n");
+      retval = E_INVALIDARG;
+      break;
+    }
+    
+    *o_fetched_length_p = 0;
+    
+    if( IsLocked(TS_LF_READ) == false )
+    {
+      //_RPTF0(_CRT_WARN, "*** ERROR *** no lock.\n");
+      OutputDebugString("_CRT_WARN, *** ERROR *** no lock.\n");
+      retval = TS_E_NOLOCK;
+      break;
+    }
+    
+    if( i_index != TF_DEFAULT_SELECTION && i_index > 0 )
+    {
+      //_RPTF0(_CRT_WARN, "*** ERROR *** i_index is not valid.\n");
+      OutputDebugString("_CRT_WARN, *** ERROR *** i_index is not valid.\n");
+      retval = E_INVALIDARG;
+      break;
+    }
+    
+    memset(o_selections, 0, sizeof(o_selections[0]));
+    o_selections[0].acpStart = 0;
+    if( m_text[0] )
+      o_selections[0].acpEnd = lstrlen((LPCSTR)m_text);
+    else
+      o_selections[0].acpEnd = 0;
+    o_selections[0].style.fInterimChar  = FALSE;
+    o_selections[0].style.ase           = TS_AE_START;
+
+    *o_fetched_length_p = 1;
+    retval = S_OK;
+  }
+  while( 0 );
+  
+  return retval;
+}
+
+ 
+//　ドキュメントの指定した範囲の文字列を返すメソッドです。GetSelection() と同様に終了位置の文字は含みません。終了位置が -1 の場合は終わりまで、という意味になります。
+//ドキュメントにアクセスするメソッドなのでロック状態でない場合は TS_E_NOLOCK を返します。 
+//! テキストを取得する。
+STDMETHODIMP CMyTextStore::GetText(
+  LONG          i_start_index,
+  LONG          i_end_index,
+  WCHAR*        o_plain_text,
+  ULONG         i_plain_text_length,
+  ULONG*        o_plain_text_length_p,
+  TS_RUNINFO*   o_run_info_p,
+  ULONG         i_run_info_length,
+  ULONG*        o_run_info_length_p,
+  LONG*         o_next_unread_char_pos_p
+)
+{
+  HRESULT   retval = E_INVALIDARG;
+  
+  do
+  {
+    if( IsLocked(TS_LF_READ) == false )
+    {
+      retval = TS_E_NOLOCK;
+      break;
+    }
+    
+    ULONG   text_length = lstrlen((LPCSTR)m_text);
+    ULONG   copy_length = min(text_length, i_plain_text_length);
+    
+    // 文字列を格納。コピー先は L'\0' で終わっている必要は無い。
+    if( IsBadWritePtr(o_plain_text, i_plain_text_length * sizeof(wchar_t)) == FALSE )
+    {
+      memset(o_plain_text, 0, i_plain_text_length * sizeof(wchar_t));
+      memcpy(o_plain_text, m_text, copy_length * sizeof(wchar_t));
+    }
+    
+    // 格納した文字列の文字数を格納。
+    if( IsBadWritePtr(o_plain_text_length_p, sizeof ULONG) == FALSE )
+    {
+      *o_plain_text_length_p = copy_length;
+    }
+    
+    // RUNINFO を格納。
+    if( IsBadWritePtr(o_run_info_p, sizeof TS_RUNINFO) == FALSE )
+    {
+      o_run_info_p[0].type   = TS_RT_PLAIN;
+      o_run_info_p[0].uCount = text_length;
+    }
+    
+    // RUNINFO を格納した数を格納。
+    if( IsBadWritePtr(o_run_info_length_p, sizeof ULONG) == FALSE )
+      *o_run_info_length_p = 1;
+    
+    // 次の文字の位置を格納。
+    if( IsBadWritePtr(o_next_unread_char_pos_p, sizeof LONG) == FALSE )
+      *o_next_unread_char_pos_p = i_start_index + text_length;
+    
+    retval = S_OK;
+  }
+  while( 0 );
+  
+  return retval;
+}
+
+ 
+//　ドキュメントに対してインサートまたは選択範囲の変更が可能か問い合わせるメソッドです。これを実装してやらないと ITfFnReconversion の一部のメソッドが失敗してしまいます。ドキュメントのステータスによらず、操作が有効かどうかを問い合わせるメソッドみたいですね。 
+//! テキストのインサートまたは選択範囲の変更が可能か問い合わせる。
+STDMETHODIMP CMyTextStore::QueryInsert(
+  LONG    i_start_index,
+  LONG    i_end_index,
+  ULONG   i_length,
+  LONG*   o_start_index_p,
+  LONG*   o_end_index_p
+)
+{
+  HRESULT retval = E_FAIL;
+
+  if( i_start_index < 0
+  ||  i_start_index > i_end_index
+  ||  i_end_index   > lstrlen((LPCSTR)m_text) )
+  {
+    retval = E_INVALIDARG;
+  }
+  else
+  {
+    if( o_start_index_p )
+      *o_start_index_p = i_start_index;
+    
+    if( o_end_index_p )
+      *o_end_index_p   = i_end_index;
+
+    retval = S_OK;
+  }
+  
+  return retval;
+}
 
 
+
+
+  STDMETHODIMP CMyTextStore::GetActiveView(
+    TsViewCookie*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::SetSelection(
+    ULONG, const TS_SELECTION_ACP*
+  )
+    {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::SetText(
+    DWORD, LONG, LONG, const WCHAR*, ULONG, TS_TEXTCHANGE*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::GetFormattedText(
+    LONG, LONG, IDataObject**
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::RequestSupportedAttrs(
+    DWORD, ULONG, const TS_ATTRID*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::RequestAttrsAtPosition(
+    LONG, ULONG, const TS_ATTRID*, DWORD
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::RetrieveRequestedAttrs(
+    ULONG, TS_ATTRVAL*, ULONG*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::GetEndACP(
+    LONG*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+  STDMETHODIMP CMyTextStore::GetTextExt(
+    TsViewCookie, LONG, LONG, RECT*, BOOL*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::GetScreenExt(
+    TsViewCookie, RECT*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::GetWnd(
+    TsViewCookie, HWND*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::InsertTextAtSelection(
+    DWORD, const WCHAR*, ULONG, LONG*, LONG*, TS_TEXTCHANGE*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::RequestAttrsTransitioningAtPosition(
+    LONG, ULONG, const TS_ATTRID*, DWORD
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::FindNextAttrTransition(
+    LONG, LONG, ULONG, const TS_ATTRID*, DWORD, LONG*, BOOL*, LONG*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::GetEmbedded(
+    LONG, REFGUID, REFIID, IUnknown**
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::QueryInsertEmbedded(
+    const GUID*, const FORMATETC*, BOOL*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::InsertEmbedded(
+    DWORD, LONG, LONG, IDataObject*, TS_TEXTCHANGE*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::GetACPFromPoint(
+    TsViewCookie, const POINT*, DWORD, LONG*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+  STDMETHODIMP CMyTextStore::InsertEmbeddedAtSelection(
+    DWORD, IDataObject*, LONG*, LONG*, TS_TEXTCHANGE*
+  )
+  {
+	  return E_NOTIMPL;
+  }
+
+
+
+
+
+#undef _UNICODE
+
+
+ /*
 
  TsfReconverter の実装
 

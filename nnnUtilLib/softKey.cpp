@@ -418,7 +418,28 @@ CSoftKey::CSoftKey(CMyMessage* message)
 	m_textTypeMax = 3;
 	for (int i=0;i<m_textTypeMax;i++)
 	{
-		m_textLengthMax[i] = 16;
+		m_textLengthMax[i] = 6;
+	}
+	m_textLengthMax[0] = 6;
+	m_textLengthMax[1] = 6;
+	m_textLengthMax[2] = 6;
+
+
+	int textMax = m_textLengthMax[0];
+	GetInitGameParam(&textMax,"kakuteiTextMax");
+	m_textLengthMax[0] = textMax;
+
+	textMax = m_textLengthMax[1];
+	GetInitGameParam(&textMax,"henkanTextMax");
+	m_textLengthMax[1] = textMax;
+
+	textMax = m_textLengthMax[2];
+	GetInitGameParam(&textMax,"inputTextMax");
+	m_textLengthMax[2] = textMax;
+
+	for (int i=0;i<m_textTypeMax;i++)
+	{
+		m_textLengthMaxDefault[i] = m_textLengthMax[i];
 	}
 
 
@@ -473,6 +494,17 @@ CSoftKey::CSoftKey(CMyMessage* message)
 	GetInitGameParam(&m_fontColorR,"fontColorR");
 	GetInitGameParam(&m_fontColorG,"fontColorG");
 	GetInitGameParam(&m_fontColorB,"fontColorB");
+
+	m_selectColorR = 255;
+	m_selectColorG = 255;
+	m_selectColorB = 255;
+	m_selectColorA = 50;
+	GetInitGameParam(&m_selectColorR,"selectColorR");
+	GetInitGameParam(&m_selectColorG,"selectColorG");
+	GetInitGameParam(&m_selectColorB,"selectColorB");
+	GetInitGameParam(&m_selectColorA,"selectColorA");
+
+
 
 	m_keyPointNextX = sizeX + 8;
 	m_keyPointNextY = sizeY + 8;
@@ -691,6 +723,7 @@ void CSoftKey::End(void)
 
 void CSoftKey::Init(LPSTR kakuteiText)
 {
+	m_onNumber = -1;
 	m_keyPage = 0;
 	ClearKakutei();
 	ClearInput();
@@ -718,16 +751,20 @@ int CSoftKey::Calcu(CInputStatus* lpInput)
 			{
 				if ((GetHenkanLength() == 0) && (GetInputLength() == 0))
 				{
-					return GetKakuteiLength();
+					int kakuteiSize = GetKakuteiLength();
+					if (kakuteiSize > 0)
+					{
+						return kakuteiSize;
+					}
 				}
 			}
 			else if (cmd == SOFTCOMMANDKEY_HENKAN)
 			{
 				if (GetInputLength() > 0)
 				{
-					ClearInput();
 					ClearHenkan();//—pS
 					LPSTR henkan = m_ime->Start(GetInputText());
+					ClearInput();
 					AddHenkan(henkan);
 				}
 				else if (GetHenkanLength() > 0)
@@ -864,13 +901,69 @@ void CSoftKey::Print(void)
 		POINT pt = GetKeyZahyo(nx,ny,page);
 		SIZE sz = GetKeySize(nx,ny,page);
 
-		CAllGeo::TransBoxFill(pt.x,pt.y,sz.cx,sz.cy,255,255,255,50);
+
+		LPSTR text = m_softKeyTable[m_onNumber].key;
+		int cmd = CheckCommandKey(text);
+		BOOL enable = CheckEnableCommandKey(cmd);
+
+		if (enable)
+		{
+			CAllGeo::TransBoxFill(pt.x,pt.y,sz.cx,sz.cy,m_selectColorR,m_selectColorG,m_selectColorB,m_selectColorA);
+		}
 	}
 
 
 
 }
 
+
+BOOL CSoftKey::CheckEnableCommandKey(int cmd)
+{
+	if (cmd == SOFTCOMMANDKEY_OK)
+	{
+		if ((GetHenkanLength() == 0) && (GetInputLength() == 0))
+		{
+			int kakuteiSize = GetKakuteiLength();
+			if (kakuteiSize > 0)
+			{
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+
+
+	if (cmd == SOFTCOMMANDKEY_HENKAN)
+	{
+		if (GetInputLength() > 0)
+		{
+			return TRUE;
+		}
+		else if (GetHenkanLength() > 0)
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	if (cmd == SOFTCOMMANDKEY_KAKUTEI)
+	{
+		if (GetInputLength() > 0)
+		{
+			return TRUE;
+		}
+		else
+		{
+			if (GetHenkanLength() > 0)
+			{
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 void CSoftKey::PageChanged(void)
 {
@@ -1131,6 +1224,7 @@ int CSoftKey::GetOnNumber(POINT pt)
 
 				if (GetOnArea(pt,checkPoint,checkSize))
 				{
+
 					return i;
 				}
 			}
@@ -1204,6 +1298,26 @@ BOOL CSoftKey::GetInitGameString(LPSTR* lpStr, LPSTR name)
 	*lpStr = m_setupList->GetName(rNum + 1);
 
 	return TRUE;
+}
+
+void CSoftKey::SetTextLengthMax(int* table)
+{
+	for (int i=0;i<m_textTypeMax;i++)
+	{
+		m_textLengthMax[i] = m_textLengthMaxDefault[i];
+	}
+
+	if (table != NULL)
+	{
+		for (int i=0;i<m_textTypeMax;i++)
+		{
+			int d = table[i];
+			if (d>0)
+			{
+				m_textLengthMax[i] = table[i];
+			}
+		}
+	}
 }
 
 /*_*/
