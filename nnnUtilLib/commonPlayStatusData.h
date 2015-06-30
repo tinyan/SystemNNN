@@ -4,6 +4,7 @@
 
 
 class CNameList;
+class CPolygonShape;
 
 class CCommonPlayStatusData
 {
@@ -43,10 +44,18 @@ protected:
 	CPicture** m_pic;
 	int* m_color;
 	int m_picFlag;
+	int m_perFlag;
+
+	CPolygonShape** m_polygonShape;
 
 
 	void PrintYokoGraph(void);
 	void PrintTateGraph(void);
+	void PrintRadarGraph(void);
+	void PrintOresenGraph(void);
+	void PrintCircleGraph(void);
+
+	int m_lineSize;
 
 	int m_percent;
 private:
