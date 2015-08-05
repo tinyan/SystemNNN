@@ -1477,6 +1477,8 @@ protected:
 	void SystemFunctionSetCG(int para1,LPVOID para2);
 	void SystemFunctionSetVoiceFlag(int para1,LPVOID para2);
 	void SystemFunctionSetTerm(int para1,LPVOID para2);
+	void SystemFunctionMessageEffect(int para1,LPVOID para2);
+
 	void SystemFunctionSetFilm(int para1,LPVOID para2);
 	void SystemFunctionPrepareOverrap(int para1,LPVOID para2);
 

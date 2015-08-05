@@ -833,6 +833,13 @@ int CExecScript::Exec(int n)
 				continue;
 			}
 
+			if (code == CODE_SYSTEMFUNCTION_MESSAGEEFFECT)
+			{
+				m_callBack->ReceiveScriptCommand(code,m_data[m_pc+3],(LPVOID)(&m_data[m_pc+4]));
+				m_pc += m_data[m_pc];
+				continue;
+			}
+
 
 //				GetParameter(m_pc+2);
 		}

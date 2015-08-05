@@ -115,6 +115,8 @@ public:
 	void CheckAndPrintFillWindow(void);
 	void PrintFullWindow(void);
 
+	void SetNextMessageEffect(int md);
+
 protected:
 	CMyMessage* m_message;
 	CMessageCursor* m_cursor;
@@ -462,6 +464,10 @@ private:
 	int m_printSkipAnimeFlag;
 	CPrintAnimeLayer* m_printAutoAnime;
 	CPrintAnimeLayer* m_printSkipAnime;
+
+	int m_messageEffect;
+	int m_messageEffectYoyaku;
+
 };
 
 #endif

@@ -19,6 +19,7 @@
 #include "..\nnnUtilLib\systempicture.h"
 
 #include "..\nnnUtilLib\myFont.h"
+#include "..\nnnUtilLib\myFontCache.h"
 
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\myKeyStatus.h"
@@ -110,6 +111,15 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 	m_nextX0 = 0;
 	m_mojiTimeAmari = 0;
 
+	int effectFontColorR = 255;
+	int effectFontColorG = 255;
+	int effectFontColorB = 255;
+	int effectFontColorA = 100;
+	GetInitGameParam(&effectFontColorR,"effectFontColorR");
+	GetInitGameParam(&effectFontColorG,"effectFontColorG");
+	GetInitGameParam(&effectFontColorB,"effectFontColorB");
+	GetInitGameParam(&effectFontColorA,"effectFontColorA");
+	CMyFontCache::SetEffectColor(effectFontColorR,effectFontColorG,effectFontColorB,effectFontColorA);
 	m_fontSize0 = 24;
 	GetInitGameParam(&m_fontSize0,"fontSize");
 	if (m_fontSize0 > maxFontSize)
@@ -790,6 +800,9 @@ void CCommonPrintMessage::End(void)
 int CCommonPrintMessage::Init(void)
 {
 	m_messageSkipMode = m_game->CheckMessageSkipMode();
+
+	m_messageEffect = 0;
+	m_messageEffectYoyaku = 0;
 
 	m_mojiTimeAmari = 0;
 	m_messagePrintSpeed = m_game->GetSystemParam(NNNPARAM_MESSAGESPEED);
@@ -1864,11 +1877,29 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 					printed = 0;
 				}
 
-				if (kosuu>0)
+				if (kosuu>=0)
 				{
-					int amari = m_message->PrintMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
-//					int amari = m_message->PrintMessageParts(printed,kosuu,putX,putY+m_nextY*(j - st),&m_messageData[j][0],m_fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
+					int amari = 0;
+					
+					BOOL bbb = FALSE;
+					if (j>0)
+					{
+						if (m_messagePrinted[j-1] >= m_messageLength[j-1]) bbb = TRUE;
+					}
 
+					if ((kosuu > 0) || (j == 0) || bbb)
+					{
+
+					if (m_messageEffect > 0)
+					{
+						amari = m_message->PrintEffectMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor,TRUE,m_messageEffect,m_mojiTimeAmari);
+					}
+					else
+					{
+						amari = m_message->PrintMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
+					}
+
+//					int amari = m_message->PrintMessageParts(printed,kosuu,putX,putY+m_nextY*(j - st),&m_messageData[j][0],m_fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
 					if (amari == 0)
 					{
 						m_messagePrinted[j] = printed + kosuu;
@@ -1898,6 +1929,7 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 							m_messagePrintingFlag = FALSE;
 							break;
 						}
+					}
 					}
 				}
 			}
@@ -2257,11 +2289,28 @@ void CCommonPrintMessage::CommandOn(BOOL flag)
 }
 */
 
+void CCommonPrintMessage::SetNextMessageEffect(int md)
+{
+	m_messageEffectYoyaku = md;
+}
 
 
 void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 {
 	m_autoMessageCount = 0;
+
+	m_messageEffect = 0;
+	if (m_messageEffectYoyaku > 0)
+	{
+		m_messageEffect = m_messageEffectYoyaku;
+#if defined _DEBUG
+		char debugmes[256];
+		sprintf_s(debugmes,256,"[messageEffect = %d]\x00d\x00a",m_messageEffect);
+		OutputDebugString(debugmes);
+#endif
+	}
+	m_messageEffectYoyaku = 0;
+
 
 	//’·‚³Žæ“¾
 	int frameRate = m_game->GetFrameTime();

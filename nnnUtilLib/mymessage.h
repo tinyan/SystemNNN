@@ -21,6 +21,7 @@ public:
 
 	void PrintMessage(int x, int y, LPSTR message, int fontSize=16, int colR = -1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor = -1,BOOL bAntiAliasFlag = TRUE);
 	int PrintMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize = 16, int col=-1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor= -1, BOOL bAntiAliasFlag = TRUE);
+	int PrintEffectMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize = 16, int col=-1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor= -1, BOOL bAntiAliasFlag = TRUE,int effectType = 0,int effectCount1000 = 0);
 	void PrintSelectMessage(int start, int length, int x, int y, LPSTR message, int fontSize = 16, int col=-1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor= -1, BOOL bAntiAliasFlag = TRUE);
 	void GradPrintMessage(int startX,int endX,int x, int y, LPSTR message, int fontSize=16, int colR = -1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor = -1,BOOL bAntiAliasFlag = TRUE);
 
@@ -90,6 +91,9 @@ private:
 	int m_gradStartX;
 	int m_gradEndX;
 	BOOL m_gradFlag;
+
+	int m_effectType;
+	int m_effectCount1000;
 
 	static char m_defaultKyochoMessage[];
 

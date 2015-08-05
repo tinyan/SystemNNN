@@ -8083,6 +8083,19 @@ void CGameCallBack::SystemFunctionSetTerm(int para1,LPVOID para2)
 	m_systemFile->SetTerm(term);
 }
 
+void CGameCallBack::SystemFunctionMessageEffect(int para1,LPVOID para2)
+{
+	int paraKosuu = para1;
+	int* pData = (int*)para2;
+
+	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
+	if (mesObj != NULL)
+	{
+		mesObj->SetNextMessageEffect(*pData);
+	}
+
+}
+
 
 void CGameCallBack::SystemFunctionSetCG(int para1,LPVOID para2)
 {
@@ -10216,6 +10229,7 @@ void CGameCallBack::ReceiveScriptCommand(int cmd, int para1, LPVOID para2,int pa
 	if (cmd == CODE_SYSTEMFUNCTION_SETVOICEFLAG) SystemFunctionSetVoiceFlag(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_SETCG) SystemFunctionSetCG(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_SETTERM) SystemFunctionSetTerm(para1,para2);
+	if (cmd == CODE_SYSTEMFUNCTION_MESSAGEEFFECT) SystemFunctionMessageEffect(para1,para2);
 
 	if (cmd == CODE_SYSTEMFUNCTION_VOLUMEONLY_SE) SystemFunctionVolumeOnlySe(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_VOLUMEONLY_VOICE) SystemFunctionVolumeOnlyVoice(para1,para2);

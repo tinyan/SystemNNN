@@ -203,6 +203,8 @@ CMyMessage::CMyMessage(CMyFont* lpMyFont, CRubiFont* lpRubiFont)
 	m_pic = m_myFont->GetPic();
 
 	m_gradFlag = FALSE;
+	m_effectType = 0;
+	m_effectCount1000 = 0;
 
 	m_rubiParam = new int[RUBI_KOSUU_MAX*4];
 	m_rubiMessage = new char*[RUBI_KOSUU_MAX];
@@ -230,6 +232,18 @@ int CMyMessage::PrintMessageParts(int start, int length, int x, int y, LPSTR mes
 	return rt;
 }
 
+//エフェクト付で作成
+int CMyMessage::PrintEffectMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag,int effectType,int effectCount1000)
+{
+	m_effectType = effectType;
+	m_effectCount1000 = effectCount1000;
+	m_myFont->BeginPrint(fontSize,bAntiAliasFlag);
+	int rt = MakeMessage(start,start+length,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag);
+
+	m_myFont->EndPrint();
+	m_effectType = 0;
+	return rt;
+}
 
 void CMyMessage::PrintSelectMessage(int startY, int lengthY, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag)
 {
@@ -1042,7 +1056,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 				if (ex>=len) ex = len;
 				
-				if (sx < len)
+				if (sx <= len)
 				{
 //					printEed = ex;
 
@@ -1070,9 +1084,27 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 					int putSizeY = lengthY;
 
+
 					if (m_gradFlag == FALSE)
 					{
-						m_myFont->Print(x,y,deltaX,deltaY,putSizeX,putSizeY);
+						if ((m_effectType > 0) && (ex < len))
+						{
+							if (ex < len)
+							{
+								m_myFont->EffectPrint(x,y,deltaX,deltaY,putSizeX,putSizeY,fontSize,m_effectType,m_effectCount1000);
+							}
+							else
+							{
+								m_myFont->Print(x,y,deltaX,deltaY,putSizeX,putSizeY);
+							}
+						}
+						else
+						{
+							if (sx < len)
+							{
+								m_myFont->Print(x,y,deltaX,deltaY,putSizeX,putSizeY);
+							}
+						}
 					}
 					else
 					{
@@ -1080,7 +1112,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					}
 
 
-					if (rubiFlag)
+					if ((rubiFlag) && (sx < len))
 					{
 						if (rubiKosuu > 0)
 						{

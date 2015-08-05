@@ -9,6 +9,8 @@
 
 #include "..\nyanLib\include\myGraphics.h"
 #include "..\nyanLib\include\picture.h"
+#include "..\nyanLib\include\allGeo.h"
+
 
 #if defined _TINYAN3DLIB_
 	#include "..\..\systemNNN3D\nyanDirectX3DLib/myDirect3D.h"
@@ -22,6 +24,10 @@
 #include "myFontCache.h"
 
 int CMyFontCache::m_gradBunkatsu = 8;
+int CMyFontCache::m_effectColorR = 255;
+int CMyFontCache::m_effectColorG = 255;
+int CMyFontCache::m_effectColorB = 255;
+int CMyFontCache::m_effectColorA = 255;
 
 
 CMyFontCache::CMyFontCache(int sizeY,int rubiFlag)
@@ -32,6 +38,8 @@ CMyFontCache::CMyFontCache(int sizeY,int rubiFlag)
 
 	m_cacheSizeX = screenSizeX;
 	m_cacheSizeY = screenSizeY;
+
+	SetEffectColor(255,255,255,100);
 
 #if defined _TINYAN3DLIB_
 	LPDIRECT3DDEVICE9 d3dDevice = CMyDirect3D::GetD3DDevice();
@@ -998,6 +1006,57 @@ void CMyFontCache::GradBltRubi(int startX,int endX,int fontSize,int putX,int put
 //	m_rubiPic->Blt(putX,putY,srcX,srcY,sizeX,sizeY,transFlag);
 }
 
+void CMyFontCache::EffectBlt(int putX,int putY,int srcX,int srcY,int sizeX,int sizeY,BOOL transFlag,int effectType,int effectCount1000)
+{
+	if (effectCount1000 <= 0) return;
+
+	int putSizeX = sizeX;
+	int putSizeY = sizeY;
+	if (effectType & 1)
+	{
+		putSizeX = (sizeX * effectCount1000) / 1000;
+	}
+	if (effectType & 2)
+	{
+		putSizeY = (sizeY * effectCount1000) / 1000;
+	}
+	if ((putSizeX <= 0) || (putSizeY <= 0)) return;
+
+	int ps = m_effectColorA;
+	if (effectType & 8)
+	{
+		ps = (ps * effectCount1000) / 1000;
+	}
+	if (ps < 1) return;
+
+
+	int deltaX = (sizeX - putSizeX) / 2;
+	int deltaY = (sizeY - putSizeY) / 2;
+
+	int putXX = putX + deltaX;
+	int putYY = putY + deltaY;
+	int srcXX = srcX + deltaX;
+	int srcYY = srcY + deltaY;
+
+
+
+	if (effectType & 16)
+	{
+		CAllGeo::TransBoxFill(putXX,putYY,putSizeX,putSizeY,m_effectColorR,m_effectColorG,m_effectColorB,ps);
+	}
+	else
+	{
+		if (effectType & 4)
+		{
+			m_fontPic->StretchBlt1(putXX,putYY,putSizeX,putSizeY,srcX,srcY,sizeX,sizeY,ps,TRUE);
+//			m_fontPic->StretchBlt1(putXX,putYY,putSizeX,putSizeY,0,0,sizeX,sizeY,ps,TRUE);
+		}
+		else
+		{
+			m_fontPic->TransLucentBlt2(putXX,putYY,srcXX,srcYY,putSizeX,putSizeY,ps);
+		}
+	}
+}
 
 
 void CMyFontCache::ClearFontCache(void)
@@ -1006,6 +1065,14 @@ void CMyFontCache::ClearFontCache(void)
 	m_useStart = 0;
 	m_bufferStartY = 0;
 	m_bufferSizeY = m_cacheSizeY;
+}
+
+void CMyFontCache::SetEffectColor(int r,int g,int b,int a)
+{
+	m_effectColorR = r;
+	m_effectColorG = g;
+	m_effectColorB = b;
+	m_effectColorA = a;
 }
 
 /*_*/

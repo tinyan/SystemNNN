@@ -65,6 +65,9 @@ public:
 	void GradPrint(int startX,int endX,int putX,int putY,int deltaX,int deltaY,int sizeX,int sizeY);
 	void GradPrintRubi(int startX,int endX,int putX,int putY,int deltaX,int deltaY,int sizeX,int sizeY);
 
+	void EffectPrint(int putX,int putY,int deltaX,int deltaY,int sizeX,int sizeY,int fontSize,int effectType,int effectCount1000);
+
+
 #if defined _TINYAN3DLIB_ 
 	void ClearCache(void);
 #endif

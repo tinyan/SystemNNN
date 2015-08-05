@@ -1946,6 +1946,30 @@ void CMyFont::Print(int putX,int putY,int deltaX,int deltaY,int sizeX,int sizeY)
 	CAreaControl::AddArea(putX,putY,sizeX,sizeY);
 }
 
+void CMyFont::EffectPrint(int putX,int putY,int deltaX,int deltaY,int sizeX,int sizeY,int fontSize,int effectType,int effectCount1000)
+{
+	if (m_fontCacheNumber == -1) return;	//error!
+
+//	char mes[256];
+//	wsprintf(mes,"[%d]",m_fontCacheNumber);
+//	OutputDebugString(mes);
+
+	POINT pt = m_fontCache->GetSrc(m_fontCacheNumber);
+
+	int srcX = pt.x + deltaX;
+	int srcY = pt.y + deltaY;
+	putX += deltaX;
+	putY += deltaY;
+
+	m_fontCache->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
+
+	//effect
+	m_fontCache->EffectBlt(putX+sizeX,putY,srcX+sizeX,srcY,fontSize,fontSize,TRUE,effectType,effectCount1000);
+
+//	m_pic->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
+	CAreaControl::AddArea(putX,putY,sizeX+fontSize,sizeY);
+}
+
 void CMyFont::GradPrint(int startX,int endX,int putX,int putY,int deltaX,int deltaY,int sizeX,int sizeY)
 {
 	if (m_fontCacheNumber == -1) return;	//error!
