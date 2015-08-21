@@ -1099,6 +1099,13 @@ protected:
 	int m_getresultFunction;
 	int m_setresultFunction;
 	int m_setachievementFunction;
+	int m_compareStringFunction;
+	int m_compareSystemStringFunction;
+
+	int m_compareResultVarNumber;
+
+	int m_answerStringNumber;
+	char* m_answerStringData;
 
 	int m_useSaijitsu;
 	CSaijitsuList* m_saijitsuList;
@@ -1478,6 +1485,7 @@ protected:
 	void SystemFunctionSetVoiceFlag(int para1,LPVOID para2);
 	void SystemFunctionSetTerm(int para1,LPVOID para2);
 	void SystemFunctionMessageEffect(int para1,LPVOID para2);
+	void SystemFunctionMessageEffectTime(int para1,LPVOID para2);
 
 	void SystemFunctionSetFilm(int para1,LPVOID para2);
 	void SystemFunctionPrepareOverrap(int para1,LPVOID para2);

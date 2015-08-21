@@ -378,6 +378,8 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 	m_expSystemMenuKosuu = 0;
 	m_expSystemMenuStart = 9;
 
+	m_answerStringData = NULL;
+
 	m_skipMovieFlag = FALSE;
 
 	m_layerOffVar = NULL;
@@ -1799,6 +1801,42 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	}
 
 
+	m_compareResultVarNumber = -1;
+	
+	LPSTR userResultVarName = NULL;
+	if (GetInitGameString(&userResultVarName,"compareResultVarName"))
+	{
+		if (userResultVarName != NULL)
+		{
+			m_compareResultVarNumber = GetVarNumber(userResultVarName);
+		}
+	}
+	
+
+	m_answerStringNumber = 0;
+	
+	GetInitGameParam(&m_answerStringNumber,"answerStringNumber");
+	m_answerStringData = new char[128*m_answerStringNumber+2];
+	ZeroMemory(m_answerStringData,128*m_answerStringNumber+2);
+	for (int i=0;i<m_answerStringNumber;i++)
+	{
+		char name[256];
+		sprintf_s(name,sizeof(name),"answerString%d",i+1);
+		LPSTR answerString = NULL;
+		if (GetInitGameString(&answerString,name))
+		{
+			int ln = strlen(answerString);
+			if (ln>126) ln = 126;
+			if (ln>0)
+			{
+				memcpy(m_answerStringData + i * 128,answerString,ln);
+				*(m_answerStringData + i * 128 + ln) = 0;
+				*(m_answerStringData + i * 128 + ln+1) = 0;
+			}
+		}
+	}
+	
+
 
 	m_renameLayerVarNumber = -1;
 	LPSTR renameVarName = NULL;
@@ -1920,6 +1958,9 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	m_layerOnOffFunction = m_functionList->SearchBlock("layer");
 
 	m_stopF5Function = m_functionList->SearchBlock("stopf5");
+	m_compareStringFunction = m_functionList->SearchBlock("check");
+	m_compareSystemStringFunction = m_functionList->SearchBlock("checksys");
+
 
 	m_commandList = new CNameList();
 	if (m_noScriptFlag == 0)
@@ -3262,6 +3303,7 @@ ENDDELETECLASS(m_waveData);	//dummy
 
 
 	DELETEARRAY(m_renameTag);
+	DELETEARRAY(m_answerStringData);
 	ENDDELETECLASS(m_varNumber);
 
 
@@ -3599,6 +3641,70 @@ void CGameCallBack::ReceiveUserFunction0(int cmd, int paraKosuu, int* paraPtr)
 			}
 		}
 	}
+
+	if ((cmd == m_compareStringFunction) || (cmd == m_compareSystemStringFunction))
+	{
+		proceed = TRUE;
+		int checkFrom = 0;
+		int checkTo = -1;
+
+		if (paraKosuu > 0)
+		{
+			checkTo = *paraPtr;
+			checkTo -= 1;
+
+			if (paraKosuu > 1)
+			{
+				//パラメーター2個の時は変わるので注意
+				checkFrom = *paraPtr;
+				checkTo = *(paraPtr+1);
+				checkTo -= 1;
+			}
+		}
+
+		int same = 0;
+		int mx = m_okikaeData->GetOkikaeMax();
+		int mxs = m_okikaeData->GetSystemOkikaeMax();
+		LPSTR fromMessage = NULL;
+
+		BOOL f = FALSE;
+		if (cmd == m_compareStringFunction)
+		{
+			if ((checkFrom >= 0) && (checkFrom <mx))
+			{
+				f = TRUE;
+				fromMessage = m_okikaeData->GetOkikaeMessage(checkFrom);
+			}
+		}
+		if (cmd == m_compareSystemStringFunction)
+		{
+			if ((checkFrom >= 0) && (checkFrom <mxs))
+			{
+				f = TRUE;
+				fromMessage = m_okikaeData->GetSystemOkikaeMessage(checkFrom);
+			}
+		}
+
+
+		if (f)
+		{
+			if ((checkTo >= 0) && (checkTo < m_answerStringNumber))
+			{
+				LPSTR toMessage = m_answerStringData + 128 * checkTo;
+				if (strcmp(fromMessage,toMessage) == 0)
+				{
+					same = 1;
+				}
+			}
+		}
+
+		if (m_compareResultVarNumber != -1)
+		{
+			SetVarData(m_compareResultVarNumber,same);
+		}
+	}
+
+
 
 
 	//autofunction
@@ -8096,6 +8202,18 @@ void CGameCallBack::SystemFunctionMessageEffect(int para1,LPVOID para2)
 
 }
 
+void CGameCallBack::SystemFunctionMessageEffectTime(int para1,LPVOID para2)
+{
+	int paraKosuu = para1;
+	int* pData = (int*)para2;
+
+	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
+	if (mesObj != NULL)
+	{
+		mesObj->SetNextMessageEffectTime(*pData);
+	}
+
+}
 
 void CGameCallBack::SystemFunctionSetCG(int para1,LPVOID para2)
 {
@@ -10230,6 +10348,7 @@ void CGameCallBack::ReceiveScriptCommand(int cmd, int para1, LPVOID para2,int pa
 	if (cmd == CODE_SYSTEMFUNCTION_SETCG) SystemFunctionSetCG(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_SETTERM) SystemFunctionSetTerm(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_MESSAGEEFFECT) SystemFunctionMessageEffect(para1,para2);
+	if (cmd == CODE_SYSTEMFUNCTION_MESSAGEEFFECTTIME) SystemFunctionMessageEffectTime(para1,para2);
 
 	if (cmd == CODE_SYSTEMFUNCTION_VOLUMEONLY_SE) SystemFunctionVolumeOnlySe(para1,para2);
 	if (cmd == CODE_SYSTEMFUNCTION_VOLUMEONLY_VOICE) SystemFunctionVolumeOnlyVoice(para1,para2);

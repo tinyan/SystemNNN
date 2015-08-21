@@ -116,6 +116,7 @@ public:
 	void PrintFullWindow(void);
 
 	void SetNextMessageEffect(int md);
+	void SetNextMessageEffectTime(int md);
 
 protected:
 	CMyMessage* m_message;
@@ -468,6 +469,8 @@ private:
 	int m_messageEffect;
 	int m_messageEffectYoyaku;
 
+	int m_messageEffectTimeYoyaku;
+	int m_messageEffectSpeed;
 };
 
 #endif

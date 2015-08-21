@@ -102,6 +102,9 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 	m_useCutinFlag = m_game->GetUseCutin();
 
 	m_messageFontSizeType = 0;
+	m_messageEffectSpeed = 0;
+	m_messageEffectTimeYoyaku = 0;
+	m_messageEffectYoyaku = 0;
 
 	m_kaeshita = 0;
 	m_cutinMode = 0;
@@ -803,6 +806,8 @@ int CCommonPrintMessage::Init(void)
 
 	m_messageEffect = 0;
 	m_messageEffectYoyaku = 0;
+	m_messageEffectTimeYoyaku = 0;
+	m_messageEffectSpeed = 0;
 
 	m_mojiTimeAmari = 0;
 	m_messagePrintSpeed = m_game->GetSystemParam(NNNPARAM_MESSAGESPEED);
@@ -816,6 +821,9 @@ int CCommonPrintMessage::Init(void)
 		m_autoMessagePrintSpeed = m_game->GetSystemParam(NNNPARAM_AUTOSPEEDSLIDER);
 	}
 
+	m_messageEffectSpeed = 0;
+
+	
 	m_cutinWaitClick = FALSE;
 
 	m_skipFlag = FALSE;
@@ -1349,12 +1357,26 @@ frameTime = m_game->GetNowFrameCount();
 	{
 //		int messagePrintSpeed = GetAutoMessageSpeed();
 //		mojiTime = m_messageSpeedTable[messagePrintSpeed] * frameTime;
-		mojiTime = m_autoMessageSpeedTable[m_autoMessagePrintSpeed] * frameTime;
+		if (m_messageEffectSpeed == 0)
+		{
+			mojiTime = m_autoMessageSpeedTable[m_autoMessagePrintSpeed] * frameTime;
+		}
+		else
+		{
+			mojiTime = m_autoMessageSpeedTable[m_messageEffectSpeed-1] * frameTime;
+		}
 //		mojiTime = m_autoMessageSpeedTable[m_messagePrintSpeed] * frameTime;
 	}
 	else
 	{
-		mojiTime = m_messageSpeedTable[m_messagePrintSpeed] * frameTime;
+		if (m_messageEffectSpeed == 0)
+		{
+			mojiTime = m_messageSpeedTable[m_messagePrintSpeed] * frameTime;
+		}
+		else
+		{
+			mojiTime = m_autoMessageSpeedTable[m_messageEffectSpeed-1] * frameTime;
+		}
 	}
 
 
@@ -1627,6 +1649,8 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 
 	int debugDeltaY = -10;
 
+//OutputDebugString("@");
+
 //	if ((m_windowOffFlag == FALSE) || (m_printMode != CODE_SYSTEMCOMMAND_PRINT))
 //	if (m_windowOffFlag == FALSE)
 	if (CheckWindowOn())
@@ -1862,6 +1886,7 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 
 			if ((maxLen != -1) && (printed >= maxLen))	//old line
 			{
+			//	OutputDebugString("o");
 				if (b)
 				{
 					m_message->PrintMessage(putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
@@ -1871,6 +1896,7 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 			}
 			else	//new or now line
 			{
+			//	OutputDebugString("n");
 				if (b)
 				{
 					kosuu += printed;
@@ -1879,12 +1905,18 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 
 				if (kosuu>=0)
 				{
+			//		OutputDebugString("c");
 					int amari = 0;
 					
 					BOOL bbb = FALSE;
 					if (j>0)
 					{
-						if (m_messagePrinted[j-1] >= m_messageLength[j-1]) bbb = TRUE;
+			//		OutputDebugString("d");
+						if ((j == m_messagePrintedGyo) || (j == m_messagePrintedGyo + 1))
+						{
+			//		OutputDebugString("e");
+							if (m_messagePrinted[j-1] >= m_messageLength[j-1]) bbb = TRUE;
+						}
 					}
 
 					if ((kosuu > 0) || (j == 0) || bbb)
@@ -1892,19 +1924,32 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 
 					if (m_messageEffect > 0)
 					{
+
 						amari = m_message->PrintEffectMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor,TRUE,m_messageEffect,m_mojiTimeAmari);
+					//	char mmm[256];
+					//	sprintf_s(mmm,256,"\x00d\x00a [%d] gyo=%d printed=%d kosuu=%d timeamari=%d amari=%d",m_messagePrintMojisuu,j,printed,kosuu,m_mojiTimeAmari,amari);
+					//	OutputDebugString(mmm);
 					}
 					else
 					{
 						amari = m_message->PrintMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
 					}
 
+					m_messagePrintedGyo = j;
+
 //					int amari = m_message->PrintMessageParts(printed,kosuu,putX,putY+m_nextY*(j - st),&m_messageData[j][0],m_fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
 					if (amari == 0)
 					{
+				//	OutputDebugString("f");
 						m_messagePrinted[j] = printed + kosuu;
 						m_messageLength[j] = printed + kosuu;
 						kosuu = 0;
+						//new line
+						if (m_messagePrintedGyo < ed-1)
+						{
+				//	OutputDebugString("g");
+							m_messagePrintedGyo++;
+						}
 					}
 					else if (amari>0)
 					{
@@ -1919,7 +1964,6 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 						kosuu = -amari;
 					}
 
-					m_messagePrintedGyo = j;
 
 					if (j == (ed-1))
 					{
@@ -2294,6 +2338,10 @@ void CCommonPrintMessage::SetNextMessageEffect(int md)
 	m_messageEffectYoyaku = md;
 }
 
+void CCommonPrintMessage::SetNextMessageEffectTime(int md)
+{
+	m_messageEffectTimeYoyaku = md;
+}
 
 void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 {
@@ -2311,6 +2359,14 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	}
 	m_messageEffectYoyaku = 0;
 
+	m_messageEffectSpeed = 0;
+	if (m_messageEffectTimeYoyaku > 0)
+	{
+		m_messageEffectSpeed = m_messageEffectTimeYoyaku;
+		if (m_messageEffectSpeed > 5) m_messageEffectSpeed = 5;
+	}
+	m_messageEffectTimeYoyaku = 0;
+
 
 	//’·‚³Žæ“¾
 	int frameRate = m_game->GetFrameTime();
@@ -2318,6 +2374,12 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 	int autoSlider = m_game->GetSystemParam(NNNPARAM_MESSAGESPEED);
 	int autoSlider2 = m_game->GetSystemParam(NNNPARAM_AUTOSPEEDSLIDER);
+
+	if (m_messageEffectSpeed > 0)
+	{
+		autoSlider = m_messageEffectSpeed-1;
+		autoSlider2 = m_messageEffectSpeed-1;
+	}
 
 	if (m_game->CheckMessageHaveVoice())
 	{
@@ -2427,7 +2489,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 			check[i] = c;
 		}
 		check[ln]=0;
-		if (m_nameColor->SearchName(check))
+		if (m_nameColor->SearchName(check) != -1)
 		{
 			mes += skps;
 		}
@@ -2482,6 +2544,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	int specialCR = 0;
 	int tsunagu = 0;
 
+
 	int n = 0;
 	while (n < ln)
 	{
@@ -2511,8 +2574,8 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		}
 
 		//“ÁŽê‰üs‚¿‚¥‚Á‚­
-		if (specialAppendMode)
-		{
+//		if (specialAppendMode)
+//		{
 			if (firstAppend == 0)
 			{
 				if (ln1 > 3)
@@ -2528,14 +2591,52 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 						if ((*crPtr) == (short)SPECIAL_CR_CODE)
 						{
-							ln1 -= 3;
-							n += 3;
-							tsunagu = 1;
+							BOOL spa = FALSE;
+
+							if (specialAppendMode)
+							{
+								spa = TRUE;
+							}
+							else
+							{
+							//	OutputDebugString("[a]");
+								if ((cmd == CODE_SYSTEMCOMMAND_APPEND) && (m_printMode == CODE_SYSTEMCOMMAND_LPRINT))
+								{
+							//	OutputDebugString("[b]");
+									if (tsunagu == 0)
+									{
+							//	OutputDebugString("[c]");
+
+										for (int i00=0;i00<m_messageKosuu;i00++)
+										{
+											m_messagePrinted[i00] = m_messageLength[i00];
+										}
+
+										if (m_messageKosuu > 0)
+										{
+											m_messageLength[m_messageKosuu-1] = -1;
+
+										}
+
+										if (m_messagePrintedGyo>0) m_messagePrintedGyo--;
+
+										specialAppendMode = 1;
+										spa = TRUE;
+									}
+								}
+							}
+
+							if (spa)
+							{
+								ln1 -= 3;
+								n += 3;
+								tsunagu = 1;
+							}
 						}
 					}
 				}
 			}
-		}
+//		}
 
 		if (ln1 != -1)
 		{
@@ -2656,7 +2757,12 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 //					{
 					if ((m_messageKosuu > 0) && specialAppendMode && (specialCR == 0) && (tsunagu == 1) )
 					{
-						m_game->AddBackLogMessage(m_messageData[m_messageKosuu-1],r,g,b);
+//						m_game->AddBackLogMessage(m_messageData[m_messageKosuu-1],r,g,b);
+						char tmplog[1024];
+						memcpy(tmplog,mes+n,ln1);
+						tmplog[ln1] = 0;
+						tmplog[ln1+1] = 0;
+						m_game->AddBackLogMessage(tmplog,r,g,b);
 					}
 					else
 					{
@@ -2669,6 +2775,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 				{
 					if ((firstAppend == 0) && specialAppendMode)
 					{
+					//	OutputDebugString("[f]");
 						char tmplog[1024];
 						memcpy(tmplog,mes+n,ln1);
 						tmplog[ln1] = 0;
@@ -2677,6 +2784,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 					}
 					else
 					{
+//						OutputDebugString("[g]");
 
 //					if ((m_cutinMode == 0) || (kosuu>0))
 //					{
