@@ -380,6 +380,10 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 	m_answerStringData = NULL;
 
+	m_debugLogFlag = 1;//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	AddDebugLog();
+
+
 	m_skipMovieFlag = FALSE;
 
 	m_layerOffVar = NULL;
@@ -773,7 +777,7 @@ void CGameCallBack::GeneralCreate(void)
 		}
 	}
 
-
+	AddDebugLog("CGame::log1");
 
 	for (int i=0;i<256;i++)
 	{
@@ -996,6 +1000,7 @@ void CGameCallBack::GeneralCreate(void)
 
 
 
+	AddDebugLog("CGame::log2");
 
 
 //	GetInitGameParam(&m_enableMidiButtonFlag,"configMidiButtonFlag");
@@ -1140,6 +1145,7 @@ void CGameCallBack::GeneralCreate(void)
 		m_createModeDisableFlag[i] = FALSE;
 	}
 
+	AddDebugLog("CGame::log3");
 
 	int commonUserCommandKosuu = m_commonUserCommandList->GetKosuu();
 
@@ -1205,6 +1211,7 @@ void CGameCallBack::GeneralCreate(void)
 
 
 
+	AddDebugLog("CGame::log4");
 
 
 
@@ -1403,6 +1410,7 @@ void CGameCallBack::GeneralCreate(void)
 
 //OutputDebugString("\nGeneralCreate -3");
 
+	AddDebugLog("CGame::log5");
 
 //	if (m_systemFile->m_systemdata.fullScreenFlag)
 	if (0)
@@ -1657,6 +1665,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 //
 #endif
 
+	AddDebugLog("CGame::log6");
 
 	int commonBufferSize = m_windowSizeX*m_windowSizeY;
 	if (commonBufferSize < 800*600) commonBufferSize = 800*600;//minimum buffer size
@@ -1836,6 +1845,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		}
 	}
 	
+	AddDebugLog("CGame::log7");
 
 
 	m_renameLayerVarNumber = -1;
@@ -1977,6 +1987,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		m_movieList->LoadFile("spt\\movielist.xtx");
 	}
 
+	AddDebugLog("CGame::log8");
 
 	for (i=0;i<commonUserCommandKosuu;i++)
 	{
@@ -2145,6 +2156,8 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 	}
 
+	AddDebugLog("CGame::log9");
+
 	SetForegroundWindow(m_hWnd);
 	SetFocus(m_hWnd);
 	int masterVolumeFlag = 0;
@@ -2215,6 +2228,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		m_directSound->Start();
 	}
 
+	AddDebugLog("CGame::log10");
 
 	m_musicControl = new CMusicControl(m_directSound);
 
@@ -2344,6 +2358,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	m_systemPicture = new CSystemPicture();
 	CSystemPicture::m_this = m_systemPicture;
 
+	AddDebugLog("CGame::log11");
 
 	//init‚©‚ç‚Ð‚ë‚¤‚Ô‚ñ
 	LPSTR defaultFont = NULL;
@@ -2456,10 +2471,14 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	}
 
 
+	AddDebugLog("CGame::log12");
 
 
 	m_font = new CMyFont(m_hWnd);
+	AddDebugLog("CGame::log13");
+
 	m_message = new CMyMessage(m_font);
+	AddDebugLog("CGame::log14");
 
 	//load user font
 	m_userFontKosuu = 0;
@@ -2482,6 +2501,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 //AddErrorLog("7");
 
+	AddDebugLog("CGame::log15");
 
 	m_taihi = new CTaihi();
 
@@ -2696,6 +2716,9 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		n++;
 	}
 
+
+	AddDebugLog("CGame::log16");
+
 /*
 	HKEY hkey;
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,keyname,0,KEY_READ,&hkey) == ERROR_SUCCESS)
@@ -2734,7 +2757,12 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	m_inputStatus->SetMouseStatus(m_mouseStatus);
 	m_inputStatus->SetKeyStatus(m_keyStatus);
 
+
+	AddDebugLog("CGame::log17");
+
 	m_textInputBox = new CMyTextInputBox(m_hWnd,m_message,m_viewControl);
+
+	AddDebugLog("CGame::log18");
 
 	m_imeAutoOpenFlag = 1;
 	GetInitGameParam(&m_imeAutoOpenFlag,"imeAutoOpenFlag");
@@ -2742,6 +2770,9 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	GetInitGameParam(&m_imeAutoCloseFlag,"imeAutoCloseFlag");
 	m_textInputBox->SetAuto(m_imeAutoOpenFlag,m_imeAutoCloseFlag);
 
+
+
+	AddDebugLog("CGame::log19");
 
 	//default option,mouse,cursor,scenebutton
 
@@ -2823,6 +2854,8 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		}
 	}
 //AddErrorLog("8.13");
+
+	AddDebugLog("CGame::log20");
 
 	m_fukaPrint = NULL;
 	SetupFukaPrint();
@@ -2944,6 +2977,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 
 
+	AddDebugLog("CGame::log21");
 
 
 
@@ -3052,6 +3086,9 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 	}
 #endif
+
+
+	AddDebugLog("CGame::log22");
 
 
 //AddErrorLog("endof GameCallBack");
@@ -8442,8 +8479,9 @@ void CGameCallBack::SystemFunctionNextFadeVoice(int para1,LPVOID para2)
 	int paraKosuu = para1;
 	int* pData = (int*)para2;
 	m_nextFadeVoice = *pData;
-
+#if defined _DEBUG
 	OutputDebugString("\nNextFadeVoiceFunction\n");
+#endif
 }
 
 void CGameCallBack::SystemFunctionMusicVolumeOnly(int para1,LPVOID para2)
@@ -14355,8 +14393,9 @@ BOOL CGameCallBack::StartModalThread(int modeNumber, int printMode, int stackSiz
 		return FALSE;	//error etc
 	}
 
-
+#if defined _DEBUG
 	OutputDebugString("[Thread Start]");
+#endif
 
 	if (m_modalCannotCloseFlag)
 	{
@@ -15562,6 +15601,29 @@ void CGameCallBack::SetTermLook(int term,BOOL flag)
 }
 
 
+void CGameCallBack::AddDebugLog(LPSTR mes)
+{
+	if (m_debugLogFlag)
+	{
+		if (mes == NULL)
+		{
+			FILE* file = CMyFile::OpenFullPath("debuglog666.txt","wb");
+			fclose(file);
+		}
+		else
+		{
+			int ln = strlen(mes);
+
+			FILE* file = CMyFile::OpenFullPath("debuglog666.txt","ab");
+			if (file != NULL)
+			{
+				fwrite(mes,sizeof(char),ln,file);
+				fwrite("\x00d\x00a",sizeof(char),2,file);
+				fclose(file);
+			}
+		}
+	}
+}
 
 
 

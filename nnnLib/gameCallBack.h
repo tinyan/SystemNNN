@@ -825,6 +825,9 @@ public:
 	BOOL CheckTermLook(int term);
 	void SetTermLook(int term,BOOL flag = TRUE);
 
+	void AddDebugLog(LPSTR mes = NULL);
+	int m_debugLogFlag;
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}

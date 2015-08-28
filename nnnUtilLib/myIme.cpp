@@ -99,7 +99,9 @@ CMyIME::CMyIME()
 		OutputDebugString("_CRT_WARN,  コンテキストの生成に失敗しました。エラーコード:0x%08X\n, hr  ");
 		break;
 	  }
-  
+//hr = E_FAIL;  
+//break;
+
 	  // コンテキストの push
 	  hr = m_document_mgr_cp->Push(m_context_cp);
 	  if( FAILED(hr) )
@@ -162,7 +164,7 @@ CMyIME::~CMyIME()
 
 void CMyIME::End(void)
 {
-	
+	Cleanup();
 }
 
 
@@ -176,7 +178,18 @@ LPSTR CMyIME::Start(LPSTR text)
 
 	m_number = 0;
 	m_max = 0;
-	EnumCandidates(wText,EnumCandidatesCallback,NULL);
+
+
+	if (m_opened)
+	{
+		EnumCandidates(wText,EnumCandidatesCallback,NULL);
+	}
+	else
+	{
+		m_max = 1;
+		memcpy(m_buffer,text,strlen(text)+1);
+
+	}
 
 	return m_buffer + m_number * m_bufferLength;
 //	return m_test[m_number];
@@ -230,11 +243,12 @@ bool CMyIME::MyCallback(
 	}
 
 	m_max++;
-
+#if defined _DEBUG
 	OutputDebugString("\x00d\x00alist:");
 	OutputDebugStringW(i_candidate);
 	OutputDebugString(":");
 	OutputDebugString(buf);
+#endif
 
 	return true;
 }
@@ -286,7 +300,8 @@ bool CMyIME::Cleanup()
   if( m_document_mgr_cp )
   {
     // 全てのコンテキストを解放する。
-    m_document_mgr_cp->Pop(TF_POPF_ALL);
+//@@    m_document_mgr_cp->Pop(TF_POPF_ALL);
+    m_document_mgr_cp->Pop(0);
     ENDRELEASE(m_document_mgr_cp);
   }
   // スレッドマネージャーの解放

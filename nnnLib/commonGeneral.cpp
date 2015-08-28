@@ -93,6 +93,10 @@ int CCommonGeneral::m_freeButtonNumber[] =
 
 CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 {
+	char debuglog[256];
+	sprintf_s(debuglog,sizeof(debuglog),"ClassCreate",m_classNumber);
+	lpGame->AddDebugLog(debuglog);
+
 	m_setup = NULL;
 	m_game = lpGame;
 	m_classNumber = -1;
@@ -269,6 +273,12 @@ void CCommonGeneral::GeneralEnd(void)
 
 int CCommonGeneral::GeneralInit(void)
 {
+	char debuglog[256];
+	sprintf_s(debuglog,sizeof(debuglog),"ClassInit(%d)",m_classNumber);
+	m_game->AddDebugLog(debuglog);
+
+
+
 	m_finalExitFlag = FALSE;
 	m_keyActionFlag = 0;
 	m_lastKeyButton = -1;
