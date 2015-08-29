@@ -380,7 +380,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 	m_answerStringData = NULL;
 
-	m_debugLogFlag = 1;//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	m_debugLogFlag = 0;//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	AddDebugLog();
 
 
@@ -481,6 +481,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 void CGameCallBack::GeneralCreate(void)
 {
+	AddDebugLog("CGame::GeneralCreate1");
 
 	int i;
 
@@ -494,6 +495,7 @@ void CGameCallBack::GeneralCreate(void)
 
 	m_viewControl = m_mainControl->GetViewControl();
 
+	AddDebugLog("CGame::GeneralCreate2");
 
 	m_setup = new CNameList();
 //	m_setup2 = new CNameList();
@@ -504,6 +506,8 @@ void CGameCallBack::GeneralCreate(void)
 
 //	m_logFileName[0] = '_';
 //	m_logFileName[1] = 0;
+
+	AddDebugLog("CGame::GeneralCreate3");
 
 	int errorLogFlag = 0;
 	GetInitGameParam(&errorLogFlag,"errorLogFlag");
@@ -538,11 +542,14 @@ void CGameCallBack::GeneralCreate(void)
 		CEffectAnimation::SetBufferDepth(animeBufferDepth);
 	}
 
+	AddDebugLog("CGame::GeneralCreate4");
 
 	for (i=0;i<m_pictureKosuuMax;i++)
 	{
 		SetDontLoadDWQ(i,0);
 	}
+
+	AddDebugLog("CGame::GeneralCreate5");
 
 	GetInitGameParam(&debugMusicNumberPrintFlag,"debugMusicNumberPrintFlag");
 
@@ -553,6 +560,8 @@ void CGameCallBack::GeneralCreate(void)
 		m_systemFile->CreateGUID();
 	}
 
+	AddDebugLog("CGame::GeneralCreate6");
+
 //	m_activeErrorFlag = FALSE;
 
 //	CPicture::InitStaticData();
@@ -561,10 +570,12 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&dwqPackLevel,"dwqPackLevel");
 	CPicture::SetDataPackLevel(dwqPackLevel);
 
+	AddDebugLog("CGame::GeneralCreate7");
 
 	SetForegroundWindow(m_hWnd);
 	SetFocus(m_hWnd);
 
+	AddDebugLog("CGame::GeneralCreate8");
 
 //	m_realWindowSizeX = m_viewControl->GetRealWindowSizeX();
 //	m_realWindowSizeY = m_viewControl->GetRealWindowSizeY();
@@ -580,6 +591,7 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&outerFillColorB,"outerFillColorB");
 	CMyDirectDraw::SetOutColor(outerFillColorR,outerFillColorG,outerFillColorB);
 
+	AddDebugLog("CGame::GeneralCreate9");
 
 	int notUseDirectDraw = m_systemFile->m_systemdata.notUseDirectDraw;
 	if (notUseDirectDraw == 0)
@@ -589,6 +601,8 @@ void CGameCallBack::GeneralCreate(void)
 	CMyDirectDraw::m_notUseDirectDraw = notUseDirectDraw;
 	m_notUseDirectDraw = notUseDirectDraw;
 
+
+	AddDebugLog("CGame::GeneralCreate10");
 
 //OutputDebugString("\nGeneralCreate -1");
 #if defined _TINYAN3DLIB_
@@ -615,11 +629,23 @@ void CGameCallBack::GeneralCreate(void)
 //	int realWindowSizeX = 1024;
 //	int realWindowSizeY = 768;
 
+	AddDebugLog("CGame::GeneralCreate11");
+
 	m_myGraphics = new CMyGraphics(m_windowSizeX,m_windowSizeY,notUseDirectDraw);
 	int okikaeMax = 100;
 	GetInitGameParam(&m_autoDebugWait,"okikae");
 	int useDefaultOkikae = 0;
 	GetInitGameParam(&useDefaultOkikae,"useDefaultOkikae");
+
+
+	m_autoExtDataLoadKosuu = 0;
+	m_autoExtSubDataLoadKosuu = 0;
+	m_autoExtDataLoadMode = new int[256];
+	m_autoExtDataLoadSub = new int[256];
+	m_autoSaveSubDataClass = new CAutoSaveSubData*[256];
+
+
+	AddDebugLog("CGame::GeneralCreate12");
 
 	m_okikaeData = new COkikaeData(okikaeMax,okikaeMax,useDefaultOkikae);
 	for (int i=0;i<100;i++)
@@ -631,6 +657,7 @@ void CGameCallBack::GeneralCreate(void)
 		}
 	}
 
+	AddDebugLog("CGame::GeneralCreate13");
 
 
 	CMyMessage::m_okikaeData = m_okikaeData;
@@ -649,6 +676,7 @@ void CGameCallBack::GeneralCreate(void)
 	CAllGraphics::FillScreen();
 #endif
 
+	AddDebugLog("CGame::GeneralCreate14");
 
 	m_autoSelectControl = NULL;
 	m_autoDebugMode = 0;
@@ -660,6 +688,7 @@ void CGameCallBack::GeneralCreate(void)
 	m_autoDebugWait = 50;
 	GetInitGameParam(&m_autoDebugWait,"autoDebugWait");
 
+	AddDebugLog("CGame::GeneralCreate15");
 
 //	CPicture::FillScreen();
 
@@ -668,6 +697,8 @@ void CGameCallBack::GeneralCreate(void)
 	{
 		m_layerOffVar[i] = -1;
 	}
+
+	AddDebugLog("CGame::GeneralCreate16");
 
 	int vistaCheck = 1;
 	GetInitGameParam(&vistaCheck,"vistaCheck");
@@ -692,12 +723,14 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&notSrcCopyFlagEnable,"notSrcCopyFlagEnable");
 	if (notSrcCopyFlagEnable) CSuperButtonSetup::SetNotCopyFlagEnable();
 
+	AddDebugLog("CGame::GeneralCreate17");
 
 	m_superButtonPicture = new CSuperButtonPicture();
 
 	m_systemModeList = new CCommonSystemModeList();
 	m_commonUserCommandList = new CCommonUserCommandList();
 
+	AddDebugLog("CGame::GeneralCreate18");
 
 	m_dataFileSetup = NULL;
 
@@ -720,6 +753,8 @@ void CGameCallBack::GeneralCreate(void)
 //MessageBox(NULL,"gamecallback:const-0-1-0.5","game",MB_OK);
 //CAllGeo::BoxFill(10,10,300,300,55,66,77);
 
+	AddDebugLog("CGame::GeneralCreate19");
+
 	GetInitGameString(&m_companyName,"companyName");
 	GetInitGameString(&m_productName,"gameName");
 
@@ -733,12 +768,8 @@ void CGameCallBack::GeneralCreate(void)
 	m_autoSaveDataList = new CAutoSaveDataList();
 
 
-	m_autoExtDataLoadKosuu = 0;
-	m_autoExtDataLoadMode = new int[256];
-	m_autoExtSubDataLoadKosuu = 0;
-	m_autoExtDataLoadSub = new int[256];
-	m_autoSaveSubDataClass = new CAutoSaveSubData*[256];
 
+	AddDebugLog("CGame::GeneralCreate20");
 
 
 
@@ -752,6 +783,8 @@ void CGameCallBack::GeneralCreate(void)
 		m_autoExtDataLoadSub[i] = 0;
 		m_autoSaveSubDataClass[i] = NULL;
 	}
+
+	AddDebugLog("CGame::GeneralCreate21");
 
 	for (int i=0;i<256;i++)
 	{

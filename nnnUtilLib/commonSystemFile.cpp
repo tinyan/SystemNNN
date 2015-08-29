@@ -217,14 +217,14 @@ void CCommonSystemFile::CreateInitData(void)
 
 	//Make Info
 	m_dataHeader.size = sizeof(m_dataHeader);
-	m_dataHeader.code = 0;	//dummy
-	m_dataHeader.dataKosuu = 11;
+	m_dataHeader.code = 0;	
+	m_dataHeader.dataKosuu = 14;
 	CopyMemory(&m_dataHeader.message[0],"FILE INFO      ",16);
 
 
 	//Make Header
 	m_systemdata.size = sizeof(m_systemdata);
-	m_systemdata.code = 1;		//dummy
+	m_systemdata.code = 1;	
 	CopyMemory(&m_systemdata.message[0],"SYSTEM DATA    ",16);
 
 
