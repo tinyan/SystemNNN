@@ -8225,12 +8225,13 @@ void CGameCallBack::SystemFunctionSetAchievement(int para1,LPVOID para2)
 		return;
 	}
 
-	m_systemFile->SetAchievement(achievement,ps);
 	CCommonPrintAchievement* general = (CCommonPrintAchievement*)m_general[PRINTACHIEVEMENT_MODE];
 	if (general != NULL)
 	{
 		general->AchievementChanged(achievement,ps);
 	}
+
+	m_systemFile->SetAchievement(achievement,ps);
 }
 
 int CGameCallBack::GetAchievement(int achievement)

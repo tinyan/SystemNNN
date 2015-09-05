@@ -192,10 +192,10 @@ int CCommonKanjiInput::Init(void)
 
 int CCommonKanjiInput::Calcu(void)
 {
-	if (m_mouseStatus->CheckClick(1))
-	{
-		return ReturnFadeOut(-1);
-	}
+//	if (m_mouseStatus->CheckClick(1))
+//	{
+//		return ReturnFadeOut(-1);
+//	}
 
 	int softKey = m_softKey->Calcu(m_inputStatus);
 	if (softKey >= 0)

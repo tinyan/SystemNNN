@@ -21,7 +21,7 @@ public:
 	void DeltaPrint(POINT pt);
 
 	SIZE GetSize(void){return m_animePicSize;}
-	
+	POINT GetZahyo(void){return m_animePrintZahyo;}
 private:
 	int m_animeCount;
 	int m_animeCountMax;

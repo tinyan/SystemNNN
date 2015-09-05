@@ -21,11 +21,15 @@
 
 #include "..\nnnUtilLib\commonButton.h"
 #include "..\nnnUtilLib\commonButtonGroup.h"
+#include "..\nnnUtilLib\commonBackButton.h"
 
 #include "..\nnnUtilLib\superButtonPicture.h"
 
 #include "..\nnnUtilLib\printGameDate.h"
 #include "..\nnnUtilLib\mymessage.h"
+
+#include "..\nnnUtilLib\commonAnimeParts.h"
+#include "..\nnnUtilLib\suuji.h"
 
 #include "commonMode.h"
 #include "commonSystemParamName.h"
@@ -126,6 +130,31 @@ CCommonPrintAchievement::CCommonPrintAchievement(CGameCallBack* lpGame,int extMo
 	}
 	CheckAllResult(FALSE);
 
+	m_anime = new CCommonAnimeParts*[m_achievementNumber*2];
+	for (int i=0;i<m_achievementNumber;i++)
+	{
+		char tagName[256];
+		sprintf_s(tagName,256,"achievement%dok",i+1);
+		m_anime[i*2+0] = new CCommonAnimeParts(tagName,m_setup,TRUE);
+		sprintf_s(tagName,256,"achievement%dnot",i+1);
+		m_anime[i*2+1] = new CCommonAnimeParts(tagName,m_setup,TRUE);
+	}
+
+	m_suuji = NULL;
+	m_percentPrintFlag = 0;
+	m_percentPrintX = 0;
+	m_percentPrintY = 0;
+	GetInitGameParam(&m_percentPrintFlag,"percentPrintFlag");
+	if (m_percentPrintFlag)
+	{
+		m_suuji = new CSuuji(m_setup,"suuji",TRUE);
+		GetInitGameParam(&m_percentPrintX,"percentPrintX");
+		GetInitGameParam(&m_percentPrintY,"percentPrintY");
+	}
+
+
+	CreateBackButton();
+
 	GetDisableQuickButtonSetup();
 	GetBGMSetup();
 	GetFadeInOutSetup();
@@ -143,6 +172,15 @@ CCommonPrintAchievement::~CCommonPrintAchievement()
 
 void CCommonPrintAchievement::End(void)
 {
+	ENDDELETECLASS(m_suuji);
+	if (m_anime != NULL)
+	{
+		for (int i=0;i<m_achievementNumber*2;i++)
+		{
+			ENDDELETECLASS(m_anime[i]);
+		}
+		DELETEARRAY(m_anime);
+	}
 	DELETEARRAY(m_achievementResult);
 	DELETEARRAY(m_achievementTable);
 }
@@ -153,6 +191,13 @@ int CCommonPrintAchievement::Init(void)
 
 	CheckAllResult();
 
+	for (int i=0;i<m_achievementNumber*2;i++)
+	{
+		m_anime[i]->Init();
+	}
+
+	m_back->Init();
+	LoadBackButtonPic();
 
 	return -1;
 }
@@ -162,10 +207,29 @@ int CCommonPrintAchievement::Calcu(void)
 {
 	//backbutton
 
-	if (m_mouseStatus->CheckClick(1))
+	for (int i=0;i<m_achievementNumber*2;i++)
 	{
-		return ReturnFadeOut(OMAKE_MODE);
+		m_anime[i]->Calcu();
 	}
+
+	int back = m_back->Calcu(m_inputStatus);
+	if (back != NNNBUTTON_NOTHING)
+	{
+		int nm = ProcessUpDownBack(back);
+		if (nm >= 0)
+		{
+			if (nm == 0)
+			{
+//				m_game->FuqueAllEffectYoyaku();
+				return ReturnFadeOut(OMAKE_MODE);
+			}
+		}
+	}
+
+
+
+
+
 
 	/*
 	int rt = m_game->CalcuOptionButton();
@@ -224,17 +288,37 @@ int CCommonPrintAchievement::Print(void)
 
 	PrintBackScriptOrBG();
 
-	m_message->PrintMessage(40,40,"トロフィー確認用ダミー画面");
+//	m_message->PrintMessage(40,40,"トロフィー確認用ダミー画面");
 
 
 	for (int i=0;i<m_achievementNumber;i++)
 	{
-		char mes[256];
+//		char mes[256];
 		int ps = m_achievementResult[i];
 
-		sprintf_s(mes,256,"%d番トロフィー＝%dパーセント",i+1,ps);
-		m_message->PrintMessage(100,100+50*i,mes);
+		int k = i*2;
+		if (ps<100)
+		{
+			k = i*2+1;
+		}
+
+		m_anime[k]->Print();
+
+		//達成率表示
+		if (m_percentPrintFlag)
+		{
+			POINT pt = m_anime[k]->GetZahyo();
+			pt.x += m_percentPrintX;
+			pt.y += m_percentPrintY;
+			m_suuji->Print(pt.x+m_percentPrintX,pt.y+m_percentPrintY,ps,3);
+		}
+
+
+//		sprintf_s(mes,256,"%d番トロフィー＝%dパーセント",i+1,ps);
+//		m_message->PrintMessage(100,100+50*i,mes);
 	}
+
+	m_back->Print();
 
 
 //	m_game->PrintOptionButtonYoyaku();

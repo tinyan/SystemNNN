@@ -330,6 +330,7 @@ int CCommonPrintItem::Calcu(void)
 				}
 
 //				return ReturnFadeOut(OMAKE_MODE);
+				m_game->FuqueAllEffectYoyaku();
 				return ReturnFadeOut(m_backMode);
 			}
 			else

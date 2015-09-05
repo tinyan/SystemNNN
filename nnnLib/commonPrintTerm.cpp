@@ -232,6 +232,7 @@ int CCommonPrintTerm::Calcu(void)
 			if (nm == 0)
 			{
 //				return ReturnFadeOut(OMAKE_MODE);
+				m_game->FuqueAllEffectYoyaku();
 				return ReturnFadeOut(m_backMode);
 			}
 			else

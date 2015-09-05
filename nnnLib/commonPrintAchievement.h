@@ -15,6 +15,7 @@ class CMyMessage;
 
 class CCommonButtonGroup;
 //class CSelectObjectSetup;
+class CCommonAnimeParts;
 
 class CCommonPrintAchievement : public CCommonGeneral
 {
@@ -54,6 +55,13 @@ protected:
 	void CheckAllResult(BOOL noticePrint = TRUE);
 
 	CMyMessage* m_message;
+
+	CCommonAnimeParts** m_anime;
+	CSuuji* m_suuji;
+	int m_percentPrintFlag;
+	int m_percentPrintX;
+	int m_percentPrintY;
+
 
 private:
 

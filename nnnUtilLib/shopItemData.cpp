@@ -24,7 +24,7 @@ CShopItemData::CShopItemData(BOOL angouFlag)
 
 	if (angouFlag)
 	{
-		m_list->LoadFile("nya\\shopItem.xfx",TRUE);
+		m_list->LoadFile("nya\\shopItem.fxf",TRUE);
 	}
 	else
 	{

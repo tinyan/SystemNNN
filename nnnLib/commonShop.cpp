@@ -696,7 +696,7 @@ int CCommonShop::Print(void)
 			//soldout
 			if ((m_soldOutPic != NULL) && (m_printSoldOutFlag))
 			{
-				if (m_soldOutFlag[i])
+				if (m_soldOutFlag[item])
 				{
 					m_soldOutPic->Put(pt.x+m_soldoutPrintX,pt.y+m_soldoutPrintY,TRUE);
 				}
@@ -912,7 +912,8 @@ void CCommonShop::CreateTable(void)
 
 
 
-			if (m_canSelectLimit == 0)
+//			if (m_canSelectLimit == 0)
+			if (1)
 			{
 				//check limit
 				int limitVarNumber = m_shopItem->GetTargetVarNumber(i);
@@ -923,7 +924,10 @@ void CCommonShop::CreateTable(void)
 					{
 						if (m_game->GetVarData(limitVarNumber) >= limit)
 						{
-							selok &= ~1;
+							if (m_canSelectLimit == 0)
+							{
+								selok &= ~1;
+							}
 							m_soldOutFlag[m_itemListNumber] = 1;
 						}
 					}
