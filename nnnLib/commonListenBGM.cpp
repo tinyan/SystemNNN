@@ -131,6 +131,14 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 
 	int codeByte = CMyFont::m_codeByte;
 
+
+	m_musicNameCenterFlag = 1;
+	GetInitGameParam(&m_musicNameCenterFlag,"musicNameCenterFlag");
+
+	m_replaceChara = NULL;
+	GetInitGameString(&m_replaceChara,"replaceChara");
+
+
 	m_musicControl = m_game->GetMusicControl();
 
 	GetBackExecSetup();
@@ -181,6 +189,38 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 
 	int timeIsKosuu = 0;
 	m_bgmKosuu = (m_bgmList->GetNameKosuu()) / 8;
+
+
+
+	if (codeByte == 1)
+	{
+		if (m_replaceChara != NULL)
+		{
+			if ((*m_replaceChara) != 0)
+			{
+				char replaceChara = *m_replaceChara;
+
+				for (int i=0;i<m_bgmKosuu;i++)
+				{
+					LPSTR musicName = m_bgmList->GetName(i*8);
+					int ln = strlen(musicName);
+
+					for (int k=0;k<ln;k++)
+					{
+						char c = musicName[k];
+						if (c == replaceChara)
+						{
+							musicName[k] = ' ';
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+
+
 
 
 	m_musicNameMax = 12;
@@ -237,6 +277,8 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 				m_musicName2[i] = m_bgmList->GetName(i*8+4);
 			}
 		}
+
+
 		if (codeByte != 1)
 		{
 			m_musicNameLength2[i] = (int)strlen(m_musicName2[i]) / 2;
@@ -245,6 +287,29 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 		{
 			m_musicNameLength2[i] = (int)strlen(m_musicName2[i]);
 		}
+
+		if (codeByte == 1)
+		{
+			if (m_replaceChara != NULL)
+			{
+				if ((*m_replaceChara) != 0)
+				{
+					char replaceChara = *m_replaceChara;
+					for (int k=0;k<m_musicNameLength2[i];k++)
+					{
+						char c = m_musicName2[i][k];
+						if (c == replaceChara)
+						{
+							m_musicName2[i][k] = ' ';
+						}
+					}
+				}
+			}
+		}
+
+
+
+
 
 		LPSTR checkName = m_bgmList->GetName(i*8+5);
 		int sysnum = 0;
@@ -1550,14 +1615,18 @@ void CCommonListenBGM::PrintMusicName(int n)
 		}
 	}
 
-	if (codeByte != 1)
+	if (m_musicNameCenterFlag)
 	{
-		putX += ((m_musicNameMax-ln)*(m_messageFontSize+1))/2;
+		if (codeByte != 1)
+		{
+			putX += ((m_musicNameMax-ln)*(m_messageFontSize+1))/2;
+		}
+		else
+		{
+			putX += ((m_musicNameMax-ln)*(m_messageFontSize/2+1))/2;
+		}
 	}
-	else
-	{
-		putX += ((m_musicNameMax-ln)*(m_messageFontSize/2+1))/2;
-	}
+
 
 	if (m_useMusicTitleGraphics == 0)
 	{

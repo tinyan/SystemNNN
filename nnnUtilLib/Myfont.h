@@ -141,7 +141,8 @@ private:
 
 	int m_mainFontSize;
 	int m_rubiFontSize;
-	
+
+	int m_charaSet;
 
 };
 

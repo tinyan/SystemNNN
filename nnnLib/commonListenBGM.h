@@ -271,6 +271,8 @@ protected:
 	int m_cursorIsUpper;
 
 
+	int m_musicNameCenterFlag;
+	LPSTR m_replaceChara;
 
 
 };

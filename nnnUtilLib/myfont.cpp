@@ -153,6 +153,13 @@ CMyFont::CMyFont(HWND hwnd,LPSTR fontName)
 	m_hWnd = hwnd;
 //return;
 
+	m_charaSet = SHIFTJIS_CHARSET;
+
+	if (m_codeByte == 1)
+	{
+		m_charaSet = ANSI_CHARSET;
+	}
+
 	m_fontCacheNumber = -1;
 
 //	BITMAPV4HEADER bmi;
@@ -1715,7 +1722,7 @@ int CMyFont::GetFontSize(int fontsize)
 HFONT CMyFont::MakeFont(LPSTR fontname,int fontsize)
 {
 	return CreateFont(	fontsize*2,fontsize*2/2,0,0,m_fontWeight,m_fontItalic,FALSE,FALSE,
-						SHIFTJIS_CHARSET,OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS ,DEFAULT_QUALITY,
+						m_charaSet,OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS ,DEFAULT_QUALITY,
 						FIXED_PITCH | FF_DONTCARE,
 						fontname);
 }
