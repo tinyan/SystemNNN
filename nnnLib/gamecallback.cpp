@@ -4820,7 +4820,7 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 		m_systemFile->m_systemdata.autoSpeedSlider = dat;
 		break;
 	case NNNPARAM_AUTOCONTINUESWITCH:
-		m_systemFile->m_systemdata.coninueAuto = dat;
+		m_systemFile->m_systemdata.continueAuto = dat;
 		break;
 	}
 
@@ -4954,7 +4954,7 @@ int CGameCallBack::GetSystemParam(int para)
 		return m_systemFile->m_systemdata.autoSpeedSlider;
 		break;
 	case NNNPARAM_AUTOCONTINUESWITCH:
-		return m_systemFile->m_systemdata.coninueAuto;
+		return m_systemFile->m_systemdata.continueAuto;
 		break;
 	}
 

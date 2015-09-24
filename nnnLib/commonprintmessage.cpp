@@ -295,6 +295,7 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 
 
 
+
 	if (m_nameFlag)
 	{
 		GetInitGameParam(&m_nameX0,"nameX");
@@ -1703,13 +1704,16 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 				
 				if (m_nameCenterFlag == 0) dlt = 0;
 
+				int dltdiv = 1;
+				if (m_nameCenterFlag == 1) dltdiv = 2;
+
 				if (codeByte != 1)
 				{
-					putX += (dlt * (m_nameFontSize + sukima)) / 2;
+					putX += (dlt * (m_nameFontSize + sukima)) / dltdiv;
 				}
 				else
 				{
-					putX += (dlt * (m_nameFontSize/2 + sukima)) / 2;
+					putX += (dlt * (m_nameFontSize/2 + sukima)) / dltdiv;
 				}
 
 				int colR = m_nameColorR;

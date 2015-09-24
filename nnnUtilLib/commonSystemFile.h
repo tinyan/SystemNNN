@@ -142,7 +142,7 @@ public:
 		int monitor;
 		int lastSaveSlot;
 		int notUseDirectDraw;
-		int coninueAuto;
+		int continueAuto;
 
 		int totalVolume;
 		int totalVolumeSwitch;

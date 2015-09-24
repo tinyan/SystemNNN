@@ -29,6 +29,10 @@ protected:
 	virtual void FinalExitRoutine(void);
 	virtual int EndMode(void);
 
+	static char m_defaultUnknownVoice[];
+	static char m_defaultUnknownVoice1[];
+	LPSTR m_unknownVoice;
+
 	CMyMessage* m_message;
 
 	int m_voiceCharaNumber;

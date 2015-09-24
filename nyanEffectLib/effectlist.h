@@ -7,7 +7,7 @@
 
 
 #define EFFECT_NOP 0
-//#define EFFECT_WAITMODE 1
+// #define EFFECT_WAITMODE 1
 #define EFFECT_MAE 1
 	//前の続きのエフェクト番号として予約	エフェクトそのものは存在しにゃい
 

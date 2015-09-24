@@ -20,6 +20,7 @@
 #include "..\nnnUtilLib\nnnButtonStatus.h"
 //#include "..\nnnUtilLib\selectObjectSetup.h"
 
+#include "..\nnnUtilLib\Myfont.h"
 
 #include "..\nnnUtilLib\commonButton.h"
 #include "..\nnnUtilLib\commonButtonGroup.h"
@@ -49,12 +50,16 @@
 
 #include "commonKeyList.h"
 
+char CCommonListenVoice::m_defaultUnknownVoice[] = "？？？";
+char CCommonListenVoice::m_defaultUnknownVoice1[] = "???";
 
 
 CCommonListenVoice::CCommonListenVoice(CGameCallBack* lpGame,int extMode) : CCommonGeneral(lpGame)
 {
 	SetClassNumber(LISTENVOICE_MODE);
 	LoadSetupFile("ListenVoice",256);
+
+	int codeByte = CMyFont::m_codeByte;
 
 	m_message = m_game->GetMyMessage();
 
@@ -78,6 +83,14 @@ CCommonListenVoice::CCommonListenVoice(CGameCallBack* lpGame,int extMode) : CCom
 	m_charaVoiceRange = new int*[m_voiceCharaNumber];
 
 	int errorLimit = 0;
+
+	m_unknownVoice = m_defaultUnknownVoice;
+	if (codeByte == 1)
+	{
+		m_unknownVoice = m_defaultUnknownVoice1;
+	}
+	GetInitGameString(&m_unknownVoice,"unknownVoice");
+
 
 	for (int i=0;i<m_voiceCharaNumber;i++)
 	{
@@ -131,7 +144,14 @@ CCommonListenVoice::CCommonListenVoice(CGameCallBack* lpGame,int extMode) : CCom
 					if (errorLimit < 3)
 					{
 						char errorMessage[256];
-						sprintf_s(errorMessage,256,"音声ファイル(%s)がみつかりません。\nボイスキャラ番号=%d\nボイス番号%d",filename,i+1,k+1);
+						if (codeByte == 2)
+						{
+							sprintf_s(errorMessage,256,"音声ファイル(%s)がみつかりません。\nボイスキャラ番号=%d\nボイス番号%d",filename,i+1,k+1);
+						}
+						else
+						{
+							sprintf_s(errorMessage,256,"voicefile(%s)not found.\nvoiceCharaNumber=%d\nvoiceNumber%d",filename,i+1,k+1);
+						}
 						MessageBox(NULL,errorMessage,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 						errorLimit++;
 					}
@@ -146,7 +166,14 @@ CCommonListenVoice::CCommonListenVoice(CGameCallBack* lpGame,int extMode) : CCom
 					if (errorLimit < 3)
 					{
 						char errorMessage[256];
-						sprintf_s(errorMessage,256,"ボイス制御変数(%s)がみつかりません。\nボイスキャラ番号=%d\nボイス番号%d",name,i+1,k+1);
+						if (codeByte == 2)
+						{
+							sprintf_s(errorMessage,256,"ボイス制御変数(%s)がみつかりません。\nボイスキャラ番号=%d\nボイス番号%d",name,i+1,k+1);
+						}
+						else
+						{
+							sprintf_s(errorMessage,256,"voiceControlVar(%s)not found.\nvoiceCharaNumber=%d\nvoiceNumber%d",name,i+1,k+1);
+						}
 						MessageBox(NULL,errorMessage,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 						errorLimit++;
 					}
@@ -401,8 +428,11 @@ int CCommonListenVoice::Print(void)
 
 	PrintBackScriptOrBG();
 
+	int codeByte = CMyFont::m_codeByte;
 
-	m_message->PrintMessage(100,100,"ＬｉｓｔｅｎＶｏｉｃｅ");
+
+
+	//m_message->PrintMessage(100,100,"ＬｉｓｔｅｎＶｏｉｃｅ");
 	//m_game->PrintOptionButtonYoyaku();
 
 	if (m_radio != NULL)
@@ -431,7 +461,17 @@ int CCommonListenVoice::Print(void)
 
 		if (flag == 0)
 		{
-			m_message->PrintMessage(x,y,"？？？");
+			m_message->PrintMessage(x,y,m_unknownVoice);
+			/*
+			if (codeByte == 2)
+			{
+				m_message->PrintMessage(x,y,"？？？");
+			}
+			else
+			{
+				m_message->PrintMessage(x,y,"???");
+			}
+			*/
 		}
 		else
 		{

@@ -62,6 +62,8 @@ CCommonDataFile::CCommonDataFile(CGameCallBack* lpGame, int printX, int printY,C
 
 	m_loadSave = FALSE;//not use?
 
+	int codeByte = CMyFont::m_codeByte;
+
 
 
 	m_dataFileSetup = m_game->GetDataFileSetup();
@@ -412,8 +414,16 @@ CCommonDataFile::CCommonDataFile(CGameCallBack* lpGame, int printX, int printY,C
 //	m_lergeComment3[0] = 0;
 //	m_lergeComment4[0] = 0;
 
-	memcpy(m_sei,"姓でーた",strlen("姓でーた")+1);
-	memcpy(m_mei,"名でーた",strlen("名でーた")+1);
+	if (codeByte == 2)
+	{
+		memcpy(m_sei,"姓でーた",strlen("姓でーた")+1);
+		memcpy(m_mei,"名でーた",strlen("名でーた")+1);
+	}
+	else
+	{
+		memcpy(m_sei,"LastName",strlen("LastName")+1);
+		memcpy(m_mei,"FirstName",strlen("FirstName")+1);
+	}
 }
 
 

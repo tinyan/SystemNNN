@@ -213,7 +213,21 @@ CMyFont::CMyFont(HWND hwnd,LPSTR fontName)
 	
 	m_fontCache = new CMyFontCache(-1,m_rubiUseFlag);
 
-	m_specialFontPic = new CPicture(m_defaultGaijiFilename);
+	char filename[256];
+	if (m_codeByte == 2)
+	{
+		sprintf_s(filename,256,"%s",m_defaultGaijiFilename);
+	}
+	else
+	{
+		sprintf_s(filename,256,"%s_1byte",m_defaultGaijiFilename);
+	}
+
+	m_specialFontPic = new CPicture();
+	m_specialFontPic->LoadDWQ(filename);
+
+
+
 	m_picBuffer = (int*)(m_pic->GetBuffer());
 	m_antiBuffer = m_pic->GetMaskPic();
 
@@ -675,10 +689,14 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 
 
 
-	int ln = strlen(message);
+	int ln = 0;
 	if (m_codeByte == 2)
 	{
-		ln /= 2;
+		ln = strlen(message) / 2;
+	}
+	else
+	{
+		ln = strlen(message) / 2;
 	}
 
 
@@ -813,22 +831,22 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 			{
 				for (i=0;i<ln;i++)
 				{
-//					char ckc = *(message+i*2);
-//					if (ckc != (char)0x80)
-//					{
+					char ckc = *(message+i*2);
+					if (ckc != (char)0x80)
+					{
 //						if (customFontFlag == FALSE)
 //						{
-							TextOut(hdc,x,y,message+i,1);
+							TextOut(hdc,x,y,message+i*2,1);
 //						}
 //						else
 //						{
 //							MakeCustom(x/2,y/2,1,1,message+i*2,kageColorR,kageColorG,kageColorB);
 //						}
-//					}
-//					else
-//					{
-//						Gaiji(x,y,kageColor,*(message+i*2+1));
-//					}
+					}
+					else
+					{
+						Gaiji(x,y,kageColor,*(message+i*2+1));
+					}
 
 					x += stp;
 				}
@@ -1043,7 +1061,16 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 		}
 		else
 		{
-			TextOut(hdc,x,y,message+i,1);
+			if ((*(message + i* 2)) != (char)0x80)
+			{
+//				if (customFontFlag == FALSE)
+				TextOut(hdc,x,y,message+i*2,1);
+			}
+			else
+			{
+				int col2 = (colR<<16) | (colG<<8) | (colB);
+				Gaiji(x,y,col2,*(message + i*2+1));
+			}
 		}
 		x += stp;
 
@@ -1740,6 +1767,34 @@ void CMyFont::Gaiji(int x,int y,int col,int dat)
 	int fontPicSizeX = m_specialFontSizeX;
 	dat -= 1;
 
+	/*
+	static int kkk = 0;
+	if ( kkk == 0 )
+	{
+		kkk=1;
+		for (int j=0;j<48;j++)
+		{
+			for (int i=0;i<=26*5;i++)
+			{
+				if (((*(src+i+j*fontPicSizeX)) & 0xffffff) != 0)
+				{
+					OutputDebugString("o");
+				}
+				else
+				{
+					OutputDebugString(".");
+				}
+
+			}
+			OutputDebugString("\x00d\x00a");
+		}
+	}
+	*/
+
+
+
+	int codeByte = m_codeByte;
+
 	if (dat >= 20)
 	{
 		src = (int*)m_userGaijiFontPicBuffer;
@@ -1747,7 +1802,7 @@ void CMyFont::Gaiji(int x,int y,int col,int dat)
 		dat -= 19;
 	}
 
-	int loopX = m_nowFontSize* 2 + 2;
+	int loopX = m_nowFontSize* codeByte + 2;
 	int loopY = m_nowFontSize* 2;
 	int srcDeltaX = 0;
 	int srcDeltaY = 0;
@@ -1782,13 +1837,15 @@ void CMyFont::Gaiji(int x,int y,int col,int dat)
 	dst += x;
 	dst += y * screenSizeX * 2;
 
-	src += dat * 50;
+	int width = 24 * codeByte + 2;
+
+	src += dat * width;
 //	src += srcDeltaX;
 //	src += srcDeltaY * fontPicSizeX;
 
 
 
-	if (((dat+1) * 50) > fontPicSizeX) return;	//no data
+	if (((dat+1) * width) > fontPicSizeX) return;	//no data
 
 	int c = col;
 
@@ -1823,7 +1880,7 @@ void CMyFont::Gaiji(int x,int y,int col,int dat)
 	}
 
 	int sy = m_nowFontSize*2;
-	int sx = m_nowFontSize*2 + 2;
+	int sx = m_nowFontSize*codeByte + 2;
 
 	int* src0 = src;
 	for (int j=0;j<loopY;j++)
@@ -1836,7 +1893,7 @@ void CMyFont::Gaiji(int x,int y,int col,int dat)
 //		for (int i=0;i<sx;i++)
 		for (int i=0;i<loopX;i++)
 		{
-			int* src2 = src1 + (i*50+srcDeltaX*50)/sx;
+			int* src2 = src1 + (i*width+srcDeltaX*width)/sx;
 
 			if (((*src2) & 0xffffff) != 0)
 			{

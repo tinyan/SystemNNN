@@ -59,6 +59,7 @@ public:
 	static COLORNAMETABLE m_colorNameTable[100];
 	static COLORNAMETABLE m_colorNameTable1Byte[100];
 	static COLORNAMETABLE m_specialNameTable[100];
+	static COLORNAMETABLE m_specialNameTable1Byte[100];
 
 	static void SetHanaName(LPSTR hanaName);
 	static void SetNumMessage(int n, LPSTR mes);

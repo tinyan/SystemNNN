@@ -99,6 +99,17 @@ CMyMessage::COLORNAMETABLE CMyMessage::m_specialNameTable[] =
 	{'èI',255},
 };
 
+CMyMessage::COLORNAMETABLE CMyMessage::m_specialNameTable1Byte[] = 
+{
+	{'h',50},//heart
+	{'s',51},//sweat
+	{'a',52},//anger
+	{'f',53},//foot
+	{'c',54},//cat
+	{'b',55},//breath
+	{'r',56},//rose
+	{'e',255},
+};
 
 char CMyMessage::m_userGaiji[]= "èI";
 
@@ -659,7 +670,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					int ln1 = strlen(m_sei);
 					if ((nowLen + ln1) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 1 * nowLen,m_sei,ln1);
+						memcpy(m_messageWork + 1 * nowLen,m_sei,ln1);//@@@@
 						if (bNewCol)
 						{
 							for (int i=0;i<ln1;i++)
@@ -698,7 +709,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					int ln2 = strlen(m_mei);
 					if ((nowLen + ln2) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 1 * nowLen,m_mei,ln2);
+						memcpy(m_messageWork + 1 * nowLen,m_mei,ln2);//@@@@
 						if (bNewCol)
 						{
 							for (int i=0;i<ln2;i++)
@@ -1019,7 +1030,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 			}
 			else
 			{
-				m_messageWork[nowLen] = 0;
+				m_messageWork[nowLen*2] = 0;
 			}
 			int rt = -1;
 
@@ -1178,7 +1189,8 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				}
 				else
 				{
-					m_messageWork[nowLen] = cc;
+					m_messageWork[nowLen*2] = cc;
+					m_messageWork[nowLen*2+1] = cc;
 					m_colorPtr[nowLen] = col;
 					nowLen++;
 				}
@@ -1246,7 +1258,8 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				}
 				else
 				{
-					memcpy(&m_messageWork[nowLen],message+k,1);
+					memcpy(&m_messageWork[nowLen*2],message+k,1);
+					memcpy(&m_messageWork[nowLen*2+1],message+k,1);
 				}
 			}
 			nowLen++;
@@ -1310,7 +1323,13 @@ void CMyMessage::GradPrintMessage(int startX,int endX,int x, int y, LPSTR messag
 
 int CMyMessage::GetCommand(short d)
 {
+	int codeByte = CMyFont::m_codeByte;
+
 	int d0 = ((d>>8)& 0xff) | ((d<<8) & 0xff00);
+	if (codeByte == 1)
+	{
+		d0 = (d>>8)& 0xff;
+	}
 
 	int sei = 'ê©';
 	int mei = 'ñº';
@@ -1339,7 +1358,9 @@ int CMyMessage::GetCommand(short d)
 		nums[i] &= 0xffff;
 	}
 
-	if (CMyFont::m_codeByte == 1)
+
+//	if (CMyFont::m_codeByte == 1)
+	if (codeByte == 1)
 	{
 		sei = 'L';
 		mei = 'F';
@@ -1367,7 +1388,8 @@ int CMyMessage::GetCommand(short d)
 
 
 
-	if (CMyFont::m_codeByte == 2)
+//	if (CMyFont::m_codeByte == 2)
+	if (codeByte == 2)
 	{
 		for (i=0;i<100;i++)
 		{
@@ -1388,14 +1410,30 @@ int CMyMessage::GetCommand(short d)
 		}
 	}
 
-	for (i=0;i<20;i++)
+	if (codeByte == 2)
 	{
-		int dt = m_specialNameTable[i].name;
-		if (dt == owari) break;
-
-		if (d0 == dt)
+		for (i=0;i<20;i++)
 		{
-			return OKIKAE_GAIJI+i;
+			int dt = m_specialNameTable[i].name;
+			if (dt == owari) break;
+
+			if (d0 == dt)
+			{
+				return OKIKAE_GAIJI+i;
+			}
+		}
+	}
+	else
+	{
+		for (i=0;i<20;i++)
+		{
+			int dt = m_specialNameTable1Byte[i].name;
+			if (dt == owari) break;
+
+			if (d0 == dt)
+			{
+				return OKIKAE_GAIJI+i;
+			}
 		}
 	}
 
