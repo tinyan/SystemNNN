@@ -1320,6 +1320,14 @@ void CGameCallBack::GeneralCreate(void)
 	SetGameVersion(highVersion,middleVersion,lowVersion);
 
 
+	int codeByte = 2;
+	GetInitGameParam(&codeByte,"codeByte");
+	if (codeByte == 1)
+	{
+		CMyFont::m_codeByte = 1;
+	}
+
+
 	m_messageVoiceLength = 7000;	//dummyópêS
 
 	m_nextShakinFumitaoshi = 0;
@@ -2459,12 +2467,12 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		CMyFont::m_rubiColorFixFlag = rubiColorFixFlag;
 	}
 
-	int codeByte = 2;
-	GetInitGameParam(&codeByte,"codeByte");
-	if (codeByte == 1)
-	{
-		CMyFont::m_codeByte = 1;
-	}
+//	int codeByte = 2;
+//	GetInitGameParam(&codeByte,"codeByte");
+//	if (codeByte == 1)
+//	{
+//		CMyFont::m_codeByte = 1;
+//	}
 
 	int fontWeight = 700;
 	if (GetInitGameParam(&fontWeight,"fontWeight"))

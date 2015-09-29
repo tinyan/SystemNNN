@@ -3,6 +3,7 @@
 
 #include "..\..\systemNNN\nyanLib\include\commonMacro.h"
 #include "nameList.h"
+#include "Myfont.h"
 
 #include "commonSystemFile.h"
 #include "CGDataControl.h"
@@ -131,15 +132,24 @@ LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 						break;
 					}
 
+					int d = (int)(*name);
+					d &= 0xff;
+
 					if (((*name) >= '0') && ((*name) <= '9'))
 					{
 						name+=1;
 						ln -= 1;
 					}
-					else
+					else if (((d >= 0x80) && (d < 0xa0)) || ((d >= 0xe0) && (d < 0x100)))
+//					else if ((*name) & 0x80)
 					{
 						name += 2;
 						ln -= 2;
+					}
+					else
+					{
+						name+=1;
+						ln -= 1;
 					}
 				}
 			}
@@ -269,6 +279,10 @@ int CCGDataControl::GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber
 
 	int lastSubCommand = -1;
 
+	int codeByte = CMyFont::m_codeByte;
+
+
+
 	int ln = strlen(name);
 	if (ln > 0)
 	{
@@ -276,6 +290,11 @@ int CCGDataControl::GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber
 		int downArrow = 'Å´';
 		int leftArrow = 'Å©';
 		int rightArrow = 'Å®';
+
+		char upArrow1Byte = '^';
+		char downArrow1Byte = '|';
+		char leftArrow1Byte = '<';
+		char rightArrow1Byte = '>';
 
 
 		if ((*name) == '[')
@@ -363,37 +382,75 @@ int CCGDataControl::GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber
 							int c2 = (int)(*(name+1)) & 0xff;
 							int cc = ((c1 << 8) | c2);
 
-							if (cc == upArrow)
+							if (codeByte == 2)
 							{
-								houkouY = 0;
-								name += 2;
-								ln -= 2;
-								lastHoukou = 0;
-								lastSubCommand = 0;
+								if (cc == upArrow)
+								{
+									houkouY = 0;
+									name += 2;
+									ln -= 2;
+									lastHoukou = 0;
+									lastSubCommand = 0;
+								}
+								if (cc == downArrow)
+								{
+									houkouY = 1;
+									name += 2;
+									ln -= 2;
+									lastHoukou = 1;
+									lastSubCommand = 0;
+								}
+								if (cc == leftArrow)
+								{
+									houkouX = 0;
+									name += 2;
+									ln -= 2;
+									lastHoukou = 2;
+									lastSubCommand = 0;
+								}
+								if (cc == rightArrow)
+								{
+									houkouX = 1;
+									name += 2;
+									ln -= 2;
+									lastHoukou = 3;
+									lastSubCommand = 0;
+								}
 							}
-							if (cc == downArrow)
+							else
 							{
-								houkouY = 1;
-								name += 2;
-								ln -= 2;
-								lastHoukou = 1;
-								lastSubCommand = 0;
-							}
-							if (cc == leftArrow)
-							{
-								houkouX = 0;
-								name += 2;
-								ln -= 2;
-								lastHoukou = 2;
-								lastSubCommand = 0;
-							}
-							if (cc == rightArrow)
-							{
-								houkouX = 1;
-								name += 2;
-								ln -= 2;
-								lastHoukou = 3;
-								lastSubCommand = 0;
+								if (c1 == upArrow1Byte)
+								{
+									houkouY = 0;
+									name += 1;
+									ln -= 1;
+									lastHoukou = 0;
+									lastSubCommand = 0;
+								}
+								if (c1 == downArrow1Byte)
+								{
+									houkouY = 1;
+									name += 1;
+									ln -= 1;
+									lastHoukou = 1;
+									lastSubCommand = 0;
+								}
+								if (c1 == leftArrow1Byte)
+								{
+									houkouX = 0;
+									name += 1;
+									ln -= 1;
+									lastHoukou = 2;
+									lastSubCommand = 0;
+								}
+								if (c1 == rightArrow1Byte)
+								{
+									houkouX = 1;
+									name += 1;
+									ln -= 1;
+									lastHoukou = 3;
+									lastSubCommand = 0;
+								}
 							}
 
 						}
