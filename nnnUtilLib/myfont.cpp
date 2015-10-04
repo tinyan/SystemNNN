@@ -9,6 +9,7 @@
 
 #include "..\nyanLib\include\myGraphics.h"
 #include "..\nyanLib\include\picture.h"
+#include "..\nyanLib\include\allGeo.h"
 
 
 #if defined _TINYAN3DLIB_
@@ -1247,13 +1248,18 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 				int rubiPutX = rubiKanjiStart * kanjiWidth + rubiKanjiLength * kanjiWidth / 2 - (rubiWidth * rubiLength) / 2;
 				int rubiPutXLast = rubiPutX + rubiWidth * (rubiLength-1);
 
+
 				if (rubiLength == -1)
 				{
 					rubiLength = rubiKanjiLength;
-
 					rubiPutX = rubiKanjiStart * kanjiWidth + (kanjiWidth - rubiWidth) / 2;
-
 					rubiPutXLast = rubiPutX + kanjiWidth * (rubiLength-1);
+				}
+
+				if (m_codeByte == 1)
+				{
+					rubiPutX /= 2;
+					rubiPutXLast /= 2;
 				}
 
 
@@ -1303,6 +1309,11 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 				int sizeYRubi = rubiFontSize*2;
 //				int sizeXRubi = rubiNextX * rubiLength * 2;
 				int sizeXRubi = (rubiNextX * (rubiLength-1) +rubiWidth)* 2;
+//				if (m_codeByte == 1)
+//				{
+//					sizeXRubi /= 2;
+//				}
+
 				if ((rubiPutX+sizeXRubi) > screenSizeX*2)
 				{
 					int d = rubiPutX+sizeXRubi - screenSizeX*2;
@@ -1370,7 +1381,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 //						{
 							if (customFontFlag == FALSE)
 							{
-								TextOut(hdc,x,y,rubiStart+i*2,2);
+								TextOut(hdc,x,y,rubiStart+i*m_codeByte,m_codeByte);
 							}
 							else
 							{
@@ -1392,6 +1403,11 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 //				int sizeX2Rubi = rubiNextX*rubiLength;
 
 				int sizeX2Rubi = rubiNextX * (rubiLength-1) +rubiWidth;
+				if (m_codeByte == 1)
+				{
+					sizeX2Rubi = rubiNextX * (rubiLength-1) + rubiWidth / 2;
+				}
+
 				if ((rubiPutX+sizeX2Rubi) > screenSizeX)
 				{
 					int d = rubiPutX+sizeX2Rubi - screenSizeX;
@@ -1566,7 +1582,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 //					{
 						if (customFontFlag == FALSE)
 						{
-							TextOut(hdc,x,y,rubiStart+i*2,2);
+							TextOut(hdc,x,y,rubiStart+i*m_codeByte,m_codeByte);
 						}
 						else
 						{
@@ -2081,7 +2097,10 @@ void CMyFont::PrintRubi(int putX,int putY,int deltaX,int deltaY,int sizeX,int si
 	putY -= rubiFontSize;
 	putY += m_rubiDeltaY;
 
+//	CAllGeo::BoxFill(putX,putY,sizeX,sizeY,128,128,128);
 	m_fontCache->BltRubi(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
+
+
 //	m_pic->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
 	CAreaControl::AddArea(putX,putY,sizeX,sizeY);
 }

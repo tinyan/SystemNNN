@@ -50,6 +50,8 @@ public:
 	static COkikaeData* m_okikaeData;
 
 	static char m_userGaiji[31*2];
+	static char m_userGaiji1Byte[31];
+
 	typedef struct _tagCOLORNAMETABLE
 	{
 		int name;

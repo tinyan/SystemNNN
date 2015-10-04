@@ -32,6 +32,11 @@
 #define NUMBER_ZERO ( (('ÇO' >> 8) & 0xff) | (('ÇO' << 8) & 0x0ff00) )
 #define KYOCHO_END RUBI_END
 
+#define RUBI_START_1BYTE '['
+#define RUBI_END_1BYTE ']'
+#define NUMBER_ZERO_1BYTE '0'
+#define KYOCHO_END_1BYTE RUBI_END_1BYTE
+
 
 #define OKIKAE_SEI 0
 #define OKIKAE_MEI 1
@@ -112,6 +117,7 @@ CMyMessage::COLORNAMETABLE CMyMessage::m_specialNameTable1Byte[] =
 };
 
 char CMyMessage::m_userGaiji[]= "èI";
+char CMyMessage::m_userGaiji1Byte[]= "e";
 
 
 CMyMessage::COLORNAMETABLE CMyMessage::m_colorNameTable1Byte[100]=
@@ -670,7 +676,13 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					int ln1 = strlen(m_sei);
 					if ((nowLen + ln1) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 1 * nowLen,m_sei,ln1);//@@@@
+						for (int b1 = 0;b1<ln1;b1++)
+						{
+							*(m_messageWork + 2 * (nowLen + b1))     = *(m_sei+b1);
+							*(m_messageWork + 2 * (nowLen + b1) + 1) = *(m_sei+b1);
+						}
+						//memcpy(m_messageWork + 1 * nowLen,m_sei,ln1);//@@@@
+
 						if (bNewCol)
 						{
 							for (int i=0;i<ln1;i++)
@@ -709,7 +721,12 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					int ln2 = strlen(m_mei);
 					if ((nowLen + ln2) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 1 * nowLen,m_mei,ln2);//@@@@
+						for (int b1 = 0;b1<ln2;b1++)
+						{
+							*(m_messageWork + 2 * (nowLen + b1))     = *(m_mei+b1);
+							*(m_messageWork + 2 * (nowLen + b1) + 1) = *(m_mei+b1);
+						}
+//						memcpy(m_messageWork + 1 * nowLen,m_mei,ln2);//@@@@
 						if (bNewCol)
 						{
 							for (int i=0;i<ln2;i++)
@@ -751,6 +768,8 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 
 				short* rubiPtr = (short*)(message+k);
+				char* rubiPtr1Byte = (char*)(message+k);
+
 				char kklc = *(message+k);
 
 				short kanjilen = 0;
@@ -758,6 +777,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				if ((kklc >= '1') && (kklc <= '9'))
 				{
 					rubiPtr = (short*)(message+k+1);
+					rubiPtr1Byte = (char*)(message+k+1);
 					k++;
 					kanjilen = ((short)(kklc)) - '0';
 
@@ -795,15 +815,40 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				while (ss<100)	//max100
 				{
 					short rubichr = *(rubiPtr);
-					k += 2;
-					rubiPtr++;
+					char rubichr1Byte = *(rubiPtr1Byte);
 
-					if (rubichr == 0x0a0d)
+					BOOL re = FALSE;
+
+					if (codeByte == 2)
 					{
-						break; //error
+						k += 2;
+						rubiPtr++;
+						if (rubichr == 0x0a0d)
+						{
+							break; //error
+						}
+						if (rubichr == RUBI_END)
+						{
+							re = TRUE;
+						}
+					}
+					else
+					{
+						k += 1;
+						rubiPtr1Byte++;
+						if (rubichr1Byte == 0x0d)
+						{
+							break; //error
+						}
+						if (rubichr1Byte == RUBI_END_1BYTE)
+						{
+							re = TRUE;
+						}
 					}
 
-					if (rubichr == RUBI_END)
+
+//					if (rubichr == RUBI_END)
+					if (re)
 					{
 						if (ss == 0)
 						{
@@ -855,6 +900,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 			if (cmd == OKIKAE_KYOCHO)
 			{
 				short* kyochoPtr = (short*)(message+k);
+				char* kyochoPtr1Byte = message+k;
 
 				LPSTR kyochoMes = message+k;
 
@@ -864,15 +910,42 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				while (ss<100)	//max100
 				{
 					short kyochochr = *(kyochoPtr);
-					k += 2;
-					kyochoPtr++;
+					char kyochochr1Byte = *(kyochoPtr1Byte);
 
-					if (kyochochr == 0x0a0d)
+					BOOL kf = FALSE;
+					if (codeByte == 2)
 					{
-						break; //error
+						kyochochr = *(kyochoPtr);
+						k += 2;
+						kyochoPtr++;
+
+						if (kyochochr == 0x0a0d)
+						{
+							break; //error
+						}
+						if (kyochochr == KYOCHO_END)
+						{
+							kf = TRUE;
+						}
+					}
+					else
+					{
+						kyochochr1Byte = *(kyochoPtr1Byte);
+						k += 1;
+						kyochoPtr1Byte++;
+
+						if (kyochochr1Byte == 0x0d)
+						{
+							break; //error
+						}
+						if (kyochochr1Byte == KYOCHO_END_1BYTE)
+						{
+							kf = TRUE;
+						}
 					}
 
-					if (kyochochr == KYOCHO_END)
+//					if (kyochochr == KYOCHO_END)
+					if (kf)
 					{
 						if (ss == 0)
 						{
@@ -1129,7 +1202,8 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 						{
 							if (lengthY >= fontSize)//all print!
 							{
-								int rubiPutSizeY = putSizeY;//dummy
+								int rubiPutSizeY = m_myFont->GetRubiFontSize();
+
 								int rubiPutY = y;	//dummy
 
 								if (m_gradFlag == FALSE)
@@ -1343,6 +1417,7 @@ int CMyMessage::GetCommand(short d)
 	int owari1byte = 'e';
 
 	int nums[10] = {'ÇO','ÇP','ÇQ','ÇR','ÇS','ÇT','ÇU','ÇV','ÇW','ÇX'};
+
 	int systemOkikae = 'ÉV';
 
 	sei &= 0xffff;
@@ -1364,7 +1439,15 @@ int CMyMessage::GetCommand(short d)
 	{
 		sei = 'L';
 		mei = 'F';
+		rubiStart = '[';
+		rubiEnd = ']';
+		kai = 'N';
+		kyoucho = '.';
+		systemOkikae = 'S';
 	}
+
+
+
 
 	if (d0 == sei) return OKIKAE_SEI;
 	if (d0 == mei) return OKIKAE_MEI;
@@ -1376,12 +1459,29 @@ int CMyMessage::GetCommand(short d)
 
 	if (d0 == kyoucho) return OKIKAE_KYOCHO;
 
-	for (i=0;i<10;i++)
+	if (codeByte == 2)
 	{
-		if (d0 == nums[i]) return i+OKIKAE_MESSAGE;
+		for (i=0;i<10;i++)
+		{
+			if (d0 == nums[i]) return i+OKIKAE_MESSAGE;
+		}
+	}
+	else
+	{
+		if ((d0 >= '0') && (d0 <= '9'))
+		{
+			return d0 - '0' + OKIKAE_MESSAGE;
+		}
 	}
 
-	if (d0 == systemOkikae) return OKIKAE_SYSTEM_MESSAGE;
+	if (codeByte == 2)
+	{
+		if (d0 == systemOkikae) return OKIKAE_SYSTEM_MESSAGE;
+	}
+	else
+	{
+		if (d0 == systemOkikae) return OKIKAE_SYSTEM_MESSAGE;
+	}
 
 //	int dd = (int)d;
 //	dd &= 0xffff;
@@ -1437,17 +1537,37 @@ int CMyMessage::GetCommand(short d)
 		}
 	}
 
-	short owari2 = ((owari>>8)& 0xff) | ((owari<<8) & 0xff00);
 
-	short* sh = (short*)m_userGaiji;
-	for (i=0;i<30;i++)
+	if (codeByte == 2)
 	{
-		short dt = *(sh+i);
-		if (dt == owari2) break;
+		short owari2 = ((owari>>8)& 0xff) | ((owari<<8) & 0xff00);
 
-		if (d == dt)
+		short* sh = (short*)m_userGaiji;
+		for (i=0;i<30;i++)
 		{
-			return OKIKAE_GAIJI+20+i;
+			short dt = *(sh+i);
+			if (dt == owari2) break;
+
+			if (d == dt)
+			{
+				return OKIKAE_GAIJI+20+i;
+			}
+		}
+	}
+	else
+	{
+		char owari2 = 'e';
+
+		char* sh = (char*)m_userGaiji1Byte;
+		for (i=0;i<30;i++)
+		{
+			char dt = *(sh+i);
+			if (dt == owari2) break;
+
+			if (d == dt)
+			{
+				return OKIKAE_GAIJI+20+i;
+			}
 		}
 	}
 
@@ -1485,10 +1605,20 @@ void CMyMessage::SetUserGaiji(LPSTR gaijiList)
 {
 	if (gaijiList == NULL) return;
 	int ln = lstrlen(gaijiList);
-	if (ln>60) ln = 60;
-	memcpy(m_userGaiji,gaijiList,ln);
-	memcpy(m_userGaiji+ln,"èI",2);
+	if (CMyFont::m_codeByte == 2)
+	{
+		if (ln>60) ln = 60;
+		memcpy(m_userGaiji,gaijiList,ln);
+		memcpy(m_userGaiji+ln,"èI",2);
+	}
+	else
+	{
+		if (ln>30) ln = 30;
+		memcpy(m_userGaiji,gaijiList,ln);
+		memcpy(m_userGaiji+ln,"e",1);
+	}
 }
+
 
 int CMyMessage::GetRubiFontSize(void)
 {
