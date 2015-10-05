@@ -372,52 +372,38 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 
 			if ((cmd >= OKIKAE_MESSAGE) && (cmd < OKIKAE_MESSAGE + okikaeMessageMax))
 			{
-				if (codeByte == 2)
+				k -= codeByte;
+				int newSkip = GetNewSkip(message+k);
+				int okikae = GetOkikae(message+k);
+				if (okikae < okikaeMessageMax)
 				{
-					k -= 2;
-					int newSkip = GetNewSkip(message+k);
-					int okikae = GetOkikae(message+k);
-					if (okikae < okikaeMessageMax)
-					{
 //						realLen += strlen(m_okikaeMessage + (OKIKAE_MESSAGE_LENGTH + 2) * okikae) / 2;
-						realLen += strlen(m_okikaeData->GetOkikaeMessage(okikae)) / 2;
-					}
-					else
-					{
-						//error
-					}
-					k += newSkip;
+					realLen += strlen(m_okikaeData->GetOkikaeMessage(okikae)) / codeByte;
 				}
 				else
 				{
-					// not support
+					//error
 				}
+				k += newSkip;
 
 				continue;
 			}
 
 			if ((cmd >= OKIKAE_SYSTEM_MESSAGE) && (cmd < OKIKAE_SYSTEM_MESSAGE + okikaeSystemMessageMax))
 			{
-				if (codeByte == 2)
-				{
 //					k -= 2;
-					int newSkip = GetNewSkip(message+k);
-					int okikae = GetOkikae(message+k);//‹¤’Ê‚Å‚¢‚¯‚é
-					if (okikae < okikaeSystemMessageMax)
-					{
+				int newSkip = GetNewSkip(message+k);
+				int okikae = GetOkikae(message+k);//‹¤’Ê‚Å‚¢‚¯‚é
+				if (okikae < okikaeSystemMessageMax)
+				{
 //						realLen += strlen(m_okikaeMessage + (OKIKAE_MESSAGE_LENGTH + 2) * okikae) / 2;
-						realLen += strlen(m_okikaeData->GetSystemOkikaeMessage(okikae)) / 2;
-					}
-					else
-					{
-						//error
-					}
-					k += newSkip;
+					realLen += strlen(m_okikaeData->GetSystemOkikaeMessage(okikae)) / codeByte;
 				}
 				else
 				{
-					// not support
+					//error
 				}
+				k += newSkip;
 
 				continue;
 			}
@@ -481,51 +467,92 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 int CMyMessage::GetNewSkip(char* mes)
 {
 	short* ptr = (short*)mes;
+	char* ptr1Byte = (char*)mes;
+
 
 	int skip = 0;
+	int codeByte = CMyFont::m_codeByte;
 
-	while(skip < 4)
+	while(skip < 2*codeByte)
 	{
-		short d = *ptr;
-		int d0 = ((d>>8)& 0xff) | ((d<<8) & 0xff00);
-		d0 -= '‚O';
-		if ((d0 >= 0) && (d0 <= 9))
+		if (codeByte == 2)
 		{
-			ptr += 1;
-			skip++;
+			short d = *ptr;
+			int d0 = ((d>>8)& 0xff) | ((d<<8) & 0xff00);
+			d0 -= '‚O';
+			if ((d0 >= 0) && (d0 <= 9))
+			{
+				ptr += 1;
+				skip++;
+			}
+			else
+			{
+				break;
+			}
 		}
 		else
 		{
-			break;
+			char d1 = *ptr1Byte;
+			d1 -= '0';
+			if ((d1 >= 0) && (d1 <= 9))
+			{
+				ptr1Byte += 1;
+				skip++;
+			}
+			else
+			{
+				break;
+			}
 		}
+
 	}
 
-	return skip * 2;
-
+	return skip * codeByte;
 }
 
 int CMyMessage::GetOkikae(char* mes)
 {
 	short* ptr = (short*)mes;
+	char* ptr1Byte = (char*)mes;
+	int codeByte = CMyFont::m_codeByte;
 
 	int rt = 0;
 	int skip = 0;
 
-	while(skip < 4)
+	while(skip < 2*codeByte)
 	{
-		short d = *ptr;
-		int d0 = ((d>>8)& 0xff) | ((d<<8) & 0xff00);
-		d0 -= '‚O';
-		if ((d0 >= 0) && (d0 <= 9))
+		if (codeByte == 2)
 		{
-			ptr += 1;
-			skip++;
-			rt *= 10;
-			rt += d0;
+			short d = *ptr;
+			int d0 = ((d>>8)& 0xff) | ((d<<8) & 0xff00);
+			d0 -= '‚O';
+			if ((d0 >= 0) && (d0 <= 9))
+			{
+				ptr += 1;
+				skip++;
+				rt *= 10;
+				rt += d0;
+			}
+			else
+			{
+				break;
+			}
 		}
 		else
 		{
-			break;
+			char d1 = *ptr1Byte;
+			d1 -= '0';
+			if ((d1 >= 0) && (d1 <= 9))
+			{
+				ptr1Byte += 1;
+				skip++;
+				rt *= 10;
+				rt += d1;
+			}
+			else
+			{
+				break;
+			}
 		}
 	}
 
@@ -643,6 +670,30 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 			}
 			else
 			{
+				char* ptr1byte = (char*)(message+k);
+				k+=1;
+
+				short dt1 = (short)(*ptr1byte) << 8;
+				cmd = GetCommand(dt1);
+
+
+				if ((cmd >= OKIKAE_MESSAGE) && (cmd < OKIKAE_MESSAGE + okikaeMessageMax))
+				{
+					k -= 1;
+					int newSkip = GetNewSkip(message+k);
+					cmd = GetOkikae(message+k) + OKIKAE_MESSAGE;
+
+					k += newSkip;
+				}
+				else if ((cmd >= OKIKAE_SYSTEM_MESSAGE) && (cmd < OKIKAE_SYSTEM_MESSAGE + okikaeSystemMessageMax))
+				{
+					int newSkip = GetNewSkip(message+k);
+					cmd = GetOkikae(message+k) + OKIKAE_SYSTEM_MESSAGE;
+					k += newSkip;
+				}
+
+
+				/*
 				short dt = (short)(*(message+k));
 				k+=1;
 				dt &= 0xff;
@@ -650,6 +701,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 				cmd = GetCommand(dt);
 				//’u‚«Š·‚¦•¶Žš—ñ‚Ìê‡‚³‚ç‚ÉƒXƒLƒbƒv–¢ŽÀ‘•
+				*/
 			}
 
 			if (cmd == OKIKAE_SEI)
@@ -979,10 +1031,22 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				if (m_okikaeData != NULL)
 				{
 					char* okikaeMessage = m_okikaeData->GetOkikaeMessage(cmd-OKIKAE_MESSAGE);
-					int ln3 = strlen(okikaeMessage) / 2;
+					int ln3 = strlen(okikaeMessage) / codeByte;
 					if ((nowLen + ln3) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+						if (codeByte == 2)
+						{
+							memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+						}
+						else
+						{
+							for (int o3=0;o3<ln3;o3++)
+							{
+								*(m_messageWork + 2 * nowLen + o3*2 + 0) = *(okikaeMessage + o3);
+								*(m_messageWork + 2 * nowLen + o3*2 + 1) = *(okikaeMessage + o3);
+							}
+						}
+
 						if (bNewCol)
 						{
 							for (int i=0;i<ln3;i++)
@@ -992,6 +1056,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 						}
 						nowLen += ln3;
 					}
+
 				}
 				continue;
 			}
@@ -1002,10 +1067,21 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				if (m_okikaeData != NULL)
 				{
 					char* okikaeMessage = m_okikaeData->GetSystemOkikaeMessage(cmd-OKIKAE_SYSTEM_MESSAGE);
-					int ln3 = strlen(okikaeMessage) / 2;
+					int ln3 = strlen(okikaeMessage) / codeByte;
 					if ((nowLen + ln3) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+						if (codeByte == 2)
+						{
+							memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+						}
+						else
+						{
+							for (int o3=0;o3<ln3;o3++)
+							{
+								*(m_messageWork + 2 * nowLen + o3*2 + 0) = *(okikaeMessage + o3);
+								*(m_messageWork + 2 * nowLen + o3*2 + 1) = *(okikaeMessage + o3);
+							}
+						}
 						if (bNewCol)
 						{
 							for (int i=0;i<ln3;i++)

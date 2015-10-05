@@ -8,6 +8,7 @@
 #include "..\nyanLib\include\myFile.h"
 
 #include "..\nnnUtilLib\nameList.h"
+#include "..\nnnUtilLib\Myfont.h"
 
 #include "autoSaveSubData.h"
 #include "okikaeData.h"
@@ -19,19 +20,39 @@ COkikaeData::COkikaeData(int mx,int sysMax,BOOL useDefault) : CAutoSaveSubData(m
 	m_okikaeMax = mx;
 	m_systemOkikaeMax = sysMax;
 	m_okikaeMessage = new char[mx*OKIKAE_BUFFER_SIZE];
+	int codeByte = CMyFont::m_codeByte;
+
 	for (int i=0;i<mx;i++)
 	{
-		memcpy(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE,"’u‚«Š·‚¦•¶Žš—ñ‚O‚O",19);
-		*(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE+15) = ((i / 10) % 10) + 0x4f;
-		*(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE+17) = (i % 10) + 0x4f;
+		if (codeByte == 2)
+		{
+			memcpy(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE,"’u‚«Š·‚¦•¶Žš—ñ‚O‚O",19);
+			*(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE+15) = ((i / 10) % 10) + 0x4f;
+			*(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE+17) = (i % 10) + 0x4f;
+		}
+		else
+		{
+			memcpy(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE,"replace00",10);
+			*(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE+7) = ((i / 10) % 10) + '0';
+			*(m_okikaeMessage+i*OKIKAE_BUFFER_SIZE+8) = (i % 10) + '0';
+		}
 	}
 
 	m_systemOkikaeMessage = new char[m_systemOkikaeMax*OKIKAE_BUFFER_SIZE];
 	for (int i=0;i<m_systemOkikaeMax;i++)
 	{
-		memcpy(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE,"ƒVƒXƒeƒ€’u‚«Š·‚¦•¶Žš—ñ‚O‚O",27);
-		*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+23) = ((i / 10) % 10) + 0x4f;
-		*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+25) = (i % 10) + 0x4f;
+		if (codeByte == 2)
+		{
+			memcpy(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE,"ƒVƒXƒeƒ€’u‚«Š·‚¦•¶Žš—ñ‚O‚O",27);
+			*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+23) = ((i / 10) % 10) + 0x4f;
+			*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+25) = (i % 10) + 0x4f;
+		}
+		else
+		{
+			memcpy(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE,"system00",9);
+			*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+6) = ((i / 10) % 10) + '0';
+			*(m_systemOkikaeMessage+i*OKIKAE_BUFFER_SIZE+7) = (i % 10) + '0';
+		}
 	}
 
 	m_defaultText = NULL;
@@ -42,9 +63,24 @@ COkikaeData::COkikaeData(int mx,int sysMax,BOOL useDefault) : CAutoSaveSubData(m
 		int ln = m_defaultText->GetNameKosuu() / 2;
 		for (int i=0;i<ln;i++)
 		{
-			int n = atoi(m_defaultText->GetName(i*2));
+			LPSTR name = m_defaultText->GetName(i*2);
+			char c = *name;
+			int offset = 0;
+			if ((c == 'S') || (c == 's'))
+			{
+				offset = 1;
+			}
+
+			int n = atoi(name+offset);
 			LPSTR text = m_defaultText->GetName(i*2+1);
-			SetOkikaeMessage(n,text);
+			if (offset == 0)
+			{
+				SetOkikaeMessage(n,text);
+			}
+			else
+			{
+				SetSystemOkikaeMessage(n,text);
+			}
 		}
 	}
 }

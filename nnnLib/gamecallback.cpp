@@ -520,6 +520,15 @@ void CGameCallBack::GeneralCreate(void)
 		CPicture::m_errorPrintFlag = TRUE;
 	}
 
+	int codeByte = 2;
+	GetInitGameParam(&codeByte,"codeByte");
+	if (codeByte == 1)
+	{
+		CMyFont::m_codeByte = 1;
+	}
+
+
+
 	GetInitGameParam(&m_layerKosuuMax,"layerExpand");
 	m_pictureKosuuMax = m_layerKosuuMax;//同じである必要がある
 
@@ -1320,12 +1329,6 @@ void CGameCallBack::GeneralCreate(void)
 	SetGameVersion(highVersion,middleVersion,lowVersion);
 
 
-	int codeByte = 2;
-	GetInitGameParam(&codeByte,"codeByte");
-	if (codeByte == 1)
-	{
-		CMyFont::m_codeByte = 1;
-	}
 
 
 	m_messageVoiceLength = 7000;	//dummy用心
