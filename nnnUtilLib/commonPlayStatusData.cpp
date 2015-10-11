@@ -240,7 +240,7 @@ void CCommonPlayStatusData::PrintYokoGraph(void)
 				int r = m_color[i*4+0];
 				int g = m_color[i*4+1];
 				int b = m_color[i*4+2];
-				int ps = m_color[i*4+3] / 255;
+				int ps = (m_color[i*4+3] * 100) / 255;
 				if (ps == 100)
 				{
 					CAllGeo::BoxFill(putX,putY,sizeX,sizeY,r,g,b);
@@ -280,7 +280,7 @@ void CCommonPlayStatusData::PrintTateGraph(void)
 				int r = m_color[i*4+0];
 				int g = m_color[i*4+1];
 				int b = m_color[i*4+2];
-				int ps = m_color[i*4+3] / 255;
+				int ps = (m_color[i*4+3] * 100 )/ 255;
 				if (ps == 100)
 				{
 					CAllGeo::BoxFill(putX,putY,sizeX,sizeY,r,g,b);

@@ -622,7 +622,7 @@ CSoftKey::CSoftKey(CMyMessage* message)
 		CNameList* customList = new CNameList();
 		customList->LoadFile("nya\\softkeycustom.xtx");
 		int k = customList->GetNameKosuu() / 4;
-		m_softKeyTableNumber = tableMax;
+		m_softKeyTableNumber = k;
 		m_softKeyTable = new MYSOFTKEY[m_softKeyTableNumber];
 		for (int i=0;i<m_softKeyTableNumber;i++)
 		{
@@ -637,24 +637,24 @@ CSoftKey::CSoftKey(CMyMessage* message)
 			nx--;
 			ny--;
 			LPSTR mes = customList->GetName(i*4+3);
-			m_softKeyTable[i].page = page;
+			m_softKeyTable[i].page = page-1;
 			m_softKeyTable[i].x = nx;
 			m_softKeyTable[i].y = ny;
 			int ln = strlen(mes);
-			if (ln>2) ln = 2;
+			if (ln>14) ln = 14;
 			memcpy(m_softKeyTable[i].key,mes,ln);
-			m_softKeyTable[i].key[ln+2] = 0;
-			m_softKeyTable[i].key[ln+3] = 0;
+			m_softKeyTable[i].key[ln] = 0;
+			m_softKeyTable[i].key[ln+1] = 0;
 		}
 		ENDDELETECLASS(customList);
 	}
 
 	m_userCommandKeyList = NULL;
 	m_userSoftCommandNumber = 0;
-	int customCommand = 0;
+//	int customCommand = 0;
 	GetInitGameParam(&m_userSoftCommandNumber,"customCommand");
 	//check nya/hoge.xtx
-	if (customCommand != 0)
+	if (m_userSoftCommandNumber != 0)
 	{
 		CNameList* customList = new CNameList();
 		customList->LoadFile("nya\\softkeycommand.xtx");
@@ -673,8 +673,8 @@ CSoftKey::CSoftKey(CMyMessage* message)
 			int ln = strlen(key);
 			if (ln>14) ln = 14;
 			memcpy(m_userCommandKeyList[i].key,key,ln);
-			m_userCommandKeyList[i].key[ln+2] = 0;
-			m_userCommandKeyList[i].key[ln+3] = 0;
+			m_userCommandKeyList[i].key[ln+0] = 0;
+			m_userCommandKeyList[i].key[ln+1] = 0;
 		}
 		ENDDELETECLASS(customList);
 	}
