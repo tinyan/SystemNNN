@@ -2433,6 +2433,17 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 		memcpy(CMyFont::m_userFontName,fname,256);
 	}
 
+	LPSTR fontName1 = NULL;
+	LPSTR fontName2 = NULL;
+	LPSTR replaceFontNameChara = NULL;
+	GetInitGameString(&fontName1,"gothicFontName");
+	GetInitGameString(&fontName2,"minchoFontName");
+	GetInitGameString(&replaceFontNameChara,"@replaceFontNameChara ");
+
+	CMyFont::SetFontNameGothicMincho(fontName1,fontName2,replaceFontNameChara);
+
+
+
 	CMyFont::m_fontType = m_systemFile->m_systemdata.fontType;
 
 	if ((defaultFont == NULL) || (m_systemFile->m_systemdata.userFontFlag))

@@ -49,6 +49,9 @@ int CMyFont::m_rubiColorFixFlag = 0;
 
 char CMyFont::m_userFontName[256] ="‚l‚r ƒSƒVƒbƒN";
 
+char CMyFont::m_gothicFontName[256] = "";
+char CMyFont::m_minchoFontName[256] = "";
+
 char CMyFont::m_defaultGaijiFilename[256] = "sys\\spfont24";
 
 int CMyFont::m_fontSizeTable[7]=
@@ -281,7 +284,20 @@ CMyFont::CMyFont(HWND hwnd,LPSTR fontName)
 		}
 	}
 
-
+	if (m_fontType == 0)
+	{
+		if (m_gothicFontName[0] != 0)
+		{
+			fontname1 = m_gothicFontName;
+		}
+	}
+	else
+	{
+		if (m_minchoFontName[0] != 0)
+		{
+			fontname1 = m_minchoFontName;
+		}
+	}
 
 	LPSTR fontname2 = fontname1;
 
@@ -2240,3 +2256,58 @@ void CMyFont::ClearFontCache(void)
 		m_fontCache->ClearFontCache();
 	}
 }
+
+
+void CMyFont::SetFontNameGothicMincho(LPSTR font1,LPSTR font2,LPSTR replaceChara)
+{
+	if (font1 != NULL)
+	{
+		ReplaceName(font1,replaceChara);
+		int ln = strlen(font1);
+		if (ln>254) ln = 254;
+		memcpy(m_gothicFontName,font1,ln);
+		m_gothicFontName[ln] = 0;
+		m_gothicFontName[ln+1] = 0;
+
+	}
+
+	if (font2 != NULL)
+	{
+		ReplaceName(font2,replaceChara);
+		int ln = strlen(font2);
+		if (ln>254) ln = 254;
+		memcpy(m_minchoFontName,font2,ln);
+		m_minchoFontName[ln] = 0;
+		m_minchoFontName[ln+1] = 0;
+	}
+}
+
+
+void CMyFont::ReplaceName(LPSTR name,LPSTR replaceChara)
+{
+	if (name == NULL) return;
+	if (replaceChara == NULL) return;
+	char rep = *replaceChara;
+
+	int ln = strlen(name);
+	int n = 0;
+	while (n<ln)
+	{
+		char c = *(name+n);
+		if (c == rep)
+		{
+			*(name + n) = ' ';
+		}
+
+		n++;
+		if (m_codeByte == 2)
+		{
+			int d = c;
+			d &= 0xff;
+
+			if ((d >= 0x80) && (d<0xa0)) n++;
+			if ((d >= 0xe0) && (d<0x100)) n++;
+		}
+	}
+}
+

@@ -56,6 +56,12 @@ public:
 
 	static int m_rubiUseFlag;
 
+	static void SetFontNameGothicMincho(LPSTR font1,LPSTR font2,LPSTR replaceChara);
+	static void ReplaceName(LPSTR name,LPSTR replaceChara);
+	static char m_gothicFontName[256];
+	static char m_minchoFontName[256];
+
+
 	BOOL LoadUserFont(LPSTR fontfilename);
 
 	void Print(int putX,int putY,int deltaX,int deltaY,int sizeX,int sizeY);
