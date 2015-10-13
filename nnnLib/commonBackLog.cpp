@@ -119,6 +119,9 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetInitGameParam(&m_fontSize,"fontSize");
 
 
+	m_sukima = 1;
+	GetInitGameParam(&m_sukima,"space");
+
 	m_printGyosuuMax = 12 + 3;
 
 
@@ -664,7 +667,7 @@ int CCommonBackLog::Print(void)
 
 		if (m_titlePrintFlag)
 		{
-			m_message->PrintMessage(m_titleMessagePrintX,m_titleMessagePrintY,m_titleMessage,m_fontSize,255,255,255,1,m_nextY,0);
+			m_message->PrintMessage(m_titleMessagePrintX,m_titleMessagePrintY,m_titleMessage,m_fontSize,255,255,255,m_sukima,m_nextY,0);
 		}
 //		m_message->PrintMessage(400-25*3,putY,"#žòå³‚Ìˆç¬“ú‹L",m_fontSize,255,255,255,1,m_nextY,0);
 //		m_message->PrintMessage(400-25*3,putY,"#žòŒ¶˜f‚Ì”÷Î‚Ý",m_fontSize,255,255,255,1,m_nextY,0);
@@ -687,7 +690,7 @@ int CCommonBackLog::Print(void)
 				POINT pt = GetVoicePrintZahyo(i);
 				if (m_voicePicFlag == 0)
 				{
-					m_message->PrintMessage(pt.x, pt.y, m_voiceMessage, m_fontSize,255,255,255,1,m_nextY,0);
+					m_message->PrintMessage(pt.x, pt.y, m_voiceMessage, m_fontSize,255,255,255,m_sukima,m_nextY,0);
 				}
 				else
 				{
@@ -705,7 +708,7 @@ int CCommonBackLog::Print(void)
 				}
 			}
 
-			m_message->PrintMessage(putX,putY,m_logMessage + k * BACKLOG_LENGTH,m_fontSize,colR,colG,colB,1,m_nextY,0);
+			m_message->PrintMessage(putX,putY,m_logMessage + k * BACKLOG_LENGTH,m_fontSize,colR,colG,colB,m_sukima,m_nextY,0);
 
 			k++;
 			k %= BACKLOG_KOSUU;
@@ -724,7 +727,7 @@ int CCommonBackLog::Print(void)
 		{
 			if (m_updownArrowPicFlag == 0)
 			{
-				m_message->PrintMessage(m_upArrowPrintX,m_upArrowPrintY,m_upArrowMessage,m_fontSize,255,255,255,1,m_nextY,0);
+				m_message->PrintMessage(m_upArrowPrintX,m_upArrowPrintY,m_upArrowMessage,m_fontSize,255,255,255,m_sukima,m_nextY,0);
 			}
 			else
 			{
@@ -740,7 +743,7 @@ int CCommonBackLog::Print(void)
 		{
 			if (m_updownArrowPicFlag == 0)
 			{
-				m_message->PrintMessage(m_downArrowPrintX,m_downArrowPrintY,m_downArrowMessage,m_fontSize,255,255,255,1,m_nextY,0);
+				m_message->PrintMessage(m_downArrowPrintX,m_downArrowPrintY,m_downArrowMessage,m_fontSize,255,255,255,m_sukima,m_nextY,0);
 			}
 			else
 			{

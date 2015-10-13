@@ -785,6 +785,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 	else
 	{
 		stp = (m_nowFontSize/2+sukima) * 2;
+//		stp = m_nowFontSize+sukima*2;
 //		stp = (m_nowFontSize+sukima*2) ;
 	}
 
@@ -1217,6 +1218,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 			int rubiFontSize = GetRubiFontSize();
 			int rightMax = (m_nowFontSize + sukima) * kanjiMax;
 			int kanjiWidth = m_nowFontSize + sukima;
+			int kanjiWidth1byte = m_nowFontSize/2 + sukima;
 			int rubiWidth = rubiFontSize + m_rubiSukima;
 			rightMax -= rubiWidth;
 
@@ -1261,22 +1263,41 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 
 
 				//adjust left right haba
-				int rubiPutX = rubiKanjiStart * kanjiWidth + rubiKanjiLength * kanjiWidth / 2 - (rubiWidth * rubiLength) / 2;
-				int rubiPutXLast = rubiPutX + rubiWidth * (rubiLength-1);
 
+				int rubiPutX;
+				int rubiPutXLast;
+
+				if (m_codeByte == 2)
+				{
+					rubiPutX = rubiKanjiStart * kanjiWidth + rubiKanjiLength * kanjiWidth / 2 - (rubiWidth * rubiLength) / 2;
+					rubiPutXLast = rubiPutX + rubiWidth * (rubiLength-1);
+				}
+				else
+				{
+					rubiPutX = rubiKanjiStart * kanjiWidth1byte + rubiKanjiLength * kanjiWidth1byte / 2 - (rubiWidth * rubiLength) / 4;
+					rubiPutXLast = rubiPutX + rubiWidth * (rubiLength-1) / 2;
+				}
 
 				if (rubiLength == -1)
 				{
 					rubiLength = rubiKanjiLength;
-					rubiPutX = rubiKanjiStart * kanjiWidth + (kanjiWidth - rubiWidth) / 2;
-					rubiPutXLast = rubiPutX + kanjiWidth * (rubiLength-1);
+					if (m_codeByte == 2)
+					{
+						rubiPutX = rubiKanjiStart * kanjiWidth + (kanjiWidth - rubiWidth) / 2;
+						rubiPutXLast = rubiPutX + kanjiWidth * (rubiLength-1);
+					}
+					else
+					{
+						rubiPutX = rubiKanjiStart * kanjiWidth1byte + (kanjiWidth1byte - rubiWidth) / 2;
+						rubiPutXLast = rubiPutX + kanjiWidth1byte * (rubiLength-1);
+					}
 				}
 
-				if (m_codeByte == 1)
-				{
-					rubiPutX /= 2;
-					rubiPutXLast /= 2;
-				}
+//				if (m_codeByte == 1)
+//				{
+//					rubiPutX /= 2;
+//					rubiPutXLast /= 2;
+//				}
 
 
 				if (rubiPutX < leftLimit)

@@ -94,6 +94,7 @@ protected:
 	int m_startWait;
 
 	int m_fontSize;
+	int m_sukima;
 
 	int m_voiceFlag;
 
