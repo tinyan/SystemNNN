@@ -15,6 +15,7 @@
 //#include "mode.h"
 
 #include "..\nnnUtilLib\myMessage.h"
+#include "..\nnnUtilLib\Myfont.h"
 
 #include "..\nnnUtilLib\nameList.h"
 #include "..\nnnUtilLib\cviewControl.h"
@@ -299,6 +300,8 @@ void CMyTextInputBox::AddChara(int ch)
 {
 	if (m_enableFlag == FALSE) return;
 
+	int codeByte = CMyFont::m_codeByte;
+
 	m_changedFlag = TRUE;
 
 	if (ch == 13)
@@ -323,7 +326,14 @@ void CMyTextInputBox::AddChara(int ch)
 
 	if (((ch >= 0x20) && (ch <= 0x7e)) || ((ch >=0xa0) && (ch <= 0xdf)))	//1byte code
 	{
-		AddKanji(m_to2byteTable[(ch-0x20)*2],m_to2byteTable[(ch-0x20)*2+1]);
+		if (codeByte == 2)
+		{
+			AddKanji(m_to2byteTable[(ch-0x20)*2],m_to2byteTable[(ch-0x20)*2+1]);
+		}
+		else
+		{
+			AddKanji(0,ch);
+		}
 		return;
 	}
 
@@ -350,9 +360,23 @@ BOOL CMyTextInputBox::AddKanji(int high,int low)
 	if (ln>m_textBufferSize-2) return FALSE;
 	if (ln>m_maxLength[m_nowParameterNumber]-2) return FALSE;
 
-	*(ptr+ln) = high;
-	*(ptr+ln+1) = low;
-	*(ptr+ln+2) = 0;
+	int codeByte = CMyFont::m_codeByte;
+
+	if (codeByte == 2)
+	{
+		*(ptr+ln) = high;
+		*(ptr+ln+1) = low;
+		*(ptr+ln+2) = 0;
+	}
+	else
+	{
+		if ((low != '#') && (low <= 0x7f))
+		{
+//		*(ptr+ln) = high;
+			*(ptr+ln+0) = low;
+			*(ptr+ln+1) = 0;
+		}
+	}
 
 	MoveIMEWindow();
 
@@ -367,7 +391,16 @@ BOOL CMyTextInputBox::DelKanji(void)
 	if (ln < 0) return FALSE;
 	if (ln < 1) return FALSE;
 
-	*(ptr+ln-2) = 0;
+	int codeByte = CMyFont::m_codeByte;
+	if (codeByte == 2)
+	{
+		*(ptr+ln-2) = 0;
+	}
+	else
+	{
+		*(ptr+ln-1) = 0;
+	}
+
 	MoveIMEWindow();
 	return TRUE;
 }
@@ -620,7 +653,17 @@ POINT CMyTextInputBox::GetCursorZahyo(void)
 	POINT pt = GetTextZahyo();
 	char* mes = GetText();
 	int ln = strlen(mes);
-	pt.x += ((ln/2)*((m_fontSize[m_nowParameterNumber]+m_sukimaSize[m_nowParameterNumber])));
+
+	int codeByte = CMyFont::m_codeByte;
+
+	if (codeByte == 2)
+	{
+		pt.x += ((ln/2)*((m_fontSize[m_nowParameterNumber]+m_sukimaSize[m_nowParameterNumber])));
+	}
+	else
+	{
+		pt.x += ((ln/1)*((m_fontSize[m_nowParameterNumber]+m_sukimaSize[m_nowParameterNumber])))/2;
+	}
 
 	pt.x += m_cursorDelta[m_nowParameterNumber].x;
 	pt.y += m_cursorDelta[m_nowParameterNumber].y;

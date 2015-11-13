@@ -156,6 +156,7 @@
 #include "..\nnnUtilLib\varNumber.h"
 
 #include "..\nnnUtilLib\myFont.h"
+#include "..\nnnUtilLib\myLocale.h"
 #include "..\nnnUtilLib\myMessage.h"
 
 #include "..\nnnUtilLib\taihi.h"
@@ -527,7 +528,11 @@ void CGameCallBack::GeneralCreate(void)
 		CMyFont::m_codeByte = 1;
 	}
 
-
+	LPSTR localeString = NULL;
+	if (GetInitGameString(&localeString,"locale"))
+	{
+		CMyLocale::SetLocale(localeString);
+	}
 
 	GetInitGameParam(&m_layerKosuuMax,"layerExpand");
 	m_pictureKosuuMax = m_layerKosuuMax;//“¯‚¶‚Å‚ ‚é•K—v‚ª‚ ‚é
@@ -2819,7 +2824,13 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 	AddDebugLog("CGame::log18");
 
-	m_imeAutoOpenFlag = 1;
+	m_imeAutoOpenFlag = 0;
+
+	if (codeByte == 2)
+	{
+		m_imeAutoOpenFlag = 1;
+	}
+
 	GetInitGameParam(&m_imeAutoOpenFlag,"imeAutoOpenFlag");
 	m_imeAutoCloseFlag = m_imeAutoOpenFlag;
 	GetInitGameParam(&m_imeAutoCloseFlag,"imeAutoCloseFlag");

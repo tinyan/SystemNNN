@@ -18,6 +18,7 @@
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\myKeyStatus.h"
 #include "..\nnnUtilLib\suuji.h"
+#include "..\nnnUtilLib\Myfont.h"
 
 #include "..\nnnUtilLib\nnnButtonStatus.h"
 
@@ -49,6 +50,7 @@ char CCommonSelectMessage::m_defaultBackFileName[] = "sel_bg";
 char CCommonSelectMessage::m_defaultWindowFileName[] = "ta_win_select";
 
 char CCommonSelectMessage::m_defaultBacklogMessage[] = "#足選択肢";
+char CCommonSelectMessage::m_defaultBacklogMessage_1byte[] = "#fselect";
 
 
 CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
@@ -56,6 +58,8 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 	SetClassNumber(SELECTMESSAGE_MODE);
 	//m_classNumber = SELECTMESSAGE_MODE;
 	LoadSetupFile("SelectMessage",128);
+
+	int codeByte = CMyFont::m_codeByte;
 
 	GetAllPrintSetup();
 	m_mustAllPrintFlag = 1;
@@ -220,7 +224,15 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 	GetInitGameParam(&m_messagePrintGyo,"messagePrintGyo");
 
 
-	m_backlogMessage = m_defaultBacklogMessage;
+	if (codeByte == 2)
+	{
+		m_backlogMessage = m_defaultBacklogMessage;
+	}
+	else
+	{
+		m_backlogMessage = m_defaultBacklogMessage_1byte;
+	}
+
 	GetInitGameString(&m_backlogMessage,"backlogMessage");
 
 	m_backlogMessageColorR = 64;
@@ -644,6 +656,8 @@ int CCommonSelectMessage::Init(void)
 
 int CCommonSelectMessage::Calcu(void)
 {
+	int codeByte = CMyFont::m_codeByte;
+
 	if (m_firstAppearType != 0)
 	{
 		if (m_firstAppearCount < m_firstAppearTime)
@@ -1044,9 +1058,18 @@ int CCommonSelectMessage::Calcu(void)
 				}
 
 				m_game->ChangePreColor(m_messageKosuu-m_nowSelect-page,m_backlogSelectColorR,m_backlogSelectColorG,m_backlogSelectColorB);
-				m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
-				m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
-				m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
+				if (codeByte == 2)
+				{
+					m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
+					m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
+					m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
+				}
+				else
+				{
+					m_game->AddBackLogMessage("                        .",128,128,128);
+					m_game->AddBackLogMessage("                        .",128,128,128);
+					m_game->AddBackLogMessage("                        .",128,128,128);
+				}
 
 				m_selected = m_nowSelect+1+page;
 
@@ -1175,11 +1198,21 @@ int CCommonSelectMessage::Calcu(void)
 				m_game->ChangePreColor(m_messageKosuu-(m_autoSelect-1),m_backlogSelectColorR,m_backlogSelectColorG,m_backlogSelectColorB);
 			}
 
-			m_game->AddBackLogMessage("制限時間オーバー",255,64,128);
-			m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
-			m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
-			m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
-			
+			if (codeByte == 2)
+			{
+				m_game->AddBackLogMessage("制限時間オーバー",255,64,128);
+				m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
+				m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
+				m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
+			}
+			else
+			{
+				m_game->AddBackLogMessage("Time out",255,64,128);
+				m_game->AddBackLogMessage("                        .",128,128,128);
+				m_game->AddBackLogMessage("                        .",128,128,128);
+				m_game->AddBackLogMessage("                        .",128,128,128);
+			}
+
 			m_exitModeFlag = TRUE;
 			m_selected = m_autoSelect;
 			CheckAndAutoOff();
@@ -2016,7 +2049,16 @@ CPicture* CCommonSelectMessage::GetSelectCursorPic(void)
 
 void CCommonSelectMessage::SetBackLogMessage(void)
 {
-	m_game->AddBackLogMessage("　");
+	int codeByte = CMyFont::m_codeByte;
+
+	if (codeByte == 2)
+	{
+		m_game->AddBackLogMessage("　");
+	}
+	else
+	{
+		m_game->AddBackLogMessage(" ");
+	}
 	m_game->AddBackLogMessage(m_backlogMessage,m_backlogMessageColorR,m_backlogMessageColorG,m_backlogMessageColorB);
 }
 

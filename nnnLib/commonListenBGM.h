@@ -64,6 +64,7 @@ public:
 	void CreateStartScreen(void);
 
 	static char m_defaultCannotMusicName[];
+	static char m_defaultCannotMusicName1Byte[];
 
 protected:
 	CCommonCheckButton* m_button[5];

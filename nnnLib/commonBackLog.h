@@ -48,6 +48,16 @@ public:
 	static char m_defaultDownArrow[];
 	static char m_defaultVoice[];
 
+
+	static char m_defaultTitleMessage1byte[];
+	static char m_defualtFirstMessage1byte[];
+	static char m_defaultBarMessage1byte[];
+
+	static char m_defaultUpArrow1byte[];
+	static char m_defaultDownArrow1byte[];
+	static char m_defaultVoice1byte[];
+
+
 	static char m_defaultBackFilename[];
 
 	static char m_defaultTitlePicFileName[];
@@ -211,7 +221,9 @@ protected:
 
 	char* m_separatorMessage;
 	static char m_separatorData[][16];
+	static char m_separatorData_1byte[][16];
 private:
+	void ReplaceMessage(LPSTR message,LPSTR replace);
 
 
 };

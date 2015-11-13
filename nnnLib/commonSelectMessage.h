@@ -52,6 +52,7 @@ public:
 	static char m_defaultWindowFileName[];
 
 	static char m_defaultBacklogMessage[];
+	static char m_defaultBacklogMessage_1byte[];
 
 	virtual void SetBackLogMessage(void);
 	BOOL CheckWindowOn(void);

@@ -2775,7 +2775,7 @@ int CCommonConfig::Calcu(void)
 					int windowNumber = m_game->GetWindowNumberByConfig();
 					windowNumber++;
 					windowNumber %= m_windowKosuu;
-OutputDebugString("windowchanged[config]\n");
+//OutputDebugString("windowchanged[config]\n");
 					m_game->SetWindowNumberByConfig(windowNumber);
 					CAreaControl::SetNextAllPrint();
 				}

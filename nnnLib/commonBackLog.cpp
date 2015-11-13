@@ -14,6 +14,7 @@
 
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\namelist.h"
+#include "..\nnnUtilLib\myFont.h"
 
 #include "..\nnnUtilLib\myMessage.h"
 
@@ -44,6 +45,17 @@ char CCommonBackLog::m_defaultUpArrow[] = "#水▲";
 char CCommonBackLog::m_defaultDownArrow[] = "#水▼";
 char CCommonBackLog::m_defaultVoice[] = "♪";
 
+
+char CCommonBackLog::m_defaultTitleMessage1byte[] = "#RRecollection...";
+char CCommonBackLog::m_defualtFirstMessage1byte[] = "#R#c#W start #R#c";
+char CCommonBackLog::m_defaultBarMessage1byte[] = "―――――――――――――――――――――――";
+
+char CCommonBackLog::m_defaultUpArrow1byte[] = "#C^^";
+char CCommonBackLog::m_defaultDownArrow1byte[] = "#Cvv";
+char CCommonBackLog::m_defaultVoice1byte[] = "SD";
+
+
+
 char CCommonBackLog::m_defaultBackFilename[] = "bg_backlog";
 char CCommonBackLog::m_defaultTitlePicFileName[] = "ta_backlog_title";
 
@@ -57,6 +69,11 @@ char CCommonBackLog::m_separatorData[][16] =
 	"　","―",""
 };
 
+char CCommonBackLog::m_separatorData_1byte[][16] = 
+{
+	" ","-",""
+};
+
 CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 {
 	SetClassNumber(BACKLOG_MODE);
@@ -65,6 +82,8 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+	int codeByte = CMyFont::m_codeByte;
 
 	m_backlogBGMode = 0;
 	GetInitGameParam(&m_backlogBGMode,"bgMode");	//0:fill 1:pic 2:(screen) 3:(script)
@@ -274,14 +293,45 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		}
 	}
 
+	LPSTR messageReplace = NULL;
+	GetInitGameString(&messageReplace,"messageReplaceChara");
 
-	m_titleMessage = m_defaultTitleMessage;
+	if (codeByte == 2)
+	{
+		m_titleMessage = m_defaultTitleMessage;
+	}
+	else
+	{
+		m_titleMessage = m_defaultTitleMessage1byte;
+	}
 	GetInitGameString(&m_titleMessage,"titleMessage");
 
-	m_barMessage = m_defaultBarMessage;
+	if (messageReplace != NULL)
+	{
+		ReplaceMessage(m_titleMessage,messageReplace);
+	}
+
+	if (codeByte == 2)
+	{
+		m_barMessage = m_defaultBarMessage;
+	}
+	else
+	{
+		m_barMessage = m_defaultBarMessage1byte;
+	}
 	GetInitGameString(&m_barMessage,"barMessage");
 
+	if (messageReplace != NULL)
+	{
+		ReplaceMessage(m_barMessage,messageReplace);
+	}
+
+
 	LPSTR firstMessage = m_defualtFirstMessage;
+	if (codeByte != 2)
+	{
+		firstMessage = m_defualtFirstMessage1byte;
+	}
 	int firstMessageKosuu = 0;
 	GetInitGameParam(&firstMessageKosuu,"firstMessageNumber");
 	if (firstMessageKosuu == 0)
@@ -300,12 +350,28 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		}
 	}
 
-	m_upArrowMessage = m_defaultUpArrow;
-	GetInitGameString(&m_upArrowMessage,"upArrowMessage");
-	m_downArrowMessage = m_defaultDownArrow;
-	GetInitGameString(&m_downArrowMessage,"downArrowMessage");
 
-	m_voiceMessage = m_defaultVoice;
+	if (messageReplace != NULL)
+	{
+		ReplaceMessage(m_firstMessage,messageReplace);
+	}
+
+
+	if (codeByte == 2)
+	{
+		m_upArrowMessage = m_defaultUpArrow;
+		m_downArrowMessage = m_defaultDownArrow;
+		m_voiceMessage = m_defaultVoice;
+	}
+	else
+	{
+		m_upArrowMessage = m_defaultUpArrow1byte;
+		m_downArrowMessage = m_defaultDownArrow1byte;
+		m_voiceMessage = m_defaultVoice1byte;
+	}
+
+	GetInitGameString(&m_upArrowMessage,"upArrowMessage");
+	GetInitGameString(&m_downArrowMessage,"downArrowMessage");
 	GetInitGameString(&m_voiceMessage,"voiceMessage");
 
 
@@ -338,15 +404,33 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	{
 		int separatorMax = 256;
 		int n = 0;
-		while(n<256)
+
+
+		if (codeByte == 2)
 		{
-			if (m_separatorData[n][0] == 0)
+			while(n<256)
 			{
-				separatorMax = n;
-				break;
+				if (m_separatorData[n][0] == 0)
+				{
+					separatorMax = n;
+					break;
+				}
+				n++;
 			}
-			n++;
 		}
+		else
+		{
+			while(n<256)
+			{
+				if (m_separatorData_1byte[n][0] == 0)
+				{
+					separatorMax = n;
+					break;
+				}
+				n++;
+			}
+		}
+
 
 		int separaterLength = 32;
 		GetInitGameParam(&separaterLength,"separatorLength");
@@ -374,14 +458,28 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 				for (int k=0;k<ln;k++)
 				{
-					memcpy(m_separatorMessage+i*256+k*2,m_separatorData[sepType],2);
+					if (codeByte == 2)
+					{
+						memcpy(m_separatorMessage+i*256+k*codeByte,m_separatorData[sepType],codeByte);
+					}
+					else
+					{
+						memcpy(m_separatorMessage+i*256+k*codeByte,m_separatorData_1byte[sepType],codeByte);
+					}
 				}
-				m_separatorMessage[i*256+ln*2] = 0;
+				m_separatorMessage[i*256+ln*codeByte] = 0;
 			}
 			else//custom
 			{
 				//dummy
-				memcpy(m_separatorMessage+i*256,"＊",3);
+				if (codeByte == 2)
+				{
+					memcpy(m_separatorMessage+i*256,"＊",3);
+				}
+				else
+				{
+					memcpy(m_separatorMessage+i*256,"*",2);
+				}
 			}
 		}
 		
@@ -1386,6 +1484,21 @@ void CCommonBackLog::PutUpdownArrowPic(int n,int x,int y, int md)
 
 	}
 
+}
+
+void CCommonBackLog::ReplaceMessage(LPSTR message,LPSTR replace)
+{
+	int ln = strlen(message);
+	char c = *replace;
+
+	for (int i=0;i<ln;i++)
+	{
+		char cc = *(message+i);
+		if (cc == c)
+		{
+			*(message+i) = ' ';
+		}
+	}
 }
 
 

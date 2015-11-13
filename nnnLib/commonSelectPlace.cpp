@@ -68,6 +68,7 @@ CCommonSelectPlace::CCommonSelectPlace(CGameCallBack* lpGame,int extMode) : CCom
 	m_charaDelta = NULL;
 	m_placeButtonGroup = NULL;
 	m_onButtonVarNumber = -1;
+//	m_printGameDate = NULL;
 
 
 	if (extMode == 0)

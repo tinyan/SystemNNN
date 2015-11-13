@@ -852,9 +852,20 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 					char ckc = *(message+i*2);
 					if (ckc != (char)0x80)
 					{
+						for (int jj=0;jj<=2;jj++)
+						{
+							for (int ii=0;ii<=2;ii++)
+							{
+								if (fkr[jj][ii])
+								{
+									TextOut(hdc,x+ii*2-4,y+jj*2-4,message+i*2,1);
+								}
+							}
+						}
+
 //						if (customFontFlag == FALSE)
 //						{
-							TextOut(hdc,x,y,message+i*2,1);
+////							TextOut(hdc,x,y,message+i*2,1);
 //						}
 //						else
 //						{
@@ -863,7 +874,19 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 					}
 					else
 					{
-						Gaiji(x,y,kageColor,*(message+i*2+1));
+						for (int jj=0;jj<=2;jj++)
+						{
+							for (int ii=0;ii<=2;ii++)
+							{
+								if (fkr[jj][ii])
+								{
+									Gaiji(x+ii*2-4,y+jj*2-4,kageColor,*(message+i*2+1));
+//									Gaiji(x,y,kageColor,*(message+i*2+1));
+//									TextOut(hdc,x+ii*2-4,y+jj*2-4,message+i*2,1);
+								}
+							}
+						}
+//						Gaiji(x,y,kageColor,*(message+i*2+1));
 					}
 
 					x += stp;

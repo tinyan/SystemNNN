@@ -13,6 +13,9 @@
 #include "..\nyanLib\include\picture.h"
 #include "..\nyanLib\include\allGeo.h"
 
+#include "..\nnnUtilLib\Myfont.h"
+
+
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\myKeyStatus.h"
 #include "..\nnnUtilLib\nnnButtonStatus.h"
@@ -315,6 +318,8 @@ int CCommonPrintTerm::Print(void)
 
 	PrintBackScriptOrBG();
 
+	int codeByte = CMyFont::m_codeByte;
+
 
 	if (m_radio != NULL)
 	{
@@ -346,7 +351,14 @@ int CCommonPrintTerm::Print(void)
 
 		if (!flag)
 		{
-			m_message->PrintMessage(x,y,"？？？");
+			if(codeByte == 2)
+			{
+				m_message->PrintMessage(x,y,"？？？");
+			}
+			else
+			{
+				m_message->PrintMessage(x,y,"???");
+			}
 		}
 		else
 		{

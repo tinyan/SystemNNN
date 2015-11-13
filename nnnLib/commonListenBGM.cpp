@@ -122,6 +122,7 @@ char CCommonListenBGM::m_buttonName[][8] =
 };
 
 char CCommonListenBGM::m_defaultCannotMusicName[] = "ÅHÅHÅH";
+char CCommonListenBGM::m_defaultCannotMusicName1Byte[] = "???";
 
 CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 {
@@ -244,7 +245,14 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 	m_checkListen = 0;
 	GetInitGameParam(&m_checkListen,"checklisten");
 
-	m_cannotMusicName = m_defaultCannotMusicName;
+	if (codeByte == 2)
+	{
+		m_cannotMusicName = m_defaultCannotMusicName;
+	}
+	else
+	{
+		m_cannotMusicName = m_defaultCannotMusicName1Byte;
+	}
 	GetInitGameString(&m_cannotMusicName,"cannotMusicName");
 
 	m_useCannotByList = 0;

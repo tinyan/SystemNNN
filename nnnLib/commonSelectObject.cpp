@@ -79,6 +79,7 @@ CCommonSelectObject::CCommonSelectObject(CGameCallBack* lpGame,int extMode) : CC
 	m_placeButtonGroup = NULL;
 	m_charaButtonGroup = NULL;
 	m_onButtonVarNumber = -1;
+//	m_printGameDate = NULL;
 
 
 	GetBackExecSetup();

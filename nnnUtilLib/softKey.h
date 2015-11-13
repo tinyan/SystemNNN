@@ -49,9 +49,11 @@ public:
 private:
 	static char m_to2byteTable[];
 	static MYSOFTKEY m_defaultKeySet[];
+	static MYSOFTKEY m_defaultKeySet1Byte[];
 	static char m_dakutenList[][4];
 	static char m_handakutenList[][4];
 	static MYSOFTCOMMANDKEY m_commandKeyList[];
+	static MYSOFTCOMMANDKEY m_commandKeyList1Byte[];
 	MYSOFTCOMMANDKEY* m_userCommandKeyList;
 
 	int m_shiftKeyList[16];
@@ -87,6 +89,9 @@ private:
 	int m_keyPointSkipX;
 	int m_keyPointSkipY;
 	
+	int m_keyPrintDeltaX;
+	int m_keyPrintDeltaY;
+
 	int m_softKeyPrintX;
 	int m_softKeyPrintY;
 	int m_dialogPrintX;
@@ -156,6 +161,7 @@ private:
 	int GetUserCommand(LPSTR text);
 
 	static MYSOFTCOMMANDKEY m_userCommandCheckList[];
+	static MYSOFTCOMMANDKEY m_userCommandCheckList1Byte[];
 
 	static char m_defaultDialogFilename[32];
 	LPSTR m_dialogFilename[16];

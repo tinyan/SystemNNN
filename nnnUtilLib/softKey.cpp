@@ -15,6 +15,7 @@
 //#include "mode.h"
 
 #include "..\nnnUtilLib\myMessage.h"
+#include "..\nnnUtilLib\Myfont.h"
 
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\inputStatus.h"
@@ -70,6 +71,11 @@ char CSoftKey::m_to2byteTable[]= "\
 #define SOFTKEYTEXT_DAKUTEN "゛"
 #define SOFTKEYTEXT_HANDAKUTEN "゜"
 #define SOFTKEYTEXT_SHIFT "↑"
+
+
+#define SOFTKEYTEXT_DELETE_1BYTE "DEL"
+#define SOFTKEYTEXT_OK_1BYTE "OK"
+#define SOFTKEYTEXT_SHIFT_1BYTE "SHIFT"
 
 
 CSoftKey::MYSOFTKEY CSoftKey::m_defaultKeySet[]=
@@ -343,6 +349,87 @@ CSoftKey::MYSOFTKEY CSoftKey::m_defaultKeySet[]=
 };
 
 
+CSoftKey::MYSOFTKEY CSoftKey::m_defaultKeySet1Byte[]=
+{
+	{0,0,0,"a"},
+	{0,1,0,"b"},
+	{0,2,0,"c"},
+	{0,3,0,"d"},
+	{0,4,0,"e"},
+
+	{0,5,0,"f"},
+	{0,6,0,"g"},
+	{0,7,0,"h"},
+	{0,8,0,"i"},
+	{0,9,0,"j"},
+
+	{0,10,0,"k"},
+	{0,11,0,"l"},
+	{0,12,0,"m"},
+	{0,13,0,"n"},
+	{0,14,0,"o"},
+
+	{0,0,1,"p"},
+	{0,1,1,"q"},
+	{0,2,1,"r"},
+	{0,3,1,"s"},
+	{0,4,1,"t"},
+
+	{0,5,1,"u"},
+	{0,6,1,"v"},
+	{0,7,1,"w"},
+	{0,8,1,"x"},
+	{0,9,1,"y"},
+
+	{0,10,1,"z"},
+
+	{0,0,4,SOFTKEYTEXT_SHIFT_1BYTE},
+	{0,3,4,SOFTKEYTEXT_DELETE_1BYTE},
+
+	{0,6,4,SOFTKEYTEXT_OK_1BYTE},
+
+//
+	{1,0,0,"A"},
+	{1,1,0,"B"},
+	{1,2,0,"C"},
+	{1,3,0,"D"},
+	{1,4,0,"E"},
+
+	{1,5,0,"F"},
+	{1,6,0,"G"},
+	{1,7,0,"H"},
+	{1,8,0,"I"},
+	{1,9,0,"J"},
+
+	{1,10,0,"K"},
+	{1,11,0,"L"},
+	{1,12,0,"M"},
+	{1,13,0,"N"},
+	{1,14,0,"O"},
+
+	{1,0,1,"P"},
+	{1,1,1,"Q"},
+	{1,2,1,"R"},
+	{1,3,1,"S"},
+	{1,4,1,"T"},
+
+	{1,5,1,"U"},
+	{1,6,1,"V"},
+	{1,7,1,"W"},
+	{1,8,1,"X"},
+	{1,9,1,"Y"},
+
+	{1,10,1,"Z"},
+
+//	{1,0,4,SOFTKEYTEXT_HENKAN},
+//	{1,1,4,SOFTKEYTEXT_KAKUTEI},
+//	{1,2,4,SOFTKEYTEXT_HIRAGANA},
+	{1,0,4,SOFTKEYTEXT_SHIFT_1BYTE},
+	{1,3,4,SOFTKEYTEXT_DELETE_1BYTE},
+
+	{1,6,4,SOFTKEYTEXT_OK_1BYTE},
+};
+
 char CSoftKey::m_dakutenList[][4]=
 {
 	"か","が","き","ぎ","く","ぐ",	"け","げ","こ","ご",
@@ -382,6 +469,18 @@ CSoftKey::MYSOFTCOMMANDKEY CSoftKey::m_userCommandCheckList[]=
 	{-1,""},
 };
 
+CSoftKey::MYSOFTCOMMANDKEY CSoftKey::m_userCommandCheckList1Byte[]=
+{
+	{-2,"変換"},
+	{-2,"確定"},
+	{SOFTCOMMANDKEY_DELETE,"DEL"},
+	{SOFTCOMMANDKEY_OK,"OK"},
+	{-2,"濁点"},
+	{-2,"半濁点"},
+	{SOFTCOMMANDKEY_SHIFT,"SHIFT"},
+
+	{-1,""},
+};
 
 CSoftKey::MYSOFTCOMMANDKEY CSoftKey::m_commandKeyList[]=
 {
@@ -403,6 +502,26 @@ CSoftKey::MYSOFTCOMMANDKEY CSoftKey::m_commandKeyList[]=
 	{-1,""},
 };
 
+CSoftKey::MYSOFTCOMMANDKEY CSoftKey::m_commandKeyList1Byte[]=
+{
+//	{SOFTCOMMANDKEY_HENKAN,SOFTKEYTEXT_HENKAN},
+//	{SOFTCOMMANDKEY_KAKUTEI,SOFTKEYTEXT_KAKUTEI},
+
+	{SOFTCOMMANDKEY_DELETE,SOFTKEYTEXT_DELETE_1BYTE},
+	{SOFTCOMMANDKEY_OK,SOFTKEYTEXT_OK_1BYTE},
+//	{SOFTCOMMANDKEY_DAKUTEN,SOFTKEYTEXT_DAKUTEN},
+//	{SOFTCOMMANDKEY_HANDAKUTEN,SOFTKEYTEXT_HANDAKUTEN},
+
+	{SOFTCOMMANDKEY_SHIFT,SOFTKEYTEXT_SHIFT_1BYTE},
+
+//	{SOFTCOMMANDKEY_NEXT+0,SOFTKEYTEXT_HIRAGANA},
+//	{SOFTCOMMANDKEY_NEXT+1,SOFTKEYTEXT_KATAKANA},
+//	{SOFTCOMMANDKEY_NEXT+2,SOFTKEYTEXT_ALPHA},
+//	{SOFTCOMMANDKEY_NEXT+3,SOFTKEYTEXT_KIGOU},
+
+	{-1,""},
+};
+
 char CSoftKey::m_defaultDialogFilename[32]= "ta_softkey1";
 
 
@@ -414,6 +533,8 @@ CSoftKey::CSoftKey(CMyMessage* message)
 
 	m_setupList = new CNameList();
 	m_setupList->LoadFile("nya\\softkey.xtx");
+
+	int codeByte = CMyFont::m_codeByte;
 
 	m_textTypeMax = 3;
 	for (int i=0;i<m_textTypeMax;i++)
@@ -478,6 +599,7 @@ CSoftKey::CSoftKey(CMyMessage* message)
 
 	int sizeX = 24;
 	int sizeY = 24;
+
 	GetInitGameParam(&sizeX,"softKeySizeX");
 	GetInitGameParam(&sizeX,"softKeySizeY");
 	m_softKeySize.cx = sizeX;
@@ -512,6 +634,12 @@ CSoftKey::CSoftKey(CMyMessage* message)
 	m_keyPointBlockY = 1;
 	m_keyPointSkipX = 16;
 	m_keyPointSkipY = 0;
+	m_keyPrintDeltaX = 0;
+	m_keyPrintDeltaY = 0;
+	if (codeByte == 1)
+	{
+		m_keyPrintDeltaX = sizeX / 4;
+	}
 
 	GetInitGameParam(&m_keyPointNextX,"softKeyNextX");
 	GetInitGameParam(&m_keyPointNextY,"softKeyNextY");
@@ -519,6 +647,8 @@ CSoftKey::CSoftKey(CMyMessage* message)
 	GetInitGameParam(&m_keyPointBlockY,"softKeyBlockY");
 	GetInitGameParam(&m_keyPointSkipX,"softKeySkipX");
 	GetInitGameParam(&m_keyPointSkipY,"softKeySkipY");
+	GetInitGameParam(&m_keyPrintDeltaX,"keyPrintDeltaX");
+	GetInitGameParam(&m_keyPrintDeltaY,"keyPrintDeltaY");
 
 	for (int j=0;j<SOFTKEY_Y_MAX;j++)
 	{
@@ -534,18 +664,43 @@ CSoftKey::CSoftKey(CMyMessage* message)
 		}
 
 	}
-	for (int i=0;i<SOFTKEY_X_MAX;i++)
+	if (codeByte == 2)
 	{
-		int j = 4;
-		int x = i * m_keyPointNextX*2 ;
-		int y = j * m_keyPointNextY + (j / m_keyPointBlockY) * m_keyPointSkipY;
+		for (int i=0;i<SOFTKEY_X_MAX;i++)
+		{
+			int j = 4;
+			int x = i * m_keyPointNextX*2 ;
+			int y = j * m_keyPointNextY + (j / m_keyPointBlockY) * m_keyPointSkipY;
 
-		m_keyPoint[j][i].x = x;
-		m_keyPoint[j][i].y = y;
+			m_keyPoint[j][i].x = x;
+			m_keyPoint[j][i].y = y;
 
-		m_keySize[j][i].cx = m_softKeySize.cx * 2;
-		m_keySize[j][i].cy = m_softKeySize.cy;
+			m_keySize[j][i].cx = m_softKeySize.cx * 2;
+			m_keySize[j][i].cy = m_softKeySize.cy;
+		}
 	}
+	else
+	{
+			int j = 4;
+			for (int i=0;i<3;i++)
+			{
+				int x = i * m_keyPointNextX*3 ;
+				int y = j * m_keyPointNextY + (j / m_keyPointBlockY) * m_keyPointSkipY;
+
+				m_keyPoint[j][i*3].x = x;
+				m_keyPoint[j][i*3].y = y;
+
+				m_keySize[j][i*3].cy = m_softKeySize.cy;
+			}
+
+			m_keySize[j][0].cx = (m_softKeySize.cx * (5+1))/2;
+			m_keySize[j][3].cx = (m_softKeySize.cx * (3+1))/2;
+			m_keySize[j][6].cx = (m_softKeySize.cx * (2+1))/2;
+	}
+
+
+
+
 
 	int customSize = 0;
 	GetInitGameParam(&customSize,"customSize");
@@ -602,8 +757,17 @@ CSoftKey::CSoftKey(CMyMessage* message)
 	GetInitGameParam(&m_keyPageMax,"softKeyPageMax");
 
 
+	int tableMax;
+	if (codeByte == 2)
+	{
+		tableMax = sizeof(m_defaultKeySet) / sizeof(MYSOFTKEY);
+	}
+	else
+	{
+		tableMax = sizeof(m_defaultKeySet1Byte) / sizeof(MYSOFTKEY);
+	}
 
-	int tableMax = sizeof(m_defaultKeySet) / sizeof(MYSOFTKEY);
+
 	int customKey = 0;
 	GetInitGameParam(&customKey,"customKey");
 	//check nya/hoge.xtx
@@ -614,7 +778,14 @@ CSoftKey::CSoftKey(CMyMessage* message)
 		m_softKeyTable = new MYSOFTKEY[m_softKeyTableNumber];
 		for (int i=0;i<m_softKeyTableNumber;i++)
 		{
-			m_softKeyTable[i] = m_defaultKeySet[i];
+			if (codeByte == 2)
+			{
+				m_softKeyTable[i] = m_defaultKeySet[i];
+			}
+			else
+			{
+				m_softKeyTable[i] = m_defaultKeySet1Byte[i];
+			}
 		}
 	}
 	else
@@ -684,8 +855,16 @@ CSoftKey::CSoftKey(CMyMessage* message)
 	{
 		m_shiftKeyList[i] = -1;
 	}
-	m_shiftKeyList[2] = 3;
-	m_shiftKeyList[3] = 2;
+	if (codeByte == 2)
+	{
+		m_shiftKeyList[2] = 3;
+		m_shiftKeyList[3] = 2;
+	}
+	else
+	{
+		m_shiftKeyList[0] = 1;
+		m_shiftKeyList[1] = 0;
+	}
 
 	for (int i=0;i<16;i++)
 	{
@@ -738,7 +917,9 @@ int CSoftKey::Calcu(CInputStatus* lpInput)
 {
 	m_onNumber = -1;
 	m_onNumber = GetOnNumber(lpInput->GetMouseStatus()->GetZahyo());
-	
+
+	int codeByte = CMyFont::m_codeByte;
+
 	if (m_onNumber != -1)
 	{
 		if (lpInput->GetMouseStatus()->CheckClick(0))
@@ -861,6 +1042,24 @@ int CSoftKey::Calcu(CInputStatus* lpInput)
 					ClearHenkan();
 				}
 				AddText(SOFTKET_TEXTTYPE_INPUT,text);
+
+				if (codeByte == 1)
+				{
+					if (GetInputLength() > 0)
+					{
+						CopySoftBuffer(2,0);
+						ClearInput();
+						ClearHenkan();//用心
+					}
+					else
+					{
+						if (GetHenkanLength() > 0)
+						{
+							CopySoftBuffer(1,0);
+							ClearHenkan();
+						}
+					}
+				}
 			}
 		}
 	}
@@ -888,7 +1087,7 @@ void CSoftKey::Print(void)
 				int ny = m_softKeyTable[i].y;
 				POINT pt = GetKeyZahyo(nx,ny,page);
 				LPSTR mes =  m_softKeyTable[i].key;
-				m_message->PrintMessage(pt.x,pt.y,mes,m_fontSize,m_fontColorR,m_fontColorG,m_fontColorB);
+				m_message->PrintMessage(pt.x + m_keyPrintDeltaX,pt.y + m_keyPrintDeltaY,mes,m_fontSize,m_fontColorR,m_fontColorG,m_fontColorB);
 			}
 		}
 	}
@@ -981,11 +1180,26 @@ void CSoftKey::PageChanged(void)
 
 int CSoftKey::GetUserCommand(LPSTR text)
 {
+	int codeByte = CMyFont::m_codeByte;
+
 	for (int i=0;i<256;i++)
 	{
-		int cmd = m_userCommandCheckList[i].cmd;
-		LPSTR check = m_userCommandCheckList[i].key;
+		int cmd;
+		LPSTR check;
+		if (codeByte == 2)
+		{
+			cmd = m_userCommandCheckList[i].cmd;
+			check = m_userCommandCheckList[i].key;
+		}
+		else
+		{
+			cmd = m_userCommandCheckList1Byte[i].cmd;
+			check = m_userCommandCheckList1Byte[i].key;
+		}
+
+
 		if (cmd == -1) break;
+		if (cmd == -2) continue;
 
 		if (strcmp(check,text) == 0) return cmd;
 	}
@@ -1039,6 +1253,7 @@ int CSoftKey::GetLastTextType(void)
 	return -1;
 }
 
+//2byte only
 void CSoftKey::ReplaceLastText(int textType,LPSTR repText)
 {
 	if (m_textLength[textType] <= 0) return;
@@ -1050,8 +1265,17 @@ void CSoftKey::DeleteLastText(int textType)
 {
 	if (m_textLength[textType] <= 0) return;
 	m_textLength[textType]--;
-	m_text[textType][m_textLength[textType]*2] = 0;
-	m_text[textType][m_textLength[textType]*2+1] = 0;
+
+	int codeByte = CMyFont::m_codeByte;
+	if (codeByte == 2)
+	{
+		m_text[textType][m_textLength[textType]*2] = 0;
+		m_text[textType][m_textLength[textType]*2+1] = 0;
+	}
+	else
+	{
+		m_text[textType][m_textLength[textType]] = 0;
+	}
 }
 
 
@@ -1122,21 +1346,27 @@ void CSoftKey::AddHenkan(LPSTR mes)
 
 void CSoftKey::AddText(int textType,LPSTR mes)
 {
+	int codeByte = CMyFont::m_codeByte;
+
 	if (mes == NULL) return;
-	if (!CheckKanjiOnly(mes)) return;
+	if (codeByte == 2)
+	{
+		if (!CheckKanjiOnly(mes)) return;
+	}
 	int ln = strlen(mes);
 
-	int cp = ln / 2;
+
+	int cp = ln / codeByte;
 	if ((m_textLength[textType]+cp) > m_textLengthMax[textType])
 	{
 		cp = m_textLengthMax[textType] - m_textLength[textType];
 	}
 	if (cp<=0) return;
 
-	memcpy(m_text[textType]+m_textLength[textType]*2,mes,cp*2);
+	memcpy(m_text[textType]+m_textLength[textType]*codeByte,mes,cp*codeByte);
 	m_textLength[textType] += cp;
-	m_text[textType][m_textLength[textType]*2] = 0;
-	m_text[textType][m_textLength[textType]*2+1] = 0;
+	m_text[textType][m_textLength[textType]*codeByte] = 0;
+	m_text[textType][m_textLength[textType]*codeByte+1] = 0;
 }
 
 BOOL CSoftKey::CheckKanjiOnly(LPSTR mes)
@@ -1162,6 +1392,8 @@ BOOL CSoftKey::CheckKanjiOnly(LPSTR mes)
 
 int CSoftKey::CheckCommandKey(LPSTR mes)
 {
+	int codeByte = CMyFont::m_codeByte;
+
 	for (int i=0;i<m_userSoftCommandNumber;i++)
 	{
 		int cmd = m_userCommandKeyList[i].cmd;
@@ -1171,10 +1403,28 @@ int CSoftKey::CheckCommandKey(LPSTR mes)
 
 	for (int i=0;i<256;i++)
 	{
-		int cmd = m_commandKeyList[i].cmd;
+		int cmd;
+		LPSTR check;
+
+		if (codeByte == 2)
+		{
+			cmd = m_commandKeyList[i].cmd;
+		}
+		else
+		{
+			cmd = m_commandKeyList1Byte[i].cmd;
+		}
 		if (cmd == -1) return -1;
 
-		LPSTR check = m_commandKeyList[i].key;
+		if (codeByte == 2)
+		{
+			check = m_commandKeyList[i].key;
+		}
+		else
+		{
+			check = m_commandKeyList1Byte[i].key;
+		}
+
 		if (strcmp(mes,check) == 0) return cmd;
 	}
 
@@ -1184,6 +1434,9 @@ int CSoftKey::CheckCommandKey(LPSTR mes)
 
 int CSoftKey::CheckDakutenList(LPSTR mes)
 {
+	int codeByte = CMyFont::m_codeByte;
+	if (codeByte != 2) return -1;
+
 	for (int i=0;i<256;i++)
 	{
 		LPSTR check = m_dakutenList[i];
@@ -1196,6 +1449,9 @@ int CSoftKey::CheckDakutenList(LPSTR mes)
 
 int CSoftKey::CheckHandakutenList(LPSTR mes)
 {
+	int codeByte = CMyFont::m_codeByte;
+	if (codeByte != 2) return -1;
+
 	for (int i=0;i<256;i++)
 	{
 		LPSTR check = m_handakutenList[i];
