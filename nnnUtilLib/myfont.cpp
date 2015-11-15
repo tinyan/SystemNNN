@@ -73,6 +73,8 @@ int CMyFont::m_fukuroTable[3][3] =
 	{0,0,1},
 };
 
+int CMyFont::m_rightShift1byte = 2;
+
 
 void CMyFont::SetFukuroType(int type)
 {
@@ -599,6 +601,9 @@ void CMyFont::EndRubiPrint(void)
 
 int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int colB ,int sukima, int kageColor, COLORREF* colorPtr,int rubiKosuu,int kanjiMax,int* rubiParam,char** rubiMessage)
 {
+//	OutputDebugString("\x00d\x00aMESSAGE=");
+//	OutputDebugString(message);
+
 	if (colR == -1) colR = 255;
 	if (colG == -1) colG = colR;
 	if (colB == -1) colB = colG;
@@ -818,7 +823,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 								{
 									if (fkr[jj][ii])
 									{
-										TextOut(hdc,x+ii*2-4,y+jj*2-4,message+i*2,2);
+										TextOut(hdc,x+ii*2-2,y+jj*2-2,message+i*2,2);
 									}
 								}
 							}
@@ -836,7 +841,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 							{
 								if (fkr[jj][ii])
 								{
-									Gaiji(x+ii*2-4,y+jj*2-4,kageColor,*(message+i*2+1));
+									Gaiji(x+ii*2-2,y+jj*2-2,kageColor,*(message+i*2+1));
 								}
 							}
 						}
@@ -858,7 +863,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 							{
 								if (fkr[jj][ii])
 								{
-									TextOut(hdc,x+ii*2-4,y+jj*2-4,message+i*2,1);
+									TextOut(hdc,m_rightShift1byte+x+ii*2-2,y+jj*2-2,message+i*2,1);
 								}
 							}
 						}
@@ -880,7 +885,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 							{
 								if (fkr[jj][ii])
 								{
-									Gaiji(x+ii*2-4,y+jj*2-4,kageColor,*(message+i*2+1));
+									Gaiji(x+ii*2-2,y+jj*2-2,kageColor,*(message+i*2+1));
 //									Gaiji(x,y,kageColor,*(message+i*2+1));
 //									TextOut(hdc,x+ii*2-4,y+jj*2-4,message+i*2,1);
 								}
@@ -1105,7 +1110,7 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 			if ((*(message + i* 2)) != (char)0x80)
 			{
 //				if (customFontFlag == FALSE)
-				TextOut(hdc,x,y,message+i*2,1);
+				TextOut(hdc,m_rightShift1byte+x,y,message+i*2,1);
 			}
 			else
 			{
@@ -1782,6 +1787,35 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 			lpRubiPic = m_rubiPic;
 		}
 	}
+
+	/*
+	static int aaa = 0;
+	if (aaa==0)
+	{
+		aaa=1;
+
+		int* buf = (int*)m_pic;
+		for (int j=0;j<sizeY2;j++)
+		{
+			OutputDebugString("\x00d\x00a");
+			for (int i=0;i<sizeX2;i++)
+			{
+				int d = *(buf+i);
+				if (d != 0)
+				{
+					OutputDebugString("+");
+				}
+				else
+				{
+					OutputDebugString(".");
+				}
+			}
+		}
+		buf += screenSizeX;
+	}
+	*/
+
+
 
 	m_fontCacheNumber = m_fontCache->AddData(orgMessage,m_mainFontSize,checkColorR,checkColorG,checkColorB,sukima,kageColor,sizeX2,sizeY2,m_pic,lpRubiPic);
 //	m_fontCacheNumber = m_fontCache->AddData(orgMessage,m_nowFontSize,checkColorR,checkColorG,checkColorB,sukima,kageColor,sizeX2,sizeY2,m_pic);

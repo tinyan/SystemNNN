@@ -61,6 +61,8 @@ public:
 	static char m_gothicFontName[256];
 	static char m_minchoFontName[256];
 
+	static int m_rightShift1byte;
+
 
 	BOOL LoadUserFont(LPSTR fontfilename);
 

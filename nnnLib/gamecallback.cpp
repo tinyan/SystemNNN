@@ -528,6 +528,11 @@ void CGameCallBack::GeneralCreate(void)
 		CMyFont::m_codeByte = 1;
 	}
 
+	int rightShift1byte = 2;
+	GetInitGameParam(&rightShift1byte,"rightShift1Byte");
+	CMyFont::m_rightShift1byte = rightShift1byte;
+
+
 	LPSTR localeString = NULL;
 	if (GetInitGameString(&localeString,"locale"))
 	{
