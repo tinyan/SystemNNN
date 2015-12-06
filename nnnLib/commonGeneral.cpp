@@ -1456,6 +1456,14 @@ void CCommonGeneral::CreateUpDownButton(void)
 		CPicture* bgPic = m_commonBG;
 		if (m_backScriptFlag) bgPic = NULL;
 
+		int bgflag = 1;
+		GetInitGameParam(&bgflag,"updownBGUse");
+		if (bgflag == 0)
+		{
+			bgPic = NULL;
+		}
+
+
 
 		int commonUpDownFlag = 0;
 		GetInitGameParam(&commonUpDownFlag,"useCommonUpDownSetup");
