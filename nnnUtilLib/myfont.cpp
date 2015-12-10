@@ -2137,8 +2137,16 @@ void CMyFont::EffectPrint(int putX,int putY,int deltaX,int deltaY,int sizeX,int 
 
 	m_fontCache->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
 
+	int codeByte = CMyFont::m_codeByte;
+	int fontSizeX = fontSize;
+	if (codeByte != 2)
+	{
+		fontSizeX /= 2;
+	}
+
+
 	//effect
-	m_fontCache->EffectBlt(putX+sizeX,putY,srcX+sizeX,srcY,fontSize,fontSize,TRUE,effectType,effectCount1000);
+	m_fontCache->EffectBlt(putX+sizeX,putY,srcX+sizeX,srcY,fontSizeX,fontSize,TRUE,effectType,effectCount1000);
 
 //	m_pic->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
 	CAreaControl::AddArea(putX,putY,sizeX+fontSize,sizeY);
