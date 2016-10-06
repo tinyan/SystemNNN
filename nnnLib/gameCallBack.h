@@ -1794,6 +1794,8 @@ protected:
 
 	BOOL CheckNameIsSpecialVoice(void);
 
+	int m_systemSoundMulti;
+
 private:
 	//dummy
 	int m_nowFrameCount;

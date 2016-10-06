@@ -2294,6 +2294,8 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 	m_useSystemSoundNumber = 0;
 
+	m_systemSoundMulti = 0;
+	GetInitGameParam(&m_systemSoundMulti,"systemSoundMulti");
 
 
 	int scriptVoiceExpand[4];
@@ -11877,7 +11879,10 @@ void CGameCallBack::PlaySystemSound(int n,int volumeType)
 //	wsprintf(mes,"システムサウンド:%d",n);
 //	AddDebugMessage(mes);
 
-	m_systemSound[m_useSystemSoundNumber]->Stop();
+	if (m_systemSoundMulti == 0)
+	{
+		m_systemSound[m_useSystemSoundNumber]->Stop();
+	}
 
 	m_useSystemSoundNumber++;
 	m_useSystemSoundNumber %= 2;
