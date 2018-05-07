@@ -79,7 +79,7 @@ CCommonSelectScene::CCommonSelectScene(CGameCallBack* lpGame) : CCommonGeneral(l
 	m_sceneDataControl = m_game->GetSceneDataControl();
 
 
-	LoadSetupFile("SelectScene",32);
+	LoadSetupFile("SelectScene",1000);
 
 	int listCheckFlag = 1;
 	GetInitGameParam(&listCheckFlag,"listCheckFlag");

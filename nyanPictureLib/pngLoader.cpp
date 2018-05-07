@@ -13,6 +13,7 @@
 
 
 
+
 BOOL CPngLoader::m_gammaAdjustFlag = FALSE;
 
 CPngLoader::CPngLoader(int bufferSizeMegaByte)
@@ -219,7 +220,7 @@ BOOL CPngLoader::LoadFile(FILE* file)
 	//load palette
 	if (nPal > 0)
 	{
-		png_color* lpPalette;
+		png_color* lpPalette = NULL;
 		int palKosuu = 0;
 		png_get_PLTE(png_ptr,info_ptr,&lpPalette,&palKosuu);
 

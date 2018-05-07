@@ -62,6 +62,8 @@ public:
 	static int m_notUseDirectDraw;
 	static void SetOutColor(int r,int g,int b);
 
+	static bool m_direct2DFlag;
+
 private:
 
 	int GetTopBit(int dt);

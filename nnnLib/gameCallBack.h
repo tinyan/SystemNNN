@@ -115,6 +115,8 @@ class CAutoSaveSubData;
 class CFaceControl;
 class COkikaeData;
 
+class CPrintPlayerStatus;
+
 class CViewControl;
 
 class CAutoSelectControl;
@@ -290,7 +292,7 @@ public:
 	virtual void SetMyCursor(int x, int y, int pat);
 	virtual void SetMyCursor(int pat = 0);
 
-	virtual CMIDIPlayer* GetMIDI(void) {return m_midi;}
+//	virtual CMIDIPlayer* GetMIDI(void) {return m_midi;}
 
 	virtual void SetBGMVolumeOnly(int volume);
 
@@ -734,8 +736,8 @@ public:
 	int GetSpecialNumberForSave(void);
 
 	CNameList* GetGameSetup(void){return m_setup;}
-	void SetSkipMovie(void){m_skipMovieFlag = TRUE;}
-	BOOL CheckSkipMovie(void){return m_skipMovieFlag;}
+	void SetSkipMovie(void);
+	BOOL CheckSkipMovie(void);
 
 	CCommonResultData* GetCommonResultData(void){return m_commonResultData;}
 
@@ -828,6 +830,12 @@ public:
 	void AddDebugLog(LPSTR mes = NULL);
 	int m_debugLogFlag;
 
+	int GetVarType(void);
+	int GetVarMax(void);
+
+	void SetHintNumber(int n);
+	int GetHintNumber(void);
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -858,21 +866,9 @@ protected:
 	HWND m_hWnd;
 	HINSTANCE m_hInstance;
 	int m_windowSizeX,m_windowSizeY;
-//	int m_realWindowSizeX,m_realWindowSizeY;
-//	int m_viewOffsetX,m_viewOffsetY;
 
 	int m_bpp;
 
-//	int m_cgCharaKosuu;
-//	int m_sceneCharaKosuu;
-
-//	int m_cgCharaNumber;
-//	int m_sceneCharaNumber;
-
-//	int m_cgNumber;
-//	int m_sceneNumber;
-
-//	int m_sceneFilmNumber;
 
 	int m_floatingLayerFlashFlag;
 
@@ -887,8 +883,6 @@ protected:
 	CMyCommonButton* m_newBackButton;
 	CCommonFileControl* m_fileControl;
 
-//	BOOL m_mciOpenCDFlag;
-//	MCIDEVICEID m_cdDeviceID;
 
 	BOOL m_skipNextCommandFlag;
 	BOOL m_skipEffectCommandFlag;
@@ -910,7 +904,6 @@ protected:
 	BOOL m_spaceKey;
 	BOOL m_returnKey;
 
-//	BOOL m_cgMode;
 	BOOL m_sceneMode;
 
 	CMyDirectDraw* m_directDraw;
@@ -931,7 +924,6 @@ protected:
 
 	int m_wheelWaitCount;
 
-//	char m_logFileName[256];
 
 	BOOL m_messageSkipFlag;
 
@@ -958,10 +950,8 @@ protected:
 	CPicture* m_overrapPic2;
 	int m_saveMode;
 
-//	int m_bgmNumber;
-//	int m_bgmKaisuu;
 
-	CMIDIPlayer* m_midi;
+//	CMIDIPlayer* m_midi;
 
 	CVarNumber* m_varNumber;
 
@@ -1040,7 +1030,7 @@ protected:
 	int m_lastSelectID;
 
 
-	int m_var[1024];
+	int m_var[2224];
 	int m_dayMonthVar;
 	int m_yearVar;
 
@@ -1304,15 +1294,25 @@ protected:
 	int m_taihiStackPointer3;
 	int m_taihiStackPointer4;
 
-	int m_taihiStack[256];
-	int m_taihiStack2[256];
-	int m_taihiStack3[256];
-	int m_taihiStack4[256];
+//	int m_taihiStack[256];
+//	int m_taihiStack2[256];
+//	int m_taihiStack3[256];
+//	int m_taihiStack4[256];
 
-	int m_taihiID[256];
-	int m_taihiID2[256];
-	int m_taihiID3[256];
-	int m_taihiID4[256];
+//	int m_taihiID[256];
+//	int m_taihiID2[256];
+//	int m_taihiID3[256];
+//	int m_taihiID4[256];
+	int* m_taihiStack;
+	int* m_taihiStack2;
+	int* m_taihiStack3;
+	int* m_taihiStack4;
+
+	int* m_taihiID;
+	int* m_taihiID2;
+	int* m_taihiID3;
+	int* m_taihiID4;
+
 
 	int m_taihiScriptRunMode;
 	int m_taihiSptFileNumber[4];
@@ -1561,6 +1561,7 @@ protected:
 	void SystemFunctionFace(int para1,LPVOID para2);
 	void SystemFunctionMustFace(int para1,LPVOID para2);
 
+
 	int m_configMask;
 
 	int m_cutinFlag;
@@ -1670,6 +1671,8 @@ protected:
 	int m_varInitFlag;
 	int m_getResultVarNumber;
 
+
+	int m_hintNumber;
 
 
 	int m_autoExtDataLoadKosuu;
@@ -1795,13 +1798,20 @@ protected:
 	BOOL CheckNameIsSpecialVoice(void);
 
 	int m_systemSoundMulti;
+	BOOL m_skipMovieFlag;
+	BOOL m_skipMovieFlag0;
 
-private:
+	BOOL m_newSkipMovieFlag;
+
+	int m_printPlayerStatusFlag;
+	CPrintPlayerStatus* m_printPlayerStatus;
+
+//private:
 	//dummy
 	int m_nowFrameCount;
 
 	BOOL m_gameCreateFlagGeneral;
-	BOOL m_skipMovieFlag;
+	int m_overrunBuffer;
 };
 
 #endif

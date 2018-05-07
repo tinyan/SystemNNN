@@ -138,11 +138,14 @@ void CPrintDebugParam::Print(int n)
 
 void CPrintDebugParam::AddDebugVarNumber(int d,BOOL loopFlag)
 {
+	int varType = m_game->GetVarType();
+	int varNumber = m_game->GetVarMax();
+
 	if (loopFlag == FALSE)
 	{
 		m_debugVarStart += d;
-		m_debugVarStart += 1000*10;
-		m_debugVarStart %= 1000;
+		m_debugVarStart += varNumber*10;
+		m_debugVarStart %= varNumber;
 	}
 	else
 	{
@@ -150,7 +153,7 @@ void CPrintDebugParam::AddDebugVarNumber(int d,BOOL loopFlag)
 		int dd = m_debugVarStart / 20;
 
 		k += d;
-		k += 20*1000;
+		k += 20*varNumber;
 		k %= 20;
 
 		m_debugVarStart = dd * 20 + k;

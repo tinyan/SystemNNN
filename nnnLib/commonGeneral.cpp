@@ -94,7 +94,7 @@ int CCommonGeneral::m_freeButtonNumber[] =
 CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 {
 	char debuglog[256];
-	sprintf_s(debuglog,sizeof(debuglog),"ClassCreate",m_classNumber);
+	sprintf_s(debuglog,sizeof(debuglog),"ClassCreate %d",m_classNumber);
 	lpGame->AddDebugLog(debuglog);
 
 	m_setup = NULL;

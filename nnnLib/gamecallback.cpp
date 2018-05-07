@@ -146,6 +146,7 @@
 
 #include "..\nyanDirectXLib\mydirectsound.h"
 
+#include "..\nnnUtilLib\printPlayerStatus.h"
 
 
 #include "..\nnnUtilLib\waveData.h"
@@ -221,6 +222,8 @@
 #include "commonChartMenu.h"
 #include "commonCardSystem.h"
 #include "commonPrintItem.h"
+#include "commonSelectHint.h"
+#include "commonPrintHint.h"
 #include "commonShop.h"
 #include "commonPrintStatus.h"
 #include "commonPrintParty.h"
@@ -360,6 +363,8 @@ void CGameCallBack::LogMessage(LPSTR mes)
 
 CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* lpSystemFile, int windowSizeX, int windowSizeY, int bpp) : CScriptCallBack()
 {
+//	return;
+
 	m_gameCreateFlagGeneral = FALSE;
 	m_hWnd = hwnd;
 	m_hInstance = hinstance;
@@ -383,24 +388,44 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 	m_debugLogFlag = 0;//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	AddDebugLog();
+	
+	m_preReceiveFileName = NULL;
 
 
-	m_skipMovieFlag = FALSE;
+	m_taihiStack = NULL;
+	m_taihiStack2 = NULL;
+	m_taihiStack3 = NULL;
+	m_taihiStack4 = NULL;
 
+	m_taihiID = NULL;
+	m_taihiID2 = NULL;
+	m_taihiID3 = NULL;
+	m_taihiID4 = NULL;
+//return;
+
+//	m_systemSoundMulti;
+//	m_skipMovieFlag;
+//	m_skipMovieFlag0;
+
+	m_newSkipMovieFlag = FALSE;
+//return;
 	m_layerOffVar = NULL;
 
 	m_notUseDirectDraw = 0;
-
+//return;
 	m_renameLayer = 0;
 
 	m_displaySettingChanged = FALSE;
+//return;
+	m_sceneVoiceList = NULL;
+	m_tmpThreadHandle = NULL;
 
 
 	//旧バージョンとの互換性のため初期値16
 	m_layerKosuuMax = 16;
 	m_pictureKosuuMax = 16;
 
-
+//return;
 
 	m_specialVoiceName = NULL;
 
@@ -425,6 +450,8 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 	m_autoFunctionKosuu = 0;
 	m_adjustFullScreenLost = 1;
 	m_adjustFullWait = 0;
+
+	m_hintNumber = 0;
 
 	m_gameMouseDontPrintFlag = FALSE;
 //	m_movieEnableFlag = FALSE;
@@ -466,6 +493,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 	m_directSound = NULL;
 
 	m_setup = NULL;
+	m_setup2 = NULL;
 	m_setup3 = NULL;
 
 	m_myGraphics = NULL;
@@ -482,9 +510,23 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 void CGameCallBack::GeneralCreate(void)
 {
+//	return;
+
 	AddDebugLog("CGame::GeneralCreate1");
 
 	int i;
+
+
+	m_taihiStack = new int[256];
+	m_taihiStack2 = new int[256];
+	m_taihiStack3 = new int[256];
+	m_taihiStack4 = new int[256];
+
+	m_taihiID = new int[256];
+	m_taihiID2 = new int[256];
+	m_taihiID3 = new int[256];
+	m_taihiID4 = new int[256];
+
 
 	for (i=0;i<4;i++)
 	{
@@ -624,6 +666,7 @@ void CGameCallBack::GeneralCreate(void)
 	AddDebugLog("CGame::GeneralCreate10");
 
 //OutputDebugString("\nGeneralCreate -1");
+	m_textureCacheControl = NULL;
 #if defined _TINYAN3DLIB_
 	if (m_systemFile->m_systemdata.fullScreenFlag)
 	{
@@ -1318,7 +1361,7 @@ void CGameCallBack::GeneralCreate(void)
 
 
 
-//@@@	m_updown = NULL;
+	m_upDown = NULL;
 	m_wheelMoveFlag = TRUE;
 
 
@@ -1345,7 +1388,7 @@ void CGameCallBack::GeneralCreate(void)
 
 	m_nextShakinFumitaoshi = 0;
 
-	m_debugVarKosuuMax = 1000;
+	m_debugVarKosuuMax = GetVarMax();
 
 	m_voiceSpeakFlag = FALSE;
 	m_voiceSpeakCount = 0;
@@ -1399,16 +1442,33 @@ void CGameCallBack::GeneralCreate(void)
 
 	m_lastSoundVoiceVolume = 101;
 
+	int varType = GetVarType();
 
-	for (i=0;i<1000;i++)
+	if (varType == 0)
 	{
-		m_var[i] = 0;
+		for (i = 0; i < 1000; i++)
+		{
+			m_var[i] = 0;
+		}
+		for (i = 0; i<100; i++)
+		{
+			m_var[200 + i] = m_systemFile->m_systemVar.var[i];
+		}
+	}
+	else
+	{
+		for (i = 0; i < 2200; i++)
+		{
+			m_var[i] = 0;
+		}
+		for (i = 0; i<1000; i++)
+		{
+			m_var[200 + i] = m_systemFile->m_systemVar.var[i];
+		}
+
 	}
 
-	for (i=0;i<100;i++)
-	{
-		m_var[200+i] = m_systemFile->m_systemVar.var[i];
-	}
+
 
 
 	m_windowX = 32;
@@ -1783,7 +1843,8 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	m_effect->ClearAllEffect();
 
 //	m_allEffect = m_effect->GetAllEffect();
-
+	m_allEffect = NULL;
+//	m_midi = NULL;
 	
 	m_controlScript = NULL;
 	m_execScript = NULL;
@@ -1827,19 +1888,37 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 	if (m_varInitFlag)
 	{
 		m_varInitData = new CNameList();
-		m_varInitData->LoadFile("spt\\varinitdata.xtx");
+		if (varType == 0)
+		{
+			m_varInitData->LoadFile("spt\\varinitdata.xtx");
+		}
+		else
+		{
+			m_varInitData->LoadFile("spt\\varinitdata2.xtx");
+		}
 	}
 
 
 	m_windowOffMouseButton = 1;
 	GetInitGameParam(&m_windowOffMouseButton,"windowOffMouseButton");
 
-	m_varList = new CNameList();
-	if (m_noScriptFlag == 0)
+	if (varType == 0)
 	{
-		m_varList->LoadFile("spt\\var.fxf",TRUE);	//angou
+		m_varList = new CNameList(1001);
+		if (m_noScriptFlag == 0)
+		{
+			m_varList->LoadFile("spt\\var.fxf", TRUE);	//angou
+		}
 	}
+	else
+	{
+		m_varList = new CNameList(2201);
+		if (m_noScriptFlag == 0)
+		{
+			m_varList->LoadFile("spt\\var2.fxf", TRUE);	//angou
+		}
 
+	}
 
 
 
@@ -2012,6 +2091,8 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 			SetAutoSaveSubClass(m_autoSaveDataList->SearchName("face"),m_faceControl);
 		}
 	}
+
+
 
 
 
@@ -2678,6 +2759,61 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 
 
+	m_printPlayerStatusFlag = 0;
+	m_printPlayerStatus = NULL;
+
+	GetInitGameParam(&m_printPlayerStatusFlag, "printPlayerStatus");
+	if (m_printPlayerStatusFlag)
+	{
+		m_printPlayerStatus = new CPrintPlayerStatus(m_message);
+
+
+		//on mode
+//		int commonUserCommandKosuu = m_commonUserCommandList->GetKosuu();
+
+
+
+		for (i = 0; i<256; i++)
+		{
+			LPSTR name = m_systemModeList->GetModeName(i);
+			if (name)
+			{
+				if ((*name) != 0)
+				{
+					m_printPlayerStatus->CheckUseMode(i, name);
+				}
+			}
+
+		}
+
+
+
+
+
+
+
+		m_printPlayerStatus->StartRequestVarNumberName();
+		while (TRUE)
+		{
+			LPSTR varName = NULL;
+			BOOL b = m_printPlayerStatus->RequestVarNumberName(&varName);
+			if (varName != NULL)
+			{
+				int varNumber = GetVarNumber(varName);
+				m_printPlayerStatus->SetVarNumber(varNumber, varName);
+			}
+
+			if (!b)
+			{
+				break;
+			}
+		}
+
+
+	}
+
+
+
 	if (m_noticeFlag) m_notice = new CNotice(m_taihi,32);
 
 	m_noticeFunction = -1;
@@ -2870,6 +3006,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 
 	//backbutton
 
+	m_fileControl = NULL;
 //	m_fileControl = new CCommonFileControl(this);
 
 
@@ -3161,7 +3298,7 @@ m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSi
 #endif
 
 
-	AddDebugLog("CGame::log22");
+	//AddDebugLog("CGame::log22");
 
 
 //AddErrorLog("endof GameCallBack");
@@ -3232,6 +3369,8 @@ CGameCallBack::~CGameCallBack()
 
 void CGameCallBack::End(void)
 {
+//	return;
+
 	if (m_gameCreateFlagGeneral == FALSE) return;
 
 	DELETEARRAY(m_specialVoiceName);
@@ -3443,6 +3582,7 @@ ENDDELETECLASS(m_waveData);	//dummy
 	ENDDELETECLASS(m_faceList);
 	ENDDELETECLASS(m_charaNameList);
 	ENDDELETECLASS(m_sptList);
+	ENDDELETECLASS(m_printPlayerStatus);
 	ENDDELETECLASS(m_faceControl);
 	ENDDELETECLASS(m_seList);
 	ENDDELETECLASS(m_systemSeList);
@@ -3558,6 +3698,18 @@ ENDDELETECLASS(m_waveData);	//dummy
 			m_threadControlHandle[i] = NULL;
 		}
 	}
+
+
+	DELETEARRAY(m_taihiStack);
+	DELETEARRAY(m_taihiStack2);
+	DELETEARRAY(m_taihiStack3);
+	DELETEARRAY(m_taihiStack4);
+
+	DELETEARRAY(m_taihiID);
+	DELETEARRAY(m_taihiID2);
+	DELETEARRAY(m_taihiID3);
+	DELETEARRAY(m_taihiID4);
+
 //OutputDebugString("End of CGameCallBack::End();\n");
 }
 
@@ -5465,18 +5617,28 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 void CGameCallBack::SetVarByLoad(LPVOID ptr)
 {
 	CCommonDataFile::GAMEVAR* lp = (CCommonDataFile::GAMEVAR*)ptr;
-	int i = 0;
-	for (i=0;i<100;i++)
+
+	int varType = GetVarType();
+	if (varType == 0)
+	for (int i=0;i<100;i++)
 	{
 		m_var[i] = lp->var[i];
 	}
 
-	for (i=100;i<200;i++)
+	for (int i=100;i<200;i++)
 	{
 		m_var[i] = lp->var[i];
 	}
 
-	for (i=300;i<1000;i++)
+	int start = 300;
+	int sz = 700;
+	if (varType != 0)
+	{
+		start = 1200;
+		sz = 1000;
+	}
+
+	for (int i=start;i<start+sz;i++)
 	{
 		m_var[i] = lp->var[i];
 	}
@@ -5869,9 +6031,14 @@ void CGameCallBack::GetMiniCGForSave(LPVOID ptr, int type, int customSizeX, int 
 
 void CGameCallBack::GetVarForSave(LPVOID ptr)
 {
-	
+	int varType = GetVarType();
+	int loop = 1000;
+	if (varType != 0)
+	{
+		loop = 2200;
+	}
 	CCommonDataFile::GAMEVAR* lp = (CCommonDataFile::GAMEVAR*)ptr;
-	for (int i=0;i<1000;i++)
+	for (int i=0;i<loop;i++)
 	{
 		lp->var[i] = m_var[i];
 	}
@@ -6113,6 +6280,33 @@ CExecScript* CGameCallBack::GetScript(void)
 void CGameCallBack::InitOpeningMode(int para1, int para2)
 {
 	int i = 0;
+	int varType = GetVarType();
+	if (varType == 0)
+	{
+		for (int i = 300; i<1000; i++)
+		{
+			m_var[i] = 0;
+		}
+
+		for (int i = 100; i<200; i++)
+		{
+			m_var[i] = 0;
+		}
+	}
+	else
+	{
+		for (int i = 1200; i<2200; i++)
+		{
+			m_var[i] = 0;
+		}
+
+		for (int i = 100; i<200; i++)
+		{
+			m_var[i] = 0;
+		}
+	}
+
+/*
 	for (i=300;i<1000;i++)
 	{
 		m_var[i] = 0;
@@ -6122,6 +6316,7 @@ void CGameCallBack::InitOpeningMode(int para1, int para2)
 	{
 		m_var[i] = 0;
 	}
+	*/
 
 	SetOpeningMode();
 	if (para1 != -1)
@@ -6189,28 +6384,59 @@ void CGameCallBack::InitOpeningMode(int para1, int para2)
 
 int CGameCallBack::InitNewGame(int uraMode, BOOL demoFlag,int setVar,int setData)
 {
-	int i = 300;
-	for (i=300;i<1000;i++)
+	int varType = GetVarType();
+	if (varType == 0)
 	{
-		m_var[i] = 0;
+		for (int i = 300; i<1000; i++)
+		{
+			m_var[i] = 0;
+		}
+
+		for (int i = 100; i<200; i++)
+		{
+			m_var[i] = 0;
+		}
+	}
+	else
+	{
+		for (int i = 1200; i<2200; i++)
+		{
+			m_var[i] = 0;
+		}
+
+		for (int i = 100; i<200; i++)
+		{
+			m_var[i] = 0;
+		}
 	}
 
-	for (i=100;i<200;i++)
-	{
-		m_var[i] = 0;
-	}
 
 
 	if (m_varInitFlag)
 	{
-		for (i=100;i<200;i++)
+		if (varType == 0)
 		{
-			m_var[i] = atoi(m_varInitData->GetName(i));
-		}
+			for (int i = 100; i<200; i++)
+			{
+				m_var[i] = atoi(m_varInitData->GetName(i));
+			}
 
-		for (i=300;i<1000;i++)
+			for (int i = 300; i<1000; i++)
+			{
+				m_var[i] = atoi(m_varInitData->GetName(i));
+			}
+		}
+		else
 		{
-			m_var[i] = atoi(m_varInitData->GetName(i));
+			for (int i = 100; i<200; i++)
+			{
+				m_var[i] = atoi(m_varInitData->GetName(i));
+			}
+
+			for (int i = 1200; i<2200; i++)
+			{
+				m_var[i] = atoi(m_varInitData->GetName(i));
+			}
 		}
 	}
 
@@ -6229,7 +6455,7 @@ int CGameCallBack::InitNewGame(int uraMode, BOOL demoFlag,int setVar,int setData
 
 	ClearFontCache();
 
-	for (i=0;i<m_layerKosuuMax;i++)
+	for (int i=0;i<m_layerKosuuMax;i++)
 	{
 		m_effect->SetEye(i,TRUE);
 	}
@@ -7208,9 +7434,20 @@ LRESULT CGameCallBack::GameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 void CGameCallBack::EndGame(void)
 {
-	for (int i=0;i<100;i++)
+	int varType = GetVarType();
+	if (varType == 0)
 	{
-		m_systemFile->m_systemVar.var[i] = m_var[200+i];
+		for (int i = 0; i < 100; i++)
+		{
+			m_systemFile->m_systemVar.var[i] = m_var[200 + i];
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 1000; i++)
+		{
+			m_systemFile->m_systemVar.var[i] = m_var[200 + i];
+		}
 	}
 
 	LPSTR sei = m_systemFile->m_systemdata.sei;
@@ -7253,7 +7490,9 @@ void CGameCallBack::YoyakuArea(RECT* lpRect)
 
 int CGameCallBack::GetVarData(int varNum)
 {
-	if ((varNum>=0) && (varNum<1000))
+	int varMax = GetVarMax();
+
+	if ((varNum>=0) && (varNum<varMax))
 	{
 		return m_var[varNum] ;
 	}
@@ -7267,7 +7506,9 @@ int CGameCallBack::GetVarData(int varNum)
 
 void CGameCallBack::SetVarData(int varNum, int dat)
 {
-	if ((varNum<0) || (varNum>=1000))
+	int varMax = GetVarMax();
+
+	if ((varNum<0) || (varNum>=varMax))
 	{
 		return;
 	}
@@ -7761,11 +8002,21 @@ void CGameCallBack::SaveSystemFile(void)
 	memcpy(sei,srcSei,strlen(srcSei)+1);
 	memcpy(mei,srcMei,strlen(srcMei)+1);
 
-	for (int i=0;i<100;i++)
+	int varType = GetVarType();
+	if (varType == 0)
 	{
-		m_systemFile->m_systemVar.var[i] = m_var[200+i];
+		for (int i = 0; i < 100; i++)
+		{
+			m_systemFile->m_systemVar.var[i] = m_var[200 + i];
+		}
 	}
-
+	else
+	{
+		for (int i = 0; i < 1000; i++)
+		{
+			m_systemFile->m_systemVar.var[i] = m_var[200 + i];
+		}
+	}
 	m_systemFile->Save();
 
 	if (m_resultFlag)
@@ -8178,9 +8429,20 @@ void CGameCallBack::YoyakuExecRoutine(void)
 			Erase();
 			m_overrapPic1->GetScreen();
 
-			for (int i=0;i<100;i++)
+			int varType = GetVarType();
+			if (varType == 0)
 			{
-				m_systemFile->m_systemVar.var[i] = m_var[200+i];
+				for (int i = 0; i < 100; i++)
+				{
+					m_systemFile->m_systemVar.var[i] = m_var[200 + i];
+				}
+			}
+			else
+			{
+				for (int i = 0; i < 1000; i++)
+				{
+					m_systemFile->m_systemVar.var[i] = m_var[200 + i];
+				}
 			}
 
 			//last!
@@ -11556,6 +11818,40 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 		}
 	}
 
+
+	if (m_printPlayerStatusFlag)
+	{
+		if (m_printPlayerStatus)
+		{
+			if (m_printPlayerStatus->IsEnable(GetGameMode()))
+			{
+				m_printPlayerStatus->StartRequestVarData();
+				while (TRUE)
+				{
+					int varNumber = -1;
+					BOOL b = m_printPlayerStatus->RequestVarData(&varNumber);
+					if (varNumber != -1)
+					{
+						int varData = GetVarData(varNumber);
+						m_printPlayerStatus->SetVarData(varData, varNumber);
+					}
+
+					if (!b)
+					{
+						break;
+					}
+				}
+
+
+
+				m_printPlayerStatus->Calcu();
+				m_printPlayerStatus->Print();
+			}
+		}
+	}
+
+
+
 	if (m_sceneButtonPrintYoyaku) PrintSceneButton();
 ///	if (m_calendarFlag) PrintCalendar();
 	if (m_optionButtonPrintYoyaku) PrintOptionButton();
@@ -12159,6 +12455,7 @@ void CGameCallBack::SetupAndCreateCommonBackButton(void)
 
 	GetInitGameParam(&m_backButtonCreateFlag,"createBackButtonFlag");
 
+	m_filenameBackButton = NULL;
 	if (m_backButtonCreateFlag)
 	{
 		CreateBackButton();
@@ -12372,6 +12669,12 @@ BOOL CGameCallBack::CreateCommonClass(int modeNumber)
 	case PRINTITEM_MODE:
 		general = new CCommonPrintItem(this);
 		break;
+	case PRINTHINT_MODE:
+		general = new CCommonPrintHint(this);
+		break;
+	case SELECTHINT_MODE:
+		general = new CCommonSelectHint(this);
+		break;
 	case PRINTSTATUS_MODE:
 		general = new CCommonPrintStatus(this);
 		break;
@@ -12446,6 +12749,8 @@ void CGameCallBack::CreateAllClass(BOOL taikenFlag)
 	CreateCommonClass(PRINTACHIEVEMENT_MODE);
 	CreateCommonClass(PRINTTERM_MODE);
 	CreateCommonClass(PRINTSTATUS_MODE);
+	CreateCommonClass(PRINTHINT_MODE);
+	CreateCommonClass(SELECTHINT_MODE);
 	CreateCommonClass(PRINTPARTY_MODE);
 	CreateCommonClass(LISTENVOICE_MODE);
 	CreateCommonClass(KANJIINPUT_MODE);
@@ -15703,8 +16008,39 @@ void CGameCallBack::AddDebugLog(LPSTR mes)
 }
 
 
+int CGameCallBack::GetVarType(void)
+{
+	return 1;
+}
+
+int CGameCallBack::GetVarMax(void)
+{
+	int varType = GetVarType();
+	if (varType == 0)
+	{
+		return 1000;
+
+	}
+	else
+	{
+		return 2200;
+	}
+}
 
 
+void CGameCallBack::SetHintNumber(int n)
+{
+	m_hintNumber = n;
+}
+
+int CGameCallBack::GetHintNumber(void)
+{
+	return m_hintNumber;
+}
+
+
+void CGameCallBack::SetSkipMovie(void){m_newSkipMovieFlag = TRUE;}
+BOOL CGameCallBack::CheckSkipMovie(void){return m_newSkipMovieFlag;}
 
 
 

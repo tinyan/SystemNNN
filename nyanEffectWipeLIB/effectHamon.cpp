@@ -519,6 +519,7 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 
 	__asm
 	{
+
 		push eax
 		push ebx
 		push ecx
@@ -566,6 +567,7 @@ SKIP2:
 		
 		and ebx,0ffffh
 		shr edx,16
+
 
 		mov eax,[ebx+ecx]
 		movd mm2,eax
@@ -768,6 +770,7 @@ SKIP6:
 		pop ecx
 		pop ebx
 		pop eax
+
 	}
 }
 

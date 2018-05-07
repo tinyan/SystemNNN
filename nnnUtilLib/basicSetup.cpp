@@ -14,6 +14,8 @@
 
 
 
+
+
 CBasicSetup::CBasicSetup()
 {
 	m_setup = NULL;

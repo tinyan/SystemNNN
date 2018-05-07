@@ -24,6 +24,8 @@ int CMyDirectDraw::m_fillColorB = 0;
 
 int CMyDirectDraw::m_notUseDirectDraw = 0;
 
+bool CMyDirectDraw::m_direct2DFlag = true;
+
 BOOL WINAPI CMyDirectDraw::DDEnumCallbackEx(
   GUID FAR* lpGUID, 
   LPWSTR lpDriverDescription, 

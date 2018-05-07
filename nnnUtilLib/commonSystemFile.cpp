@@ -23,6 +23,8 @@
 
 char CCommonSystemFile::m_saveFileNameNormal[] = "sysfile";
 char CCommonSystemFile::m_saveFileNameTaiken[] = "tsysfile";
+char CCommonSystemFile::m_saveFileNameNormal2[] = "sysfile2";
+char CCommonSystemFile::m_saveFileNameTaiken2[] = "tsysfile2";
 
 int CCommonSystemFile::m_maxScriptNumberForInit = 64;
 int CCommonSystemFile::m_maxCGCharaNumberForInit = 20;
@@ -37,7 +39,7 @@ char CCommonSystemFile::m_defaultMei[16] = "";
 CCommonSystemFile::CCommonSystemFile()
 {
 	int bt = 1;
-	for (int i=0;i<32;i++)
+	for (int i = 0; i < 32; i++)
 	{
 		m_bitTable[i] = bt;
 		bt <<= 1;
@@ -51,8 +53,18 @@ CCommonSystemFile::CCommonSystemFile()
 	if (CCommonGameVersion::CheckNetVersion()) m_netVersion = TRUE;
 
 
-	m_saveFileNameOnly = m_saveFileNameNormal;
-	if (m_taikenFlag) m_saveFileNameOnly = m_saveFileNameTaiken;
+	int varType = GetVarType();
+
+	if (varType == 0)
+	{
+		m_saveFileNameOnly = m_saveFileNameNormal;
+		if (m_taikenFlag) m_saveFileNameOnly = m_saveFileNameTaiken;
+	}
+	else
+	{
+		m_saveFileNameOnly = m_saveFileNameNormal2;
+		if (m_taikenFlag) m_saveFileNameOnly = m_saveFileNameTaiken2;
+	}
 
 	CalcuInitParameter();
 }
@@ -126,8 +138,8 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 
 	if (dataKosuu>3)
 	{
-		fread(&m_systemVar.size,sizeof(m_systemVar.size),1,file);
-		fread(&m_systemVar.code,sizeof(char),m_systemVar.size-4,file);
+		fread(&m_systemVar.size, sizeof(m_systemVar.size), 1, file);
+		fread(&m_systemVar.code, sizeof(char), m_systemVar.size - 4, file);
 	}
 
 	if (dataKosuu>4)
@@ -323,7 +335,16 @@ void CCommonSystemFile::CreateInitData(void)
 	m_messageFlag.code = 5;
 	CopyMemory(m_messageFlag.message,"MES FLAG       ",16);
 
-	m_systemVar.size = sizeof(m_systemVar);
+
+	int varType = GetVarType();
+	if (varType == 0)
+	{
+		m_systemVar.size = sizeof(SYSTEMVAR1);//old size
+	}
+	else
+	{
+		m_systemVar.size = sizeof(m_systemVar);
+	}
 	m_systemVar.code = 6;
 	CopyMemory(m_systemVar.message,"SYSTEMVAR      ",16);
 
@@ -384,14 +405,14 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	m_systemdata.minute = st.wMinute;
 	m_systemdata.second = st.wSecond;
 	m_systemdata.milli = st.wMilliseconds;
-	
+
 	m_systemdata.saveCount++;
 
 	LPSTR saveFolder = CMySaveFolder::GetFullFolder();
 
 	char filename[256];
-	wsprintf(filename,"%s\\%s.sav",saveFolder,m_saveFileNameOnly);
-	FILE* file = CMyFile::OpenFullPath(filename,"wb");
+	wsprintf(filename, "%s\\%s.sav", saveFolder, m_saveFileNameOnly);
+	FILE* file = CMyFile::OpenFullPath(filename, "wb");
 
 	if (file == NULL)
 	{
@@ -400,25 +421,33 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 			char ermes[1024];
 			if (CCommonGameVersion::CheckTaikenOrNetVersion() == FALSE)
 			{
-				wsprintf(ermes,"システムファイル:%s\\sysfile.savがsaveできませんでした",saveFolder);
+				wsprintf(ermes, "システムファイル:%s\\sysfile.savがsaveできませんでした", saveFolder);
 			}
 			else
 			{
-				wsprintf(ermes,"システムファイル:%s\\tsysfile.savがsaveできませんでした",saveFolder);
+				wsprintf(ermes, "システムファイル:%s\\tsysfile.savがsaveできませんでした", saveFolder);
 			}
 
-			MessageBox(NULL,ermes,"Error",MB_OK);
+			MessageBox(NULL, ermes, "Error", MB_OK);
 		}
 
 		return FALSE;
 	}
 
-	fwrite(&m_dataHeader,sizeof(m_dataHeader),1,file);
-	fwrite(&m_systemdata,sizeof(m_systemdata),1,file);
+	fwrite(&m_dataHeader, sizeof(m_dataHeader), 1, file);
+	fwrite(&m_systemdata, sizeof(m_systemdata), 1, file);
 
-	fwrite(&m_messageFlag,sizeof(m_messageFlag),1,file);
-	fwrite(&m_systemVar,sizeof(m_systemVar),1,file);
+	fwrite(&m_messageFlag, sizeof(m_messageFlag), 1, file);
 
+	int varType = GetVarType();
+	if (varType == 0)
+	{
+		fwrite(&m_systemVar, sizeof(SYSTEMVAR1), 1, file);
+	}
+	else
+	{
+		fwrite(&m_systemVar, sizeof(m_systemVar), 1, file);
+	}
 	fwrite(&m_cgFlag,sizeof(m_cgFlag),1,file);
 	fwrite(&m_sceneFlag,sizeof(m_sceneFlag),1,file);
 	fwrite(&m_filmFlag,sizeof(m_filmFlag),1,file);
@@ -997,6 +1026,11 @@ BOOL CCommonSystemFile::CreateGUID(BOOL existCheck)
 	memcpy(&m_systemdata.guid[14],&systemtime.wDayOfWeek,2);
 
 	return TRUE;
+}
+
+int CCommonSystemFile::GetVarType(void)
+{
+	return 1;
 }
 
 

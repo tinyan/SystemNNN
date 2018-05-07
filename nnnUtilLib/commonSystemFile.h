@@ -172,8 +172,20 @@ public:
 		int dummy2;
 		char message[16];
 
-		int var[128];
+		int var[1024];
 	} SYSTEMVAR;
+
+	//for old size
+	typedef struct tagSYSTEMVAR1
+	{
+		int size;
+		int code;
+		int dummy;
+		int dummy2;
+		char message[16];
+
+		int var[128];
+	} SYSTEMVAR1;
 
 	typedef struct tagCGFLAG
 	{
@@ -295,6 +307,7 @@ public:
 //	CGDATA m_cgdata[8];
 	MESSAGEREADFLAG m_messageFlag;
 	SYSTEMVAR m_systemVar;
+//	SYSTEMVAR1 m_systemVar1;
 	CGFLAG m_cgFlag;
 	SCENEFLAG m_sceneFlag;
 	FILMFLAG m_filmFlag;
@@ -321,6 +334,8 @@ public:
 	LPSTR m_saveFileNameOnly;
 	static char m_saveFileNameNormal[];
 	static char m_saveFileNameTaiken[];
+	static char m_saveFileNameNormal2[];
+	static char m_saveFileNameTaiken2[];
 
 	static void SetMaxScriptNumber(int n = 64);
 	static void SetMaxCGCharaNumber(int n = 20);
@@ -355,6 +370,7 @@ public:
 	void ClearAllCharaVoiceFlag(void);
 
 
+	int GetVarType(void);
 
 protected:
 	int m_maxScriptNumber;

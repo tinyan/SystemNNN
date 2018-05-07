@@ -149,6 +149,7 @@ CCommonDataFile::CCommonDataFile(CGameCallBack* lpGame, int printX, int printY,C
 	m_selectSizeY = sz.cy;
 
 
+
 //	pt = m_game->GetSaveTimeZahyo();
 	pt = m_dataFileSetup->GetSaveTimeZahyo();
 	m_saveTimePrintX = pt.x;
@@ -565,7 +566,15 @@ BOOL CCommonDataFile::LoadHeaderAndPic(int n)
 	//var
 	if (m_gameTimePrintFlag)
 	{
-		fread(m_lpGameVar,sizeof(GAMEVAR),1,m_file);
+		int varType = m_game->GetVarType();
+		if (varType == 0)
+		{
+			fread(m_lpGameVar, sizeof(GAMEVAR1), 1, m_file);
+		}
+		else
+		{
+			fread(m_lpGameVar, sizeof(GAMEVAR), 1, m_file);
+		}
 	}
 
 
@@ -1407,7 +1416,14 @@ BOOL CCommonDataFile::SaveMiniCG(void)
 
 BOOL CCommonDataFile::SaveVar(void)
 {
-	int sz = sizeof(GAMEVAR);
+	int varType = m_game->GetVarType();
+
+	int sz = sizeof(GAMEVAR1);
+	if (varType != 0)
+	{
+		sz = sizeof(GAMEVAR);
+	}
+
 
 	ZeroMemory(m_commonBuffer2,sz);
 	MakeHeader(m_commonBuffer2,sz,GAMEDATATYPE_VAR,"GAMEVAR");

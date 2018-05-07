@@ -768,7 +768,7 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 //			th -= dv;
 			th /= dv;
 			th *= 3.14159f*2.0;
-			m_windowFunction[i] = (1.0f - cos(th)) * 0.5f;
+			m_windowFunction[i] = (1.0f - (float)cos(th)) * 0.5f;
 		}
 
 		int startHz = 200;
@@ -776,14 +776,14 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 		int endHz = 10000;
 		GetInitGameParam(&endHz,"spectrumEndHz");
 
-		float startLogHz = log((float)startHz);
-		float endLogHz = log((float)endHz);
+		float startLogHz = (float)log((float)startHz);
+		float endLogHz = (float)log((float)endHz);
 
 
 		for (int i=0;i<m_spectrumPrintKosuu;i++)
 		{
 			float logHz = startLogHz + (endLogHz - startLogHz) * ((float)i) / ((float)(m_spectrumPrintKosuu-1));
-			float realHz = exp(logHz);
+			float realHz = (float)exp(logHz);
 
 			int nn = (int)(realHz * ((float)(m_spectrumCalcuPoint/2-1)) / 22050.0f);
 			if (nn<1) nn = 1;
@@ -1991,9 +1991,9 @@ void CCommonListenBGM::PrintSpectrum(void)
 			{
 				float ar = m_ar[nn+p];
 				float ai = m_ai[nn+p];
-				float rr = sqrt(ar*ar + ai*ai);
-				rr = log(rr+0.00001f);
-				rr /= log(10.0f);
+				float rr = (float)sqrt(ar*ar + ai*ai);
+				rr = (float)log(rr+0.00001f);
+				rr /= (float)log(10.0f);
 				rr *= 20.0f;
 				if (rr<-100.0f) rr = -100.0f;
 				rsum += rr;

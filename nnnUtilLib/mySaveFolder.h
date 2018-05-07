@@ -6,6 +6,7 @@
 #define MYFOLDER_TYPE_MYDOCUMENT 1
 #define MYFOLDER_TYPE_PERSONAL 1
 #define MYFOLDER_TYPE_APPDATA 2
+//#define MYFOLDER_TYPE_COMMON_MYDOCUMENT 3
 
 class CMySaveFolder
 {
@@ -14,8 +15,10 @@ public:
 	~CMySaveFolder();
 	void End(void);
 
+
 	static void ChangeMyFolder(LPSTR companyFolder,LPSTR gameFolder,int type = MYFOLDER_TYPE_MYDOCUMENT);
-	
+//	static void ChangeMyFolder(LPSTR companyFolder, LPSTR gameFolder, int type = MYFOLDER_TYPE_COMMON_MYDOCUMENT);
+
 
 	static LPSTR GetUserFolder(void);
 	static LPSTR GetCompanyFolder(void);

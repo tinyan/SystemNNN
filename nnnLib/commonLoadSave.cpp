@@ -73,7 +73,7 @@
 CCommonLoadSave::CCommonLoadSave(CGameCallBack* lpGame,LPSTR modename) : CCommonGeneral(lpGame)
 {
 	m_classNumber = SAVE_MODE;
-	LoadSetupFile(modename,32);
+	LoadSetupFile(modename,1000);
 
 	m_dataFileSetup = m_game->GetDataFileSetup();
 

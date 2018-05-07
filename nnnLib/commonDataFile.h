@@ -229,8 +229,15 @@ public:
 	typedef struct _tagGAMEVAR
 	{
 		GAMEGENERALDATA general;
-		int var[1024];
+//		int var[1024];
+		int var[2224];
 	} GAMEVAR;
+
+	typedef struct _tagGAMEVAR1
+	{
+		GAMEGENERALDATA general;
+		int var[1024];
+	} GAMEVAR1;
 
 
 	typedef struct _tagGAMEEFFECT

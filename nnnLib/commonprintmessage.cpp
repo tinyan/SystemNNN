@@ -77,6 +77,7 @@ char CCommonPrintMessage::m_defaultLprintBGFileName[] = "ta_fullMessageWindow";
 
 
 #define SPECIAL_CR_CODE ( (('‘±' >> 8) & 0xff) | (('‘±' << 8) & 0x0ff00) )
+#define SPECIAL_CR_CODE_1BYTE '-'
 
 
 
@@ -90,7 +91,7 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 	SetClassNumber(PRINTMESSAGE_MODE);
 	int i = 0;
 //	m_classNumber = PRINTMESSAGE_MODE;
-	LoadSetupFile("PrintMessage",32);
+	LoadSetupFile("PrintMessage",1000);
 
 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
@@ -2549,6 +2550,9 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	int tsunagu = 0;
 
 
+	int codeByte = CMyFont::m_codeByte;
+
+
 	int n = 0;
 	while (n < ln)
 	{
@@ -2582,61 +2586,97 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 //		{
 			if (firstAppend == 0)
 			{
-				if (ln1 > 3)
+				BOOL spcheck = FALSE;
+				if (codeByte == 2)
 				{
-					if ((*(mes+n)) == '#')
+					if (ln1 > 3)
 					{
-						short* crPtr = (short*)(mes+n+1);
-
-			//		short s1 = (short)SPECIAL_CR_CODE;
-			//		short s2 = *crPtr;
-			//		int dd1 = (int)s1;
-			//		int dd2 = (int)s2;
-
-						if ((*crPtr) == (short)SPECIAL_CR_CODE)
+						if ((*(mes+n)) == '#')
 						{
-							BOOL spa = FALSE;
+							short* crPtr = (short*)(mes+n+1);
 
-							if (specialAppendMode)
+							if ((*crPtr) == (short)SPECIAL_CR_CODE)
 							{
-								spa = TRUE;
-							}
-							else
-							{
-							//	OutputDebugString("[a]");
-								if ((cmd == CODE_SYSTEMCOMMAND_APPEND) && (m_printMode == CODE_SYSTEMCOMMAND_LPRINT))
-								{
-							//	OutputDebugString("[b]");
-									if (tsunagu == 0)
-									{
-							//	OutputDebugString("[c]");
-
-										for (int i00=0;i00<m_messageKosuu;i00++)
-										{
-											m_messagePrinted[i00] = m_messageLength[i00];
-										}
-
-										if (m_messageKosuu > 0)
-										{
-											m_messageLength[m_messageKosuu-1] = -1;
-
-										}
-
-										if (m_messagePrintedGyo>0) m_messagePrintedGyo--;
-
-										specialAppendMode = 1;
-										spa = TRUE;
-									}
-								}
-							}
-
-							if (spa)
-							{
-								ln1 -= 3;
-								n += 3;
-								tsunagu = 1;
+								spcheck = TRUE;
 							}
 						}
+					}
+				}
+				else if (codeByte == 1)
+				{
+					if (ln1 > 2)
+					{
+						if ((*(mes+n)) == '#')
+						{
+							short* crPtr = (short*)(mes+n+1);
+
+							if (*(mes+n+1) == SPECIAL_CR_CODE_1BYTE)
+							{
+								spcheck = TRUE;
+							}
+						}
+					}
+				}
+
+				
+//				if (ln1 > 3)
+				if (spcheck)
+				{
+//					if ((*(mes+n)) == '#')
+//					{
+//						short* crPtr = (short*)(mes+n+1);
+						//
+						//
+//						if ((*crPtr) == (short)SPECIAL_CR_CODE)
+//						{
+					BOOL spa = FALSE;
+
+					if (specialAppendMode)
+					{
+						spa = TRUE;
+					}
+					else
+					{
+							//	OutputDebugString("[a]");
+						if ((cmd == CODE_SYSTEMCOMMAND_APPEND) && (m_printMode == CODE_SYSTEMCOMMAND_LPRINT))
+						{
+							//	OutputDebugString("[b]");
+							if (tsunagu == 0)
+							{
+							//	OutputDebugString("[c]");
+
+								for (int i00=0;i00<m_messageKosuu;i00++)
+								{
+									m_messagePrinted[i00] = m_messageLength[i00];
+								}
+
+								if (m_messageKosuu > 0)
+								{
+									m_messageLength[m_messageKosuu-1] = -1;
+								}
+
+								if (m_messagePrintedGyo>0) m_messagePrintedGyo--;
+
+								specialAppendMode = 1;
+								spa = TRUE;
+							}
+						}
+					}
+					
+					if (spa)
+					{
+						if (codeByte == 2)
+						{
+							ln1 -= 3;
+							n += 3;
+						}
+						else if (codeByte == 1)
+						{
+							ln1 -= 2;
+							n += 2;
+						}
+
+						tsunagu = 1;
 					}
 				}
 			}

@@ -26,6 +26,8 @@ CCommonUserCommandList::NNNUSERCOMMANDLIST CCommonUserCommandList::m_list[]=
 	{PRINTITEM_MODE,"printitem"},
 	{SHOP_MODE,"shop"},
 	{PRINTSTATUS_MODE,"printstatus"},
+	{PRINTHINT_MODE,"printhint"},
+	{SELECTHINT_MODE,"selecthint" },
 	{LISTENVOICE_MODE,"listenvoice"},
 	{PRINTPARTY_MODE,"printparty"},
 

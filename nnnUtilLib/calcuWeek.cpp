@@ -13,6 +13,7 @@ CCalcuWeek::~CCalcuWeek()
 
 void CCalcuWeek::End(void)
 {
+	//
 }
 
 int CCalcuWeek::CalcuWeek(int date)

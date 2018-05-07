@@ -115,9 +115,12 @@ void CMySaveFolder::ChangeFolderType(int type,BOOL remakeFlag)
 	{
 	    SHGetMalloc( &pMalloc );
 
+
+
 		BOOL flg = FALSE;
 		if (m_folderType == MYFOLDER_TYPE_MYDOCUMENT)
 		{
+			
 		   if( SUCCEEDED(SHGetSpecialFolderLocation(hWnd,CSIDL_PERSONAL,&pidl)))
 		   {
 			   flg = TRUE;
