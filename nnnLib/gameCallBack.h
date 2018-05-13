@@ -836,6 +836,8 @@ public:
 	void SetHintNumber(int n);
 	int GetHintNumber(void);
 
+	BOOL CheckUseDirect2D(void);
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -1806,6 +1808,7 @@ protected:
 	int m_printPlayerStatusFlag;
 	CPrintPlayerStatus* m_printPlayerStatus;
 
+	int m_useDirect2D;
 //private:
 	//dummy
 	int m_nowFrameCount;

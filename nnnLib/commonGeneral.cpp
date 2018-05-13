@@ -117,6 +117,8 @@ CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 	m_gameLayerFirst = 1;
 	m_animeLayerFirst = 1;
 
+	m_fromUserCommand = FALSE;
+
 //	m_kaeshita = 0;
 
 //	m_superBackButtonSetup = NULL;
@@ -2049,6 +2051,12 @@ void CCommonGeneral::SetClassNumber(int n)
 	CPicture::SetModeNumberForDebug(m_classNumber);
 #endif
 }
+
+void CCommonGeneral::SetFromUserCommand(BOOL flag)
+{
+	m_fromUserCommand = flag;
+}
+
 
 /*_*/
 

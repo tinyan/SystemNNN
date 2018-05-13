@@ -126,6 +126,8 @@
 #include "..\..\systemNNN3D\nyanDirectX3DLib\textureCacheControl.h"
 #endif
 
+#include "..\nyanDirectXLib\\\myDirect2D.h"
+
 #include "..\nyanDirectXLib\mmx.h"
 
 
@@ -536,6 +538,8 @@ void CGameCallBack::GeneralCreate(void)
 #endif
 	}
 
+
+
 	m_viewControl = m_mainControl->GetViewControl();
 
 	AddDebugLog("CGame::GeneralCreate2");
@@ -580,6 +584,14 @@ void CGameCallBack::GeneralCreate(void)
 	{
 		CMyLocale::SetLocale(localeString);
 	}
+
+
+
+	m_useDirect2D = 0;
+	GetInitGameParam(&m_useDirect2D, "useDirect2D");
+	CMyDirectDraw::m_direct2DFlag = m_useDirect2D;
+
+
 
 	GetInitGameParam(&m_layerKosuuMax,"layerExpand");
 	m_pictureKosuuMax = m_layerKosuuMax;//“¯‚¶‚Å‚ ‚é•K—v‚ª‚ ‚é
@@ -754,8 +766,11 @@ void CGameCallBack::GeneralCreate(void)
 
 //	CPicture::FillScreen();
 
-	m_layerOffVar = new int[1000];
-	for (int i=0;i<1000;i++)
+
+
+
+	m_layerOffVar = new int[2200];
+	for (int i=0;i<2200;i++)
 	{
 		m_layerOffVar[i] = -1;
 	}
@@ -1704,7 +1719,14 @@ int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 
 //AddErrorLog("createDirectDraw");
 
-m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSizeY,m_bpp,m_systemFile->m_systemdata.fullScreenFlag*0);
+if (CheckUseDirect2D())
+{
+	m_directDraw = new CMyDirect2D(m_hWnd, m_hInstance, realWindowSizeX, realWindowSizeY, m_bpp, m_systemFile->m_systemdata.fullScreenFlag * 0);
+}
+else
+{
+	m_directDraw = new CMyDirectDraw(m_hWnd, m_hInstance, realWindowSizeX, realWindowSizeY, m_bpp, m_systemFile->m_systemdata.fullScreenFlag * 0);
+}
 
 #endif
 
@@ -3749,6 +3771,7 @@ void CGameCallBack::ReceiveUserCommand0(int cmd, int paraKosuu, int* paraPtr)
 			if (general != NULL)
 			{
 				CreateNowExitScreen();
+				general->SetFromUserCommand();
 				general->StartUserCommand(paraKosuu,paraPtr);
 				proceed = TRUE;
 				SetReturnCode(m_defaultUserCommandClass[i]);
@@ -3756,6 +3779,7 @@ void CGameCallBack::ReceiveUserCommand0(int cmd, int paraKosuu, int* paraPtr)
 			}
 		}
 	}
+
 
 
 
@@ -4362,7 +4386,16 @@ LogMessage("ToWindowScreen Start");
 	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
 	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 
-	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE)*0);
+	if (CheckUseDirect2D())
+	{
+
+		m_directDraw = new CMyDirect2D(m_hWnd, m_hInstance, realWindowSizeX, realWindowSizeY, m_bpp, GetSystemParam(NNNPARAM_SCREENMODE) * 0);
+	}
+	else
+	{
+		m_directDraw = new CMyDirectDraw(m_hWnd, m_hInstance, realWindowSizeX, realWindowSizeY, m_bpp, GetSystemParam(NNNPARAM_SCREENMODE) * 0);
+	}
+
 //	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,m_windowSizeX,m_windowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE)*0);
 
 	m_directDraw->SetGDIFullScreen(FALSE);
@@ -4644,7 +4677,14 @@ void CGameCallBack::ToFullScreenRoutine(void)
 #endif
 
 
-	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,realWindowSizeX,realWindowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE) * 0);
+	if (CheckUseDirect2D())
+	{
+		m_directDraw = new CMyDirect2D(m_hWnd, m_hInstance, realWindowSizeX, realWindowSizeY, m_bpp, GetSystemParam(NNNPARAM_SCREENMODE) * 0);
+	}
+	else
+	{
+		m_directDraw = new CMyDirectDraw(m_hWnd, m_hInstance, realWindowSizeX, realWindowSizeY, m_bpp, GetSystemParam(NNNPARAM_SCREENMODE) * 0);
+	}
 //	m_directDraw = new CMyDirectDraw(m_hWnd,m_hInstance,m_windowSizeX,m_windowSizeY,m_bpp,GetSystemParam(NNNPARAM_SCREENMODE) * 0);
 
 
@@ -16038,6 +16078,11 @@ int CGameCallBack::GetHintNumber(void)
 	return m_hintNumber;
 }
 
+
+BOOL CGameCallBack::CheckUseDirect2D(void)
+{
+	return m_useDirect2D != 0;
+}
 
 void CGameCallBack::SetSkipMovie(void){m_newSkipMovieFlag = TRUE;}
 BOOL CGameCallBack::CheckSkipMovie(void){return m_newSkipMovieFlag;}

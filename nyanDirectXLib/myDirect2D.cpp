@@ -1,5 +1,5 @@
 //
-// MyDierectX.cpp
+// MyDierect2D.cpp
 //
 
 //#define INITGUID
@@ -8,12 +8,11 @@
 
 #include "..\nyanlib\include\myfile.h"
 
-#include "myDirect2D.h"
-#include "MyDirectDraw.h"
+#include "MyDirect2D.h"
 
 
 
-
+/*
 int CMyDirectDraw::m_deviceFound = 0;
 int CMyDirectDraw::m_deviceNumber = 0;
 int CMyDirectDraw::m_deviceCount = 0;
@@ -25,14 +24,16 @@ int CMyDirectDraw::m_fillColorB = 0;
 
 int CMyDirectDraw::m_notUseDirectDraw = 0;
 
-bool CMyDirectDraw::m_direct2DFlag = false;
+bool CMyDirectDraw::m_direct2DFlag = true;
+*/
 
+/*
 BOOL WINAPI CMyDirectDraw::DDEnumCallbackEx(
-  GUID FAR* lpGUID, 
-  LPWSTR lpDriverDescription, 
-  LPWSTR lpDriverName, 
-  LPVOID lpContext, 
-  HMONITOR hm
+	GUID FAR* lpGUID,
+	LPWSTR lpDriverDescription,
+	LPWSTR lpDriverName,
+	LPVOID lpContext,
+	HMONITOR hm
 )
 {
 	OutputDebugString("\n\nDriver=");
@@ -51,7 +52,7 @@ BOOL WINAPI CMyDirectDraw::DDEnumCallbackEx(
 	unsigned char* id4 = lpGUID->Data4;
 
 	char mes[1024];
-	wsprintf(mes,"\n %d - %d - %d - %s",(int)id1,(int)id2,(int)id3,id4);
+	wsprintf(mes, "\n %d - %d - %d - %s", (int)id1, (int)id2, (int)id3, id4);
 	OutputDebugString(mes);
 
 	if (hm == NULL) return TRUE;
@@ -76,30 +77,16 @@ BOOL WINAPI CMyDirectDraw::DDEnumCallbackEx(
 }
 
 
+*/
+
+/*
+void ClearBackSurface(void);
+*/
 
 
-//void ClearBackSurface(void);
-
-
-
-CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,int col,BOOL bFullScreen,int deviceNumber)
+CMyDirect2D::CMyDirect2D(HWND hwnd, HINSTANCE hinstance, int sizeX, int sizeY, int col, BOOL bFullScreen, int deviceNumber) : CMyDirectDraw(hwnd,hinstance,sizeX,sizeY,col,bFullScreen,deviceNumber)
 {
-#if defined _TINYAN3DLIB_
-	return;
-#endif
-
-//deviceNumber = 0;
-
-//	m_displayModeChangedFlag = bFullScreen;
-
-
-	if (m_direct2DFlag)
-	{
-		return;
-	}
-
-
-
+/*
 	m_hWnd = hwnd;
 	m_hInstance = hinstance;
 	m_sizeX = sizeX;
@@ -129,18 +116,18 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 
 	if (m_notUseDirectDraw) return;
 
-//	m_directDraw = NULL;
+	//	m_directDraw = NULL;
 
 
 	HRESULT hr;
-//LPDDENUMCALLBACK(
-//DirectDrawEnumerateExA(
+	//LPDDENUMCALLBACK(
+	//DirectDrawEnumerateExA(
 
-//	LPDIRECTDRAW lpDD;
-//	if (DirectDrawCreate(NULL,&lpDD,NULL)  != DD_OK) return;
-//	HRESULT hr = lpDD->QueryInterface(IID_IDirectDraw7,(LPVOID*)&m_lpDirectDraw);
-//	lpDD->Release();
-//	if (hr != DD_OK) return;
+	//	LPDIRECTDRAW lpDD;
+	//	if (DirectDrawCreate(NULL,&lpDD,NULL)  != DD_OK) return;
+	//	HRESULT hr = lpDD->QueryInterface(IID_IDirectDraw7,(LPVOID*)&m_lpDirectDraw);
+	//	lpDD->Release();
+	//	if (hr != DD_OK) return;
 
 
 
@@ -150,24 +137,24 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 
 	if (deviceNumber > 0)
 	{
-		DirectDrawEnumerateEx((LPDDENUMCALLBACKEX)DDEnumCallbackEx,NULL,DDENUM_ATTACHEDSECONDARYDEVICES);
+		DirectDrawEnumerateEx((LPDDENUMCALLBACKEX)DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES);
 	}
 
 
 	if (m_deviceFound > 0)
 	{
-		if (DirectDrawCreateEx(&m_deviceGUID,(void**)&m_lpDirectDraw,IID_IDirectDraw7,NULL) != DD_OK)
+		if (DirectDrawCreateEx(&m_deviceGUID, (void**)&m_lpDirectDraw, IID_IDirectDraw7, NULL) != DD_OK)
 		{
-//MessageBox(NULL,"1","directDraw error",MB_OK);
+			//MessageBox(NULL,"1","directDraw error",MB_OK);
 
 			return;
 		}
 	}
 	else
 	{
-		if (DirectDrawCreateEx(NULL,(void**)&m_lpDirectDraw,IID_IDirectDraw7,NULL) != DD_OK)
+		if (DirectDrawCreateEx(NULL, (void**)&m_lpDirectDraw, IID_IDirectDraw7, NULL) != DD_OK)
 		{
-//MessageBox(NULL,"1","directDraw error",MB_OK);
+			//MessageBox(NULL,"1","directDraw error",MB_OK);
 
 			return;
 		}
@@ -175,14 +162,14 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 
 
 
-//	if (bFullScreen)
+	//	if (bFullScreen)
 	if (0)
 	{
 		if (m_lpDirectDraw->SetCooperativeLevel(hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN) != DD_OK)
 		{
 			return;
 		}
-		if (m_lpDirectDraw->SetDisplayMode(sizeX, sizeY, col,0,0) != DD_OK)
+		if (m_lpDirectDraw->SetDisplayMode(sizeX, sizeY, col, 0, 0) != DD_OK)
 		{
 			return;
 		}
@@ -191,20 +178,20 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 	{
 		if (m_lpDirectDraw->SetCooperativeLevel(hwnd, DDSCL_NORMAL) != DD_OK)
 		{
-//MessageBox(NULL,"2","directDraw error",MB_OK);
+			//MessageBox(NULL,"2","directDraw error",MB_OK);
 			return;
 		}
 	}
 
 
 	DDSURFACEDESC2 ddsd;
-	ZeroMemory(&ddsd,sizeof(ddsd));
-	ddsd.dwSize=sizeof(ddsd);
+	ZeroMemory(&ddsd, sizeof(ddsd));
+	ddsd.dwSize = sizeof(ddsd);
 	if (0)
 	{
-		ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT ;
+		ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
 		ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
-		ddsd.dwBackBufferCount=1;
+		ddsd.dwBackBufferCount = 1;
 		m_displayModeChangedFlag = TRUE;
 	}
 	else
@@ -214,31 +201,31 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 	}
 
 
-//887600e1
+	//887600e1
 
-//	LPDIRECTDRAWSURFACE7 lpSurface;
-//	HRESULT hr99 = m_lpDirectDraw->CreateSurface(&ddsd,&lpSurface,NULL);
-//	if (hr99  != DD_OK) return;
-//	HRESULT hr2 = lpSurface->QueryInterface(IID_IDirectDrawSurface3,(LPVOID*)&m_lpFront);
-//	lpSurface->Release();
-//	if (hr2 != DD_OK) return;
-	HRESULT hr99 = m_lpDirectDraw->CreateSurface(&ddsd,&m_lpFront,NULL);
-	if (hr99  != DD_OK)
+	//	LPDIRECTDRAWSURFACE7 lpSurface;
+	//	HRESULT hr99 = m_lpDirectDraw->CreateSurface(&ddsd,&lpSurface,NULL);
+	//	if (hr99  != DD_OK) return;
+	//	HRESULT hr2 = lpSurface->QueryInterface(IID_IDirectDrawSurface3,(LPVOID*)&m_lpFront);
+	//	lpSurface->Release();
+	//	if (hr2 != DD_OK) return;
+	HRESULT hr99 = m_lpDirectDraw->CreateSurface(&ddsd, &m_lpFront, NULL);
+	if (hr99 != DD_OK)
 	{
-//MessageBox(NULL,"3","directDraw error",MB_OK);
+		//MessageBox(NULL,"3","directDraw error",MB_OK);
 		return;
 	}
 
 
 
-//	if (bFullScreen)
+	//	if (bFullScreen)
 	if (0)
 	{
-		ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_VIDEOMEMORY ;
-		if (m_lpFront->GetAttachedSurface(&(ddsd.ddsCaps),&m_lpBack) != DD_OK)
+		ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_VIDEOMEMORY;
+		if (m_lpFront->GetAttachedSurface(&(ddsd.ddsCaps), &m_lpBack) != DD_OK)
 		{
 			ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
-			if (m_lpFront->GetAttachedSurface(&(ddsd.ddsCaps),&m_lpBack) != DD_OK)
+			if (m_lpFront->GetAttachedSurface(&(ddsd.ddsCaps), &m_lpBack) != DD_OK)
 			{
 				return;
 			}
@@ -250,14 +237,14 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
 		ddsd.dwWidth = sizeX;
 		ddsd.dwHeight = sizeY;
-//		LPDIRECTDRAWSURFACE7 lpBack1;
-//		if (m_lpDirectDraw->CreateSurface(&ddsd,&lpBack1,NULL) != DD_OK) return;
-//		HRESULT hr3 = lpBack1->QueryInterface(IID_IDirectDrawSurface7,(LPVOID*)&m_lpBack);
-//		lpBack1->Release();
-		HRESULT hr3 = m_lpDirectDraw->CreateSurface(&ddsd,&m_lpBack,NULL);
+		//		LPDIRECTDRAWSURFACE7 lpBack1;
+		//		if (m_lpDirectDraw->CreateSurface(&ddsd,&lpBack1,NULL) != DD_OK) return;
+		//		HRESULT hr3 = lpBack1->QueryInterface(IID_IDirectDrawSurface7,(LPVOID*)&m_lpBack);
+		//		lpBack1->Release();
+		HRESULT hr3 = m_lpDirectDraw->CreateSurface(&ddsd, &m_lpBack, NULL);
 		if (hr3 != DD_OK)
 		{
-//MessageBox(NULL,"4","directDraw error",MB_OK);
+			//MessageBox(NULL,"4","directDraw error",MB_OK);
 			return;
 		}
 	}
@@ -270,7 +257,7 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 
 
 
-//	MessageBox(NULL,"1","2",MB_OK);
+	//	MessageBox(NULL,"1","2",MB_OK);
 
 	DDPIXELFORMAT ddpf;
 	ddpf.dwSize = sizeof(ddpf);
@@ -281,8 +268,8 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 	m_maskGreen = ddpf.dwGBitMask;
 	m_maskBlue = ddpf.dwBBitMask;
 
-//	char mes[256];
-//	sprintf_s(mes,256,"[%d %d %d]",m_maskRed,m_maskGreen,m_maskBlue);
+	//	char mes[256];
+	//	sprintf_s(mes,256,"[%d %d %d]",m_maskRed,m_maskGreen,m_maskBlue);
 
 	m_bitCount = ddpf.dwRGBBitCount;
 	//OutputDebugString(mes);
@@ -309,40 +296,40 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 	}
 
 
-//if (m_565Flag) MessageBox(NULL,"565","16bit",MB_OK);
-//if (m_555Flag) MessageBox(NULL,"555","16bit",MB_OK);
+	//if (m_565Flag) MessageBox(NULL,"565","16bit",MB_OK);
+	//if (m_555Flag) MessageBox(NULL,"555","16bit",MB_OK);
 
 	m_initFlag = TRUE;
 
 	if (1)
 	{
-		hr = m_lpDirectDraw->CreateClipper(0,&m_lpClip,NULL);
+		hr = m_lpDirectDraw->CreateClipper(0, &m_lpClip, NULL);
 		if (hr != 0)
 		{
-//			char mes[256];
-//			sprintf(mes,"[create clipper error:%X]",hr);
-//			ErrorLog(mes);
+			//			char mes[256];
+			//			sprintf(mes,"[create clipper error:%X]",hr);
+			//			ErrorLog(mes);
 		}
 
-//		m_lpClip->Initialize();
+		//		m_lpClip->Initialize();
 
 		if (m_lpClip != NULL)
 		{
 			//m_lpClip->Initialize();
-			hr = m_lpClip->SetHWnd(0,m_hWnd);
+			hr = m_lpClip->SetHWnd(0, m_hWnd);
 			if (hr != 0)
 			{
-//				char mes[256];
-//				sprintf(mes,"[clipper::sethwnd error:%X]",hr);
-//				ErrorLog(mes);
+				//				char mes[256];
+				//				sprintf(mes,"[clipper::sethwnd error:%X]",hr);
+				//				ErrorLog(mes);
 			}
 
 			hr = m_lpFront->SetClipper(m_lpClip);
 			if (hr != 0)
 			{
-//				char mes[256];
-//				sprintf(mes,"[clipper::setclipper error:%X]",hr);
-//				ErrorLog(mes);
+				//				char mes[256];
+				//				sprintf(mes,"[clipper::setclipper error:%X]",hr);
+				//				ErrorLog(mes);
 			}
 		}
 	}
@@ -353,52 +340,35 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 
 
 
-	WindowIsMoved(0,0);
+	WindowIsMoved(0, 0);
+	*/
+
 }
 
 
 
-CMyDirectDraw::~CMyDirectDraw()
+CMyDirect2D::~CMyDirect2D()
 {
-
-
-	if (m_notUseDirectDraw) return;
-
-#if defined _TINYAN3DLIB_
-	return;
-#endif
-
 	End();
 }
 
 
-void CMyDirectDraw::End(void)
+void CMyDirect2D::End(void)
 {
-	if (m_direct2DFlag)
-	{
-		return;
-	}
-
-	if (m_notUseDirectDraw) return;
-
-#if defined _TINYAN3DLIB_
-	return;
-#endif
-
-
+	/*
 	Sleep(100);
 
 	if (m_lpClip != NULL)
 	{
-//ErrorLog("1");
-//		m_lpClip->SetHWnd(0,NULL);
+		//ErrorLog("1");
+		//		m_lpClip->SetHWnd(0,NULL);
 		m_lpClip->Release();
 		m_lpClip = NULL;
 	}
 
 	if (!m_fullScreenFlag)
 	{
-//ErrorLog("2");
+		//ErrorLog("2");
 		if (m_lpBack != NULL)
 		{
 			m_lpBack->Release();
@@ -409,7 +379,7 @@ void CMyDirectDraw::End(void)
 
 	if (m_lpFront != NULL)
 	{
-//ErrorLog("3");
+		//ErrorLog("3");
 
 		m_lpFront->Release();
 		m_lpFront = NULL;
@@ -417,53 +387,41 @@ void CMyDirectDraw::End(void)
 
 	if (m_lpDirectDraw != NULL)
 	{
-//ErrorLog("4");
+		//ErrorLog("4");
 
 		if (m_displayModeChangedFlag)
 		{
-//ErrorLog("5");
+			//ErrorLog("5");
 
 			m_lpDirectDraw->RestoreDisplayMode();
 		}
-//ErrorLog("6");
+		//ErrorLog("6");
 
 		m_lpDirectDraw->SetCooperativeLevel(NULL, DDSCL_NORMAL);
-	//もとのモードにもどす
-//ErrorLog("7");
+		//もとのモードにもどす
+		//ErrorLog("7");
 
 		Sleep(100);
 		m_lpDirectDraw->Release();
 		m_lpDirectDraw = NULL;
-//ErrorLog("8");
+		//ErrorLog("8");
 
 	}
+	*/
 }
 
 
-BOOL CMyDirectDraw::CheckInitOk(void)
+BOOL CMyDirect2D::CheckInitOk(void)
 {
-
-
-	if (m_notUseDirectDraw) return TRUE;
-
-#if defined _TINYAN3DLIB_
-	return TRUE;
-#endif
-
 	return m_initFlag;
 }
 
-BOOL CMyDirectDraw::Restore(BOOL flg)
+BOOL CMyDirect2D::Restore(BOOL flg)
 {
-
-
-
-
-	if (m_notUseDirectDraw) return TRUE;
-
-#if defined _TINYAN3DLIB_
+	//@@@
 	return TRUE;
-#endif
+
+
 
 	BOOL b = FALSE;
 
@@ -473,7 +431,7 @@ BOOL CMyDirectDraw::Restore(BOOL flg)
 
 		if (m_lpFront != NULL)
 		{
-			hr =m_lpFront->IsLost();
+			hr = m_lpFront->IsLost();
 			if (hr == DDERR_SURFACELOST)
 			{
 				m_lpFront->Restore();
@@ -483,7 +441,7 @@ BOOL CMyDirectDraw::Restore(BOOL flg)
 
 		if (m_lpBack != NULL)
 		{
-			hr =m_lpBack->IsLost();
+			hr = m_lpBack->IsLost();
 			if (hr == DDERR_SURFACELOST)
 			{
 				m_lpBack->Restore();
@@ -497,16 +455,11 @@ BOOL CMyDirectDraw::Restore(BOOL flg)
 }
 
 
-HRESULT CMyDirectDraw::Activate(BOOL bActive)
+HRESULT CMyDirect2D::Activate(BOOL bActive)
 {
+	//@@@
+	return 0;
 
-
-
-	if (m_notUseDirectDraw) return FALSE;
-
-#if defined _TINYAN3DLIB_
-	return FALSE;
-#endif
 
 	BOOL b = FALSE;
 
@@ -517,10 +470,10 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 
 		if (m_lpFront != NULL)
 		{
-			hr =m_lpFront->IsLost();
+			hr = m_lpFront->IsLost();
 			if (hr == DDERR_SURFACELOST)
 			{
-//				MessageBox(NULL,"1","2",MB_OK);
+				//				MessageBox(NULL,"1","2",MB_OK);
 				m_lpFront->Restore();
 				b = TRUE;
 			}
@@ -528,7 +481,7 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 
 		if (m_lpBack != NULL)
 		{
-			hr =m_lpBack->IsLost();
+			hr = m_lpBack->IsLost();
 			if (hr == DDERR_SURFACELOST)
 			{
 				m_lpBack->Restore();
@@ -545,15 +498,10 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 
 
 
-HRESULT CMyDirectDraw::Lock(void)
+HRESULT CMyDirect2D::Lock(void)
 {
-
-
-	if (m_notUseDirectDraw) return FALSE;
-
-#if defined _TINYAN3DLIB_
-	return DD_OK;
-#endif
+	//@@@
+	return 0;
 
 	if (m_fullScreenFlag)
 	{
@@ -564,47 +512,44 @@ HRESULT CMyDirectDraw::Lock(void)
 		if (m_lpBack == NULL) return FALSE;
 	}
 
-//	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
-//	if (m_lpBack->IsLost() == DDERR_SURFACELOST) return FALSE;
+	//	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
+	//	if (m_lpBack->IsLost() == DDERR_SURFACELOST) return FALSE;
 
 	DDSURFACEDESC2 ddsd;
-	ZeroMemory(&ddsd,sizeof(ddsd));
-	ddsd.dwSize=sizeof(ddsd);
+	ZeroMemory(&ddsd, sizeof(ddsd));
+	ddsd.dwSize = sizeof(ddsd);
 
 	HRESULT ddrval;
-	
+
 	if (m_fullScreenFlag)
 	{
-//		ddrval = m_lpBack->Lock(NULL,&ddsd,DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT | DDLOCK_WRITEONLY,NULL);
-		ddrval = m_lpBack->Lock(NULL,&ddsd,DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT ,NULL);
+		//		ddrval = m_lpBack->Lock(NULL,&ddsd,DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT | DDLOCK_WRITEONLY,NULL);
+		ddrval = m_lpBack->Lock(NULL, &ddsd, DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, NULL);
 	}
 	else
 	{
-//		ddrval = m_lpBack->Lock(NULL,&ddsd,DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT | DDLOCK_WRITEONLY,NULL);
-		ddrval = m_lpBack->Lock(NULL,&ddsd,DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT ,NULL);
+		//		ddrval = m_lpBack->Lock(NULL,&ddsd,DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT | DDLOCK_WRITEONLY,NULL);
+		ddrval = m_lpBack->Lock(NULL, &ddsd, DDLOCK_NOSYSLOCK | DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, NULL);
 	}
 
 	if (ddrval == DD_OK)
 	{
 		m_lPitch = (int)ddsd.lPitch;
 		m_addr = ddsd.lpSurface;
-		m_lockedFlag=TRUE;
+		m_lockedFlag = TRUE;
 		return TRUE;
 	}
 
-	m_lockedFlag=FALSE;
+	m_lockedFlag = FALSE;
 	return FALSE;
 }
 
-HRESULT CMyDirectDraw::Unlock(void)
+HRESULT CMyDirect2D::Unlock(void)
 {
+	//@@@
+	return 0;
 
 
-	if (m_notUseDirectDraw) return DD_OK;
-
-#if defined _TINYAN3DLIB_
-	return DD_OK;
-#endif
 
 	if (m_fullScreenFlag)
 	{
@@ -615,8 +560,8 @@ HRESULT CMyDirectDraw::Unlock(void)
 		if (m_lpBack == NULL) return FALSE;
 	}
 
-//	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
-//	if (m_lpBack->IsLost() == DDERR_SURFACELOST) return FALSE;
+	//	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
+	//	if (m_lpBack->IsLost() == DDERR_SURFACELOST) return FALSE;
 
 	HRESULT ddrval;
 	if (m_fullScreenFlag)
@@ -629,24 +574,21 @@ HRESULT CMyDirectDraw::Unlock(void)
 	}
 
 	if (ddrval != DD_OK) return FALSE;
-	m_lockedFlag=FALSE;
+	m_lockedFlag = FALSE;
 	return TRUE;
 }
 
-HRESULT CMyDirectDraw::NiseFlip(int x,int y, int sizeX, int sizeY,BOOL waitVSync)
+HRESULT CMyDirect2D::NiseFlip(int x, int y, int sizeX, int sizeY, BOOL waitVSync)
 {
+	//@@@
+	return 0;
 
 
 
 
-	if (m_notUseDirectDraw) return DD_OK;
-
-#if defined _TINYAN3DLIB_
-	return DD_OK;
-#endif
 
 	if (m_lpFront == NULL) return FALSE;
-//	if (m_fullScreenFlag) return FALSE;
+	//	if (m_fullScreenFlag) return FALSE;
 	if (m_lpBack == NULL) return FALSE;
 
 
@@ -691,8 +633,8 @@ HRESULT CMyDirectDraw::NiseFlip(int x,int y, int sizeX, int sizeY,BOOL waitVSync
 		}
 	}
 
-	int dstEndX = dstStartX + sizeX ;
-	int dstEndY = dstStartY + sizeY ;
+	int dstEndX = dstStartX + sizeX;
+	int dstEndY = dstStartY + sizeY;
 
 
 	if (m_fullScreenFlag)
@@ -726,13 +668,13 @@ HRESULT CMyDirectDraw::NiseFlip(int x,int y, int sizeX, int sizeY,BOOL waitVSync
 	{
 		if (dstStartX<m_windowStartX)
 		{
-			srcStartX += (m_windowStartX-dstStartX);
+			srcStartX += (m_windowStartX - dstStartX);
 			dstStartX = m_windowStartX;
 		}
 
 		if (dstStartY<m_windowStartY)
 		{
-			srcStartY += (m_windowStartY-dstStartY);
+			srcStartY += (m_windowStartY - dstStartY);
 			dstStartY = m_windowStartY;
 		}
 
@@ -759,36 +701,34 @@ HRESULT CMyDirectDraw::NiseFlip(int x,int y, int sizeX, int sizeY,BOOL waitVSync
 		return FALSE;
 	}
 
-	SetRect(&srcRect,srcStartX,srcStartY,srcEndX,srcEndY);
-	SetRect(&dstRect,dstStartX,dstStartY,dstEndX,dstEndY);
+	SetRect(&srcRect, srcStartX, srcStartY, srcEndX, srcEndY);
+	SetRect(&dstRect, dstStartX, dstStartY, dstEndX, dstEndY);
 
 
 
 
 	if (waitVSync)
 	{
-		m_lpDirectDraw->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN ,NULL);
+		m_lpDirectDraw->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
 	}
 
-	HRESULT hr = m_lpFront->Blt(&dstRect,m_lpBack,&srcRect,flg,NULL);
+	HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
 
 
 	return TRUE;
 }
 
-HRESULT CMyDirectDraw::NiseFlip2(RECT dstRect,RECT srcRect,BOOL waitVSync)
+/*
+HRESULT CMyDirectDraw::NiseFlip2(RECT dstRect, RECT srcRect, BOOL waitVSync)
 {
-	return NiseFlip2(dstRect.left,dstRect.top,dstRect.right,dstRect.bottom,srcRect.left,srcRect.top,srcRect.right,srcRect.bottom,waitVSync);
+	return NiseFlip2(dstRect.left, dstRect.top, dstRect.right, dstRect.bottom, srcRect.left, srcRect.top, srcRect.right, srcRect.bottom, waitVSync);
 }
+*/
 
-HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,int srcX,int srcY,int srcSizeX,int srcSizeY,BOOL waitVSync)
+HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, int srcX, int srcY, int srcSizeX, int srcSizeY, BOOL waitVSync)
 {
-
-	if (m_notUseDirectDraw) return DD_OK;
-
-#if defined _TINYAN3DLIB_
-	return DD_OK;
-#endif
+	//@@@
+	return 0;
 
 	if (m_lpFront == NULL) return FALSE;
 	if (m_lpBack == NULL) return FALSE;
@@ -836,8 +776,8 @@ HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,i
 		}
 	}
 
-	int dstEndX = dstStartX + dstSizeX ;
-	int dstEndY = dstStartY + dstSizeY ;
+	int dstEndX = dstStartX + dstSizeX;
+	int dstEndY = dstStartY + dstSizeY;
 
 	int srcMultiX = srcSizeX;
 	int dstMultiX = dstSizeX;
@@ -875,13 +815,13 @@ HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,i
 	{
 		if (dstStartX<m_windowStartX)
 		{
-			srcStartX += ((m_windowStartX-dstStartX) * srcMultiX) / dstMultiX;
+			srcStartX += ((m_windowStartX - dstStartX) * srcMultiX) / dstMultiX;
 			dstStartX = m_windowStartX;
 		}
 
 		if (dstStartY<m_windowStartY)
 		{
-			srcStartY += ((m_windowStartY-dstStartY) * srcMultiY) / dstMultiY;
+			srcStartY += ((m_windowStartY - dstStartY) * srcMultiY) / dstMultiY;
 			dstStartY = m_windowStartY;
 		}
 
@@ -908,32 +848,29 @@ HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,i
 		return FALSE;
 	}
 
-	SetRect(&srcRect,srcStartX,srcStartY,srcEndX,srcEndY);
-	SetRect(&dstRect,dstStartX,dstStartY,dstEndX,dstEndY);
+	SetRect(&srcRect, srcStartX, srcStartY, srcEndX, srcEndY);
+	SetRect(&dstRect, dstStartX, dstStartY, dstEndX, dstEndY);
 
 
 
 
 	if (waitVSync)
 	{
-		m_lpDirectDraw->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN ,NULL);
+		m_lpDirectDraw->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
 	}
 
-	HRESULT hr = m_lpFront->Blt(&dstRect,m_lpBack,&srcRect,flg,NULL);
+	HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
 
 
 	return TRUE;
 }
 
 
-HRESULT CMyDirectDraw::Flip(void)
+HRESULT CMyDirect2D::Flip(void)
 {
+	//@@@
+	return 0;
 
-	if (m_notUseDirectDraw) return DD_OK;
-
-#if defined _TINYAN3DLIB_
-	return DD_OK;
-#endif
 
 	if (m_lpFront == NULL) return FALSE;
 
@@ -945,12 +882,12 @@ HRESULT CMyDirectDraw::Flip(void)
 
 	if (m_fullScreenFlag)
 	{
-//		HRESULT ddrval = m_lpFront->Flip(NULL,DDFLIP_WAIT);
+		//		HRESULT ddrval = m_lpFront->Flip(NULL,DDFLIP_WAIT);
 		RECT srcRect;
 		RECT dstRect;
-		SetRect(&srcRect,0,0,m_sizeX,m_sizeY);
-		SetRect(&dstRect,0,0,m_sizeX,m_sizeY);
-		HRESULT ddrval = m_lpFront->Blt(&dstRect,m_lpBack,&srcRect,flg,NULL);
+		SetRect(&srcRect, 0, 0, m_sizeX, m_sizeY);
+		SetRect(&dstRect, 0, 0, m_sizeX, m_sizeY);
+		HRESULT ddrval = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
 
 		if (ddrval == DD_OK)
 		{
@@ -980,11 +917,11 @@ HRESULT CMyDirectDraw::Flip(void)
 		int dstEndX = dstStartX + m_sizeX;
 		int dstEndY = dstStartY + m_sizeY;
 
-		int x0,x1,x2,x3;
-		x0=dstStartX;
-		x1=m_printX;
-		x2=m_edgeX;
-		x3=dstEndX;
+		int x0, x1, x2, x3;
+		x0 = dstStartX;
+		x1 = m_printX;
+		x2 = m_edgeX;
+		x3 = dstEndX;
 
 		if (dstStartX<0)
 		{
@@ -1018,18 +955,18 @@ HRESULT CMyDirectDraw::Flip(void)
 		{
 			return FALSE;
 		}
-	
-		SetRect(&srcRect,srcStartX,srcStartY,srcEndX,srcEndY);
-		SetRect(&dstRect,dstStartX,dstStartY,dstEndX,dstEndY);
+
+		SetRect(&srcRect, srcStartX, srcStartY, srcEndX, srcEndY);
+		SetRect(&dstRect, dstStartX, dstStartY, dstEndX, dstEndY);
 
 
 
-//		SetRect(&srcRect,0,0,m_sizeX,m_sizeY);
-//		int sx = m_printX+m_edgeX;
-//		int sy = m_printY+m_edgeY+m_menuBarY;
-//		SetRect(&dstRect,sx,sy,sx+m_dispX,sy+m_dispY);
+		//		SetRect(&srcRect,0,0,m_sizeX,m_sizeY);
+		//		int sx = m_printX+m_edgeX;
+		//		int sy = m_printY+m_edgeY+m_menuBarY;
+		//		SetRect(&dstRect,sx,sy,sx+m_dispX,sy+m_dispY);
 
-//		SetRect(&dstRect,sx,sy,sx+m_sizeX,sy+m_sizeY);
+		//		SetRect(&dstRect,sx,sy,sx+m_sizeX,sy+m_sizeY);
 
 		//clip in screen
 
@@ -1039,17 +976,17 @@ HRESULT CMyDirectDraw::Flip(void)
 
 
 
-		HRESULT hr = m_lpFront->Blt(&dstRect,m_lpBack,&srcRect,flg,NULL);
-//		HRESULT hr = m_lpFront->BltFast(sx,sy,m_lpBack,&srcRect,0);
+		HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
+		//		HRESULT hr = m_lpFront->BltFast(sx,sy,m_lpBack,&srcRect,0);
 
-//		HDC src,dst;
-//		m_lpBack->GetDC(&src);
-//		m_lpFront->GetDC(&dst);
+		//		HDC src,dst;
+		//		m_lpBack->GetDC(&src);
+		//		m_lpFront->GetDC(&dst);
 
-//		BitBlt(dst,0,0,m_sizeX,m_sizeY,src,0,0,SRCCOPY);
+		//		BitBlt(dst,0,0,m_sizeX,m_sizeY,src,0,0,SRCCOPY);
 
-//		m_lpBack->ReleaseDC(src);
-//		m_lpFront->ReleaseDC(dst);
+		//		m_lpBack->ReleaseDC(src);
+		//		m_lpFront->ReleaseDC(dst);
 
 
 
@@ -1064,14 +1001,10 @@ HRESULT CMyDirectDraw::Flip(void)
 }
 
 
-LPVOID CMyDirectDraw::GetSurfaceAddr(void)
+LPVOID CMyDirect2D::GetSurfaceAddr(void)
 {
-
-	if (m_notUseDirectDraw) return NULL;
-
-#if defined _TINYAN3DLIB_
+	//@@@
 	return NULL;
-#endif
 
 	if (!m_lockedFlag)
 	{
@@ -1082,13 +1015,10 @@ LPVOID CMyDirectDraw::GetSurfaceAddr(void)
 }
 
 
-int CMyDirectDraw::GetLPitch(void)
+int CMyDirect2D::GetLPitch(void)
 {
-
-
-#if defined _TINYAN3DLIB_
+	//@@@
 	return 0;
-#endif
 
 	if (!m_lockedFlag)
 	{
@@ -1097,20 +1027,14 @@ int CMyDirectDraw::GetLPitch(void)
 	return m_lPitch;
 }
 
-int CMyDirectDraw::GetTopBit(int d)
+/*
+int CMyDirect2D::GetTopBit(int d)
 {
-
-
-
-#if defined _TINYAN3DLIB_
-	return 0;
-#endif
-
-	int n=0;
+	int n = 0;
 	unsigned int dd = (unsigned int)d;
-	for (int i=0;i<32;i++)
+	for (int i = 0; i<32; i++)
 	{
-		if ((dd & 0x80000000)==0)
+		if ((dd & 0x80000000) == 0)
 		{
 			dd <<= 1;
 			n++;
@@ -1118,22 +1042,18 @@ int CMyDirectDraw::GetTopBit(int d)
 	}
 	return(n);
 }
+*/
 
-BOOL CMyDirectDraw::OnActivate(BOOL bActive)
+BOOL CMyDirect2D::OnActivate(BOOL bActive)
 {
-
-
-	if (m_notUseDirectDraw) return TRUE;
-
-#if defined _TINYAN3DLIB_
-	return TRUE;
-#endif
+	//@@@
+	return FALSE;
 
 	if (m_lpDirectDraw == NULL) return FALSE;
 	if (m_fullScreenFlag)
 	{
 		if (m_lpDirectDraw->SetCooperativeLevel(m_hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN) != DD_OK) return FALSE;
-		if (m_lpDirectDraw->SetDisplayMode(m_sizeX, m_sizeY, m_col,0,0) != DD_OK) return FALSE;
+		if (m_lpDirectDraw->SetDisplayMode(m_sizeX, m_sizeY, m_col, 0, 0) != DD_OK) return FALSE;
 	}
 	else
 	{
@@ -1161,24 +1081,20 @@ BOOL CMyDirectDraw::OnActivate(BOOL bActive)
 }
 
 
-BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
+BOOL CMyDirect2D::WindowIsMoved(int x, int y)
 {
+	return FALSE;
 
-	if (m_notUseDirectDraw) return TRUE;
-
-#if defined _TINYAN3DLIB_
-	return TRUE;
-#endif
 
 	if (m_fullScreenFlag) return FALSE;
 
 
-	m_edgeX = GetSystemMetrics(SM_CXFIXEDFRAME );
-	m_edgeY = GetSystemMetrics(SM_CYFIXEDFRAME );
+	m_edgeX = GetSystemMetrics(SM_CXFIXEDFRAME);
+	m_edgeY = GetSystemMetrics(SM_CYFIXEDFRAME);
 
 
-	long style = GetWindowLong(m_hWnd,GWL_STYLE);
-//	if (style & WS_OVERLAPPED)
+	long style = GetWindowLong(m_hWnd, GWL_STYLE);
+	//	if (style & WS_OVERLAPPED)
 	if (style & WS_CAPTION)
 	{
 		m_menuBarY = GetSystemMetrics(SM_CYCAPTION);
@@ -1196,7 +1112,7 @@ BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
 
 
 	RECT rc;
-	GetWindowRect(m_hWnd,&rc);
+	GetWindowRect(m_hWnd, &rc);
 
 	m_printX = x;
 	m_printY = y;
@@ -1209,14 +1125,11 @@ BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
 	return TRUE;
 }
 
-HDC CMyDirectDraw::GetMyDC(void)
+HDC CMyDirect2D::GetMyDC(void)
 {
-
-	if (m_notUseDirectDraw) return NULL;
-
-#if defined _TINYAN3DLIB_
+	//@@@
 	return NULL;
-#endif
+
 
 	HDC hdc = NULL;
 	if (m_fullScreenFlag)
@@ -1231,15 +1144,11 @@ HDC CMyDirectDraw::GetMyDC(void)
 
 }
 
-void CMyDirectDraw::ReleaseMyDC(HDC hdc)
+void CMyDirect2D::ReleaseMyDC(HDC hdc)
 {
-
-
-	if (m_notUseDirectDraw) return;
-
-#if defined _TINYAN3DLIB_
+	//@@@
 	return;
-#endif
+
 
 	if (hdc == NULL) return;
 	if (m_fullScreenFlag)
@@ -1253,95 +1162,32 @@ void CMyDirectDraw::ReleaseMyDC(HDC hdc)
 }
 
 
-void CMyDirectDraw::SetWindowSize(int x, int y)
-{
 
 
-//	if (m_notUseDirectDraw) return;
 
-#if defined _TINYAN3DLIB_
-	return;
-#endif
-
-	m_windowSizeX = x;
-	m_windowSizeY = y;
-}
-
-void CMyDirectDraw::SetWindowStart(POINT pt)
-{
-
-
-//	if (m_notUseDirectDraw) return TRUE;
-
-#if defined _TINYAN3DLIB_
-	return;
-#endif
-	m_windowStartX = pt.x;
-	m_windowStartY = pt.y;
-}
-
-void CMyDirectDraw::SetWindowEnd(POINT pt)
-{
-
-
-#if defined _TINYAN3DLIB_
-	return;
-#endif
-	m_windowEndX = pt.x;
-	m_windowEndY = pt.y;
-}
-
-BOOL CMyDirectDraw::Check565Mode(void)
-{
-
-#if defined _TINYAN3DLIB_
-	return FALSE;
-#endif
-
-	if (m_565Flag) return TRUE;
-	if (m_555Flag) return FALSE;
-
-	return TRUE;	//???
-}
-
-
-BOOL CMyDirectDraw::CheckRGB24Mode(void)
-{
-#if defined _TINYAN3DLIB_
-	return FALSE;
-#endif
-
-	return m_RGB24Flag;
-}
-
-BOOL CMyDirectDraw::CheckRGB32Mode(void)
-{
-
-#if defined _TINYAN3DLIB_
-	return TRUE;
-#endif
-
-	return m_RGB32Flag;
-}
-
-
+/*
 void CMyDirectDraw::ErrorLog(LPSTR mes)
 {
 #if defined _TINYAN3DLIB_
 	return;
 #endif
 
-	FILE* file = CMyFile::Open("dxerrorlog.txt","ab");
+	FILE* file = CMyFile::Open("dxerrorlog.txt", "ab");
 	if (file != NULL)
 	{
-		fwrite(mes,sizeof(char),strlen(mes),file);
-		fwrite("\x00d\x00a",sizeof(char),2,file);
+		fwrite(mes, sizeof(char), strlen(mes), file);
+		fwrite("\x00d\x00a", sizeof(char), 2, file);
 		fclose(file);
 	}
 }
+*/
 
-void CMyDirectDraw::ClearBackSurface(void)
+void CMyDirect2D::ClearBackSurface(void)
 {
+	//@@@
+	return;
+
+
 	if (m_lpBack == NULL) return;
 
 	if (Lock())
@@ -1389,18 +1235,18 @@ void CMyDirectDraw::ClearBackSurface(void)
 		}
 
 		unsigned char* ptr0 = ptr;
-		for (int j=0;j<m_sizeY;j++)
+		for (int j = 0; j<m_sizeY; j++)
 		{
 			ptr = ptr0;
 
-		//	memset(ptr,0x55,sizeX);
+			//	memset(ptr,0x55,sizeX);
 			if (type == 0)
 			{
-				ZeroMemory(ptr,sizeX);
+				ZeroMemory(ptr, sizeX);
 			}
 			else if (type == 2)
 			{
-				for (int i=0;i<m_sizeX;i++)
+				for (int i = 0; i<m_sizeX; i++)
 				{
 					*ptr = col0;
 					ptr++;
@@ -1410,7 +1256,7 @@ void CMyDirectDraw::ClearBackSurface(void)
 			}
 			else if (type == 3)
 			{
-				for (int i=0;i<m_sizeX;i++)
+				for (int i = 0; i<m_sizeX; i++)
 				{
 					*ptr = col0;
 					ptr++;
@@ -1422,7 +1268,7 @@ void CMyDirectDraw::ClearBackSurface(void)
 			}
 			else if (type == 4)
 			{
-				for (int i=0;i<m_sizeX;i++)
+				for (int i = 0; i<m_sizeX; i++)
 				{
 					*ptr = col0;
 					ptr++;
@@ -1442,13 +1288,8 @@ void CMyDirectDraw::ClearBackSurface(void)
 	}
 }
 
-void CMyDirectDraw::SetOutColor(int r,int g,int b)
-{
 
-	m_fillColorR = r;
-	m_fillColorG = g;
-	m_fillColorB = b;
-}
+
 
 
 /*_*/

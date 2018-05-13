@@ -8,37 +8,38 @@
 #include <ddraw.h>
 
 
+
 class CMyDirectDraw
 {
 public:
 	CMyDirectDraw(HWND hwnd,HINSTANCE hinstance,int sizeX,int sizeY,int col,BOOL bFullScreen = TRUE,int deviceNumber = 0);
-	~CMyDirectDraw();
-	void End(void);
-	BOOL CheckInitOk(void);
-	HRESULT Lock(void);
-	HRESULT Unlock(void);
-	HRESULT Flip(void);
-	HRESULT NiseFlip(int x, int y, int sizeX,int sizeY,BOOL waitVSync = FALSE);
-	HRESULT NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,int srcX,int srcY,int srcSizeX,int srcSizeY,BOOL waitVSync = FALSE);
-	HRESULT NiseFlip2(RECT dstRect,RECT srcRect,BOOL waitVSync = FALSE);
+	virtual ~CMyDirectDraw();
+	virtual void End(void);
+	virtual BOOL CheckInitOk(void);
+	virtual HRESULT Lock(void);
+	virtual HRESULT Unlock(void);
+	virtual HRESULT Flip(void);
+	virtual HRESULT NiseFlip(int x, int y, int sizeX,int sizeY,BOOL waitVSync = FALSE);
+	virtual HRESULT NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,int srcX,int srcY,int srcSizeX,int srcSizeY,BOOL waitVSync = FALSE);
+	virtual HRESULT NiseFlip2(RECT dstRect,RECT srcRect,BOOL waitVSync = FALSE);
 
-	LPVOID GetSurfaceAddr(void);
-	int GetLPitch(void);
-	BOOL OnActivate(BOOL bActive);
-	BOOL WindowIsMoved(int x, int y);
+	virtual LPVOID GetSurfaceAddr(void);
+	virtual int GetLPitch(void);
+	virtual BOOL OnActivate(BOOL bActive);
+	virtual BOOL WindowIsMoved(int x, int y);
 
-	HDC GetMyDC();
-	void ReleaseMyDC(HDC hdc);
-	HRESULT Activate(BOOL bActive = TRUE);
+	virtual HDC GetMyDC();
+	virtual void ReleaseMyDC(HDC hdc);
+	virtual HRESULT Activate(BOOL bActive = TRUE);
 
-	void SetWindowSize(int x, int y);
+	virtual void SetWindowSize(int x, int y);
 
-	void SetWindowStart(POINT pt);
-	void SetWindowEnd(POINT pt);
+	virtual void SetWindowStart(POINT pt);
+	virtual void SetWindowEnd(POINT pt);
 
-	BOOL Check565Mode(void);
-	BOOL CheckRGB24Mode(void);
-	BOOL CheckRGB32Mode(void);
+	virtual BOOL Check565Mode(void);
+	virtual BOOL CheckRGB24Mode(void);
+	virtual BOOL CheckRGB32Mode(void);
 
 	void SetGDIFullScreen(BOOL flg = TRUE){m_gdiFullScreenFlag = flg;}
 
@@ -57,16 +58,16 @@ public:
 	static int m_deviceCount;
 	static GUID m_deviceGUID;
 
-	BOOL Restore(BOOL flg = TRUE);
+	virtual BOOL Restore(BOOL flg = TRUE);
 
 	static int m_notUseDirectDraw;
 	static void SetOutColor(int r,int g,int b);
 
 	static bool m_direct2DFlag;
 
-private:
+protected:
 
-	int GetTopBit(int dt);
+	virtual int GetTopBit(int dt);
 
 	int m_sizeX;
 	int m_sizeY;
@@ -125,8 +126,12 @@ private:
 	static int m_fillColorG;
 	static int m_fillColorB;
 
-	void ErrorLog(LPSTR mes);
-	void ClearBackSurface(void);
+	virtual void ErrorLog(LPSTR mes);
+	virtual void ClearBackSurface(void);
+
+
+//	CMyDirect2D* m_direct2D;
+
 
 };
 

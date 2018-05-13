@@ -61,6 +61,8 @@ public:
 
 	virtual int CheckOtherSetup(int para1,int para2 = 0,LPVOID lpParam = NULL);
 
+	void SetFromUserCommand(BOOL flag = TRUE);
+
 protected:
 	virtual int Calcu(void) = 0;
 	virtual int Print(void) = 0;
@@ -349,6 +351,9 @@ protected:
 	int m_freeSkipButtonDisable;
 
 	void SetClassNumber(int n);
+
+	BOOL m_fromUserCommand;
+
 private:
 	void GeneralEnd(void);
 	int m_returnFadeOutCode;

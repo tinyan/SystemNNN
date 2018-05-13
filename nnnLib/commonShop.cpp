@@ -473,8 +473,18 @@ int CCommonShop::Calcu(void)
 						return -1;
 					}
 
-	//				return ReturnFadeOut(OMAKE_MODE);
-					return ReturnFadeOut(m_backMode);
+
+					if (m_fromUserCommand)
+					{
+						m_game->SetYoyaku();
+						m_fromUserCommand = FALSE;
+						return -1;
+					}
+					else
+					{
+						//				return ReturnFadeOut(OMAKE_MODE);
+						return ReturnFadeOut(m_backMode);
+					}
 				}
 				else
 				{
