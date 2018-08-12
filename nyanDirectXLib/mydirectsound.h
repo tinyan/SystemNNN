@@ -24,17 +24,17 @@ class CMyDirectSound
 {
 public:
 	CMyDirectSound(HWND hwnd);
-	~CMyDirectSound();
-	void End(void);
+	virtual ~CMyDirectSound();
+	virtual void End(void);
 
-	void Set3DSoundFlag(BOOL flg);
-	void SetPrimaryFormat(int channel,int sampleRate,int bit);
+	virtual void Set3DSoundFlag(BOOL flg);
+	virtual void SetPrimaryFormat(int channel,int sampleRate,int bit);
 
-	void Start(BOOL formatSetFlag = FALSE);
+	virtual void Start(BOOL formatSetFlag = FALSE);
 
 	static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid,LPCSTR lpcstrDescription,LPCSTR lpcstrModule,LPVOID lpContext);
 
-	BOOL Play(char* waveData,int waveSize);
+	virtual BOOL Play(char* waveData,int waveSize);
 //	BOOL SetSystemSound(int n, char* waveData, int waveSize);
 //	BOOL PlaySystemSound(int n);
 
@@ -45,16 +45,17 @@ public:
 //	int GetCurrentPosition(void);
 
 	//LPDIRECTSOUND GetDirectSound(void);
-	LPVOID GetDirectSound(void);
+	virtual LPVOID GetDirectSound(void);
 
-	void SetPrimaryVolume(int volume);
+	virtual void SetPrimaryVolume(int volume);
 
-	void Stop(void);
-	void SetVolume(int vol);
+	virtual void Stop(void);
+	virtual void SetVolume(int vol);
 
 
-	BOOL Check3DSoundOk(void);
-private:
+	virtual BOOL Check3DSoundOk(void);
+	static int m_xAudioFlag;
+protected:
 //	CGame* m_game;
 	HWND m_hWnd;
 
@@ -88,7 +89,8 @@ private:
 
 	int m_3dSoundFlag;
 
-	
+
+
 };
 
 #endif

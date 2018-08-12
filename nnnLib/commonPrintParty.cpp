@@ -68,6 +68,13 @@ CCommonPrintParty::CCommonPrintParty(CGameCallBack* lpGame,int extMode) : CCommo
 	GetInitGameString(&m_filenameBG,"filenameBG");
 
 
+	m_oldVersion = 0;
+	GetInitGameParam(&m_oldVersion, "oldVersion");
+
+
+	m_partyStatusData = NULL;
+
+
 	m_partyStatusData = new CCommonPartyStatusData(m_setup,m_message);
 	m_partyNumber = m_partyStatusData->GetPartyNumber();
 	m_printNumberMax = m_partyStatusData->GetPrintNumberMax();
@@ -105,10 +112,16 @@ CCommonPrintParty::CCommonPrintParty(CGameCallBack* lpGame,int extMode) : CCommo
 		}
 	}
 
+	//’Ç‰Áƒ{ƒ^ƒ“
+
+
+	GetDokuritsuPrintMode();
+
 
 //	m_effectTime = 0;
 //	GetInitGameParam(&m_effectTime,"effectTime");
 
+	
 
 
 
@@ -141,42 +154,13 @@ int CCommonPrintParty::Init(void)
 	LoadBackBG();
 	m_effectCount = 0;
 
-
-	for (int i=0;i<m_partyNumber;i++)
+	if (m_oldVersion)
 	{
-		for (int k=1;k<=m_statusNumber;k++)
-		{
-			int type = m_partyStatusData->GetType(i,k);
-			if (type == 1)
-			{
-				int varNumber = m_partyStatusData->GetVarNumber(i,k);
-				if (varNumber != -1)
-				{
-					int varData = m_game->GetVarData(varNumber);
-					m_partyStatusData->SetData(i,k,varData);
-				}
-			}
-		}
+		InitOldVersion();
 	}
-
-	for (int i=0;i<m_etcNumber;i++)
+	else
 	{
-		int varNumber = m_partyStatusData->GetEtcVarNumber(i);
-		if (varNumber != -1)
-		{
-			int varData = m_game->GetVarData(varNumber);
-			m_partyStatusData->SetEtcData(i,varData);
-		}
-	}
-
-	for (int i=0;i<m_printNumberMax;i++)
-	{
-		int varNumber = m_partyStatusData->GetPrintVarNumber(i);
-		if (varNumber != -1)
-		{
-			int varData = m_game->GetVarData(varNumber);
-			m_partyStatusData->SetPrintData(i,varData);
-		}
+		InitNewVersion();
 	}
 
 
@@ -187,6 +171,53 @@ int CCommonPrintParty::Init(void)
 	return -1;
 }
 
+
+int CCommonPrintParty::InitOldVersion(void)
+{
+	for (int i = 0; i<m_partyNumber; i++)
+	{
+		for (int k = 1; k <= m_statusNumber; k++)
+		{
+			int type = m_partyStatusData->GetType(i, k);
+			if (type == 1)
+			{
+				int varNumber = m_partyStatusData->GetVarNumber(i, k);
+				if (varNumber != -1)
+				{
+					int varData = m_game->GetVarData(varNumber);
+					m_partyStatusData->SetData(i, k, varData);
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i<m_etcNumber; i++)
+	{
+		int varNumber = m_partyStatusData->GetEtcVarNumber(i);
+		if (varNumber != -1)
+		{
+			int varData = m_game->GetVarData(varNumber);
+			m_partyStatusData->SetEtcData(i, varData);
+		}
+	}
+
+	for (int i = 0; i<m_printNumberMax; i++)
+	{
+		int varNumber = m_partyStatusData->GetPrintVarNumber(i);
+		if (varNumber != -1)
+		{
+			int varData = m_game->GetVarData(varNumber);
+			m_partyStatusData->SetPrintData(i, varData);
+		}
+	}
+
+	return -1;
+}
+
+int CCommonPrintParty::InitNewVersion(void)
+{
+	return -1;
+}
 
 int CCommonPrintParty::Calcu(void)
 {
@@ -205,9 +236,27 @@ int CCommonPrintParty::Calcu(void)
 		}
 	}
 
+	if (m_oldVersion)
+	{
+		return CalcuOldVersion();
+	}
+	else
+	{
+		return CalcuNewVersion();
+	}
+
+
+	return -1;
+}
 
 
 
+int CCommonPrintParty::CalcuOldVersion(void)
+{
+	return -1;
+}
+int CCommonPrintParty::CalcuNewVersion(void)
+{
 	return -1;
 }
 
@@ -217,6 +266,31 @@ int CCommonPrintParty::Print(void)
 
 	PrintBackScriptOrBG();
 
+	if (m_oldVersion)
+	{
+		PrintOldVersion();
+	}
+	else
+	{
+		PrintNewVersion();
+	}
+
+
+
+
+	if (m_back != NULL)
+	{
+		m_back->Print(TRUE);
+	}
+
+
+	return -1;
+}
+
+
+
+int CCommonPrintParty::PrintOldVersion(void)
+{
 	int ps = 100;
 	if (m_effectTime > 0)
 	{
@@ -225,11 +299,6 @@ int CCommonPrintParty::Print(void)
 
 	m_partyStatusData->Print(ps);
 
-	if (m_back != NULL)
-	{
-		m_back->Print(TRUE);
-	}
-
 	if (m_effectCount < m_effectTime)
 	{
 		m_effectCount++;
@@ -237,9 +306,11 @@ int CCommonPrintParty::Print(void)
 
 	return -1;
 }
+int CCommonPrintParty::PrintNewVersion(void)
+{
 
-
-
+	return -1;
+}
 
 
 void CCommonPrintParty::FinalExitRoutine(void)
@@ -279,5 +350,9 @@ void CCommonPrintParty::CreateStartScreen(void)
 
 
 
+int CCommonPrintParty::PrintDokuristu(int nowMode)
+{
 
+	return -1;
+}
 

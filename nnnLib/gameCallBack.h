@@ -1809,6 +1809,8 @@ protected:
 	CPrintPlayerStatus* m_printPlayerStatus;
 
 	int m_useDirect2D;
+	int m_useXAudio2;
+
 //private:
 	//dummy
 	int m_nowFrameCount;

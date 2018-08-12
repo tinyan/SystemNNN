@@ -71,6 +71,7 @@ protected:
 		int fontSize;
 		int fontColorR, fontColorG, fontColorB ;
 		int messageNumber;
+		int textType;
 		LPSTR* message;
 	}STATUSTEXTPARAM;
 	

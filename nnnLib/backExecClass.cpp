@@ -132,7 +132,7 @@ void CBackExecClass::PrintLayers(int startLayer,int endLayer)
 	{
 		m_game->PrintEffectLayer(startLayer,endLayer);
 
-		if (endLayer == 15)
+		if (endLayer == LAYER_KOSUU_MAX - 1)
 		{
 			m_game->CountUpOnly(m_kaeshita);
 		}

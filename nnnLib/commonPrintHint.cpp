@@ -69,8 +69,24 @@ CCommonPrintHint::CCommonPrintHint(CGameCallBack* lpGame, int extMode) : CCommon
 	GetInitGameParam(&m_allHintNumber, "hintAllNumber");
 
 
+	m_picNumX = 2;
+	m_picNumY = 1;
+	GetInitGameParam(&m_picNumX, "picNumX");
+	GetInitGameParam(&m_picNumY, "picNumY");
+	m_picPrintX = 100;
+	m_picPrintY = 100;
+	GetInitGameParam(&m_picPrintX, "picPrintX");
+	GetInitGameParam(&m_picPrintY, "picPrintY");
+	m_picNextX = 300;
+	m_picNextY = 300;
+	GetInitGameParam(&m_picNextX, "picNextX");
+	GetInitGameParam(&m_picNextY, "picNextY");
+
+
 	m_hintNumber = new int[m_allHintNumber];
 	m_hintFilename = new LPSTR*[m_allHintNumber];
+	m_hintPrintZahyo = new POINT*[m_allHintNumber];
+	m_hintPrintSize = new SIZE*[m_allHintNumber];
 	m_flagVarNumber = new int*[m_allHintNumber];
 	for (int i = 0; i < m_allHintNumber; i++)
 	{
@@ -88,6 +104,45 @@ CCommonPrintHint::CCommonPrintHint(CGameCallBack* lpGame, int extMode) : CCommon
 			m_hintFilename[i][k] = filename;
 		}
 
+		m_hintPrintZahyo[i] = new POINT[hintNumber];
+		m_hintPrintSize[i] = new SIZE[hintNumber];
+
+
+		for (int k = 0; k < hintNumber; k++)
+		{
+			int n = k % (m_picNumX * m_picNumY);
+			int nx = n % m_picNumX;
+			int ny = n / m_picNumX;
+
+			int printX = m_picPrintX + m_picNextX * nx;
+			int printY = m_picPrintY + m_picNextY * ny;
+
+			int sizeX = 0;
+			int sizeY = 0;
+
+			sprintf_s(name, 256, "hint%d_%dPrintX", i+1, k+1);
+			GetInitGameParam(&printX, name);
+			sprintf_s(name, 256, "hint%d_%dPrintY", i+1, k+1);
+			GetInitGameParam(&printY, name);
+			sprintf_s(name, 256, "hint%d_%dSizeX", i+1, k+1);
+			GetInitGameParam(&sizeX, name);
+			sprintf_s(name, 256, "hint%d_%dSizeY", i+1, k+1);
+			GetInitGameParam(&sizeY, name);
+
+
+			POINT pt;
+			pt.x = printX;
+			pt.y = printY;
+			SIZE sz;
+			sz.cx = sizeX;
+			sz.cy = sizeY;
+
+			m_hintPrintZahyo[i][k] = pt;
+			m_hintPrintSize[i][k] = sz;
+
+		}
+
+
 		m_flagVarNumber[i] = new int[hintNumber];
 		for (int k = 0; k < hintNumber; k++)
 		{
@@ -104,21 +159,11 @@ CCommonPrintHint::CCommonPrintHint(CGameCallBack* lpGame, int extMode) : CCommon
 		}
 
 
+
+
 	}
 
 
-	m_picNumX = 2;
-	m_picNumY = 1;
-	GetInitGameParam(&m_picNumX, "picNumX");
-	GetInitGameParam(&m_picNumY, "picNumY");
-	m_picPrintX = 100;
-	m_picPrintY = 100;
-	GetInitGameParam(&m_picPrintX, "picPrintX");
-	GetInitGameParam(&m_picPrintY, "picPrintY");
-	m_picNextX = 300;
-	m_picNextY = 300;
-	GetInitGameParam(&m_picNextX, "picNextX");
-	GetInitGameParam(&m_picNextY, "picNextY");
 
 	m_picWork = new CPicture*[m_picNumX * m_picNumY];
 	for (int i = 0; i < m_picNumX*m_picNumY; i++)
@@ -182,6 +227,26 @@ void CCommonPrintHint::End(void)
 			DELETEARRAY(m_hintFilename[i]);
 		}
 		DELETEARRAY(m_hintFilename);
+	}
+
+	if (m_hintPrintZahyo)
+	{
+		for (int i = 0; i < m_allHintNumber; i++)
+		{
+			DELETEARRAY(m_hintPrintZahyo[i]);
+		}
+
+		DELETEARRAY(m_hintPrintZahyo);
+	}
+
+	if (m_hintPrintSize)
+	{
+		for (int i = 0; i < m_allHintNumber; i++)
+		{
+			DELETEARRAY(m_hintPrintSize[i]);
+		}
+
+		DELETEARRAY(m_hintPrintSize);
 	}
 
 	if (m_flagVarNumber)
@@ -266,9 +331,21 @@ int CCommonPrintHint::Print(void)
 			if ((n >= 0) && (n < m_hintNumber[m_nowHintNumber]))
 			{
 				int workNumber = i + j * m_picNumX;
-				int x = m_picPrintX + m_picNextX * i;
-				int  y= m_picPrintY + m_picNextY * j;
-				m_picWork[workNumber]->Put(x, y, TRUE);
+				//				int x = m_picPrintX + m_picNextX * i;
+				//				int y= m_picPrintY + m_picNextY * j;
+				int x = m_hintPrintZahyo[m_nowHintNumber][n].x;
+				int y = m_hintPrintZahyo[m_nowHintNumber][n].y;
+				int sizeX = m_hintPrintSize[m_nowHintNumber][n].cx;
+				int sizeY = m_hintPrintSize[m_nowHintNumber][n].cy;
+
+				if ((sizeX > 0) && (sizeY > 0))
+				{
+					m_picWork[workNumber]->Blt(x, y, 0,0,sizeX,sizeY,TRUE);
+				}
+				else
+				{
+					m_picWork[workNumber]->Put(x, y, TRUE);
+				}
 			}
 		}
 	}

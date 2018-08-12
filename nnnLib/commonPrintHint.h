@@ -38,6 +38,8 @@ protected:
 	int* m_hintNumber;
 	LPSTR** m_hintFilename;
 	CPicture** m_picWork;
+	POINT** m_hintPrintZahyo;
+	SIZE** m_hintPrintSize;
 
 	LPSTR m_noPicFilename;
 

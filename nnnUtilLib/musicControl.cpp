@@ -11,6 +11,9 @@
 
 #include "waveData.h"
 #include "waveMusic.h"
+#if defined __USE_XAUDIO2__
+#include "waveMusicXAudio2.h"
+#endif
 
 #include "musicControl.h"
 
@@ -30,8 +33,22 @@ CMusicControl::CMusicControl(CMyDirectSound* lpMyDirectSound)
 
 	if (lpMyDirectSound->GetDirectSound() == NULL) return;
 
-	m_waveMusic[0] = new CWaveMusic(lpMyDirectSound->GetDirectSound(),0);
-	m_waveMusic[1] = new CWaveMusic(lpMyDirectSound->GetDirectSound(),1);
+#if defined __USE_XAUDIO2__
+	if (CMyDirectSound::m_xAudioFlag)
+	{
+		m_waveMusic[0] = new CWaveMusicXAudio2(lpMyDirectSound->GetDirectSound(), 0);
+		m_waveMusic[1] = new CWaveMusicXAudio2(lpMyDirectSound->GetDirectSound(), 1);
+	}
+	else
+	{
+		m_waveMusic[0] = new CWaveMusic(lpMyDirectSound->GetDirectSound(), 0);
+		m_waveMusic[1] = new CWaveMusic(lpMyDirectSound->GetDirectSound(), 1);
+	}
+#else
+	m_waveMusic[0] = new CWaveMusic(lpMyDirectSound->GetDirectSound(), 0);
+	m_waveMusic[1] = new CWaveMusic(lpMyDirectSound->GetDirectSound(), 1);
+#endif
+
 }
 
 CMusicControl::~CMusicControl()

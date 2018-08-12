@@ -343,7 +343,7 @@ void CCommonSystemFile::CreateInitData(void)
 	}
 	else
 	{
-		m_systemVar.size = sizeof(m_systemVar);
+		m_systemVar.size = sizeof(SYSTEMVAR);
 	}
 	m_systemVar.code = 6;
 	CopyMemory(m_systemVar.message,"SYSTEMVAR      ",16);
@@ -446,7 +446,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	}
 	else
 	{
-		fwrite(&m_systemVar, sizeof(m_systemVar), 1, file);
+		fwrite(&m_systemVar, sizeof(SYSTEMVAR), 1, file);
 	}
 	fwrite(&m_cgFlag,sizeof(m_cgFlag),1,file);
 	fwrite(&m_sceneFlag,sizeof(m_sceneFlag),1,file);

@@ -31,6 +31,7 @@
 #if !defined _TINYAN3DLIB_
 #include "..\nyanDirectXLib\myDirectSoundBuffer.h"
 #include "..\nyanDirectXLib\myDirectShow.h"
+#include "..\nyanDirectXLib\myXAudio2Buffer.h"
 #else
 #include "..\nyanDirectXLib\myDirectSoundBuffer.h"
 #include "..\nyanDirectXLib\myDirectShow.h"
@@ -65,13 +66,38 @@ CScriptVoiceControl::CScriptVoiceControl(CMyDirectSound* myDirectSound,int* expF
 		SetLoopFlag(i,FALSE);
 	}
 
+
+#if defined __USE_XAUDIO2__
+	if (CMyDirectSound::m_xAudioFlag)
+	{
+		m_scriptVoice = (CMyDirectSoundBuffer**)(new CMyXAudio2Buffer*[m_voiceKosuu]);
+	}
+	else
+	{
+		m_scriptVoice = new CMyDirectSoundBuffer*[m_voiceKosuu];
+}
+#else
 	m_scriptVoice = new CMyDirectSoundBuffer*[m_voiceKosuu];
+#endif
+
 	for (int i=0;i<m_voiceKosuu;i++)
 	{
 		BOOL flg = FALSE;
 		if (i & 1) flg = TRUE;
 
-		m_scriptVoice[i] = new CMyDirectSoundBuffer(m_myDirectSound->GetDirectSound(),flg);
+#if defined __USE_XAUDIO2__
+		if (CMyDirectSound::m_xAudioFlag)
+		{
+			m_scriptVoice[i] = new CMyXAudio2Buffer(m_myDirectSound->GetDirectSound(), flg);
+		}
+		else
+		{
+			m_scriptVoice[i] = new CMyDirectSoundBuffer(m_myDirectSound->GetDirectSound(), flg);
+		}
+#else
+		m_scriptVoice[i] = new CMyDirectSoundBuffer(m_myDirectSound->GetDirectSound(), flg);
+#endif
+
 	}
 
 

@@ -20,7 +20,17 @@
 //#include "scriptCallBack.h"
 #include "superButtonSetup.h"
 
-CCommonUpDownButtonGroup::CCommonUpDownButtonGroup(CNameList* lpSetup,CPicture* lpBG)
+CCommonUpDownButtonGroup::CCommonUpDownButtonGroup(CNameList* lpSetup, CPicture* lpBG)
+{
+	Create("up","down",lpSetup,lpBG);
+}
+
+CCommonUpDownButtonGroup::CCommonUpDownButtonGroup(LPSTR upName, LPSTR downName,CNameList* lpSetup, CPicture* lpBG)
+{
+	Create(upName, downName, lpSetup, lpBG);
+}
+
+void CCommonUpDownButtonGroup::Create(LPSTR upName, LPSTR downName, CNameList* lpSetup, CPicture* lpBG)
 {
 	m_buttonKosuu = 2;
 
@@ -32,8 +42,10 @@ CCommonUpDownButtonGroup::CCommonUpDownButtonGroup(CNameList* lpSetup,CPicture* 
 
 	m_superMode = 1;
 
-	m_updownSetup[0] = new CSuperButtonSetup(lpSetup,"up");
-	m_updownSetup[1] = new CSuperButtonSetup(lpSetup,"down",m_updownSetup[0],NULL);
+//	m_updownSetup[0] = new CSuperButtonSetup(lpSetup,"up");
+//	m_updownSetup[1] = new CSuperButtonSetup(lpSetup,"down",m_updownSetup[0],NULL);
+	m_updownSetup[0] = new CSuperButtonSetup(lpSetup,upName);
+	m_updownSetup[1] = new CSuperButtonSetup(lpSetup,downName,m_updownSetup[0],NULL);
 
 	for (i=0;i<m_buttonKosuu;i++)
 	{

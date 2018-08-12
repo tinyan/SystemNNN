@@ -5,10 +5,14 @@
 #include <windows.h>
 #include <Mmdeviceapi.h>
 #include <endpointvolume.h>
+#if defined __USE_XAUDIO2__
+#include <VersionHelpers.h>
+#endif
 
 #include "..\nyanLib\include\commonmacro.h"
 
 #include "mixercontrol.h"
+
 
 
 // MIXERLINE_COMPONENTTYPE_DST_SPEAKERS
@@ -21,6 +25,14 @@ CMixerControl::CMixerControl(BOOL masterVolumeFlag)
 
 	m_xp = TRUE;
 
+#if defined __USE_XAUDIO2__
+
+	if (!IsWindowsVistaOrGreater())
+	{
+		m_xp = FALSE;
+	}
+#else
+	
 	OSVERSIONINFO osVersion;
 	osVersion.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&osVersion);
@@ -31,7 +43,8 @@ CMixerControl::CMixerControl(BOOL masterVolumeFlag)
 			m_xp = FALSE;
 		}
 	}
-
+	
+#endif
 
 	m_defaultMIDIVolume = 0;
 	m_defaultWAVEVolume = 0;

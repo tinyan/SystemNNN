@@ -43,7 +43,7 @@ BOOL CEffectKomorebi::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int 
 	if (paraKosuu<1) para[0] = 20;	//frame
 	if (paraKosuu<2) para[1] = 0;	//pic2
 	if (para[1]<0) para[1] = 0;
-	if (para[1]>15) para[1] = 15;
+	if (para[1]>31) para[1] = 31;
 
 	if (paraKosuu<3) para[2] = 128;
 	if (paraKosuu<4) para[3] = para[2];
@@ -54,7 +54,7 @@ BOOL CEffectKomorebi::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int 
 
 	if (paraKosuu<9) para[8] = -1;	//pic1
 	if (para[8]<-1) para[8] = -1;
-	if (para[8]>15) para[8] = 15;
+	if (para[8]>31) para[8] = 31;
 
 	if (paraKosuu<10) para[9] = 0;
 	if (paraKosuu<11) para[10] = 0;

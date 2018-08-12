@@ -13,7 +13,7 @@
 CEffectHanabira::CEffectHanabira(CAllEffect* lpAll) : CCommonEffect(lpAll)
 {
 
-	m_hanabira = new HANABIRA[HANABIRA_KOSUU_MAX * 16];
+	m_hanabira = new HANABIRA[HANABIRA_KOSUU_MAX * LAYER_KOSUU_MAX];
 
 	m_animePartsKosuu = 1;
 	m_partsKosuu = 1;
@@ -27,7 +27,7 @@ CEffectHanabira::CEffectHanabira(CAllEffect* lpAll) : CCommonEffect(lpAll)
 
 	m_animeType = 1;
 
-	for (int i=0;i<HANABIRA_KOSUU_MAX*16;i++)
+	for (int i=0;i<HANABIRA_KOSUU_MAX*LAYER_KOSUU_MAX;i++)
 	{
 		SetNewHanabira(i);
 	}
@@ -315,7 +315,7 @@ void CEffectHanabira::Print(LPVOID lpEffect,int layer)
 
 	for (int i=st;i<st+kosuu;i++)
 	{
-		if ((i>=0) && (i<HANABIRA_KOSUU_MAX*16))
+		if ((i>=0) && (i<HANABIRA_KOSUU_MAX*LAYER_KOSUU_MAX))
 		{
 //OutputDebugString(".");
 			int p = m_hanabira[i].pic;
@@ -398,7 +398,7 @@ void CEffectHanabira::CalcuHanabira(int st, int kosuu)
 
 void CEffectHanabira::CalcuHanabiraSub(int n)
 {
-	if ((n<0) || (n>=HANABIRA_KOSUU_MAX*16)) return;
+	if ((n<0) || (n>=HANABIRA_KOSUU_MAX* LAYER_KOSUU_MAX)) return;
 
 	int pic = m_hanabira[n].pic;
 	if (pic == -1)
@@ -540,7 +540,7 @@ void CEffectHanabira::CalcuHanabiraSub(int n)
 
 void CEffectHanabira::SetNewHanabira(int n)
 {
-	if ((n<0) || (n>=HANABIRA_KOSUU_MAX*16)) return;
+	if ((n<0) || (n>=HANABIRA_KOSUU_MAX* LAYER_KOSUU_MAX)) return;
 
 	m_hanabira[n].pic = rand() % (m_partsKosuu * m_animePartsKosuu * m_animeType);
 	m_hanabira[n].x = m_setX + (rand() % (m_setR*2)) - m_setR / 2;

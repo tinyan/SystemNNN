@@ -63,6 +63,10 @@ public:
 
 	void SetFromUserCommand(BOOL flag = TRUE);
 
+	virtual int CheckAndPrintDokuritsu(int nowMode);
+	virtual int PrintDokuristu(int nowMode) { return -1; };
+
+
 protected:
 	virtual int Calcu(void) = 0;
 	virtual int Print(void) = 0;
@@ -186,7 +190,7 @@ protected:
 	void GetAnimeLayerSetup(void);
 	void GetDisableQuickButtonSetup(void);
 	void GetDisableFreeButtonSetup(void);
-
+	void GetDokuritsuPrintMode();
 
 	void GetKeyMoveSetup(int tateyoko = 0,int updown = 1,int leftRight = 1);
 
@@ -353,6 +357,12 @@ protected:
 	void SetClassNumber(int n);
 
 	BOOL m_fromUserCommand;
+	
+protected:
+
+	int m_dokuritsuPrintFlag;
+	int* m_dokuristuPrintModeTable;
+
 
 private:
 	void GeneralEnd(void);

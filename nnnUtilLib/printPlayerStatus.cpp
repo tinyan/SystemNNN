@@ -10,6 +10,8 @@
 
 #include "commonAnimeParts.h"
 #include "suuji.h"
+#include "autoSaveSubData.h"
+#include "okikaeData.h"
 #include "mymessage.h"
 
 #include "printPlayerStatus.h"
@@ -104,6 +106,7 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 			int colorR = 255;
 			int colorG = 255;
 			int colorB = 255;
+			int textType = 0;
 			char name[256];
 			sprintf_s(name, 256, "text%dPrintX", i + 1);
 			GetInitGameParam(&printX, name);
@@ -117,6 +120,8 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 			GetInitGameParam(&colorG, name);
 			sprintf_s(name, 256, "text%dColorB", i + 1);
 			GetInitGameParam(&colorB, name);
+			sprintf_s(name, 256, "text%dType", i + 1);
+			GetInitGameParam(&textType, name);
 
 			m_statusTextParam[i].printX = printX;
 			m_statusTextParam[i].printY = printY;
@@ -124,6 +129,7 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 			m_statusTextParam[i].fontColorR = colorR;
 			m_statusTextParam[i].fontColorG = colorG;
 			m_statusTextParam[i].fontColorB = colorB;
+			m_statusTextParam[i].textType = textType;
 
 			int messageNumber = 1;
 			sprintf_s(name, 256, "text%dMessageNumber", i + 1);
@@ -512,16 +518,46 @@ void CPrintPlayerStatus::Print(void)
 			//text
 			for (int k = 0; k < m_textNumber; k++)
 			{
-				int messageNumber = m_statusTextParam[k].messageNumber;
+				int messageType = m_statusTextParam[k].textType;
+				LPSTR mes = NULL;
 				int m = m_textVarData[k][charaNumber];
-				if ((m >= 0) && (m <= messageNumber))
-				{
-					if (m > 0)
-					{
-						m--;
-					}
 
-					LPSTR mes = m_statusTextParam[k].message[charaNumber * messageNumber + m];
+				if (messageType == 2)
+				{
+					mes = CMyMessage::m_okikaeData->GetOkikaeMessage(m);
+				}
+				else if (messageType == 3)
+				{
+					mes = CMyMessage::m_okikaeData->GetSystemOkikaeMessage(m);
+				}
+
+				if (mes == NULL)
+				{
+					int messageNumber = m_statusTextParam[k].messageNumber;
+					int m = m_textVarData[k][charaNumber];
+					if ((m >= 0) && (m <= messageNumber))
+					{
+						if (m > 0)
+						{
+							m--;
+						}
+
+						mes = m_statusTextParam[k].message[charaNumber * messageNumber + m];
+					}
+				}
+
+
+
+//				int messageNumber = m_statusTextParam[k].messageNumber;
+//				int m = m_textVarData[k][charaNumber];
+//				if ((m >= 0) && (m <= messageNumber))
+				{
+//					if (m > 0)
+//					{
+//						m--;
+//					}
+
+//					LPSTR mes = m_statusTextParam[k].message[charaNumber * messageNumber + m];
 					if (mes != NULL)
 					{
 						POINT pt = basePoint;

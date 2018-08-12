@@ -16,9 +16,10 @@ class CCommonUpDownButtonGroup
 {
 public:
 	CCommonUpDownButtonGroup(CNameList* lpSetup,CPicture* lpBG = NULL);
+	CCommonUpDownButtonGroup(LPSTR upName,LPSTR downName,CNameList* lpSetup, CPicture* lpBG = NULL);
 	~CCommonUpDownButtonGroup();
 	void End(void);
-
+	void Create(LPSTR upName, LPSTR downName, CNameList* lpSetup, CPicture* lpBG);
 	void SetExist(int n, BOOL flg = TRUE){m_existFlag[n] = flg;}
 	void SetEnable(int n, BOOL flg = TRUE){m_enableFlag[n] = flg;}
 	void Init(void);

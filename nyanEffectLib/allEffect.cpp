@@ -460,7 +460,8 @@ SIZE CAllEffect::GetDstSize(int layer)
 BOOL CAllEffect::CheckBGLayer(int layer)
 {
 	if (layer<4) return TRUE;
-	if (layer==14) return TRUE;
+//	if (layer==14) return TRUE;
+	if (layer == 30) return TRUE;
 
 	return FALSE;
 }
@@ -1372,6 +1373,27 @@ void CAllEffect::Print(BOOL bScreenFlag,BOOL bEyeCheckFlag)
 	{
 		BOOL flg = FALSE;
 		for (int ii=0;ii<4;ii++)
+		{
+			if (flg == FALSE)
+			{
+				if (m_effect[ii].flag)
+				{
+					if (m_effect[ii].pic != -1)
+					{
+						if (m_effect[ii].command != EFFECT_BUFFER)
+						{
+							flg = TRUE;
+							break;
+						}
+					}
+
+					if (m_effect[ii].command == EFFECT_FULLANIME) flg = TRUE;
+					if (m_effect[ii].command == EFFECT_FILL) flg = TRUE;
+				}
+			}
+		}
+
+		for (int ii = LAYER_KOSUU_MAX-2; ii<LAYER_KOSUU_MAX - 1; ii++)
 		{
 			if (flg == FALSE)
 			{

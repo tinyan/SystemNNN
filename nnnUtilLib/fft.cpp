@@ -120,8 +120,8 @@ void CFFT::MakeTable(int n)
 		float th = (float)i;
 		th *= 3.14159f * 2.0f / ((float)n);
 
-		m_cossinTable[r][i*2] = cos(th);
-		m_cossinTable[r][i*2+1] = sin(th);
+		m_cossinTable[r][i*2] = (float)cos(th);
+		m_cossinTable[r][i*2+1] = (float)sin(th);
 	}
 }
 

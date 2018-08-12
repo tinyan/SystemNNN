@@ -10,26 +10,26 @@ class CMyDirectSoundBuffer
 {
 public:
 	CMyDirectSoundBuffer(LPVOID lpDirectSound,BOOL sound3DFlag = FALSE);
-	~CMyDirectSoundBuffer();
-	void End(void);
+	virtual ~CMyDirectSoundBuffer();
+	virtual void End(void);
 
 
-	BOOL SetData(char* data,int dataSize, int channel,int samplingRate,int samplingBit);
+	virtual BOOL SetData(char* data,int dataSize, int channel,int samplingRate,int samplingBit);
 
-	void Play(BOOL loopFlag = FALSE);
-	void Stop(BOOL waitFlag = FALSE);
+	virtual void Play(BOOL loopFlag = FALSE);
+	virtual void Stop(BOOL waitFlag = FALSE);
 
-	void SetVolume(int volume);
+	virtual void SetVolume(int volume);
 
-	void SetStartTeii(float fx,float fy,float fz);
-	void SetEndTeii(float fx,float fy,float fz);
-	void SetMoveTime(int tm);
-	void SetDoppler(int dop);
+	virtual void SetStartTeii(float fx,float fy,float fz);
+	virtual void SetEndTeii(float fx,float fy,float fz);
+	virtual void SetMoveTime(int tm);
+	virtual void SetDoppler(int dop);
 
 
-	void SetVelocity(float speedX,float speedY,float speedZ);
-	void Set3DPosition(float x,float y,float z);
-private:
+	virtual void SetVelocity(float speedX,float speedY,float speedZ);
+	virtual void Set3DPosition(float x,float y,float z);
+protected:
 
 	LPVOID m_directSound;
 	LPVOID m_directSoundBuffer;

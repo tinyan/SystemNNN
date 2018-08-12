@@ -75,6 +75,9 @@ CCommonPlayStatusData::CCommonPlayStatusData(CNameList* setup,LPSTR statusName)
 	m_varNumber = new int[m_graphNumber];
 	m_data = new int[m_graphNumber];
 
+	m_basePoint.x = 0;
+	m_basePoint.y = 0;
+
 
 	for (int i=0;i<m_graphNumber;i++)
 	{
@@ -187,33 +190,46 @@ void CCommonPlayStatusData::End(void)
 	DELETEARRAY(m_size);
 }
 
+void CCommonPlayStatusData::Print(POINT point,int ps)
+{
+	m_basePoint = point;
+	PrintRoutine(ps);
+}
 
 void CCommonPlayStatusData::Print(int ps)
+{
+
+	m_basePoint.x = 0;
+	m_basePoint.y = 0;
+
+	PrintRoutine(ps);
+}
+
+void CCommonPlayStatusData::PrintRoutine(int ps)
 {
 	m_percent = ps;
 
 	switch (m_graphType)
 	{
-		case 1:
-			PrintYokoGraph();
-			break;
-		case 2:
-			PrintTateGraph();
-			break;
-		case 3:
-			PrintCircleGraph();
-			break;
-		case 4:
-			PrintOresenGraph();
-			break;
-		case 5:
-			PrintRadarGraph();
-			break;
-		default:
-			break;
+	case 1:
+		PrintYokoGraph();
+		break;
+	case 2:
+		PrintTateGraph();
+		break;
+	case 3:
+		PrintCircleGraph();
+		break;
+	case 4:
+		PrintOresenGraph();
+		break;
+	case 5:
+		PrintRadarGraph();
+		break;
+	default:
+		break;
 	}
 }
-
 
 void CCommonPlayStatusData::PrintYokoGraph(void)
 {
@@ -229,6 +245,9 @@ void CCommonPlayStatusData::PrintYokoGraph(void)
 		{
 			int putX = m_zahyo[i].x;
 			int putY = m_zahyo[i].y;
+			putX += m_basePoint.x;
+			putY += m_basePoint.y;
+
 			int srcX = 0;
 			int srcY = 0;
 			if (m_picFlag)
@@ -268,6 +287,9 @@ void CCommonPlayStatusData::PrintTateGraph(void)
 		{
 			int putX = m_zahyo[i].x;
 			int putY = m_zahyo[i].y;
+			putX += m_basePoint.x;
+			putY += m_basePoint.y;
+
 			putY -= (sizeY-1);
 			int srcX = 0;
 			int srcY = maxSizeY-sizeY;
@@ -298,6 +320,8 @@ void CCommonPlayStatusData::PrintRadarGraph(void)
 {
 	int x = m_zahyo[0].x;
 	int y = m_zahyo[0].y;
+	x += m_basePoint.x;
+	y += m_basePoint.y;
 
 	for (int i=0;i<m_graphNumber;i++)
 	{
@@ -332,6 +356,12 @@ void CCommonPlayStatusData::PrintOresenGraph(void)
 		int y1 = m_zahyo[i].y;
 		int x2 = m_zahyo[n2].x;
 		int y2 = m_zahyo[n2].y;
+	
+		x1 += m_basePoint.x;
+		y1 += m_basePoint.y;
+		x2 += m_basePoint.x;
+		y2 += m_basePoint.y;
+
 		int mx1 = m_max[i];
 		int mx2 = m_max[n2];
 		int data1 = m_data[i];
@@ -384,6 +414,8 @@ void CCommonPlayStatusData::PrintCircleGraph(void)
 {
 	int x = m_zahyo[0].x;
 	int y = m_zahyo[0].y;
+	x += m_basePoint.x;
+	y += m_basePoint.y;
 
 //	int debug[4] = {60,40};
 //	int debugColor[8] = {255,0,0,128,0,255,0,128};

@@ -39,9 +39,19 @@ protected:
 	int m_statusNumber;
 	int m_etcNumber;
 
+	int m_oldVersion;
+
+	int InitOldVersion(void);
+	int InitNewVersion(void);
+	int CalcuOldVersion(void);
+	int CalcuNewVersion(void);
+	int PrintOldVersion(void);
+	int PrintNewVersion(void);
 
 	virtual void FinalExitRoutine(void);
 	virtual int EndMode(void);
+
+	virtual int PrintDokuristu(int nowMode);
 
 	CMyMessage* m_message;
 

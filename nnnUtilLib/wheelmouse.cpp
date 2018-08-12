@@ -3,8 +3,13 @@
 //
 
 
+
 #include <windows.h>
 #include <windowsx.h>
+#if defined __USE_XAUDIO2__
+#include <VersionHelpers.h>
+#endif
+
 #include "wheelmouse.h"
 
 #if _MSC_VER >= 1500
@@ -18,9 +23,14 @@
 #endif
 
 
+
 //UINT CWheelMouse::m_wm_message = 0;
 
-UINT CWheelMouse::m_wm_message = 
+UINT CWheelMouse::m_wm_message =
+#if defined __USE_XAUDIO2__
+!IsWindowsVistaOrGreater() ? RegisterWindowMessage(MSH_MOUSEWHEEL) : 0;
+#else
+
 					(
 						(
 							(GetVersion() & 0x80000000) 
@@ -28,9 +38,16 @@ UINT CWheelMouse::m_wm_message =
 							LOBYTE(LOWORD(GetVersion()) == 4)
 						)
 						||
-	   	   		       (!(GetVersion() & 0x80000000) && LOBYTE(LOWORD(GetVersion()) == 3))
-					   )
+	   	   		       (
+						   !(GetVersion() & 0x80000000)
+						   && 
+						   LOBYTE(LOWORD(GetVersion()) == 3)
+						)
+					  )
+
                  ? RegisterWindowMessage(MSH_MOUSEWHEEL) : 0;
+#endif
+
 
        
 

@@ -143,6 +143,8 @@ CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 	m_dialogYesVoiceFileName = NULL;
 	m_dialogNoVoiceFileName = NULL;
 
+	m_dokuristuPrintModeTable = NULL;
+
 	m_enterFadeInType = 0;
 	m_exitFadeOutType = 0;
 	m_exitFadeOutTypeSpecial = 0;
@@ -179,6 +181,7 @@ CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 
 	m_exitFadeOutSpecialMode = -2;
 
+	m_dokuritsuPrintFlag = 0;
 //	m_commonButton = NULL;
 //	m_commonUpDown = NULL;
 //	m_commonBuffer = NULL;
@@ -269,6 +272,7 @@ void CCommonGeneral::GeneralEnd(void)
 	ENDDELETECLASS(m_createBackButton);
 	ENDDELETECLASS(m_setup);
 	DELETEARRAY(m_disableQuickButtonWork);
+	DELETEARRAY(m_dokuristuPrintModeTable);
 }
 
 
@@ -948,6 +952,50 @@ void CCommonGeneral::GetFadeInOutSetup(void)
 	}
 }
 
+void CCommonGeneral::GetDokuritsuPrintMode(void)
+{
+	GetInitGameParam(&m_dokuritsuPrintFlag, "freePrintFlag");
+	if (m_dokuritsuPrintFlag)
+	{
+		m_dokuristuPrintModeTable = new int[256];
+		for (int i = 0; i < 256; i++)
+		{
+			m_dokuristuPrintModeTable[i] = 0;
+
+			for (int i = 1; i < 100; i++)
+			{
+				LPSTR modeName = m_systemModeList->GetModeName(i);
+				if (modeName != NULL)
+				{
+					if (*modeName != 0)
+					{
+
+						char name[256];
+						sprintf_s(name, 256, "%sIsFreePrint", modeName);
+						int flag = 0;
+						GetInitGameParam(&flag, name);
+						if (flag > 0)
+						{
+							m_dokuristuPrintModeTable[i] = flag;
+						}
+					}
+					
+				}
+			}
+
+		}
+	}
+}
+
+
+int CCommonGeneral::CheckAndPrintDokuritsu(int nowMode)
+{
+	if (m_dokuritsuPrintFlag == 0) return -1;
+	if (m_dokuristuPrintModeTable == NULL) return -1;
+	if ((nowMode < 0) || (nowMode > 255)) return -1;
+	if (m_dokuristuPrintModeTable[nowMode] == 0) return -1;
+	return PrintDokuristu(nowMode);
+}
 
 void CCommonGeneral::GetBGMSetup(void)
 {

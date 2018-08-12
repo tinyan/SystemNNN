@@ -66,20 +66,22 @@ short convBuffer2[4096];
 // multiThreadOnly
 //
 
-CWaveMusic::CWaveMusic(LPVOID myDirectSound,int number)
+CWaveMusic::CWaveMusic(LPVOID myDirectSound, int number)
 {
 	m_myDirectSound = myDirectSound;
 	m_bufferNumber = number;
+	m_directSoundBuffer = NULL;
+	m_directSoundBuffer8 = NULL;
 
 	m_filePointer = NULL;
-//	m_fileHandle = INVALID_HANDLE_VALUE;
+	//	m_fileHandle = INVALID_HANDLE_VALUE;
 
 	m_spectrumCalcuMode = 0;
 
 	//create second buffer 2sec
 
 	WAVEFORMATEX pcmwf;
-	ZeroMemory(&pcmwf,sizeof(pcmwf));
+	ZeroMemory(&pcmwf, sizeof(pcmwf));
 	pcmwf.cbSize = sizeof(pcmwf);
 	pcmwf.wBitsPerSample = 16;
 	pcmwf.wFormatTag = WAVE_FORMAT_PCM;
@@ -89,10 +91,10 @@ CWaveMusic::CWaveMusic(LPVOID myDirectSound,int number)
 	pcmwf.nAvgBytesPerSec = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
 
 	DSBUFFERDESC dsbdesc;
-	ZeroMemory(&dsbdesc,sizeof(dsbdesc));
+	ZeroMemory(&dsbdesc, sizeof(dsbdesc));
 	dsbdesc.dwSize = sizeof(dsbdesc);
 	dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCSOFTWARE | DSBCAPS_CTRLPOSITIONNOTIFY;
-//	dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCDEFER | DSBCAPS_CTRLPOSITIONNOTIFY;
+	//	dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCDEFER | DSBCAPS_CTRLPOSITIONNOTIFY;
 	dsbdesc.dwBufferBytes = pcmwf.nAvgBytesPerSec * 2;
 	dsbdesc.lpwfxFormat = &pcmwf;
 
@@ -100,10 +102,14 @@ CWaveMusic::CWaveMusic(LPVOID myDirectSound,int number)
 	LPDIRECTSOUND8 directSound8 = (LPDIRECTSOUND8)m_myDirectSound;
 
 	LPDIRECTSOUNDBUFFER lp = NULL;
-	HRESULT hr = directSound8->CreateSoundBuffer(&dsbdesc,&lp,NULL);
+	if (directSound8)
+	{
+		HRESULT hr = directSound8->CreateSoundBuffer(&dsbdesc, &lp, NULL);
 
-	m_directSoundBuffer = lp;
-	lp->QueryInterface(IID_IDirectSoundBuffer8,(LPVOID*)&m_directSoundBuffer8);
+		m_directSoundBuffer = lp;
+		lp->QueryInterface(IID_IDirectSoundBuffer8, (LPVOID*)&m_directSoundBuffer8);
+
+	}
 	//refget
 
 
@@ -140,20 +146,27 @@ CWaveMusic::CWaveMusic(LPVOID myDirectSound,int number)
 
 
 	m_convBuffer = NULL;
+//#if !defined __USE_XAUDIO2__
+	m_oggStreamDecoder = NULL;
+	if (CMyDirectSound::m_xAudioFlag == 0)
+	{
+		if (number == 0)
+		{
+			m_oggStreamDecoder = new COggStreamDecoder(convBuffer);
+		}
+		else if (number == 1)
+		{
+			m_oggStreamDecoder = new COggStreamDecoder(convBuffer2);
+		}
+		else
+		{
+			m_convBuffer = new short[4096];
+			m_oggStreamDecoder = new COggStreamDecoder(m_convBuffer);
+		}
+	}
+//#endif
 
-	if (number == 0)
-	{
-		m_oggStreamDecoder = new COggStreamDecoder(convBuffer);
-	}
-	else if (number == 1)
-	{
-		m_oggStreamDecoder = new COggStreamDecoder(convBuffer2);
-	}
-	else
-	{
-		m_convBuffer = new short[4096];
-		m_oggStreamDecoder = new COggStreamDecoder(m_convBuffer);
-	}
+
 
 	m_mmlControl = new CMMLControl();
 
@@ -205,13 +218,16 @@ CWaveMusic::CWaveMusic(LPVOID myDirectSound,int number)
 	pn[2].hEventNotify = m_hEvent[2];
 
 
+	m_directSoundNotify = NULL;
 
-	LPDIRECTSOUNDNOTIFY pNotify;
-	HRESULT hr2 = lp->QueryInterface(IID_IDirectSoundNotify,(LPVOID*)&pNotify);
-	m_directSoundNotify = lp;
+	if (m_myDirectSound)
+	{
+		LPDIRECTSOUNDNOTIFY pNotify;
+		HRESULT hr2 = lp->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&pNotify);
+		m_directSoundNotify = lp;
 
-	HRESULT hr3 = pNotify->SetNotificationPositions(3,pn);
-
+		HRESULT hr3 = pNotify->SetNotificationPositions(3, pn);
+	}
 
 
 	m_fadeInFlag = FALSE;
@@ -243,10 +259,14 @@ CWaveMusic::CWaveMusic(LPVOID myDirectSound,int number)
 //	m_this = this;
 
 	//thread
-	m_threadHandle = CreateThread(NULL,0,staticMyThread,(LPVOID)this,0,&m_threadID);
-	if (m_threadHandle == NULL)
+	m_threadHandle = NULL;
+	if (m_myDirectSound)
 	{
-		//error
+		m_threadHandle = CreateThread(NULL, 0, staticMyThread, (LPVOID)this, 0, &m_threadID);
+		if (m_threadHandle == NULL)
+		{
+			//error
+		}
 	}
 }
 

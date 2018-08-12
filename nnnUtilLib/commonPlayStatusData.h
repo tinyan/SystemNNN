@@ -19,8 +19,8 @@ public:
 	int GetVarNumber(int n);
 	void SetVarNumber(int n,int d);
 	void SetData(int n,int d);
-
 	void Print(int ps = 100);
+	void Print(POINT pt, int ps = 100);
 
 	static char m_errorName[];
 	static char m_errorVarName[];
@@ -29,6 +29,8 @@ public:
 protected:
 	BOOL GetInitGameParam(int* lpVar, LPSTR name);
 	BOOL GetInitGameString(LPSTR* lpStr, LPSTR name);
+
+	void PrintRoutine(int ps);
 
 	int m_graphNumber;
 	int m_graphType;
@@ -48,6 +50,7 @@ protected:
 
 	CPolygonShape** m_polygonShape;
 
+	POINT m_basePoint;
 
 	void PrintYokoGraph(void);
 	void PrintTateGraph(void);

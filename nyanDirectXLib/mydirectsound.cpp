@@ -15,6 +15,9 @@
 #include "mydirectsound.h"
 
 
+int CMyDirectSound::m_xAudioFlag = 0;
+
+
 CMyDirectSound::CMyDirectSound(HWND hwnd)
 {
 	m_hWnd = hwnd;
@@ -369,9 +372,11 @@ BOOL CMyDirectSound::PlaySystemSound(int n)
 }
 */
 
+
+//dont use
 void CMyDirectSound::SetVolume(int vol)
 {
-	if (m_lpDirectSound == NULL) return;
+//	if (m_lpDirectSound == NULL) return;
 
 	int volume = (vol - 100 ) * 100;
 	if (vol == 0)

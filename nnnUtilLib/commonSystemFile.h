@@ -147,7 +147,7 @@ public:
 		int totalVolume;
 		int totalVolumeSwitch;
 		int screenSizeType;
-		int genericFlag;//bit0:screenStretchflag
+		int genericFlag;//bit0:screenStretchflag bit1:useXAudio2 bit2:useDirect2D
 		int user[16];
 	} SYSTEMDATA;
 

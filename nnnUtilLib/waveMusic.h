@@ -12,26 +12,51 @@ class CWaveMusic
 {
 public:
 	CWaveMusic(LPVOID myDirectSound,int number = 0);
-	~CWaveMusic();
-	void End(void);
+	virtual ~CWaveMusic();
+	virtual void End(void);
 
-	BOOL PlayBGM(LPSTR filename,int loop = 0,BOOL fadeinFlag = TRUE,int fadeinTime = 0);
-	BOOL StopBGM(BOOL fadeOutFlag = FALSE,int fadeOutTime = 0);
-	void SetStartVolume(int vol);
-	void ChangeVolume(int vol);
-	void FadeVolume(int vol,int fadeTime);
+	virtual BOOL PlayBGM(LPSTR filename,int loop = 0,BOOL fadeinFlag = TRUE,int fadeinTime = 0);
+	virtual BOOL StopBGM(BOOL fadeOutFlag = FALSE,int fadeOutTime = 0);
+	virtual void SetStartVolume(int vol);
+	virtual void ChangeVolume(int vol);
+	virtual void FadeVolume(int vol,int fadeTime);
 
-	void SetFadeInTime(int fadeInTime){m_fadeInTime0 = fadeInTime;}
-	void SetFadeOutTime(int fadeOutTime){m_fadeOutTime0 = fadeOutTime;}
+	virtual void SetFadeInTime(int fadeInTime){m_fadeInTime0 = fadeInTime;}
+	virtual void SetFadeOutTime(int fadeOutTime){m_fadeOutTime0 = fadeOutTime;}
 
 
-	void Pause(void);
-	void Resume(void);
-	BOOL CheckPlaying(void);
-	int GetMusicTime(void);
+	virtual void Pause(void);
+	virtual void Resume(void);
+	virtual BOOL CheckPlaying(void);
+	virtual int GetMusicTime(void);
+
+	virtual DWORD WINAPI MyThread(LPVOID Param);
+
+	virtual int GetBlock(int n);
+
+	virtual void SetFadeInVolume(void);
+	virtual void SetFadeOutVolume(void);
+	virtual void SetNormalVolume(void);
+	virtual void SetFadeVolume(void);
+
+	virtual BOOL OpenNewFile(LPSTR filename);
+
+	virtual void SetVolumeRoutine(int vol);
+	virtual void OnWaveTime(void);
+
+	virtual void StartSpectrum(void);
+	virtual void StopSpectrum(void);
+
+	virtual BOOL GetWavePlainData(int* wave, int block = 16);
+	virtual BOOL GetFFT(int* fft, int p = 256, int block = 16);
+
+	virtual BOOL GetWaveCut(float* wave, int n = 256, int rightChannel = 0);
+	virtual void FadeVolumeMain(void);
 
 	static DWORD WINAPI staticMyThread(LPVOID Param);
-	DWORD WINAPI MyThread(LPVOID Param);
+	
+
+protected:
 	HANDLE m_hEvent[16];
 	HANDLE m_hReturnEvent[16];
 
@@ -53,7 +78,6 @@ public:
 	BOOL m_dataEndFlag;
 	LPSTR m_filename;
 
-	int GetBlock(int n);
 
 	int m_nokoriDataSize;
 
@@ -109,35 +133,19 @@ public:
 	int m_nowVolume;
 
 
-	void SetFadeInVolume(void);
-	void SetFadeOutVolume(void);
-	void SetNormalVolume(void);
-	void SetFadeVolume(void);
-
-	BOOL OpenNewFile(LPSTR filename);
 
 	int m_startVolume;
 	BOOL m_startVolumeFlag;
-	void SetVolumeRoutine(int vol);
-
-	void OnWaveTime(void);
 
 	int m_oldTime;
 	int m_amari;
 	int m_bufferTimeAmari;
 
 
-	void StartSpectrum(void);
-	void StopSpectrum(void);
-	
-	BOOL GetWavePlainData(int* wave,int block = 16);
-	BOOL GetFFT(int* fft,int p = 256,int block = 16);
 
 	int m_playTime;
 	int m_spectrumCalcuMode;
 
-	BOOL GetWaveCut(float* wave,int n = 256,int rightChannel = 0);
-	void FadeVolumeMain(void);
 
 private:
 

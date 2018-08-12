@@ -32,6 +32,9 @@
 #if !defined _TINYAN3DLIB_
 #include "..\nyanDirectXLib\myDirectSoundBuffer.h"
 #include "..\nyanDirectXLib\myDirectShow.h"
+#if defined __USE_XAUDIO2__
+#include "..\nyanDirectXLib\myXAudio2Buffer.h"
+#endif
 #else
 #include "..\nyanDirectXLib\myDirectSoundBuffer.h"
 #include "..\nyanDirectXLib\myDirectShow.h"
@@ -147,6 +150,9 @@
 #include "..\nnnUtilLib\commonGameVersion.h"
 
 #include "..\nyanDirectXLib\mydirectsound.h"
+#if defined __USE_XAUDIO2__
+#include "..\nyanDirectXLib\myXAudio2.h"
+#endif
 
 #include "..\nnnUtilLib\printPlayerStatus.h"
 
@@ -590,6 +596,19 @@ void CGameCallBack::GeneralCreate(void)
 	m_useDirect2D = 0;
 	GetInitGameParam(&m_useDirect2D, "useDirect2D");
 	CMyDirectDraw::m_direct2DFlag = m_useDirect2D;
+
+	m_useXAudio2 = 0;
+#if defined __USE_XAUDIO2__
+
+	if (m_systemFile->m_systemdata.genericFlag & 2)
+	{
+		m_useXAudio2 = 1;
+		CMyDirectSound::m_xAudioFlag = m_useXAudio2;
+	}
+
+//	GetInitGameParam(&m_useXAudio2, "useXAudio2");
+//	CMyDirectSound::m_xAudioFlag = m_useXAudio2;
+#endif
 
 
 
@@ -2320,7 +2339,22 @@ else
 	int masterVolumeFlag = 0;
 	GetInitGameParam(&masterVolumeFlag,"masterVolumeFlag");
 
+#if defined __USE_XAUDIO2__
+	if (m_useXAudio2)
+	{
+		m_directSound = new CMyXAudio2(m_hWnd);
+	}
+	else
+	{
+		m_directSound = new CMyDirectSound(m_hWnd);
+	}
+#else
 	m_directSound = new CMyDirectSound(m_hWnd);
+#endif
+
+
+
+
 	m_mixer = new CMixerControl(masterVolumeFlag);
 	int vmr = m_systemFile->m_systemdata.useVMR9;
 	m_directShow = new CMyDirectShow(m_hWnd,WM_APP+1,vmr);
@@ -2392,8 +2426,24 @@ else
 	m_musicControl->SetDefaultFadeInOutTime(m_defaultFadeInTime,m_defaultFadeOutTime);
 
 
-	m_systemSound[0] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(),FALSE);
-	m_systemSound[1] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(),FALSE);
+
+#if defined __USE_XAUDIO2__
+	if (CMyDirectSound::m_xAudioFlag)
+	{
+		m_systemSound[0] = new CMyXAudio2Buffer(m_directSound->GetDirectSound(), FALSE);
+		m_systemSound[1] = new CMyXAudio2Buffer(m_directSound->GetDirectSound(), FALSE);
+	}
+	else
+	{
+		m_systemSound[0] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+		m_systemSound[1] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+	}
+#else
+	m_systemSound[0] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+	m_systemSound[1] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+#endif
+
+
 
 	m_useSystemSoundNumber = 0;
 
@@ -4777,7 +4827,7 @@ void CGameCallBack::PrintEffectLayer(int startLayer,int endLayer)
 {
 	m_effect->PrintLayers(startLayer,endLayer);
 
-	if (endLayer == 15)
+	if (endLayer ==LAYER_KOSUU_MAX - 1)
 	{
 		m_effect->EndEffect();
 	}
@@ -11784,6 +11834,14 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	PrintParentClass();
 
 	if (general != NULL) general->GeneralPrint();
+
+	for (int i = 1; i < 100; i++)
+	{
+		if (m_general[i])
+		{
+			m_general[i]->CheckAndPrintDokuritsu(GetGameMode());
+		}
+	}
 
 
 	if (m_debugOkFlag)
