@@ -24,7 +24,7 @@ public:
 	void StopIfLoops(int ch);
 
 
-	BOOL SetData(int ch,char* data,int dataSize, int channel,int samplingRate,int samplingBit);
+	BOOL SetData(int ch,char* data,int dataSize, int channel,int samplingRate,int samplingBit,BOOL loopFlag = false);
 
 	void SetVolume(int ch,int volume,int fadeTime);
 

@@ -47,6 +47,7 @@ public:
 	POINT GetUpZahyo(void);
 	POINT GetDownZahyo(void);
 
+	void ClearAccelKey(void);
 private:
 	CSuperButtonSetup* m_updownSetup[2];
 	CCommonButton* m_button[2];

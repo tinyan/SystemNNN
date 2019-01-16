@@ -157,6 +157,8 @@ public:
 
 	BOOL LoadFile(LPSTR dirName = "sys");
 
+	void ClearAccelKey(void);
+
 protected:
 	BOOL m_existFlag;
 	BOOL m_enableFlag;

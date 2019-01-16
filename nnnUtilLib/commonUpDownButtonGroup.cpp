@@ -405,5 +405,16 @@ POINT CCommonUpDownButtonGroup::GetDownZahyo(void)
 	return m_button[1]->GetZahyo();
 }
 
+void CCommonUpDownButtonGroup::ClearAccelKey(void)
+{
+	for (int i = 0; i < 2; i++)
+	{
+		m_button[i]->ClearAccelKey();
+		m_button[i]->SetUpButtonFlag(FALSE);
+		m_button[i]->SetDownButtonFlag(FALSE);
+	}
+}
+
+
 /*_*/
 

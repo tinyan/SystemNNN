@@ -482,6 +482,7 @@ int CCommonShop::Calcu(void)
 					}
 					else
 					{
+						m_game->FuqueAllEffectYoyaku();
 						//				return ReturnFadeOut(OMAKE_MODE);
 						return ReturnFadeOut(m_backMode);
 					}

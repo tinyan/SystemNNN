@@ -226,9 +226,9 @@ void CScriptSoundControl::AllStop(void)
 	}
 }
 
-BOOL CScriptSoundControl::SetData(int ch,char* data,int dataSize, int channel,int samplingRate,int samplingBit)
+BOOL CScriptSoundControl::SetData(int ch,char* data,int dataSize, int channel,int samplingRate,int samplingBit,BOOL loopFlag)
 {
-	return m_scriptSound[ch]->SetData(data,dataSize,channel,samplingRate,samplingBit);
+	return m_scriptSound[ch]->SetData(data,dataSize,channel,samplingRate,samplingBit,loopFlag);
 }
 
 void CScriptSoundControl::SetVolume(int ch,int volume,int fadeTime)

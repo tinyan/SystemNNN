@@ -67,10 +67,13 @@ public:
 
 //	static bool m_direct2DFlag;
 	
+	void ClearBackSurface(void) override;
 
 protected:
 
-	
+	LPVOID m_factory;
+	LPVOID m_renderTargetHWND;
+
 //	int GetTopBit(int dt);
 
 	/*
@@ -134,7 +137,6 @@ protected:
 	//void ErrorLog(LPSTR mes);
 
 	*/
-	void ClearBackSurface(void) override;
 
 
 

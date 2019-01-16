@@ -167,10 +167,11 @@ void CMyIME::End(void)
 	Cleanup();
 }
 
+static WCHAR wText[4096];
 
 LPSTR CMyIME::Start(LPSTR text)
 {
-	WCHAR wText[4096];
+//	WCHAR wText[4096];
 
 	setlocale( LC_ALL, "jpn" );  
 	int retValue = 0;
@@ -400,6 +401,7 @@ bool CMyIME::EnumCandidates(
       }
     }
     
+
     // •ÏŠ·”ÍˆÍ‚ðŽæ“¾‚·‚éB
     hr = m_reconversion_cp->QueryRange(selections[0].range, &range_cp, &is_converted);
     if( FAILED(hr) || range_cp == NULL )

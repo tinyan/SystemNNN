@@ -453,10 +453,24 @@ int CCommonSelectScene::Init(void)
 	{
 		m_game->SetVarData(i,0);
 	}
-	for (int i=300;i<1000;i++)
+
+	int varType = m_game->GetVarType();
+	if (varType == 0)
 	{
-		m_game->SetVarData(i,0);
+		for (int i = 300; i < 1000; i++)
+		{
+			m_game->SetVarData(i, 0);
+		}
 	}
+	else
+	{
+		for (int i = 1200; i < 2200; i++)
+		{
+			m_game->SetVarData(i, 0);
+		}
+	}
+
+
 
 	m_game->SetDefaultFrameRate();
 

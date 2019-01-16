@@ -424,7 +424,7 @@ BOOL CWaveMusic::StopBGM(BOOL fadeOutFlag,int fadeOutTime)
 		ResetEvent(m_hReturnEvent[STOPBGM_COMMAND]);
 //if (m_bufferNumber == 1)
 //{
-//OutputDebugString("[xxx]");
+OutputDebugString("[stopbgm command]");
 //}
 		m_fadeInFlag = FALSE;
 		m_fadeFlag = FALSE;
@@ -441,7 +441,7 @@ BOOL CWaveMusic::StopBGM(BOOL fadeOutFlag,int fadeOutTime)
 		WaitForSingleObject(m_hReturnEvent[FADEOUT_COMMAND],10*1000);
 		ResetEvent(m_hReturnEvent[FADEOUT_COMMAND]);
 
-//		OutputDebugString("bgm(FADEOUT)");
+		OutputDebugString("bgm(FADEOUT) command");
 	}
 
 	return TRUE;

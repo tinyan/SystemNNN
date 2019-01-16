@@ -595,6 +595,11 @@ void CGameCallBack::GeneralCreate(void)
 
 	m_useDirect2D = 0;
 	GetInitGameParam(&m_useDirect2D, "useDirect2D");
+	if (m_systemFile->m_systemdata.genericFlag & 4)
+	{
+		m_useDirect2D = 1;
+	}
+
 	CMyDirectDraw::m_direct2DFlag = m_useDirect2D;
 
 	m_useXAudio2 = 0;
@@ -754,7 +759,7 @@ void CGameCallBack::GeneralCreate(void)
 
 
 	CMyMessage::m_okikaeData = m_okikaeData;
-	SetAutoSaveSubClass(m_autoSaveDataList->SearchName("okikae"),m_okikaeData);
+//	SetAutoSaveSubClass(m_autoSaveDataList->SearchName("okikae"),m_okikaeData);
 
 
 //	CMyGraphics::SetScreenBufferSize(m_windowSizeX,m_windowSizeY);
@@ -800,6 +805,7 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&vistaCheck,"vistaCheck");
 	if (vistaCheck)
 	{
+		/*
 		OSVERSIONINFO osVersion;
 		osVersion.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionEx(&osVersion);
@@ -810,6 +816,7 @@ void CGameCallBack::GeneralCreate(void)
 				CAreaControl::SetVista();
 			}
 		}
+		*/
 	}
 	//全バージョンallprintMode
 	CAreaControl::SetVista();
@@ -953,6 +960,7 @@ void CGameCallBack::GeneralCreate(void)
 		{
 			m_autoExtDataLoadSub[m_autoExtSubDataLoadKosuu] = s;
 			m_autoExtSubDataLoadKosuu++;
+			SetAutoSaveSubClass(m_autoSaveDataList->SearchName("okikae"), m_okikaeData);
 		}
 	}
 
@@ -1472,7 +1480,7 @@ void CGameCallBack::GeneralCreate(void)
 
 
 //	m_bgmNumber = -1;
-//	m_bgmKaisuu = 0;
+	m_musicKaisuu = 0;
 
 	m_lastSoundVoiceVolume = 101;
 
@@ -2834,7 +2842,8 @@ else
 	m_printPlayerStatusFlag = 0;
 	m_printPlayerStatus = NULL;
 
-	GetInitGameParam(&m_printPlayerStatusFlag, "printPlayerStatus");
+	//GetInitGameParam(&m_printPlayerStatusFlag, "printPlayerStatus");
+	//これはprintPlayerStatusに移行
 	if (m_printPlayerStatusFlag)
 	{
 		m_printPlayerStatus = new CPrintPlayerStatus(m_message);
@@ -3073,9 +3082,14 @@ else
 		GetInitGameParam(&vistaPatch,"vistaDebug");
 		m_printDebugParam->SetVistaPatch(vistaPatch);
 	}
-
-	m_printDebugParam->AddDebugVarNumber(300);
-
+	if (varType == 0)
+	{
+		m_printDebugParam->AddDebugVarNumber(300);
+	}
+	else
+	{
+		m_printDebugParam->AddDebugVarNumber(1200);
+	}
 	//backbutton
 
 	m_fileControl = NULL;
@@ -9112,7 +9126,7 @@ BOOL CGameCallBack::PlayScriptSe(int ch)
 		int realSize = m_waveData->GetRealDataSize();
 
 //		m_scriptSound[ch]->SetData(realPtr,realSize,stereo,sampleRate,bitRate);
-		m_scriptSoundControl->SetData(ch,realPtr,realSize,stereo,sampleRate,bitRate);
+		m_scriptSoundControl->SetData(ch,realPtr,realSize,stereo,sampleRate,bitRate,loopFlag);
 /*
 		float fx = (float)xyz[0];
 		float fy = (float)xyz[1];
@@ -9527,7 +9541,7 @@ OutputDebugString(mes999);
 		int realSize = m_waveData->GetRealDataSize();
 
 //		m_scriptVoice[ch]->SetData(realPtr,realSize,stereo,sampleRate,bitRate);
-		m_scriptVoiceControl->SetData(ch,realPtr,realSize,stereo,sampleRate,bitRate);
+		m_scriptVoiceControl->SetData(ch,realPtr,realSize,stereo,sampleRate,bitRate,loopFlag);
 
 /*
 		float fx = (float)xyz[0];
@@ -11784,6 +11798,11 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	m_mouseStatus->TrigToMae();
 	ClearAllKey();
 
+	if (CheckUseDirect2D())
+	{
+		CAreaControl::SetNextAllPrint();
+	}
+
 #if !defined _TINYAN3DLIB_
 	if (CAreaControl::CheckAllPrintMode())
 	{
@@ -11918,7 +11937,7 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 
 
 	if (m_printPlayerStatusFlag)
-	{
+	{/*
 		if (m_printPlayerStatus)
 		{
 			if (m_printPlayerStatus->IsEnable(GetGameMode()))
@@ -11946,6 +11965,7 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 				m_printPlayerStatus->Print();
 			}
 		}
+		*/
 	}
 
 
@@ -15595,6 +15615,8 @@ void CGameCallBack::GetExtDataForSaveGeneral(LPVOID ptr,int extNumber)
 			CAutoSaveSubData* subClass = m_autoSaveSubDataClass[extNumber - m_autoExtDataLoadKosuu];
 			if (subClass != NULL)
 			{
+				
+
 				subClass->GetExtDataForSave(ptr,extNumber);
 				return;
 			}

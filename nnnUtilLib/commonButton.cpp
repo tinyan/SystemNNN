@@ -1194,7 +1194,13 @@ BOOL CCommonButton::LoadFile(LPSTR dirName)
 }
 
 
-
+void CCommonButton::ClearAccelKey(void)
+{
+	for (int i = 0; i<3; i++)
+	{
+		SetAccelKey(-1, i);
+	}
+}
 /*_*/
 
 

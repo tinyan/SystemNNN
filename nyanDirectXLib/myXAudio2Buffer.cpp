@@ -87,7 +87,7 @@ void CMyXAudio2Buffer::Play(BOOL loopFlag)
 
 	if (loopFlag)
 	{
-		//loop
+		
 		((IXAudio2SourceVoice*)m_directSoundBuffer8)->Start(0, 0);
 	}
 	else
@@ -168,7 +168,7 @@ void CMyXAudio2Buffer::Set3DPosition(float x, float y, float z)
 }
 
 
-BOOL CMyXAudio2Buffer::SetData(char* waveData, int dataSize, int channel, int samplingRate, int samplingBit)
+BOOL CMyXAudio2Buffer::SetData(char* waveData, int dataSize, int channel, int samplingRate, int samplingBit,BOOL loopFlag)
 {
 	if (m_xAudio2 == NULL)
 	{
@@ -300,7 +300,16 @@ BOOL CMyXAudio2Buffer::SetData(char* waveData, int dataSize, int channel, int sa
 		buffer.AudioBytes = dataSize;
 
 		buffer.pAudioData = (const BYTE*)waveData;
-		buffer.Flags = XAUDIO2_END_OF_STREAM;
+		
+		if (loopFlag)
+		{
+			buffer.Flags = XAUDIO2_END_OF_STREAM;
+			buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+		}
+		else
+		{
+			buffer.Flags = XAUDIO2_END_OF_STREAM;
+		}
 
 		hr = sourceVoice->SubmitSourceBuffer(&buffer);
 		if (FAILED(hr))

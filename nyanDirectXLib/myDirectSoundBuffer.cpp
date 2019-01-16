@@ -169,8 +169,8 @@ void CMyDirectSoundBuffer::Set3DPosition(float x,float y,float z)
 	((LPDIRECTSOUND3DBUFFER8)m_directSound3DBuffer)->SetPosition(x,y,z,DS3D_IMMEDIATE);
 }
 
-
-BOOL CMyDirectSoundBuffer::SetData(char* waveData,int dataSize, int channel,int samplingRate,int samplingBit)
+//loopf flag is dummy for XAudioi2
+BOOL CMyDirectSoundBuffer::SetData(char* waveData,int dataSize, int channel,int samplingRate,int samplingBit,BOOL loopFlag)
 {
 	if (m_directSound == NULL)
 	{

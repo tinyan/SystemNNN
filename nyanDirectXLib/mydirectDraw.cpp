@@ -8,6 +8,7 @@
 
 #include "..\nyanlib\include\myfile.h"
 
+#include "..\nyanLib\INCLUDE\commonmacro.h"
 #include "myDirect2D.h"
 #include "MyDirectDraw.h"
 
@@ -92,9 +93,10 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 
 //	m_displayModeChangedFlag = bFullScreen;
 
-
+	m_direct2D = NULL;
 	if (m_direct2DFlag)
 	{
+//		m_direct2D = new CMyDirect2D(hwnd, hinstance, sizeX, sizeY, col, bFullScreen, deviceNumber);
 		return;
 	}
 
@@ -376,6 +378,7 @@ void CMyDirectDraw::End(void)
 {
 	if (m_direct2DFlag)
 	{
+		ENDDELETECLASS(m_direct2D);
 		return;
 	}
 
@@ -442,6 +445,10 @@ void CMyDirectDraw::End(void)
 
 BOOL CMyDirectDraw::CheckInitOk(void)
 {
+	if (m_direct2DFlag)
+	{
+		return TRUE;//@@@;
+	}
 
 
 	if (m_notUseDirectDraw) return TRUE;
@@ -455,6 +462,10 @@ BOOL CMyDirectDraw::CheckInitOk(void)
 
 BOOL CMyDirectDraw::Restore(BOOL flg)
 {
+	if (m_direct2DFlag)
+	{
+		return TRUE;//@@@
+	}
 
 
 
@@ -499,6 +510,10 @@ BOOL CMyDirectDraw::Restore(BOOL flg)
 
 HRESULT CMyDirectDraw::Activate(BOOL bActive)
 {
+	if (m_direct2DFlag)
+	{
+		return TRUE;//@@@
+	}
 
 
 
@@ -547,6 +562,10 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 
 HRESULT CMyDirectDraw::Lock(void)
 {
+	if (m_direct2DFlag)
+	{
+		return TRUE;//@@@
+	}
 
 
 	if (m_notUseDirectDraw) return FALSE;
@@ -598,6 +617,10 @@ HRESULT CMyDirectDraw::Lock(void)
 
 HRESULT CMyDirectDraw::Unlock(void)
 {
+	if (m_direct2DFlag)
+	{
+		return TRUE;//@@@
+	}
 
 
 	if (m_notUseDirectDraw) return DD_OK;
@@ -635,6 +658,15 @@ HRESULT CMyDirectDraw::Unlock(void)
 
 HRESULT CMyDirectDraw::NiseFlip(int x,int y, int sizeX, int sizeY,BOOL waitVSync)
 {
+	if (m_direct2DFlag)
+	{
+		if (m_direct2D)
+		{
+			return m_direct2D->NiseFlip(x, y, sizeX, sizeY, 0);
+		}
+			
+		return TRUE;//@@@
+	}
 
 
 
@@ -783,6 +815,14 @@ HRESULT CMyDirectDraw::NiseFlip2(RECT dstRect,RECT srcRect,BOOL waitVSync)
 
 HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,int srcX,int srcY,int srcSizeX,int srcSizeY,BOOL waitVSync)
 {
+	if (m_direct2DFlag)
+	{
+		if (m_direct2D)
+		{
+			return m_direct2D->NiseFlip2(dstX, dstY, dstSizeX, dstSizeY, srcX, srcY, srcSizeX, srcSizeY, 0);
+		}
+		return TRUE;//@@@
+	}
 
 	if (m_notUseDirectDraw) return DD_OK;
 
@@ -928,6 +968,11 @@ HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,i
 
 HRESULT CMyDirectDraw::Flip(void)
 {
+	if (m_direct2DFlag)
+	{
+		//@@@
+		return TRUE;
+	}
 
 	if (m_notUseDirectDraw) return DD_OK;
 
@@ -1066,6 +1111,10 @@ HRESULT CMyDirectDraw::Flip(void)
 
 LPVOID CMyDirectDraw::GetSurfaceAddr(void)
 {
+	if (m_direct2DFlag)
+	{
+		return NULL;//@@@
+	}
 
 	if (m_notUseDirectDraw) return NULL;
 
@@ -1084,6 +1133,10 @@ LPVOID CMyDirectDraw::GetSurfaceAddr(void)
 
 int CMyDirectDraw::GetLPitch(void)
 {
+	if (m_direct2DFlag)
+	{
+		return 0;//@@@
+	}
 
 
 #if defined _TINYAN3DLIB_
@@ -1106,6 +1159,7 @@ int CMyDirectDraw::GetTopBit(int d)
 	return 0;
 #endif
 
+	
 	int n=0;
 	unsigned int dd = (unsigned int)d;
 	for (int i=0;i<32;i++)
@@ -1121,6 +1175,15 @@ int CMyDirectDraw::GetTopBit(int d)
 
 BOOL CMyDirectDraw::OnActivate(BOOL bActive)
 {
+	if (m_direct2DFlag)
+	{
+		if (m_direct2DFlag)
+		{
+			return m_direct2D->OnActivate(bActive);
+		}
+
+		return TRUE;//@@@
+	}
 
 
 	if (m_notUseDirectDraw) return TRUE;
@@ -1163,6 +1226,14 @@ BOOL CMyDirectDraw::OnActivate(BOOL bActive)
 
 BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
 {
+	if (m_direct2DFlag)
+	{
+		if (m_direct2DFlag)
+		{
+			return m_direct2D->WindowIsMoved(x, y);
+		}
+		return TRUE;//@@@
+	}
 
 	if (m_notUseDirectDraw) return TRUE;
 
@@ -1211,6 +1282,15 @@ BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
 
 HDC CMyDirectDraw::GetMyDC(void)
 {
+	if (m_direct2DFlag)
+	{
+		if (m_direct2DFlag)
+		{
+			return m_direct2D->GetMyDC();
+		}
+
+		return NULL;//@@@
+	}
 
 	if (m_notUseDirectDraw) return NULL;
 
@@ -1233,6 +1313,15 @@ HDC CMyDirectDraw::GetMyDC(void)
 
 void CMyDirectDraw::ReleaseMyDC(HDC hdc)
 {
+	if (m_direct2DFlag)
+	{
+		if (m_direct2DFlag)
+		{
+			m_direct2D->ReleaseMyDC(hdc);
+		}
+
+		return;//@@@
+	}
 
 
 	if (m_notUseDirectDraw) return;
@@ -1342,6 +1431,16 @@ void CMyDirectDraw::ErrorLog(LPSTR mes)
 
 void CMyDirectDraw::ClearBackSurface(void)
 {
+	if (m_direct2DFlag)
+	{
+		if (m_direct2DFlag)
+		{
+			m_direct2D->ClearBackSurface();
+		}
+
+		return;//@@@
+	}
+
 	if (m_lpBack == NULL) return;
 
 	if (Lock())

@@ -114,6 +114,8 @@ CCommonPrintStatus::CCommonPrintStatus(CGameCallBack* lpGame,int extMode) : CCom
 		char name[256];
 		sprintf_s(name,256,"set%d",i+1);
 		m_playStatusData[i] = new CCommonPlayStatusData(m_setup,name);
+		m_onOffButton[i] = NULL;
+		m_placeUpDown[i] = NULL;
 
 		int graphNumber = m_playStatusData[i]->GetGraphNumber();
 		for (int k=0;k<graphNumber;k++)
@@ -177,6 +179,8 @@ CCommonPrintStatus::CCommonPrintStatus(CGameCallBack* lpGame,int extMode) : CCom
 				m_placeUpDown[i] = new CCommonUpDownButtonGroup(buttonName, buttonName2, m_setup, lpBG);
 				m_placeUpDown[i]->SetPicture(0,CSuperButtonPicture::GetPicture(3 + i * 4 + 2));
 				m_placeUpDown[i]->SetPicture(1,CSuperButtonPicture::GetPicture(3 + i * 4 + 3));
+
+				m_placeUpDown[i]->ClearAccelKey();
 			}
 		}
 

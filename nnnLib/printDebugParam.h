@@ -23,7 +23,7 @@ public:
 	void SetDebugVarStart(int d){m_debugVarStart = d;}
 	void AddDebugVarNumber(int d,BOOL loopFlag = FALSE);
 	void AddDebugVarPage(int page);
-	void SetDebugVarPage(int page){m_page = page;}
+	void SetDebugVarPage(int page){m_numberOfPage = page;}
 	void SetDebugBackPrintMode(int md){m_debugBackPrintMode = md;}
 	void ChangeDebugBackPrintMode(void);
 	void SetDebugBackPrintColor(int r,int g,int b){m_backR = r;m_backG = g;m_backB = b;}
@@ -34,13 +34,24 @@ protected:
 	CNameList* m_varList;
 
 	int m_debugVarStart;
-	int m_page;
+	//int m_page;
 
 	int m_debugBackPrintMode;
 	int m_backR;
 	int m_backG;
 	int m_backB;
 	int m_backPercent;
+
+
+	int m_printX;
+	int m_printY;
+	int m_nextY;
+	int m_backPrintX;
+	int m_backPrintY;
+	int m_backSizeX;
+	int m_backSizeY;
+
+	int m_numberOfPage;
 
 	BOOL m_vistaPatch;
 private:

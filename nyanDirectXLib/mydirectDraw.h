@@ -7,6 +7,8 @@
 
 #include <ddraw.h>
 
+class CMyDirect2D;
+
 
 
 class CMyDirectDraw
@@ -64,6 +66,7 @@ public:
 	static void SetOutColor(int r,int g,int b);
 
 	static bool m_direct2DFlag;
+	virtual void ClearBackSurface(void);
 
 protected:
 
@@ -127,7 +130,8 @@ protected:
 	static int m_fillColorB;
 
 	virtual void ErrorLog(LPSTR mes);
-	virtual void ClearBackSurface(void);
+
+	CMyDirect2D* m_direct2D;
 
 
 //	CMyDirect2D* m_direct2D;

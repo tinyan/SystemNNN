@@ -116,7 +116,7 @@ CWaveMusicXAudio2::CWaveMusicXAudio2(LPVOID myXAudio2, int number) : CWaveMusic(
 	dsbdesc.dwSize = sizeof(dsbdesc);
 	dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCSOFTWARE | DSBCAPS_CTRLPOSITIONNOTIFY;
 	//	dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCDEFER | DSBCAPS_CTRLPOSITIONNOTIFY;
-	dsbdesc.dwBufferBytes = pcmwf.nAvgBytesPerSec * 2;
+	dsbdesc.dwBufferBytes = pcmwf.nAvgBytesPerSec * 4;//‚Ò‚Á‚½‚è‚Å‚Æ‚é‚ÆXAudio2‚¾‚ÆƒmƒCƒY‚ªo‚é‚Ì‚Å2”{
 	dsbdesc.lpwfxFormat = &pcmwf;
 
 
@@ -1306,7 +1306,7 @@ void CWaveMusicXAudio2::SetFadeVolume(void)
 	if (vol > 10000) vol = 10000;
 
 	float v = (float)vol;
-	v *= 0.01f;
+	v *= 0.0001f;
 
 	((IXAudio2SourceVoice*)m_sourceVoice)->SetVolume(v);
 
@@ -1356,7 +1356,7 @@ void CWaveMusicXAudio2::SetFadeInVolume(void)
 	int vol = (m_volume * 100 * count) / dv;
 
 	float v = (float)vol;
-	v *= 0.01f;
+	v *= 0.0001f;
 
 	((IXAudio2SourceVoice*)m_sourceVoice)->SetVolume(v);
 
@@ -1409,7 +1409,7 @@ void CWaveMusicXAudio2::SetFadeOutVolume(void)
 
 
 	float v = (float)vol;
-	v *= 0.01f;
+	v *= 0.0001f;
 
 	((IXAudio2SourceVoice*)m_sourceVoice)->SetVolume(v);
 

@@ -295,6 +295,11 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetInitGameParam(&m_volumeMin,"volumeMin");
 	GetInitGameParam(&m_volumeMax,"volumeMax");
 
+#if defined __USE_XAUDIO2__
+	GetInitGameParam(&m_volumeMin, "volumeMinXAudio2");
+	GetInitGameParam(&m_volumeMax, "volumeMaxXAudio2");
+#endif
+
 
 	m_seTable = new int[m_volumeKosuu];
 	m_volumeDevideTable = new int[m_volumeKosuu];

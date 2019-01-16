@@ -23,6 +23,7 @@
 #define MYVARTYPE_TEXT 3
 #define MYVARTYPE_NUM 4
 #define MYVARTYPE_BAR 5
+#define MYVARTYPE_ETCNUM 6
 
 
 CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
@@ -45,6 +46,8 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 	GetInitGameParam(&m_facePrintY, "facePrintY");
 
 
+	m_etcNumber = 0;
+	GetInitGameParam(&m_etcNumber, "etcNumber");
 
 	m_plateTypeNumber = 1;
 	GetInitGameParam(&m_plateTypeNumber, "plateTypeNumber");
@@ -251,7 +254,7 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 		char name[256];
 		for (int k = 0; k < 1; k++)
 		{
-			sprintf_s(name, 256, "face%d_%d", i + 1, k+1);
+			sprintf_s(name, 256, "face%d_%d", i + 1, k + 1);
 			m_faceAnimePic[i] = new CCommonAnimeParts(name, m_setup, TRUE);
 		}
 	}
@@ -272,11 +275,11 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 		m_faceVarNumber[i] = -1;
 	}
 
-	m_textVarNumber = new int*[1+m_textNumber];
+	m_textVarNumber = new int*[1 + m_textNumber];
 	m_textVarData = new int*[1 + m_textNumber];
 	for (int i = 0; i < m_textNumber; i++)
 	{
-		m_textVarNumber[i] = new int[1+m_charaNumber];
+		m_textVarNumber[i] = new int[1 + m_charaNumber];
 		m_textVarData[i] = new int[1 + m_charaNumber];
 		for (int k = 0; k < m_charaNumber; k++)
 		{
@@ -287,11 +290,11 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 
 	}
 
-	m_suujiVarNumber = new int*[1+m_suujiNumber];
+	m_suujiVarNumber = new int*[1 + m_suujiNumber];
 	m_suujiVarData = new int*[1 + m_suujiNumber];
 	for (int i = 0; i < m_suujiNumber; i++)
 	{
-		m_suujiVarNumber[i] = new int[1+ m_charaNumber];
+		m_suujiVarNumber[i] = new int[1 + m_charaNumber];
 		m_suujiVarData[i] = new int[1 + m_charaNumber];
 		for (int k = 0; k < m_charaNumber; k++)
 		{
@@ -304,16 +307,79 @@ CPrintPlayerStatus::CPrintPlayerStatus(CMyMessage* message)
 	m_barVarData = new int*[1 + m_barNumber];
 	for (int i = 0; i < m_barNumber; i++)
 	{
-		m_barVarNumber[i] = new int[1+m_charaNumber*2];
-		m_barVarData[i] = new int[1 + m_charaNumber*2];
+		m_barVarNumber[i] = new int[1 + m_charaNumber * 2];
+		m_barVarData[i] = new int[1 + m_charaNumber * 2];
 		for (int k = 0; k < m_charaNumber; k++)
 		{
-			m_barVarNumber[i][k*2] = -1;
-			m_barVarNumber[i][k*2+1] = -1;
-			m_barVarData[i][k*2] = 0;
-			m_barVarData[i][k*2+1] = 100;
+			m_barVarNumber[i][k * 2] = -1;
+			m_barVarNumber[i][k * 2 + 1] = -1;
+			m_barVarData[i][k * 2] = 0;
+			m_barVarData[i][k * 2 + 1] = 100;
 		}
 	}
+
+	m_etcVarNumber = new int[1 + m_etcNumber];
+	m_etcVarData = new int[1 + m_etcNumber];
+	for (int i = 0; i < m_etcNumber; i++)
+	{
+		m_etcVarNumber[i] = -1;
+		m_etcVarData[i] = 0;
+	}
+
+
+	m_etcPlatePic = new CPicture*[1 + m_etcNumber];
+	for (int i = 0; i < m_etcNumber + 1; i++)
+	{
+		m_etcPlatePic[i] = NULL;
+	}
+
+	m_etcPointDelta = new POINT[1 + m_etcNumber];
+
+	m_etcSuuji = new CSuuji*[1 + m_etcNumber];
+	for (int i = 0; i < m_etcNumber + 1; i++)
+	{
+		m_etcSuuji[i] = NULL;
+	}
+
+	if (true)
+	{
+		int deltaX = 0;
+		int deltaY = 0;
+
+		for (int i = 0; i < m_etcNumber; i++)
+		{
+			char name[256];
+			sprintf_s(name, 256,"etc%dPlateFilename", i + 1);
+
+			LPSTR fname = NULL;
+			GetInitGameString(&fname, name);
+			if (fname != NULL)
+			{
+				m_etcPlatePic[i] = new CPicture();
+				char filename[256];
+				sprintf_s(filename, 256, "sys\\%s", fname);
+				m_etcPlatePic[i]->LoadDWQ(filename);
+			}
+
+
+			sprintf_s(name, 256, "etc%dPrintX", i + 1);
+			GetInitGameParam(&deltaX, name);
+			sprintf_s(name, 256, "etc%dPrintY", i + 1);
+			GetInitGameParam(&deltaY, name);
+
+			m_etcPointDelta[i].x = deltaX;
+			m_etcPointDelta[i].y = deltaY;
+
+
+			char tagName[256];
+			sprintf_s(tagName, 256, "etc%dsuuji", i + 1);
+
+			m_etcSuuji[i] = new CSuuji(m_setup, tagName, true);
+		}
+	}
+
+
+
 
 	m_platePic = NULL;
 
@@ -347,7 +413,31 @@ CPrintPlayerStatus::~CPrintPlayerStatus()
 
 void CPrintPlayerStatus::End(void)
 {
+
+	if (m_etcSuuji)
+	{
+		for (int i = 0; i < m_etcNumber; i++)
+		{
+			ENDDELETECLASS(m_etcSuuji[i]);
+		}
+		DELETEARRAY(m_etcSuuji);
+	}
+	DELETEARRAY(m_etcPointDelta);
+
+	if (m_etcPlatePic)
+	{
+		for (int i = 0; i < m_etcNumber; i++)
+		{
+			ENDDELETECLASS(m_etcPlatePic[i]);
+		}
+		DELETEARRAY(m_etcPlatePic);
+	}
 	ENDDELETECLASS(m_platePic);
+
+	DELETEARRAY(m_etcVarData);
+	DELETEARRAY(m_etcVarNumber);
+
+
 
 	if (m_barVarData)
 	{
@@ -481,7 +571,7 @@ void CPrintPlayerStatus::Calcu(int cnt)
 
 
 }
-void CPrintPlayerStatus::Print(void)
+void CPrintPlayerStatus::Print(int setMax,BOOL placeMustPrint,int* onOffParam,int* onOffSet,POINT* placeList, int* etcOnOff, POINT* etcPlaceList)
 {
 	if (!CheckPrint())
 	{
@@ -491,86 +581,151 @@ void CPrintPlayerStatus::Print(void)
 	int placeNumber = 0;
 	for (int i = 0; i < m_charaNumber; i++)
 	{
+		if (placeNumber >= setMax)
+		{
+			//表示プレートがもうない
+			break;
+		}
+
+
+		//オフの表示エリアはスキップされる
+		//スキップしない仕様に変更
+		if (onOffSet[placeNumber] <= 0)
+		{
+			if (!placeMustPrint)
+			{
+				placeNumber++;
+				continue;
+			}
+		}
+
+		POINT basePoint = placeList[placeNumber];
+		if (m_platePic)
+		{
+			m_platePic->Put(basePoint.x, basePoint.y, TRUE);
+		}
+
+
+		/*
+		while (onOffSet[placeNumber] <= 0)
+		{
+			if (placeMustPrint)
+			{
+				POINT basePoint = placeList[placeNumber];
+
+				//plate
+				if (m_platePic)
+				{
+					m_platePic->Put(basePoint.x, basePoint.y, TRUE);
+				}
+			}
+
+			placeNumber++;
+			if (placeNumber >= setMax)
+			{
+				//表示プレートがもうない
+				break;
+			}
+		}
+		*/
+
+
+
 		int charaNumber = m_generalVarData[i + 1];
 		if ((charaNumber > 0) && (charaNumber <= m_charaNumber))
 		{
 			charaNumber -= 1;
+			int paramType = 0;
 
-			POINT basePoint = GetBasePoint(placeNumber);
+			//			POINT basePoint = GetBasePoint(placeNumber);
+			//			POINT basePoint = placeList[placeNumber];
 
-			//plate
+
+						//plate
 			if (m_platePic)
 			{
 				m_platePic->Put(basePoint.x, basePoint.y, TRUE);
 			}
+
 
 			//face
 			POINT faceDelta = GetFacePointDelta();
 			int faceType = m_faceVarData[charaNumber];//not use now
 			if (m_faceAnimePic[charaNumber])
 			{
-				POINT pt = basePoint;
-				pt.x += faceDelta.x;
-				pt.y += faceDelta.y;
-				m_faceAnimePic[charaNumber]->Print(pt);
+				if (onOffParam[paramType] || placeMustPrint)
+				{
+					POINT pt = basePoint;
+					pt.x += faceDelta.x;
+					pt.y += faceDelta.y;
+					m_faceAnimePic[charaNumber]->Print(pt);
+				}
 			}
+			paramType++;
 
 			//text
 			for (int k = 0; k < m_textNumber; k++)
 			{
-				int messageType = m_statusTextParam[k].textType;
-				LPSTR mes = NULL;
-				int m = m_textVarData[k][charaNumber];
+				if (onOffParam[paramType] || placeMustPrint)
+				{
 
-				if (messageType == 2)
-				{
-					mes = CMyMessage::m_okikaeData->GetOkikaeMessage(m);
-				}
-				else if (messageType == 3)
-				{
-					mes = CMyMessage::m_okikaeData->GetSystemOkikaeMessage(m);
-				}
-
-				if (mes == NULL)
-				{
-					int messageNumber = m_statusTextParam[k].messageNumber;
+					int messageType = m_statusTextParam[k].textType;
+					LPSTR mes = NULL;
 					int m = m_textVarData[k][charaNumber];
-					if ((m >= 0) && (m <= messageNumber))
+
+					if (messageType == 2)
 					{
-						if (m > 0)
+						mes = CMyMessage::m_okikaeData->GetOkikaeMessage(m);
+					}
+					else if (messageType == 3)
+					{
+						mes = CMyMessage::m_okikaeData->GetSystemOkikaeMessage(m);
+					}
+
+					if (mes == NULL)
+					{
+						int messageNumber = m_statusTextParam[k].messageNumber;
+						int m = m_textVarData[k][charaNumber];
+						if ((m >= 0) && (m <= messageNumber))
 						{
-							m--;
+							if (m > 0)
+							{
+								m--;
+							}
+
+							mes = m_statusTextParam[k].message[charaNumber * messageNumber + m];
 						}
-
-						mes = m_statusTextParam[k].message[charaNumber * messageNumber + m];
 					}
-				}
 
 
 
-//				int messageNumber = m_statusTextParam[k].messageNumber;
-//				int m = m_textVarData[k][charaNumber];
-//				if ((m >= 0) && (m <= messageNumber))
-				{
-//					if (m > 0)
-//					{
-//						m--;
-//					}
-
-//					LPSTR mes = m_statusTextParam[k].message[charaNumber * messageNumber + m];
-					if (mes != NULL)
+					//				int messageNumber = m_statusTextParam[k].messageNumber;
+					//				int m = m_textVarData[k][charaNumber];
+					//				if ((m >= 0) && (m <= messageNumber))
 					{
-						POINT pt = basePoint;
-						POINT textDelta = GetTextPointDelta(k);
-						pt.x += textDelta.x;
-						pt.y += textDelta.y;
-						int colorR = m_statusTextParam[k].fontColorR;
-						int colorG = m_statusTextParam[k].fontColorG;
-						int colorB = m_statusTextParam[k].fontColorB;
-						int fontSize = m_statusTextParam[k].fontSize;
-						m_message->PrintMessage(pt.x, pt.y, mes, fontSize, colorR, colorG, colorB);
+						//					if (m > 0)
+						//					{
+						//						m--;
+						//					}
+
+						//					LPSTR mes = m_statusTextParam[k].message[charaNumber * messageNumber + m];
+						if (mes != NULL)
+						{
+							POINT pt = basePoint;
+							POINT textDelta = GetTextPointDelta(k);
+							pt.x += textDelta.x;
+							pt.y += textDelta.y;
+							int colorR = m_statusTextParam[k].fontColorR;
+							int colorG = m_statusTextParam[k].fontColorG;
+							int colorB = m_statusTextParam[k].fontColorB;
+							int fontSize = m_statusTextParam[k].fontSize;
+							m_message->PrintMessage(pt.x, pt.y, mes, fontSize, colorR, colorG, colorB);
+						}
 					}
 				}
+
+				paramType++;
+
 			}
 
 			//suuji
@@ -579,64 +734,98 @@ void CPrintPlayerStatus::Print(void)
 				CSuuji* suuji = m_statusSuujiParam[k].suuji;
 				if (suuji)
 				{
-					POINT suujiDelta = GetSuujiPointDelta(k);
-					int data = m_suujiVarData[k][charaNumber];
-					POINT pt = basePoint;
-					pt.x += suujiDelta.x;
-					pt.y += suujiDelta.y;
-					suuji->Print(pt.x, pt.y, data);
+					if (onOffParam[paramType] || placeMustPrint)
+					{
+						POINT suujiDelta = GetSuujiPointDelta(k);
+						int data = m_suujiVarData[k][charaNumber];
+						POINT pt = basePoint;
+						pt.x += suujiDelta.x;
+						pt.y += suujiDelta.y;
+						suuji->Print(pt.x, pt.y, data);
+					}
 				}
+				paramType++;
 			}
 
 			//bar
 			for (int k = 0; k < m_barNumber; k++)
 			{
-				CPicture* barBasePic = m_statusBarParam[k].basePic;
-				if (barBasePic)
+				if (onOffParam[paramType] || placeMustPrint)
 				{
-					POINT pt = basePoint;
-					POINT baseDelta = GetBarBasePointDelta(k);
-					pt.x += baseDelta.x;
-					pt.y += baseDelta.y;
-					barBasePic->Put(pt.x, pt.y, TRUE);
-				}
-
-				CPicture* pic = m_statusBarParam[k].barPic;
-				if (pic)
-				{
-					POINT pt = basePoint;
-					POINT baseDelta = GetBarBasePointDelta(k);
-					pt.x += baseDelta.x;
-					pt.y += baseDelta.y;
-					POINT barDelta = GetBarPointDelta(k);
-					pt.x += barDelta.x;
-					pt.y += barDelta.y;
-
-					int sizeX = m_statusBarParam[k].sizeX;
-					int sizeY = m_statusBarParam[k].sizeY;
-
-					int data = m_barVarData[k][charaNumber * 2];
-					int dataMax = m_barVarData[k][charaNumber * 2+1];
-					if (dataMax > 0)
+					CPicture* barBasePic = m_statusBarParam[k].basePic;
+					if (barBasePic)
 					{
-						int putSizeX = (data * sizeX ) / dataMax;
-						int putSizeY = sizeY;
-						int srcX = 0;
-						int srcY = 0;
-						pic->Blt(pt.x, pt.y, srcX, srcY, putSizeX, putSizeY, TRUE);
+						POINT pt = basePoint;
+						POINT baseDelta = GetBarBasePointDelta(k);
+						pt.x += baseDelta.x;
+						pt.y += baseDelta.y;
+						barBasePic->Put(pt.x, pt.y, TRUE);
+					}
+
+					CPicture* pic = m_statusBarParam[k].barPic;
+					if (pic)
+					{
+						POINT pt = basePoint;
+						POINT baseDelta = GetBarBasePointDelta(k);
+						pt.x += baseDelta.x;
+						pt.y += baseDelta.y;
+						POINT barDelta = GetBarPointDelta(k);
+						pt.x += barDelta.x;
+						pt.y += barDelta.y;
+
+						int sizeX = m_statusBarParam[k].sizeX;
+						int sizeY = m_statusBarParam[k].sizeY;
+
+						int data = m_barVarData[k][charaNumber * 2];
+						int dataMax = m_barVarData[k][charaNumber * 2 + 1];
+						if (dataMax > 0)
+						{
+							int putSizeX = (data * sizeX) / dataMax;
+							int putSizeY = sizeY;
+							int srcX = 0;
+							int srcY = 0;
+							pic->Blt(pt.x, pt.y, srcX, srcY, putSizeX, putSizeY, TRUE);
+						}
 					}
 				}
+				paramType++;
+			}
+		}
+
+		placeNumber++;
+		if (placeNumber >= setMax)
+		{
+			//表示プレートがもうない
+			break;
+		}
+		
+	}
+
+	for (int i = 0; i < m_etcNumber; i++)
+	{
+		if (placeMustPrint || etcOnOff[i])
+		{
+			POINT p = etcPlaceList[i];
+			if (m_etcPlatePic[i])
+			{
+				m_etcPlatePic[i]->Put(p.x, p.y, TRUE);
 			}
 
+			p.x += m_etcPointDelta[i].x;
+			p.y += m_etcPointDelta[i].y;
 
+			int data = m_etcVarData[i];
+			CSuuji* suuji = m_etcSuuji[i];
+			if (suuji)
+			{
+				suuji->Print(p.x, p.y, data);
+			}
 
-
-
-
-			placeNumber++;
 		}
+
 	}
 }
+
 
 BOOL CPrintPlayerStatus::CheckPrint(void)
 {
@@ -767,10 +956,33 @@ bool CPrintPlayerStatus::RequestVarNumberName(LPSTR* varname)
 			m_varParam1++;
 			if (m_varParam1 >= m_barNumber)
 			{
-				b = false;
+				if (m_etcNumber <= 0)
+				{
+					b = false;
+				}
+				else
+				{
+					m_varType = MYVARTYPE_ETCNUM;
+					m_varParam1 = 0;
+					m_varParam2 = 0;
+
+				}
 			}
 		}
 		break;
+
+	case MYVARTYPE_ETCNUM:
+		sprintf_s(name, 256, "etc%dVarName", 1 + m_varParam1);
+		GetInitGameString(&returnVarName, name);
+
+		m_varParam1++;
+		if (m_varParam1 >= m_etcNumber)
+		{
+			m_varParam1 = 0;
+			b = false;
+		}
+		break;
+
 	}
 
 	*varname = returnVarName;
@@ -799,6 +1011,9 @@ void CPrintPlayerStatus::SetVarNumber(int n, LPSTR varName)
 		break;
 	case MYVARTYPE_BAR:
 		m_barVarNumber[m_varParam1Set][m_varParam2Set] = n;
+		break;
+	case MYVARTYPE_ETCNUM:
+		m_etcVarNumber[m_varParam1Set] = n;
 		break;
 	}
 
@@ -889,10 +1104,29 @@ bool CPrintPlayerStatus::RequestVarData(int* varNumber)
 			m_varParam1++;
 			if (m_varParam1 >= m_barNumber)
 			{
-				b = false;
+				if (m_etcNumber <= 0)
+				{
+					b = false;
+				}
+				else
+				{
+					m_varType = MYVARTYPE_ETCNUM;
+					m_varParam1 = 0;
+					m_varParam2 = 0;
+				}
 			}
 		}
 		break;
+	case MYVARTYPE_ETCNUM:
+		returnVarNumber = m_etcVarNumber[m_varParam1];
+		m_varParam1++;
+		if (m_varParam1 >= m_etcNumber)
+		{
+			m_varParam1 = 0;
+			b = false;
+		}
+		break;
+
 	}
 
 	*varNumber = returnVarNumber;
@@ -921,6 +1155,9 @@ void CPrintPlayerStatus::SetVarData(int data, int varNumber)
 		break;
 	case MYVARTYPE_BAR:
 		m_barVarData[m_varParam1Set][m_varParam2Set] = data;
+		break;
+	case MYVARTYPE_ETCNUM:
+		m_etcVarData[m_varParam1Set] = data;
 		break;
 	}
 }
@@ -1093,5 +1330,20 @@ BOOL CPrintPlayerStatus::GetInitGameString(LPSTR* lpStr, LPSTR name)
 	return TRUE;
 }
 
+
+
+int CPrintPlayerStatus::GetSetNumber(void)
+{
+	return m_charaNumber;
+}
+int CPrintPlayerStatus::GetStatusTypeNumber(void)
+{
+	return m_textNumber + m_suujiNumber + m_barNumber + 1;
+}
+
+int CPrintPlayerStatus::GetEtcNumber(void)
+{
+	return m_etcNumber;
+}
 
 /*_*/

@@ -16,7 +16,7 @@ public:
 	virtual void End(void);
 
 
-	BOOL SetData(char* data, int dataSize, int channel, int samplingRate, int samplingBit);
+	BOOL SetData(char* data, int dataSize, int channel, int samplingRate, int samplingBit,BOOL loopFlag = FALSE);
 
 	void Play(BOOL loopFlag = FALSE);
 	void Stop(BOOL waitFlag = FALSE);

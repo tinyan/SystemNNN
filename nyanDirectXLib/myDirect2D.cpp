@@ -5,8 +5,11 @@
 //#define INITGUID
 #include <windows.h>
 #include <stdio.h>
-
+#include <d2d1.h>
 #include "..\nyanlib\include\myfile.h"
+
+#include "..\nyanLib\INCLUDE\allGraphics.h"
+#include "..\nyanLib\INCLUDE\mygraphics.h"
 
 #include "MyDirect2D.h"
 
@@ -86,7 +89,6 @@ void ClearBackSurface(void);
 
 CMyDirect2D::CMyDirect2D(HWND hwnd, HINSTANCE hinstance, int sizeX, int sizeY, int col, BOOL bFullScreen, int deviceNumber) : CMyDirectDraw(hwnd,hinstance,sizeX,sizeY,col,bFullScreen,deviceNumber)
 {
-/*
 	m_hWnd = hwnd;
 	m_hInstance = hinstance;
 	m_sizeX = sizeX;
@@ -102,9 +104,11 @@ CMyDirect2D::CMyDirect2D(HWND hwnd, HINSTANCE hinstance, int sizeX, int sizeY, i
 	m_RGB24Flag = TRUE;
 	m_RGB32Flag = TRUE;
 
+
 	m_lpFront = NULL;
 	m_lpBack = NULL;
 	m_lpDirectDraw = NULL;
+
 
 	m_lpClip = NULL;
 
@@ -113,6 +117,44 @@ CMyDirect2D::CMyDirect2D(HWND hwnd, HINSTANCE hinstance, int sizeX, int sizeY, i
 	m_lockedFlag = FALSE;
 
 	m_initFlag = FALSE;
+
+	m_deviceNumber = deviceNumber;
+	m_deviceCount = 0;
+	m_deviceFound = 0;
+
+
+	m_renderTargetHWND = NULL;
+
+	HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_ID2D1Factory, (void**)&m_factory);
+	if (hr != S_OK)
+	{
+		OutputDebugString("\n*** Error D2D1CreateFactory");
+	}
+	else
+	{
+		RECT rect;
+		GetClientRect(m_hWnd, &rect);
+
+		D2D1_SIZE_U size = D2D1::Size<UINT>(rect.right,rect.bottom);
+		hr = ((ID2D1Factory*)m_factory)->CreateHwndRenderTarget(
+		
+															D2D1::RenderTargetProperties(),
+															D2D1::HwndRenderTargetProperties(m_hWnd, size),
+															(ID2D1HwndRenderTarget**)&m_renderTargetHWND
+														);
+		if (hr != S_OK)
+		{
+			OutputDebugString("\n*** Error CreateHwndRenderTarget");
+		}
+
+
+		
+
+	}
+
+/*
+
+
 
 	if (m_notUseDirectDraw) return;
 
@@ -131,9 +173,6 @@ CMyDirect2D::CMyDirect2D(HWND hwnd, HINSTANCE hinstance, int sizeX, int sizeY, i
 
 
 
-	m_deviceNumber = deviceNumber;
-	m_deviceCount = 0;
-	m_deviceFound = 0;
 
 	if (deviceNumber > 0)
 	{
@@ -340,9 +379,9 @@ CMyDirect2D::CMyDirect2D(HWND hwnd, HINSTANCE hinstance, int sizeX, int sizeY, i
 
 
 
-	WindowIsMoved(0, 0);
 	*/
 
+	WindowIsMoved(0, 0);
 }
 
 
@@ -355,6 +394,17 @@ CMyDirect2D::~CMyDirect2D()
 
 void CMyDirect2D::End(void)
 {
+	if (m_renderTargetHWND)
+	{
+		((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Release();
+		m_renderTargetHWND = NULL;
+	}
+
+	if (m_factory)
+	{
+		((ID2D1Factory*)m_factory)->Release();
+		m_factory = NULL;
+	}
 	/*
 	Sleep(100);
 
@@ -727,32 +777,13 @@ HRESULT CMyDirectDraw::NiseFlip2(RECT dstRect, RECT srcRect, BOOL waitVSync)
 
 HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, int srcX, int srcY, int srcSizeX, int srcSizeY, BOOL waitVSync)
 {
-	//@@@
-	return 0;
 
-	if (m_lpFront == NULL) return FALSE;
-	if (m_lpBack == NULL) return FALSE;
-
-
-	if (m_lpFront->IsLost() == DDERR_SURFACELOST)
+	if (((ID2D1HwndRenderTarget*)m_renderTargetHWND)->CheckWindowState() & D2D1_WINDOW_STATE_OCCLUDED)
 	{
-		m_lpFront->Restore();
+		return E_FAIL;
 	}
 
-	if (m_lpBack != NULL)
-	{
-		if (m_lpBack->IsLost() == DDERR_SURFACELOST)
-		{
-			m_lpBack->Restore();
-			ClearBackSurface();
-		}
-	}
 
-	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
-	if (m_lpBack->IsLost() == DDERR_SURFACELOST) return FALSE;
-
-
-	DWORD flg = DDBLT_ASYNC | DDBLT_WAIT;
 
 	RECT srcRect;
 	RECT dstRect;
@@ -854,12 +885,54 @@ HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, i
 
 
 
-	if (waitVSync)
+	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->BeginDraw();
+
+
+
+	//”wŒiƒNƒŠƒA test
+	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Clear(D2D1::ColorF(0.5F, 0.8F, 1.0F));
+
+//	HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
+	//‚±‚±‚ÉŽÀ‘•‚ð“ü‚ê‚é
+
+	D2D1_SIZE_U bitmapSize;
+	bitmapSize.width = CMyGraphics::GetScreenSizeX();
+	bitmapSize.height = CMyGraphics::GetScreenSizeY();
+
+	D2D1_BITMAP_PROPERTIES prop;
+	prop.dpiX = 300;
+	prop.dpiY = 300;
+	prop.pixelFormat.alphaMode = D2D1_ALPHA_MODE_IGNORE;
+	prop.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+
+	void* srcPic = CMyGraphics::GetScreenBuffer();
+	ID2D1Bitmap* bitmap = NULL;
+
+	HRESULT hr = ((ID2D1HwndRenderTarget*)m_renderTargetHWND)->CreateBitmap(bitmapSize, srcPic, bitmapSize.width * 4, prop, &bitmap);
+
+	if (hr == S_OK)
 	{
-		m_lpDirectDraw->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+		D2D1_RECT_F destRectF;
+		D2D1_RECT_F srcRectF;
+
+		destRectF.left = 0;
+		destRectF.top = 0;
+		destRectF.right = 800;
+		destRectF.bottom = 600;
+
+		srcRectF.left = 0;
+		srcRectF.top = 0;
+		srcRectF.right = 800;
+		srcRectF.bottom = 600;
+
+		((ID2D1HwndRenderTarget*)m_renderTargetHWND)->DrawBitmap(bitmap, &destRectF, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &srcRectF);
+
+		bitmap->Release();
 	}
 
-	HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
+	
+
+	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->EndDraw();
 
 
 	return TRUE;

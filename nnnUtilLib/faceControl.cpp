@@ -24,7 +24,8 @@ CFaceControl::CFaceControl(CNameList* nameList,int faceMax) : CAutoSaveSubData(1
 	m_animeControl = new CAnimeControl();
 
 	m_faceMax = m_nameList->GetNameKosuu() / 2;
-	m_faceType = new int[m_faceMax + 1];
+//	m_faceType = new int[m_faceMax + 1];
+	m_faceType = new int[256];
 	Clear();
 
 	m_face[0] = -1;
@@ -603,14 +604,16 @@ void CFaceControl::GetExtDataForSave(LPVOID ptr,int extNumber)
 	m_faceType[253] = m_face[0];
 	m_faceType[252] = m_face[1];
 
-	memcpy(ptr,m_faceType,(m_faceMax+1) * sizeof(int));
+//	memcpy(ptr,m_faceType,(m_faceMax+1) * sizeof(int));
+	memcpy(ptr,m_faceType,256 * sizeof(int));
 }
 
 
 
 void CFaceControl::SetExtDataByLoad(LPVOID ptr,int extNumber)
 {
-	memcpy(m_faceType,ptr,(m_faceMax+1) * sizeof(int));
+//	memcpy(m_faceType,ptr,(m_faceMax+1) * sizeof(int));
+	memcpy(m_faceType, ptr, 256 * sizeof(int));
 	m_mustFace = m_faceType[0];
 	m_koteiType = m_faceType[255];
 	m_koteiFace = m_faceType[254];

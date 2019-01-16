@@ -21,7 +21,10 @@ public:
 
 	void Init(void);
 	void Calcu(int cnt = 1);
-	void Print(void);
+	void Print(int setMax, BOOL placeMustPrint, int* onOffParam, int* onOffSet, POINT* placeList, int* etcOnOff, POINT* etcPlaceList);
+
+	int GetSetNumber(void);
+	int GetStatusTypeNumber(void);
 
 
 	void StartRequestVarNumberName(void);
@@ -36,11 +39,15 @@ public:
 	BOOL IsEnable(int mode);
 
 
+	int GetEtcNumber(void);
 
 protected:
-	CMyMessage* m_message;
+	CMyMessage * m_message;
 
 	CNameList* m_setup;
+
+
+
 
 
 	int m_varType;
@@ -69,12 +76,12 @@ protected:
 	{
 		int printX, printY;
 		int fontSize;
-		int fontColorR, fontColorG, fontColorB ;
+		int fontColorR, fontColorG, fontColorB;
 		int messageNumber;
 		int textType;
 		LPSTR* message;
 	}STATUSTEXTPARAM;
-	
+
 	STATUSTEXTPARAM* m_statusTextParam;
 
 
@@ -125,6 +132,9 @@ protected:
 	int** m_barVarNumber;//x2
 	int** m_barVarData;//x2
 
+	int* m_etcVarNumber;
+	int* m_etcVarData;
+
 
 
 	int GetPlaceType(void);
@@ -140,7 +150,15 @@ protected:
 
 
 	CPicture* m_platePic;
+	CPicture** m_etcPlatePic;
+	POINT* m_etcPointDelta;
+	CSuuji** m_etcSuuji;
 
+
+ 
+
+
+	int m_etcNumber;
 
 
 	int m_useMode[256];
