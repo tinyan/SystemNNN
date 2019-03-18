@@ -11074,6 +11074,7 @@ void CGameCallBack::BltToFront(void)
 	}
 }
 
+
 /*
 void CGameCallBack::OptionAnime(int cnt)
 {

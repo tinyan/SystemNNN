@@ -135,7 +135,8 @@ CMyDirect2D::CMyDirect2D(HWND hwnd, HINSTANCE hinstance, int sizeX, int sizeY, i
 		RECT rect;
 		GetClientRect(m_hWnd, &rect);
 
-		D2D1_SIZE_U size = D2D1::Size<UINT>(rect.right,rect.bottom);
+		D2D1_SIZE_U size = D2D1::Size<UINT>(sizeX,sizeY);
+//		D2D1_SIZE_U size = D2D1::Size<UINT>(rect.right, rect.bottom);
 		hr = ((ID2D1Factory*)m_factory)->CreateHwndRenderTarget(
 		
 															D2D1::RenderTargetProperties(),
@@ -784,6 +785,26 @@ HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, i
 	}
 
 
+	int bitmapWidth = CMyGraphics::GetScreenSizeX();
+	int bitmapHeight = CMyGraphics::GetScreenSizeY();
+
+	int dstSizeOrgX = dstSizeX;
+	int dstSizeOrgY = dstSizeY;
+
+	dstSizeX *= bitmapWidth;
+	dstSizeX /= srcSizeX;
+	dstSizeY *= bitmapHeight;
+	dstSizeY /= srcSizeY;
+
+
+	int deltaX = dstSizeOrgX - dstSizeX;
+	int deltaY = dstSizeOrgY - dstSizeY;
+
+	dstX += deltaX / 2;
+	dstY += deltaY / 2;
+
+
+
 
 	RECT srcRect;
 	RECT dstRect;
@@ -890,7 +911,8 @@ HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, i
 
 
 	//”wŒiƒNƒŠƒA test
-	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Clear(D2D1::ColorF(0.5F, 0.8F, 1.0F));
+//	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Clear(D2D1::ColorF(0.5F, 0.8F, 1.0F));
+	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Clear(D2D1::ColorF(0.0F, 0.0F, 0.0F));
 
 //	HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
 	//‚±‚±‚ÉŽÀ‘•‚ð“ü‚ê‚é
@@ -898,6 +920,8 @@ HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, i
 	D2D1_SIZE_U bitmapSize;
 	bitmapSize.width = CMyGraphics::GetScreenSizeX();
 	bitmapSize.height = CMyGraphics::GetScreenSizeY();
+//	bitmapSize.width = dstEndX - dstStartX;
+//	bitmapSize.height = dstEndY - dstStartX;
 
 	D2D1_BITMAP_PROPERTIES prop;
 	prop.dpiX = 300;
@@ -915,15 +939,15 @@ HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, i
 		D2D1_RECT_F destRectF;
 		D2D1_RECT_F srcRectF;
 
-		destRectF.left = 0;
-		destRectF.top = 0;
-		destRectF.right = 800;
-		destRectF.bottom = 600;
+		destRectF.left = (float)dstStartX;
+		destRectF.top = (float)dstStartY;
+		destRectF.right = (float)dstEndX;
+		destRectF.bottom = (float)dstEndY;
 
 		srcRectF.left = 0;
 		srcRectF.top = 0;
-		srcRectF.right = 800;
-		srcRectF.bottom = 600;
+		srcRectF.right = (float)bitmapSize.width;
+		srcRectF.bottom = (float)bitmapSize.height;
 
 		((ID2D1HwndRenderTarget*)m_renderTargetHWND)->DrawBitmap(bitmap, &destRectF, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &srcRectF);
 
