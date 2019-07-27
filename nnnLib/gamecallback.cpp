@@ -609,6 +609,7 @@ void CGameCallBack::GeneralCreate(void)
 	{
 		m_useXAudio2 = 1;
 		CMyDirectSound::m_xAudioFlag = m_useXAudio2;
+		CMyDirectShow::m_xAudio2 = m_useXAudio2;
 	}
 
 //	GetInitGameParam(&m_useXAudio2, "useXAudio2");
@@ -4493,8 +4494,39 @@ LogMessage("ToWindowScreen Mid 3");
 	
 //	int wx = m_windowX - GetSystemMetrics(SM_CXFIXEDFRAME);
 //	int wy = 
-	if (MoveWindow(m_hWnd,m_windowX, m_windowY, realWindowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
-//	if (MoveWindow(m_hWnd,m_windowX, m_windowY, m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
+
+
+RECT rc;
+rc.top = 0;
+rc.left = 0;
+rc.right = realWindowSizeX;
+rc.bottom = realWindowSizeY;
+
+//Žb’èC³Win10‚©‚ç‚¨‚©‚µ‚¢B•K—v‚È”’l‚ªGetSystemMetrics‚Å‚Æ‚Á‚Ä‚±‚ê‚È‚¢
+
+int nonFullFlag = 0xffffffff;
+DWORD style = ((WS_OVERLAPPED |
+	WS_CAPTION |
+	WS_SYSMENU |
+	//								WS_THICKFRAME |
+	WS_MAXIMIZEBOX |
+	WS_MINIMIZEBOX
+	)&nonFullFlag) |
+	WS_POPUP |
+	WS_VISIBLE
+	;
+DWORD exStyle = 0;
+AdjustWindowRectEx(&rc, style, false, exStyle);
+
+int sizeX = rc.right - rc.left;
+int sizeY = rc.bottom - rc.top;
+
+
+
+	if (MoveWindow(m_hWnd, m_windowX, m_windowY, sizeX,sizeY, TRUE) == 0)
+	//if (MoveWindow(m_hWnd,m_windowX, m_windowY, realWindowSizeX + 10+2*GetSystemMetrics(SM_CXFIXEDFRAME),10+realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
+//	if (MoveWindow(m_hWnd, m_windowX, m_windowY, realWindowSizeX + 2 * GetSystemMetrics(SM_CXFIXEDFRAME), realWindowSizeY + 2 * GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION), TRUE) == 0)
+	//	if (MoveWindow(m_hWnd,m_windowX, m_windowY, m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
 	{
 		/*
 		DWORD er = GetLastError();
@@ -4539,10 +4571,28 @@ LogMessage("ToWindowScreen Mid 5");
 	int windowSizeY = CMyGraphics::GetScreenSizeY();
 
 
+
+	rc.top = 0;
+	rc.left = 0;
+	rc.right = windowSizeX;
+	rc.bottom = windowSizeY;
+
+	//Žb’èC³Win10‚©‚ç‚¨‚©‚µ‚¢B•K—v‚È”’l‚ªGetSystemMetrics‚Å‚Æ‚Á‚Ä‚±‚ê‚È‚¢
+
+	AdjustWindowRectEx(&rc, style, false, exStyle);
+
+	sizeX = rc.right - rc.left;
+	sizeY = rc.bottom - rc.top;
+
+
+
 //	if (MoveWindow(m_hWnd,m_windowX, m_windowY, m_windowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),TRUE) == 0)
 
-	SetWindowPos(m_hWnd,HWND_NOTOPMOST,m_windowX,m_windowY,realWindowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME),realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME ) + GetSystemMetrics(SM_CYCAPTION),0);
-//	SetWindowPos(m_hWnd,HWND_NOTOPMOST,0,0,windowSizeX,windowSizeY,SWP_NOMOVE | SWP_NOSIZE);
+
+	SetWindowPos(m_hWnd,HWND_NOTOPMOST,m_windowX,m_windowY,sizeX,sizeY,0);
+//	SetWindowPos(m_hWnd, HWND_NOTOPMOST, m_windowX, m_windowY, 10 + realWindowSizeX + 2 * GetSystemMetrics(SM_CXFIXEDFRAME), 10 + realWindowSizeY + 2 * GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION), 0);
+	//SetWindowPos(m_hWnd, HWND_NOTOPMOST, m_windowX, m_windowY, realWindowSizeX + 2 * GetSystemMetrics(SM_CXFIXEDFRAME), realWindowSizeY + 2 * GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION), 0);
+	//	SetWindowPos(m_hWnd,HWND_NOTOPMOST,0,0,windowSizeX,windowSizeY,SWP_NOMOVE | SWP_NOSIZE);
 
 	Sleep(20);
 	LogMessage("ToWindowScreen Mid 6");
@@ -7504,6 +7554,9 @@ LRESULT CGameCallBack::GameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				{
 					m_windowX = xPos - GetSystemMetrics(SM_CXFIXEDFRAME);
 					m_windowY = yPos - GetSystemMetrics(SM_CYFIXEDFRAME ) - GetSystemMetrics(SM_CYCAPTION);
+
+					m_windowX -= 5;
+					m_windowY -= 5;
 
 					m_systemFile->m_systemdata.windowX = m_windowX;
 					m_systemFile->m_systemdata.windowY = m_windowY;

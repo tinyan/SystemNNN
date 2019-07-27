@@ -7,6 +7,9 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <math.h>
+
+//#include <VersionHelpers.h>
 
 #include <dshow.h>
 #include <D3d9.h>
@@ -18,6 +21,7 @@
 BOOL CMyDirectShow::m_fixedMovieSizeFlag = FALSE;
 int CMyDirectShow::m_fixedMovieSizeX = 800;
 int CMyDirectShow::m_fixedMovieSizeY = 600;
+BOOL CMyDirectShow::m_xAudio2 = false;
 
 
 CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
@@ -58,6 +62,11 @@ CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 	m_fullMonitorSize.cx = 800;
 	m_fullMonitorSize.cy = 600;
 
+
+//	if (IsWindows10OrGreater())
+	{
+		//m_useVMR9Flag = 0;
+	}
 }
 
 CMyDirectShow::~CMyDirectShow()
@@ -74,6 +83,16 @@ void CMyDirectShow::End(void)
 
 BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 {
+#if defined __USE_XAUDIO2__
+//	m_useVMR9Flag = false;
+#endif
+
+
+	if (m_xAudio2)
+	{
+//		m_useVMR9Flag = false;
+	}
+
 	int ln = strlen(filename);
 	memcpy(m_lastFileName,filename,ln+1);
 
@@ -238,7 +257,30 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 
 
 
-	((IBasicAudio*)m_basicAudio)->put_Volume(m_volume*100-10000);
+
+	//6000.0f + 2000.0f * log(m_volume) / log(10);
+
+	int db = m_volume * 100 - 10000;
+	//xaudio2
+	if (m_xAudio2)
+	{
+		if (m_volume <= 0)
+		{
+			db = -10000;
+		}
+		else
+		{
+			db = (int)(6000.0f + 2000.0f * (log(m_volume) / log(10))) - 10000;
+		}
+	}
+	
+	((IBasicAudio*)m_basicAudio)->put_Volume(db);
+
+//	((IBasicAudio*)m_basicAudio)->put_Volume(m_volume*100-10000);
+//	char mes[256];
+//	sprintf_s(mes, 256, "vol=%d DB = %d", m_volume,db);
+//	MessageBox(NULL, mes, "vol", MB_OK);
+
 	m_completeFlag = FALSE;
 
 	hr = ((IMediaControl*)m_mediaControl)->Run();
@@ -404,12 +446,15 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 
 	if (m_useVMR9Flag)
 	{
-		CreateVMR9();
-		if (m_vmr9 == NULL)
+	//	if (!m_xAudio2)
 		{
-			ReleaseVMR9();
-			m_vmrErrorFlag = TRUE;
-			m_useVMR9Flag = FALSE;
+			CreateVMR9();
+			if (m_vmr9 == NULL)
+			{
+				ReleaseVMR9();
+				m_vmrErrorFlag = TRUE;
+				m_useVMR9Flag = FALSE;
+			}
 		}
 	}
 
@@ -422,7 +467,13 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 //if (0)
 		if (m_vmr9RenderType == 1)
 		{
+//			if (CheckVMR9Connected())
+//			{
+//				return 4;
+//			}
+
 			IBaseFilter* sourceFilter = NULL;
+
 			HRESULT hr3 = ((IGraphBuilder*)m_graphBuilder)->AddSourceFilter((LPWSTR)fname2,L"Source1",&sourceFilter);
 			if (SUCCEEDED(hr3))
 			{
@@ -430,26 +481,73 @@ int CMyDirectShow::OpenMovieFile(LPSTR filename)
 
 //				m_sourceFilter = sourceFilter;
 
-				IBaseFilter* directSoundFilter = NULL;
 
-				HRESULT hr = CoCreateInstance(CLSID_DSoundRender, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&directSoundFilter);
-				if (SUCCEEDED(hr))
+				if (!m_xAudio2)
 				{
-					hr = ((IGraphBuilder*)m_graphBuilder)->AddFilter(directSoundFilter,L"DirectSoundFilter");
-					directSoundFilter->Release();
+					IBaseFilter* directSoundFilter = NULL;
+			//		MessageBox(NULL, "1", "VMR9", MB_OK);
+
+					HRESULT hr = CoCreateInstance(CLSID_DSoundRender, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&directSoundFilter);
 					if (SUCCEEDED(hr))
 					{
-
-						if (SUCCEEDED(SourceRenderEx(sourceFilter)))
+				//		MessageBox(NULL, "2", "VMR9", MB_OK);
+						hr = ((IGraphBuilder*)m_graphBuilder)->AddFilter(directSoundFilter, L"DirectSoundFilter");
+						directSoundFilter->Release();
+						if (SUCCEEDED(hr))
 						{
-							if (CheckVMR9Connected())
+					//		MessageBox(NULL, "3", "VMR9", MB_OK);
+
+
+							if (SUCCEEDED(SourceRenderEx(sourceFilter)))
 							{
-								sourceFilter->Release();
-								return 4;
+						//		MessageBox(NULL, "4", "VMR9", MB_OK);
+
+								if (CheckVMR9Connected())
+								{
+						//			MessageBox(NULL, "5", "VMR9", MB_OK);
+
+									sourceFilter->Release();
+									return 4;
+								}
 							}
 						}
 					}
 				}
+				
+				else
+				{
+					IBaseFilter* soundFilter = NULL;
+
+			//		MessageBox(NULL, "1", "1", MB_OK);
+
+					HRESULT hr = CoCreateInstance(CLSID_AudioRender, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&soundFilter);
+					if (SUCCEEDED(hr))
+					{
+				//		MessageBox(NULL, "2", "2", MB_OK);
+						hr = ((IGraphBuilder*)m_graphBuilder)->AddFilter(soundFilter, L"AudioSoundFilter");
+						soundFilter->Release();
+						if (SUCCEEDED(hr))
+						{
+					//		MessageBox(NULL, "3", "3", MB_OK);
+
+
+							if (SUCCEEDED(SourceRenderEx(sourceFilter)))
+							{
+						//		MessageBox(NULL, "4", "4", MB_OK);
+
+								if (CheckVMR9Connected())
+								{
+							//		MessageBox(NULL, "5", "5", MB_OK);
+
+									sourceFilter->Release();
+									return 4;
+								}
+							}
+						}
+					}
+
+				}
+				
 			}
 
 			m_vmr9RenderType = 0;

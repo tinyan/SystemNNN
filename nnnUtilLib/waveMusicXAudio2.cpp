@@ -57,17 +57,26 @@ public:
 	HANDLE* m_handle;
 	int m_n;
 
-	VoiceCallback() {  m_n = 0; }
+	VoiceCallback() { m_n = 0; m_enableEvent = true; }
 	~VoiceCallback() {  }
+	void EnableEvent(bool flag = true) { m_enableEvent = flag; };
 	void SetHandle(HANDLE* lpHandle) { m_handle = lpHandle; }
 	void STDMETHODCALLTYPE OnBufferEnd(void * pBufferContext) 
 	{
 		char mes[256];
 		sprintf_s(mes, 256, "[event %d]\n", m_n);
 		OutputDebugString(mes);
-		SetEvent(m_handle[m_n]); m_n++; m_n %= 2; 
+		if (m_enableEvent)
+		{
+			SetEvent(m_handle[m_n]); m_n++; m_n %= 2;
+		}
+		else
+		{
+			OutputDebugString("event skip");
+		}
 	}
 
+	bool m_enableEvent;
 
 	void STDMETHODCALLTYPE OnVoiceProcessingPassStart(UINT32 BytesRequired) { }
 	void STDMETHODCALLTYPE OnVoiceProcessingPassEnd(void) { }
@@ -111,13 +120,15 @@ CWaveMusicXAudio2::CWaveMusicXAudio2(LPVOID myXAudio2, int number) : CWaveMusic(
 	pcmwf.nBlockAlign = 4;
 	pcmwf.nAvgBytesPerSec = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
 
+	/*
 	DSBUFFERDESC dsbdesc;
 	ZeroMemory(&dsbdesc, sizeof(dsbdesc));
 	dsbdesc.dwSize = sizeof(dsbdesc);
 	dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCSOFTWARE | DSBCAPS_CTRLPOSITIONNOTIFY;
 	//	dsbdesc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCDEFER | DSBCAPS_CTRLPOSITIONNOTIFY;
-	dsbdesc.dwBufferBytes = pcmwf.nAvgBytesPerSec * 4;//ぴったりでとるとXAudio2だとノイズが出るので2倍
+	dsbdesc.dwBufferBytes = pcmwf.nAvgBytesPerSec ;//ぴったりでとるとXAudio2だとノイズが出るので2倍
 	dsbdesc.lpwfxFormat = &pcmwf;
+	*/
 
 
 	//VoiceCallback callback;
@@ -565,6 +576,8 @@ DWORD WINAPI CWaveMusicXAudio2::MyThread(LPVOID param)
 	m_amari = 0;
 	m_bufferTimeAmari = 0;
 
+	int xaudio2BufferNumber = 0;
+
 
 	while (TRUE)
 	{
@@ -580,6 +593,10 @@ DWORD WINAPI CWaveMusicXAudio2::MyThread(LPVOID param)
 			int n;
 			n = 0;
 			if (en == WAIT_OBJECT_0) n = 1;
+
+			n = xaudio2BufferNumber;
+			xaudio2BufferNumber++;
+			xaudio2BufferNumber %= 2;
 
 			if (m_dataEndFlag)
 			{
@@ -601,6 +618,15 @@ DWORD WINAPI CWaveMusicXAudio2::MyThread(LPVOID param)
 			break;
 		case WAIT_OBJECT_0 + 3:	//play command
 			m_waveTime0 = 0;
+
+			xaudio2BufferNumber = 0;
+			m_dataEndFlag = FALSE;
+			m_nokoriDataSize = 0;
+
+			m_callback->EnableEvent(false);
+
+			((IXAudio2SourceVoice*)m_sourceVoice)->Stop();
+			((IXAudio2SourceVoice*)m_sourceVoice)->FlushSourceBuffers();
 
 			LPSTR filename;
 			filename = m_mmlControl->Kaiseki();
@@ -625,6 +651,8 @@ DWORD WINAPI CWaveMusicXAudio2::MyThread(LPVOID param)
 			{
 				m_xaudio2BufferNumber = 0;
 				if (GetBlock(0) == 0) m_dataEndFlag = TRUE;//???
+
+				if (GetBlock(1) == 0) m_dataEndFlag = TRUE;//???
 			}
 
 			//@@@ change to xaudio2
@@ -664,7 +692,10 @@ DWORD WINAPI CWaveMusicXAudio2::MyThread(LPVOID param)
 			//@@@change to xautio2
 			//hr = directSoundBuffer->Play(0, 0, DSBPLAY_LOOPING);
 			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@loopはどこで？
+//			((IXAudio2SourceVoice*)m_sourceVoice)->FlushSourceBuffers();
 			((IXAudio2SourceVoice*)m_sourceVoice)->Start(0,0);
+
+			m_callback->EnableEvent(true);
 
 			hr = S_OK;
 			//			if FAILED(hr)
@@ -807,6 +838,28 @@ DWORD WINAPI CWaveMusicXAudio2::MyThread(LPVOID param)
 
 			if (m_fftBuffer != NULL)
 			{
+
+
+				XAUDIO2_VOICE_STATE voiceState;
+				((IXAudio2SourceVoice*)m_sourceVoice)->GetState(&voiceState, 0);
+				UINT64 sam = voiceState.SamplesPlayed;
+				int playPtr = (int)(sam % (44100 * 2 * 2 * 2));
+
+				int n2 = playPtr / (44100 * 2 * 2);
+				int n3 = playPtr % (44100 * 2 * 2);
+				n3 &= ~3;
+				if (n3 > 4408 * 39) n3 = 4408 * 39;
+
+				if (n2 == 0)
+				{
+					memcpy(m_fftBuffer, m_fftBuffer00 + n3, 4096);
+				}
+				else
+				{
+					memcpy(m_fftBuffer, m_fftBuffer0 + n3, 4096);
+				}
+
+
 
 				//@@@change to xaudio2
 				/*
@@ -1004,6 +1057,27 @@ void CWaveMusicXAudio2::OnWaveTime(void)
 //もどり：有効データサイズ
 int CWaveMusicXAudio2::GetBlock(int n)
 {
+
+	char mes[256];
+	sprintf_s(mes, 256, "\nbufferNumber=%d classNumber=%d", m_xaudio2BufferNumber,m_bufferNumber);
+	OutputDebugString(mes);
+
+	if (m_nokoriDataSize > 0)
+	{
+		if (m_xaudio2BufferNumber == 1)
+		{
+			memmove(m_blockBuffer2, m_blockBuffer + 44100 * 2 * 2, m_nokoriDataSize);
+		}
+		else
+		{
+			memmove(m_blockBuffer, m_blockBuffer2 + 44100 * 2 * 2, m_nokoriDataSize);
+		}
+
+		//memmove(m_blockBuffer, m_blockBuffer + 44100 * 2 * 2, m_nokoriDataSize);
+	}
+
+
+
 	char* blockBuffer = m_blockBuffer;
 	if (m_xaudio2BufferNumber != 0)
 	{
@@ -1137,7 +1211,7 @@ int CWaveMusicXAudio2::GetBlock(int n)
 
 	buffer.pAudioData = (const BYTE*)blockBuffer;
 //	buffer.pAudioData = (const BYTE*)m_blockBuffer;
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	//buffer.Flags = XAUDIO2_END_OF_STREAM;
 
 	((IXAudio2SourceVoice*)m_sourceVoice)->SubmitSourceBuffer(&buffer);
 
@@ -1176,7 +1250,7 @@ int CWaveMusicXAudio2::GetBlock(int n)
 	if (m_spectrumCalcuMode == 1)
 	{
 		//4096byte to fft buffer
-		if (n == 0)
+		if (m_xaudio2BufferNumber == 0)
 		{
 			memcpy(m_fftBuffer00, blockBuffer, 4408 * 40);
 		}
@@ -1193,6 +1267,7 @@ int CWaveMusicXAudio2::GetBlock(int n)
 	m_nokoriDataSize -= 44100 * 2 * 2;
 	if (m_nokoriDataSize < 0) m_nokoriDataSize = 0;
 
+	/*
 	if (m_nokoriDataSize > 0)
 	{
 		if (m_xaudio2BufferNumber == 0)
@@ -1206,6 +1281,8 @@ int CWaveMusicXAudio2::GetBlock(int n)
 
 		//memmove(m_blockBuffer, m_blockBuffer + 44100 * 2 * 2, m_nokoriDataSize);
 	}
+	*/
+
 
 	m_xaudio2BufferNumber++;
 	m_xaudio2BufferNumber %= 2;

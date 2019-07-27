@@ -48,6 +48,7 @@ public:
 	static int m_fixedMovieSizeX;
 	static int m_fixedMovieSizeY;
 
+	static BOOL m_xAudio2;
 private:
 	HWND m_parentHWnd;
 	int m_graphNotify;

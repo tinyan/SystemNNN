@@ -44,6 +44,8 @@
 
 #include "..\nnnUtilLib\inputStatus.h"
 
+#include "..\nyanDirectXLib\\mydirectsound.h"
+
 #include "gameCallBack.h"
 
 #include "commonGeneral.h"
@@ -296,8 +298,13 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetInitGameParam(&m_volumeMax,"volumeMax");
 
 #if defined __USE_XAUDIO2__
-	GetInitGameParam(&m_volumeMin, "volumeMinXAudio2");
-	GetInitGameParam(&m_volumeMax, "volumeMaxXAudio2");
+	if (CMyDirectSound::m_xAudioFlag)
+	{
+		GetInitGameParam(&m_volumeMin, "volumeMinXAudio2");
+		GetInitGameParam(&m_volumeMax, "volumeMaxXAudio2");
+		GetInitGameParam(&m_volumeMin, "volumeMinWin10");
+		GetInitGameParam(&m_volumeMax, "volumeMaxWin10");
+	}
 #endif
 
 

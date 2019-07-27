@@ -55,6 +55,8 @@
 #include "..\nnnUtilLib\suuji.h"
 //#include "..\nnnUtilLib\midiPlayer.h"
 
+#include "..\nyanDirectXLib\mydirectsound.h"
+
 #include "..\nnnUtilLib\commonButton.h"
 #include "..\nnnUtilLib\commonBackButton.h"
 #include "..\nnnUtilLib\commonUpdownButtonGroup.h"
@@ -186,6 +188,16 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 
 	GetInitGameParam(&m_volumeMin,"volumeMin");
 	GetInitGameParam(&m_volumeMax,"volumeMax");
+
+#if defined __USE_XAUDIO2__
+	if (CMyDirectSound::m_xAudioFlag)
+	{
+		GetInitGameParam(&m_volumeMin, "volumeMinXAudio2");
+		GetInitGameParam(&m_volumeMax, "volumeMaxXAudio2");
+		GetInitGameParam(&m_volumeMin, "volumeMinWin10");
+		GetInitGameParam(&m_volumeMax, "volumeMaxWin10");
+	}
+#endif
 
 
 	int timeIsKosuu = 0;
@@ -1772,6 +1784,8 @@ int CCommonListenBGM::GetMusicLength(int n)
 
 void CCommonListenBGM::PlayBGM(int n, int lp)
 {
+	m_game->StopMusic();
+
 	m_lastMusicNumber = n;
 
 	LPSTR musicname = m_bgmList->GetName(m_page*8+1);
@@ -1787,6 +1801,7 @@ void CCommonListenBGM::PlayBGM(int n, int lp)
 //OutputDebugString(mes);
 	//m_game->PlayMusic(musicname,loopCount,m_nowVolume,m_musicFadeInTime,m_musicFadeOutTime);
 	m_musicControl->PlayMusic(musicname,loopCount,m_nowVolume,m_musicFadeInTime,m_musicFadeOutTime);
+	OutputDebugString("\nListenbmg play");
 }
 
 

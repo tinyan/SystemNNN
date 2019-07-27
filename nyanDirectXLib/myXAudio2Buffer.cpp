@@ -3,6 +3,7 @@
 //
 
 #include <windows.h>
+#include <stdio.h>
 #include <dsound.h>
 #include <xaudio2.h>
 
@@ -19,6 +20,8 @@ CMyXAudio2Buffer::CMyXAudio2Buffer(LPVOID lpXAudio2, BOOL sound3DFlag) : CMyDire
 
 	m_xAudio2 = lpXAudio2;
 
+	m_inBufferSize = 1024 * 1024 * 2;
+	m_inBuffer = new char[m_inBufferSize];
 
 	/*
 	m_directSound = lpDirectSound;
@@ -73,6 +76,13 @@ void CMyXAudio2Buffer::End(void)
 
 	//	((LPDIRECTSOUNDBUFFER)m_directSoundBuffer)->Release();
 		m_directSoundBuffer8 = NULL;
+	}
+
+	if (m_inBuffer)
+	{
+		delete[] m_inBuffer;
+		m_inBuffer = nullptr;
+		m_bufferSize = 0;
 	}
 }
 
@@ -175,6 +185,25 @@ BOOL CMyXAudio2Buffer::SetData(char* waveData, int dataSize, int channel, int sa
 		m_dataExistFlag = FALSE;
 		return FALSE;
 	}
+
+
+	if (m_bufferSize < dataSize)
+	{
+		if (m_inBuffer)
+		{
+			delete[] m_inBuffer;
+		}
+		m_bufferSize = dataSize;
+		m_inBuffer = new char[m_bufferSize];
+	}
+
+	memcpy(m_inBuffer, waveData, dataSize);
+
+
+//	char mes[256];
+	//sprintf_s(mes, 256, "\n size=%d loop=%d", dataSize,loopFlag);
+	//OutputDebugString(mes);
+
 //	if (m_directSound == NULL)
 //	{
 //		m_dataExistFlag = FALSE;
@@ -299,8 +328,9 @@ BOOL CMyXAudio2Buffer::SetData(char* waveData, int dataSize, int channel, int sa
 
 		buffer.AudioBytes = dataSize;
 
-		buffer.pAudioData = (const BYTE*)waveData;
-		
+//		buffer.pAudioData = (const BYTE*)waveData;
+		buffer.pAudioData = (const BYTE*)m_inBuffer;
+
 		if (loopFlag)
 		{
 			buffer.Flags = XAUDIO2_END_OF_STREAM;
@@ -311,6 +341,7 @@ BOOL CMyXAudio2Buffer::SetData(char* waveData, int dataSize, int channel, int sa
 			buffer.Flags = XAUDIO2_END_OF_STREAM;
 		}
 
+		//sourceVoice->FlushSourceBuffers();
 		hr = sourceVoice->SubmitSourceBuffer(&buffer);
 		if (FAILED(hr))
 		{

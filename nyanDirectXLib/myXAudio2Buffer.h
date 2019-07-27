@@ -54,6 +54,9 @@ private:
 	*/
 
 	//	BOOL m_playFlag;
+	char* m_inBuffer;
+	int m_inBufferSize;
+
 };
 
 

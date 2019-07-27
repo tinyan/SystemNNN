@@ -496,11 +496,54 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
 	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 
+	int nonFullFlag = 0xffffffff;
+	if (m_systemFile->m_systemdata.fullScreenFlag) nonFullFlag = 0;
 
 	int sizeX = realWindowSizeX + 2*GetSystemMetrics(SM_CXFIXEDFRAME);
-//	int sizeY = m_windowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYMENU);
 	int sizeY = realWindowSizeY + 2*GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
 
+
+	RECT rc;
+	rc.top = 0;
+	rc.left = 0;
+	rc.right = realWindowSizeX;
+	rc.bottom = realWindowSizeY;
+
+	//暫定修正Win10からおかしい。必要な数値がGetSystemMetricsでとってこれない
+	sizeX += 10;
+	sizeY += 10;
+
+
+	DWORD style = ((WS_OVERLAPPED |
+		WS_CAPTION |
+		WS_SYSMENU |
+		//								WS_THICKFRAME |
+		WS_MAXIMIZEBOX |
+		WS_MINIMIZEBOX
+		)&nonFullFlag) |
+		WS_POPUP |
+		WS_VISIBLE
+		;
+	DWORD exStyle = 0;
+	AdjustWindowRectEx(&rc, style, false, exStyle);
+
+	sizeX = rc.right - rc.left;
+	sizeY = rc.bottom - rc.top;
+
+
+
+//	int sizeX = realWindowSizeX + 2 * (GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER));
+//	int sizeY = realWindowSizeY + 2 * (GetSystemMetrics(SM_CYFIXEDFRAME) + 0*GetSystemMetrics(0)) + GetSystemMetrics(SM_CYCAPTION);
+
+	/*
+	for (int i = 0; i < 100; i++)
+	{
+		int d = GetSystemMetrics(i);
+		char mes[256];
+		sprintf_s(mes, 256, "\nsys%d=%d", i, d);
+		OutputDebugString(mes);
+	}
+	*/
 
 	if ((windowX+realWindowSizeX) > m_desktopWindowSizeX) windowX = m_desktopWindowSizeX - sizeX;
 	if (windowX<0) windowX = 0;
@@ -509,8 +552,6 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 	if (windowY<0) windowY = 0;
 
 
-	int nonFullFlag = 0xffffffff;
-	if (m_systemFile->m_systemdata.fullScreenFlag) nonFullFlag = 0;
 
 
 	DWORD dwExStyle = 0;

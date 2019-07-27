@@ -75,7 +75,7 @@ CScriptVoiceControl::CScriptVoiceControl(CMyDirectSound* myDirectSound,int* expF
 	else
 	{
 		m_scriptVoice = new CMyDirectSoundBuffer*[m_voiceKosuu];
-}
+	}
 #else
 	m_scriptVoice = new CMyDirectSoundBuffer*[m_voiceKosuu];
 #endif
@@ -228,6 +228,11 @@ void CScriptVoiceControl::AllStop(void)
 
 BOOL CScriptVoiceControl::SetData(int ch,char* data,int dataSize, int channel,int samplingRate,int samplingBit,BOOL loopFlag)
 {
+
+	char mes[256];
+	sprintf_s(mes, 256, "\nsetdata ch=%d size=%d loop=%d", ch, dataSize, loopFlag);
+	OutputDebugString(mes);
+
 	return m_scriptVoice[ch]->SetData(data,dataSize,channel,samplingRate,samplingBit,loopFlag);
 }
 
