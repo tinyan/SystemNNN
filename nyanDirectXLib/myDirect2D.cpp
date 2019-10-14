@@ -911,7 +911,7 @@ HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, i
 
 
 	//”wŒiƒNƒŠƒA test
-//	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Clear(D2D1::ColorF(0.5F, 0.8F, 1.0F));
+	//((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Clear(D2D1::ColorF(0.5F, 0.8F, 1.0F));
 	((ID2D1HwndRenderTarget*)m_renderTargetHWND)->Clear(D2D1::ColorF(0.0F, 0.0F, 0.0F));
 
 //	HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);

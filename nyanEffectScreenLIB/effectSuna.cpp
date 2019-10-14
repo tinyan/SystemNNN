@@ -384,6 +384,11 @@ void CEffectSuna::Print(LPVOID lpEffect,int layer)
 
 	if (ps==0) return;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -548,6 +553,10 @@ ALLEXIT:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
+
 }
 
 #endif

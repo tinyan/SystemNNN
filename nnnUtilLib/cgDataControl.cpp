@@ -100,7 +100,7 @@ LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 		if ((*name) == '#')
 		{
 			name++;
-			int lna = strlen(name);
+			int lna = (int)strlen(name);
 			while (lna>0)
 			{
 				char c = *name;
@@ -115,7 +115,7 @@ LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 		}
 
 
-		int ln = strlen(name);
+		int ln = (int)strlen(name);
 		if (ln > 0)
 		{
 			if ((*name) == '[')
@@ -205,7 +205,7 @@ BOOL CCGDataControl::GetAnimeParam(int player,int num)
 		{
 			name++;
 
-			int lna = strlen(name);
+			int lna = (int)strlen(name);
 			int moji = 0;
 			char suuji[256];
 			char suuji2[256];
@@ -283,7 +283,7 @@ int CCGDataControl::GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber
 
 
 
-	int ln = strlen(name);
+	int ln = (int)strlen(name);
 	if (ln > 0)
 	{
 		int upArrow = 'ª';

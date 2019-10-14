@@ -348,7 +348,7 @@ int CRubiFont::MakePic(LPSTR message, int colR, int colG, int colB ,int sukima, 
 		colR = (col      ) & 0xff;
 	}
 
-	int ln = strlen(message);
+	int ln = (int)strlen(message);
 	ln /= 2;
 
 

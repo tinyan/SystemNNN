@@ -72,7 +72,11 @@ BOOL CEffectHamon::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int lay
 		int asx = (screenSizeX + 3) & ~3;
 
 		m_vector = new int[(asx * screenSizeY * 3) / 2 + 8];
+#if defined _WIN64
+		long long pt = (long long)m_vector;
+#else
 		int pt = (int)m_vector;
+#endif
 		pt += 31;
 		pt &= ~31;
 		m_vectorAdjusted = (int*)pt;
@@ -517,6 +521,11 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 	int asx = (screenSizeX + 3) & ~3;
 	int tablePitch = asx / 4 * sizeof(int) * 6;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 
@@ -774,6 +783,8 @@ SKIP6:
 		pop eax
 
 	}
+#endif
+
 }
 
 

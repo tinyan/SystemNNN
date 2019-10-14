@@ -245,6 +245,11 @@ void CEffectShake::Print(LPVOID lpEffect,int layer)
 			dst--;
 		}
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -287,6 +292,9 @@ LOOP1:
 			pop ebx
 			pop eax
 		}
+
+#endif
+
 	}
 	else	//たて
 	{
@@ -313,6 +321,10 @@ LOOP1:
 			dst-=screenSizeX;
 			lPitch = -screenSizeX*4;
 		}
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 		__asm
 		{
@@ -349,6 +361,8 @@ LOOP2:
 			pop ebx
 			pop eax
 		}
+#endif
+
 	}
 
 }

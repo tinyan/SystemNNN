@@ -91,10 +91,33 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetBackExecSetup();
 	if (m_backScriptFlag) m_backlogBGMode = 3;
 
+	m_onUpArrow = FALSE;
+	m_onDownArrow = FALSE;
+
+	m_messageKosuu = 0;
+	m_nowPointer = 0;
+	m_printPointer = 0;
 
 	m_backColorR = 0;
 	m_backColorG = 0;
 	m_backColorB = 0;
+
+	m_onVoiceNumber = -1;
+	m_printStartGyo = 0;
+	m_titlePicFileName = nullptr;
+	m_titlePicPrintX = 0;
+	m_titlePicPrintY = 0;
+	m_titlePicUpperFlag = 0;
+	m_updownArrowAnimeCount = 0;
+	m_updownArrowPattern1 = 1;
+	m_updownArrowPattern2 = 1;
+	m_updownArrowPercent = 100;
+	m_voicePicAnimeCount = 0;
+	m_voicePicAnimeFlag = 0;
+	m_voicePicPattern1 = 1;
+	m_voicePicPattern2 = 1;
+	m_voicePicPercent = 100;
+
 
 	GetInitGameParam(&m_backColorR,"backColorR");
 	GetInitGameParam(&m_backColorG,"backColorG");
@@ -103,6 +126,7 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_returnSoundNumber = -1;
 	GetInitGameParam(&m_returnSoundNumber,"returnSoundNumber");
 
+	m_backFilename = nullptr;
 
 	if (m_backlogBGMode == 1)
 	{
@@ -110,6 +134,14 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		GetInitGameString(&m_backFilename,"backlogBGFileName");
 	}
 
+	m_backDeltaR = 0;
+	m_backDeltaG = 0;
+	m_backDeltaB = 0;
+	m_backMultiR = 100;
+	m_backMultiG = 100;
+	m_backMultiB = 100;
+	m_backScreenEffectGrey = 0;
+	m_backScreenEffectNega = 0;
 
 	if (m_backlogBGMode == 2)
 	{
@@ -439,7 +471,7 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		GetInitGameParam(&m_separatorColorG,"separatorColorG");
 		GetInitGameParam(&m_separatorColorB,"separatorColorB");
 
-		m_separatorMessage = new char[256*m_addSeparator];
+		m_separatorMessage = new char[m_addSeparator*256];
 		for (int i=0;i<m_addSeparator;i++)
 		{
 			int sepType = 0;//
@@ -460,11 +492,11 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 				{
 					if (codeByte == 2)
 					{
-						memcpy(m_separatorMessage+i*256+k*codeByte,m_separatorData[sepType],codeByte);
+						memcpy(m_separatorMessage+(int)(i*256+k*codeByte),m_separatorData[sepType],codeByte);
 					}
 					else
 					{
-						memcpy(m_separatorMessage+i*256+k*codeByte,m_separatorData_1byte[sepType],codeByte);
+						memcpy(m_separatorMessage+(int)(i*256+k*codeByte),m_separatorData_1byte[sepType],codeByte);
 					}
 				}
 				m_separatorMessage[i*256+ln*codeByte] = 0;
@@ -1411,10 +1443,10 @@ void CCommonBackLog::PutVoicePic(int x,int y, int pt)
 		SIZE sz = lpPic->GetPicSize();
 
 		lpBuffer2 += deltaX;
-		lpBuffer2 += deltaY * sz.cx;
+		lpBuffer2 += (int)(deltaY * sz.cx);
 
 		lpMask2 += deltaX;
-		lpMask2 += deltaY * sz.cx;
+		lpMask2 += (int)(deltaY * sz.cx);
 
 
 //		lpPic->ChangeTranslateBlt(putX,putY,srcX,srcY,sizeX,sizeY,m_voicePicPercent,ps2,lpBuffer2,lpMask2,lpPic);
@@ -1488,7 +1520,7 @@ void CCommonBackLog::PutUpdownArrowPic(int n,int x,int y, int md)
 
 void CCommonBackLog::ReplaceMessage(LPSTR message,LPSTR replace)
 {
-	int ln = strlen(message);
+	int ln = (int)strlen(message);
 	char c = *replace;
 
 	for (int i=0;i<ln;i++)

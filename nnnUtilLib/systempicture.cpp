@@ -92,7 +92,7 @@ CPicture* CSystemPicture::GetPicture(LPSTR filename,BOOL b256Mode)
 		if (ExpandWork() == FALSE) return m_ppPic[0];
 	}
 
-	int ln = strlen(filename);
+	int ln = (int)strlen(filename);
 	if (ln >= SYSTEMPICFILENAME_MAX-2)
 	{
 		OutputDebugString("システムグラフィックのファイル名が長すぎます:");

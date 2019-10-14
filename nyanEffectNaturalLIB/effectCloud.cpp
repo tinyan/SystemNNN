@@ -873,6 +873,11 @@ OutputDebugString(mes);
 //	if ((md == 0) || (md == 1))
 	if (md == 0)
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -1040,12 +1045,19 @@ NEXT1:
 			pop eax
 
 		}
+#endif
+
 	}
 
 ////////////////////////////////////////////mask
 
 	if (md != 0)
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -1290,6 +1302,8 @@ NEXT1_TRANS:
 			pop eax
 
 		}
+#endif
+
 	}
 
 	return;

@@ -83,6 +83,12 @@ void CChangeTransLucentBlt::Print(POINT dstPoint,SIZE putSize,LPVOID picData1,LP
 
 	int dstPitch = screenSizeX * 4;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
+
 	__asm
 	{
 		push eax
@@ -254,6 +260,8 @@ NEXT:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -321,6 +329,11 @@ void CChangeTransLucentBlt::PrintBeta(POINT dstPoint,SIZE putSize,LPVOID picData
 	int percent2 = ps2;
 
 	int dstPitch = screenSizeX * 4;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -425,6 +438,9 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 
 void CChangeTransLucentBlt::PrintBeta256(POINT dstPoint,SIZE putSize,LPVOID picData1,LPVOID picData2,LPVOID paletteData1,LPVOID paletteData2,SIZE picSize,SIZE picSize2,int ps1,int ps2)
@@ -493,6 +509,11 @@ void CChangeTransLucentBlt::PrintBeta256(POINT dstPoint,SIZE putSize,LPVOID picD
 	int percent2 = ps2;
 
 	int dstPitch = screenSizeX * 4;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -622,4 +643,7 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }

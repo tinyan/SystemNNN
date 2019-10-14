@@ -451,6 +451,11 @@ void CEffectMoveMaskWipe::Print(LPVOID lpEffect,int layer)
 	__int64 multiData64;
 	__int64 src1src2;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -625,6 +630,8 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 #endif
 
 }

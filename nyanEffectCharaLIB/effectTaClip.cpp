@@ -637,6 +637,11 @@ void CEffectTaClip::Print(LPVOID lpEffect,int layer)
 
 //		int checkSizeX = putX0 + srcSizeX0;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -797,6 +802,7 @@ SKIP1:
 			emms
 		}
 
+#endif
 
 
 

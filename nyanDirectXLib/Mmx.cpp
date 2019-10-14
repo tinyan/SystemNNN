@@ -75,6 +75,12 @@ BOOL CMMX::CheckMMX(void)
 {
 	int mmxflag = 0;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ 実装したにゃ" __FILE__)
+	return TRUE;
+
+#else
+
 	__asm
 	{
 		push eax
@@ -114,6 +120,7 @@ SKIP:
 		pop eax
 
 	}
+#endif
 
 	if (mmxflag) return TRUE;
 
@@ -274,6 +281,10 @@ void CMMX::MMX32to16(int startX,int startY,int sizeX,int sizeY)
 
 
 	//とりあえず 5:6:5に対応 ただし青は1bitおとす
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 
 	if (m_565Mode)
@@ -582,6 +593,7 @@ LOOP2_555:
 			pop eax
 		}
 	}
+#endif
 }
 
 void CMMX::MMX32to24(int startX,int startY,int sizeX,int sizeY)
@@ -632,6 +644,10 @@ void CMMX::MMX32to24(int startX,int startY,int sizeX,int sizeY)
 
 	if ((loopX<=0) || (loopY<=0)) return;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -728,6 +744,7 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
 }
 
 
@@ -774,6 +791,10 @@ void CMMX::MMX32to24BGR(int startX,int startY,int sizeX,int sizeY)
 
 	if ((loopX<=0) || (loopY<=0)) return;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -950,6 +971,8 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -990,6 +1013,11 @@ void CMMX::MMX32to32(int startX,int startY,int sizeX,int sizeY)
 
 	if ((loopX<=0) || (loopY<=0)) return;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -1028,6 +1056,7 @@ LOOP1:
 		pop ebx
 		pop eax
 	}
+#endif
 }
 
 
@@ -1076,6 +1105,10 @@ void CMMX::MMX32to32BGR(int startX,int startY,int sizeX,int sizeY)
 	if (loopX<=0) return;
 	if (loopY<=0) return;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -1145,6 +1178,7 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
 }
 
 void CMMX::_MMX32to16(void)
@@ -1160,6 +1194,11 @@ void CMMX::_MMX32to16(void)
 	int loopX2 = screenSizeX /4 /2;
 
 	//とりあえず 5:6:5に対応 ただし青は1bitおとす
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	if (m_565Mode)
 	{
@@ -1454,6 +1493,7 @@ LOOP2_555:
 			pop eax
 		}
 	}
+#endif
 }
 
 
@@ -1473,6 +1513,10 @@ void CMMX::_MMX32to24(void)
 	LPVOID dst = m_lpSurface;
 
 	int loopX1 = screenSizeX / 8;
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -1568,7 +1612,7 @@ LOOP2:
 		pop eax
 
 	}
-
+#endif
 }
 
 void CMMX::_MMX32to32(void)
@@ -1590,6 +1634,12 @@ void CMMX::_MMX32to32(void)
 	LPVOID dst = m_lpSurface;
 
 	int loopX = screenSizeX / (32/4);
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -1657,5 +1707,7 @@ LOOP2:
 		pop eax
 
 	}
+#endif
+
 }
 

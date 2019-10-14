@@ -582,6 +582,11 @@ void CEffectHaikeiYure::MoveScreen(int dx, int dy)
 
 	int ddx = dx;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -628,6 +633,7 @@ LOOP1:
 		pop eax
 	}
 
+#endif
 
 }
 #endif

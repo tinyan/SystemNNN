@@ -55,6 +55,11 @@ void CEffectSimpleWipeSlide1::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 
 	int start = ((countMax - count) * (screenSizeX+screenSizeY)) / countMax;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -122,6 +127,9 @@ SKIP4:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 
 

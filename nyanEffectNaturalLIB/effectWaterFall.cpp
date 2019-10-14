@@ -226,6 +226,11 @@ void CEffectWaterFall::Print(LPVOID lpEffect,int layer)
 
 if (md != 2) return;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -333,6 +338,9 @@ SKIP1:
 		pop ecx
 		pop eax
 	}
+
+#endif
+
 }
 
 

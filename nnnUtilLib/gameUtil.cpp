@@ -120,7 +120,10 @@ void CGameUtil::MakeFitMiniCG(int* screenBuffer, int* makedBuffer)
 
 	int divmul = 65536 / (dotX * dotY);
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
 
+#else
 	__asm
 	{
 		push eax
@@ -202,7 +205,7 @@ LLOOP4:
 		pop ebx
 		pop eax
 	}
-
+#endif
 
 	return;
 }
@@ -273,6 +276,10 @@ BOOL CGameUtil::MakeMiniCG106x80(int* screenBuffer, int* makedBuffer)
 	int* dst = makedBuffer;
 	int* src = screenBuffer;
 	src += 2;
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -357,7 +364,7 @@ LOOP3:
 		pop ebx
 		pop eax
 	}
-
+#endif
 
 	return TRUE;
 }
@@ -373,6 +380,11 @@ BOOL CGameUtil::MakeMiniCG132x100(int* screenBuffer, int* makedBuffer)
 	int* dst = makedBuffer;
 	int* src = screenBuffer;
 	src += 4;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -457,7 +469,7 @@ LOOP3:
 		pop ebx
 		pop eax
 	}
-
+#endif
 
 	return TRUE;
 }
@@ -479,6 +491,11 @@ void CGameUtil::AddMaskToMiniPic(int* buffer, CPicture* lpPic)
 	int* src = lpPic->GetPictureBuffer();
 	int* dst = buffer;
 	char* mask = lpPic->GetMaskPic();
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -557,5 +574,5 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
-
+#endif
 }

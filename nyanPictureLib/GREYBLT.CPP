@@ -87,6 +87,11 @@ void CGreyBlt::GreyBltTrans256(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID
 	int loopY = putSize.cy;
 	int loopX = putSize.cx;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -153,6 +158,8 @@ SKIP_T256:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -177,6 +184,11 @@ void CGreyBlt::GreyBltBeta256(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID 
 
 	int loopY = putSize.cy;
 	int loopX = putSize.cy;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -242,6 +254,8 @@ LOOP_256_2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -264,6 +278,11 @@ void CGreyBlt::GreyBltTrans(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID sr
 
 	int loopY = putSize.cy;
 	int loopX = putSize.cy;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -321,6 +340,8 @@ SKIP_T:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 void CGreyBlt::GreyBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID srcPic,SIZE picSize)
@@ -341,6 +362,10 @@ void CGreyBlt::GreyBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID src
 	int srcPitch = picSize.cx * sizeof(int);
 	int loopY = putSize.cy;
 	int loopX = putSize.cx;
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -396,6 +421,8 @@ LOOP_2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -422,6 +449,10 @@ void CGreyBlt::MaskGreyBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID src
 	int loopY = putSize.cy;
 	int loopX = putSize.cx;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -549,6 +580,8 @@ SKIP_M:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

@@ -273,7 +273,7 @@ void CMyMessage::PrintSelectMessage(int startY, int lengthY, int x, int y, LPSTR
 int CMyMessage::GetMessageRealLength(LPSTR message)
 {
 	int realLen = 0;
-	int ln = strlen(message);
+	int ln = (int)strlen(message);
 	int k = 0;
 
 	int codeByte = CMyFont::m_codeByte;
@@ -318,11 +318,11 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 			{
 				if (codeByte != 1)
 				{
-					realLen += strlen(m_sei) / 2;
+					realLen += (int)strlen(m_sei) / 2;
 				}
 				else
 				{
-					realLen += strlen(m_sei);
+					realLen += (int)strlen(m_sei);
 				}
 				continue;
 			}
@@ -331,11 +331,11 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 			{
 				if (codeByte != 1)
 				{
-					realLen += strlen(m_mei) / 2;
+					realLen += (int)strlen(m_mei) / 2;
 				}
 				else
 				{
-					realLen += strlen(m_mei);
+					realLen += (int)strlen(m_mei);
 				}
 				continue;
 			}
@@ -378,7 +378,7 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 				if (okikae < okikaeMessageMax)
 				{
 //						realLen += strlen(m_okikaeMessage + (OKIKAE_MESSAGE_LENGTH + 2) * okikae) / 2;
-					realLen += strlen(m_okikaeData->GetOkikaeMessage(okikae)) / codeByte;
+					realLen += (int)strlen(m_okikaeData->GetOkikaeMessage(okikae)) / codeByte;
 				}
 				else
 				{
@@ -397,7 +397,7 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 				if (okikae < okikaeSystemMessageMax)
 				{
 //						realLen += strlen(m_okikaeMessage + (OKIKAE_MESSAGE_LENGTH + 2) * okikae) / 2;
-					realLen += strlen(m_okikaeData->GetSystemOkikaeMessage(okikae)) / codeByte;
+					realLen += (int)strlen(m_okikaeData->GetSystemOkikaeMessage(okikae)) / codeByte;
 				}
 				else
 				{
@@ -609,7 +609,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 	COLORREF col = COLORREF(colR | (colG << 8) | (colB<<16));
 
-	int ln = strlen(message);
+	int ln = (int)strlen(message);
 	int k = 0;
 	
 	int nowLen = 0;
@@ -708,7 +708,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 			{
 				if (codeByte != 1)
 				{
-					int ln1 = strlen(m_sei) / 2;
+					int ln1 = (int)strlen(m_sei) / 2;
 					if ((nowLen + ln1) <= MYMESSAGE_MAX)
 					{
 						memcpy(m_messageWork + 2 * nowLen,m_sei,ln1*2);
@@ -725,7 +725,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				}
 				else
 				{
-					int ln1 = strlen(m_sei);
+					int ln1 = (int)strlen(m_sei);
 					if ((nowLen + ln1) <= MYMESSAGE_MAX)
 					{
 						for (int b1 = 0;b1<ln1;b1++)
@@ -753,7 +753,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 			{
 				if (codeByte != 1)
 				{
-					int ln2 = strlen(m_mei) / 2;
+					int ln2 = (int)strlen(m_mei) / 2;
 					if ((nowLen + ln2) <= MYMESSAGE_MAX)
 					{
 						memcpy(m_messageWork + 2 * nowLen,m_mei,ln2*2);
@@ -770,7 +770,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				}
 				else
 				{
-					int ln2 = strlen(m_mei);
+					int ln2 = (int)strlen(m_mei);
 					if ((nowLen + ln2) <= MYMESSAGE_MAX)
 					{
 						for (int b1 = 0;b1<ln2;b1++)
@@ -795,7 +795,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 			if (cmd == OKIKAE_HANA)
 			{
-				int ln3 = strlen(m_hana) / 2;
+				int ln3 = (int)strlen(m_hana) / 2;
 				if ((nowLen + ln3) <= MYMESSAGE_MAX)
 				{
 					memcpy(m_messageWork + 2 * nowLen,m_hana,ln3*2);
@@ -1031,7 +1031,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				if (m_okikaeData != NULL)
 				{
 					char* okikaeMessage = m_okikaeData->GetOkikaeMessage(cmd-OKIKAE_MESSAGE);
-					int ln3 = strlen(okikaeMessage) / codeByte;
+					int ln3 = (int)strlen(okikaeMessage) / codeByte;
 					if ((nowLen + ln3) <= MYMESSAGE_MAX)
 					{
 						if (codeByte == 2)
@@ -1067,7 +1067,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				if (m_okikaeData != NULL)
 				{
 					char* okikaeMessage = m_okikaeData->GetSystemOkikaeMessage(cmd-OKIKAE_SYSTEM_MESSAGE);
-					int ln3 = strlen(okikaeMessage) / codeByte;
+					int ln3 = (int)strlen(okikaeMessage) / codeByte;
 					if ((nowLen + ln3) <= MYMESSAGE_MAX)
 					{
 						if (codeByte == 2)
@@ -1654,7 +1654,7 @@ int CMyMessage::GetCommand(short d)
 
 void CMyMessage::SetHanaName(LPSTR hanaName)
 {
-	int ln = strlen(hanaName);
+	int ln = (int)strlen(hanaName);
 	if (ln>18) ln = 18;
 	memcpy(m_hana,hanaName,ln);
 	m_hana[ln] = 0;
@@ -1668,7 +1668,7 @@ void CMyMessage::SetNumMessage(int n, LPSTR mes)
 	if ((n<0) || (n>=10)) return;
 	if (mes == NULL) return;
 
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 	if (ln>32) ln = 32;
 
 	memcpy(&m_numMessage[n][0],mes,ln);

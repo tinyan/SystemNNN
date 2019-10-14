@@ -307,7 +307,7 @@ int CCutinNameData::GetFontSizeDelta(int cutin)
 int CCutinNameData::SearchFirst(LPSTR charaName)
 {
 	m_foundNumber = -1;
-	int ln = strlen(charaName);
+	int ln = (int)strlen(charaName);
 	memcpy(m_searchCharaName,charaName,ln+1);
 
 	for (int i=1;i<m_kosuu;i++)

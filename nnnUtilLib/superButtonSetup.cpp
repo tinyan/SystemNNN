@@ -24,7 +24,7 @@ CSuperButtonSetup::CSuperButtonSetup(CNameList* nameList,LPSTR buttonName,CSuper
 	m_setupList->SetSetup(nameList);
 
 
-	int ln = strlen(buttonName);
+	int ln = (int)strlen(buttonName);
 	if (ln>254) ln = 254;
 	memcpy(m_buttonName,buttonName,ln);
 	m_buttonName[ln] = 0;

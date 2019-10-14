@@ -261,6 +261,11 @@ void CEffectGradation::Print(LPVOID lpEffect,int layer)
 
 	int sizeXdiv4 = sizeX / 4;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -337,6 +342,7 @@ LOOP2:
 		pop eax
 		emms
 	}
+#endif
 
 
 }

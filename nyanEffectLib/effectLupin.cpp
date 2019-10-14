@@ -89,6 +89,12 @@ void CEffectLupin::Print(LPVOID lpEffect,int layer)
 	int col = (r << 16) | (g << 8) | b;
 
 	int sz = screenSizeX * screenSizeY;
+
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -106,6 +112,9 @@ void CEffectLupin::Print(LPVOID lpEffect,int layer)
 		pop ecx
 		pop eax
 	}
+
+#endif
+
 }
 
 

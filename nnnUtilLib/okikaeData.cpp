@@ -124,7 +124,7 @@ void COkikaeData::SetOkikaeMessage(int n,char* mes)
 	if ((n>=0) && (n<m_okikaeMax))
 	{
 		char* ptr = m_okikaeMessage + n * OKIKAE_BUFFER_SIZE;
-		int ln = strlen(mes);
+		int ln = (int)strlen(mes);
 		if (ln>32) ln = 32;
 		memcpy(ptr,mes,ln);
 		*(ptr+ln) = 0;
@@ -139,7 +139,7 @@ void COkikaeData::SetSystemOkikaeMessage(int n,char* mes)
 	if ((n>=0) && (n<m_systemOkikaeMax))
 	{
 		char* ptr = m_systemOkikaeMessage + n * OKIKAE_BUFFER_SIZE;
-		int ln = strlen(mes);
+		int ln = (int)strlen(mes);
 		if (ln>32) ln = 32;
 		memcpy(ptr,mes,ln);
 		*(ptr+ln) = 0;

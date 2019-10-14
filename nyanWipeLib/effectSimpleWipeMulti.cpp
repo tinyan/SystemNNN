@@ -85,6 +85,11 @@ void CEffectSimpleWipeMulti::Print(CPicture* lpPicStart, CPicture* lpPicEnd, int
 	if (ps256<0) ps256 = 0;
 	if (ps256>256) ps256 = 256;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -160,6 +165,7 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
 
 
 	return;

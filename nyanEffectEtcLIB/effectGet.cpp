@@ -141,6 +141,11 @@ void CEffectGet::GetScreen(void)
 //	int* dst = (int*)(m_effectGetBufferPicture->GetBuffer());
 	int sz = screenSizeX * screenSizeY;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -163,6 +168,7 @@ void CEffectGet::GetScreen(void)
 		pop ebx
 		pop eax
 	}
+#endif
 
 
 }

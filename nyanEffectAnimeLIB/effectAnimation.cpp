@@ -356,7 +356,7 @@ BOOL CEffectAnimation::CheckNeedPicPrint(LPVOID lpEffect,int layer)
 
 void CEffectAnimation::SetAnimeTageName(LPSTR name)
 {
-	int ln = strlen(name);
+	int ln = (int)strlen(name);
 	if (ln>254) ln = 254;
 	memcpy_s(m_animeTag,256,name,ln);
 	m_animeTag[ln] = 0;

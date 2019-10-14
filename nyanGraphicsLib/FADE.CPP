@@ -55,6 +55,37 @@ void CFade::Print(int ps1,int r,int g,int b,int ps2)
 
 	int loops = sizeX * sizeY / 4;
 
+#if defined _WIN64
+#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	int mul1 = (ps1 * 256) / 100;
+	int mul2 = (ps2 * 256) / 100;
+
+	int dstR = r * ps2;
+	int dstG = g * ps2;
+	int dstB = b * ps2;
+
+	int loop = sizeX * sizeY;
+	int* edi = dst;
+	for (int i = 0; i < loop; i++)
+	{
+		int d = *edi;
+		int srcR = (d >> 16) & 0xff;
+		int srcG = (d >>  8) & 0xff;
+		int srcB = (d      ) & 0xff;
+		int colR = srcR * mul1 + dstR;
+		int colG = srcG * mul1 + dstG;
+		int colB = srcB * mul1 + dstB;
+		colR >>= 8;
+		colG >>= 8;
+		colB >>= 8;
+		int color = (colR << 16) | (colG << 8) | colB;
+		*edi = color;
+
+		edi++;
+	}
+
+#else
+
 	__asm
 	{
 		push eax
@@ -134,6 +165,7 @@ LOOP1:
 
 		emms
 	}
+#endif
 
 }
 

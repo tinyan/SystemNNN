@@ -417,6 +417,11 @@ void CEffectKagerou::Print(LPVOID lpEffect,int layer)
 
 	int screenPitchMinus1 = (screenSizeX-1) * sizeof(int);
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -524,6 +529,8 @@ SKIP:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 #endif
 

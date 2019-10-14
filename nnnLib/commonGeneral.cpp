@@ -1278,8 +1278,22 @@ void CCommonGeneral::FillPicture(CPicture* lpPic, int colR, int colG, int colB)
 
 	int col = (colR << 16) | (colG << 8) | colB;
 #if defined _TINYAN3DLIB_
-dst += 128 / sizeof(int);
+	dst += 128 / sizeof(int);
 #endif
+
+//#if defined _WIN64
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+
+
+//	for (int i = 0; i < sz; i++)
+	//{
+	//	*dst = col;
+//		dst++;
+//	}
+
+#else
 
 	__asm
 	{
@@ -1303,6 +1317,8 @@ dst += 128 / sizeof(int);
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

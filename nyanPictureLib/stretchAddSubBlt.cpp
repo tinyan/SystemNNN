@@ -277,6 +277,11 @@ void CStretchAddSubBlt::Print(POINT dstPoint,POINT srcPoint,SIZE dstSize,SIZE sr
 	LONGLONG addColor64 = (LONGLONG)addColor;
 	LONGLONG subColor64 = (LONGLONG)subColor;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -838,6 +843,8 @@ EXIT1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

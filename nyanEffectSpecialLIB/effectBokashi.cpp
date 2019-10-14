@@ -258,8 +258,11 @@ void CEffectBokashi::Print(LPVOID lpEffect,int layer)
 
 	src += srcX;
 	src += srcY * sizeX;
-
+#if defined _WIN64
+	long long p = (long long)m_work;
+#else
 	int p = (int)m_work;
+#endif
 	p += 31;
 	p &= ~31;
 	int* alignedWork = (int*)p;
@@ -280,6 +283,10 @@ void CEffectBokashi::Print(LPVOID lpEffect,int layer)
 	int deltaEDX = 8 * bokashiSizeX;
 	int deltaGET = srclPitch * bokashiSizeY;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -480,6 +487,9 @@ EXIT1:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 #if defined _TINYAN3DLIB_
 	CMyDirect3D::PutMemoryToMemoryTexture(dst);
 	CMyDirect3D::PutMemoryTextureToBuffer();

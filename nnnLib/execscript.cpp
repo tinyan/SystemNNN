@@ -39,6 +39,15 @@ CExecScript::CExecScript(CScriptCallBack* lpCallBack, int sz)
 	m_pc = 0;
 	m_stackPointer = 0;
 
+	for (int i = 0; i < 256; i++)
+	{
+		m_ID[i] = 0;
+	}
+	m_dataSize = 0;
+	m_paraKosuu = 0;
+
+	m_commandCallPointer = 0;
+
 	//ErrorŠÖŒW
 	m_errorFlag = FALSE;
 	m_errorMessage[0][0] = 0;
@@ -910,6 +919,7 @@ int CExecScript::GetMessageNumber(int script)
 */
 
 
+
 BOOL CExecScript::LoadScript(LPSTR filename)
 {
 	m_pc = 0;
@@ -950,6 +960,34 @@ BOOL CExecScript::LoadScript(LPSTR filename)
 		int sz = m_dataSize;
 		int* pt = &m_data[0];
 
+#if defined _WIN64
+#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á ŽÀ‘•‚µ‚½‚É‚á" __FILE__)
+
+
+
+//#if defined _WIN64
+
+		
+		int edi = 0;
+		int* esi = pt;
+		int ebx = xorCode;
+		int edx = addXorCode;
+
+		for (int i = 0; i < sz; i++)
+		{
+
+			int eax = *esi;
+			eax ^= xorCode;
+			eax += edi;
+			ebx += edx;
+			edi += addIncCode;
+			*esi = eax;
+
+			esi++;
+		}
+		
+
+#else
 		//dis
 		__asm
 		{
@@ -983,6 +1021,7 @@ LOOP1:
 			pop ebx
 			pop eax
 		}
+#endif
 
 		m_dataExistFlag = TRUE;
 		m_pc = 0;

@@ -61,6 +61,10 @@ void CBoxFill::Print(int x,int y,int sizeX,int sizeY,int r,int g,int b)
 	int col = (r<<16) | (g<<8) | b;
 	int lPitch = screenSizeX * sizeof(int);
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -91,6 +95,7 @@ LOOP1:
 		pop ebx
 		pop eax
 	}
+#endif
 
 }
 

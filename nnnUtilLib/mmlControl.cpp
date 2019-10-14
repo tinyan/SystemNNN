@@ -60,7 +60,7 @@ BOOL CMMLControl::LoadMML(LPSTR filename)
 
 
 
-		int ln = strlen(filename);	//さいてい256あるので再取得はチェックしない
+		int ln = (int)strlen(filename);	//さいてい256あるので再取得はチェックしない
 		memcpy(m_mml,filename,ln);
 		m_mmlSize = ln;
 		m_mml[ln] = 0;
@@ -79,7 +79,12 @@ BOOL CMMLControl::LoadMML(LPSTR filename)
 	}
 
 	//fread(m_mml,sizeof(char),sz,file);
-	ReadFile(filea,m_mml,sz,(DWORD*)&sz,NULL);
+	if (!ReadFile(filea, m_mml, sz, (DWORD*)& sz, NULL))
+	{
+		//error
+
+	}
+
 
 	m_mml[sz] = 0;
 	m_mmlSize = sz;

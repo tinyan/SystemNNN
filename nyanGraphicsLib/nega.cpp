@@ -31,9 +31,18 @@ void CNega::Print(void)
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
+#if defined _WIN64
+	PrintClip(0, 0, screenSizeX, screenSizeY);
+	return;
+#endif
 	int* dst = CMyGraphics::GetScreenBuffer();
 
 	int loopSize = screenSizeX * screenSizeY / 8;
+
+#if defined _WIN64
+//#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -79,6 +88,9 @@ LOOP1:
 		pop eax
 
 	}
+
+#endif
+
 }
 
 void CNega::PrintClip(int startX,int startY,int sizeX,int sizeY)
@@ -98,10 +110,32 @@ void CNega::PrintClip(int startX,int startY,int sizeX,int sizeY)
 
 	int lPitch = screenSizeX * sizeof(int);
 	dst += startX;
-	dst += startY * screenSizeX;
+	int delta = startY * screenSizeX;
+	dst += delta;
 	int loopX = sizeX;
 	int loopY = sizeY;
 
+#if defined _WIN64
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+
+	int* edi = dst;
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushedi = edi;
+		for (int i = 0; i < loopX; i++)
+		{
+			int d = *edi;
+			d ^= 0xffffff;
+			*edi = d;
+
+			edi++;
+		}
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
+
+
+#else
 
 	__asm
 	{
@@ -147,6 +181,7 @@ LOOP1B:
 		pop eax
 
 	}
+#endif
 
 }
 

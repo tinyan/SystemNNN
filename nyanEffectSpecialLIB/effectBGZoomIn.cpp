@@ -259,6 +259,11 @@ void CEffectBGZoomIn::Print(LPVOID lpEffect,int layer)
 	int srcPitch = sizeX * 4;
 	int dstPitch = sizeX * 4;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -321,6 +326,7 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
 
 }
 #endif

@@ -90,6 +90,10 @@ void CEffectSimpleWipeWarp1::Print(CPicture* lpPicStart, CPicture* lpPicEnd, int
 
 	int* table = rx;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -163,6 +167,9 @@ SKIP3:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 
 

@@ -910,7 +910,7 @@ void CAllEffect::EndEffect(void)
 void CAllEffect::SetEffectFileName(int n, LPSTR filename)
 {
 	if ((n<0) || (n>=PICTURE_KOSUU_MAX)) return;
-	int ln = strlen(filename);
+	int ln = (int)strlen(filename);
 	if (ln>254) ln = 254;
 	memcpy(&m_filename[n][0],filename,ln);
 	m_filename[n][ln] = 0;
@@ -921,7 +921,7 @@ void CAllEffect::SetEffectFileName(int n, LPSTR filename)
 void CAllEffect::SetMakeFileName(int n,LPSTR filename)
 {
 	if ((n<0) || (n>=PICTURE_KOSUU_MAX)) return;
-	int ln = strlen(filename);
+	int ln =(int)strlen(filename);
 	if (ln>254) ln = 254;
 	memcpy(&m_makeFilename[n][0],filename,ln);
 	m_makeFilename[n][ln] = 0;
@@ -947,7 +947,12 @@ void CAllEffect::PreMakeCG(int n)
 {
 	m_makeCGPicNum = n;
 	memcpy(m_makeEffect,m_effect,sizeof(m_effect));
-	memcpy(&m_makeFilename[0][0],&m_filename[0][0],sizeof(m_filename));
+	
+	for (int i = 0; i < 32; i++)
+	{
+		memcpy(&m_makeFilename[i][0], &m_filename[i][0], sizeof(m_filename[i]));
+	}
+//	memcpy(&m_makeFilename[0][0],&m_filename[0][0],sizeof(m_filename));
 }
 
 void CAllEffect::PostMakeCG(int n)

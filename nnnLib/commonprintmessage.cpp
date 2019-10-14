@@ -2774,7 +2774,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 				}
 				else//Œ»ÝˆÊ’u‚É’Ç‰Á
 				{
-					int apln = strlen(m_messageData[m_messageKosuu-1]);
+					int apln = (int)strlen(m_messageData[m_messageKosuu-1]);
 					if ((apln + ln1) > (MESSAGEBYTE_MAX-2))
 					{
 						ln1 = MESSAGEBYTE_MAX-2 - apln;

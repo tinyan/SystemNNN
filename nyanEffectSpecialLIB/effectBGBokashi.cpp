@@ -13,7 +13,11 @@ CEffectBGBokashi::CEffectBGBokashi(CAllEffect* lpAll) : CCommonEffect(lpAll)
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
 	m_work0 = new int[(screenSizeX+256*2)*4+32];//rgba
+#if defined _WIN64
+	long long p = (long long)m_work0;
+#else
 	int p = (int)m_work0;
+#endif
 	p += 7;
 	p &= ~7;
 
@@ -577,6 +581,11 @@ void CEffectBGBokashi::Print(LPVOID lpEffect,int layer)
 
 	int* gyakuTable = m_gyakuTable;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -809,7 +818,7 @@ EXIT1:
 		pop eax
 
 	}
-
+#endif
 
 
 /*

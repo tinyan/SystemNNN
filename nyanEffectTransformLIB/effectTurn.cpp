@@ -646,6 +646,11 @@ void CEffectTurn::Print(LPVOID lpEffect,int layer)
 	LONGLONG subColor64 = (LONGLONG)subColor;
 
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -1006,6 +1011,7 @@ EXIT1:
 		pop eax
 	}
 
+#endif
 
 
 

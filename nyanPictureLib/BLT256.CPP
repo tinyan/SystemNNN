@@ -42,6 +42,11 @@ void CBlt256::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,LP
 
 	if ((loopY<=0) || (loopX<=0)) return;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -95,4 +100,6 @@ SKIP1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }

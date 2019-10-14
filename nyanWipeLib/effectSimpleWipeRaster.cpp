@@ -137,6 +137,10 @@ void CEffectSimpleWipeRaster::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 	int outMaskColor = 0xffffffff;
 	if (m_colorType == 1) outMaskColor = 0;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -204,6 +208,8 @@ NEXT1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

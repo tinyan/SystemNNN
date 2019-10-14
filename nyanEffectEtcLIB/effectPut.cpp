@@ -150,6 +150,11 @@ void CEffectPut::Print(LPVOID lpEffect,int layer)
 	int* src = CEffectGet::m_effectGetBuffer;
 	int sz = screenSizeX * screenSizeY;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -172,6 +177,9 @@ void CEffectPut::Print(LPVOID lpEffect,int layer)
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 
 
@@ -185,6 +193,11 @@ void CEffectPut::PutScreen(void)
 	int* src = CEffectGet::m_effectGetBuffer;
 	int sz = screenSizeX * screenSizeY;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -207,7 +220,8 @@ void CEffectPut::PutScreen(void)
 		pop ebx
 		pop eax
 	}
-
+#endif
+	
 }
 
 

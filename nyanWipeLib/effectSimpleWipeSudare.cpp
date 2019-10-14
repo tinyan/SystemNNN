@@ -202,6 +202,11 @@ void CEffectSimpleWipeSudare::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 	int loopX = screenSizeX;
 	int loopY = screenSizeY;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -253,6 +258,8 @@ NORMAL:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

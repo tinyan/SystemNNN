@@ -811,7 +811,7 @@ CSoftKey::CSoftKey(CMyMessage* message)
 			m_softKeyTable[i].page = page-1;
 			m_softKeyTable[i].x = nx;
 			m_softKeyTable[i].y = ny;
-			int ln = strlen(mes);
+			int ln = (int)strlen(mes);
 			if (ln>14) ln = 14;
 			memcpy(m_softKeyTable[i].key,mes,ln);
 			m_softKeyTable[i].key[ln] = 0;
@@ -841,7 +841,7 @@ CSoftKey::CSoftKey(CMyMessage* message)
 //			int cmd = atoi(customList->GetName(i*2));
 			LPSTR key = customList->GetName(i*2+1);
 			m_userCommandKeyList[i].cmd = cmd;
-			int ln = strlen(key);
+			int ln = (int)strlen(key);
 			if (ln>14) ln = 14;
 			memcpy(m_userCommandKeyList[i].key,key,ln);
 			m_userCommandKeyList[i].key[ln+0] = 0;
@@ -1353,7 +1353,7 @@ void CSoftKey::AddText(int textType,LPSTR mes)
 	{
 		if (!CheckKanjiOnly(mes)) return;
 	}
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 
 
 	int cp = ln / codeByte;
@@ -1372,7 +1372,7 @@ void CSoftKey::AddText(int textType,LPSTR mes)
 BOOL CSoftKey::CheckKanjiOnly(LPSTR mes)
 {
 	if (mes == NULL) return FALSE;
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 	int n = 0;
 	
 	while (n<ln)

@@ -14,6 +14,7 @@
 
 
 
+
 BOOL CPngLoader::m_gammaAdjustFlag = FALSE;
 
 CPngLoader::CPngLoader(int bufferSizeMegaByte)

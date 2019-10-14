@@ -43,6 +43,11 @@ void CAddBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SI
 	int loopX2 = loopX / 2;
 	int loopX2Amari = loopX2 & 1;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -105,4 +110,5 @@ SKIP2:
 		pop ebx
 		pop eax
 	}
+#endif
 }

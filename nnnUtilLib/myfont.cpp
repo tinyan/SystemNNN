@@ -310,8 +310,8 @@ CMyFont::CMyFont(HWND hwnd,LPSTR fontName)
 
 	if (fontName != NULL) fontname1 = fontName;
 
-	int ln1 = strlen(fontname1);
-	int ln2 = strlen(fontname2);
+	int ln1 = (int)strlen(fontname1);
+	int ln2 = (int)strlen(fontname2);
 
 	if (ln1>255) ln1 = 255;
 	if (ln2>255) ln2 = 255;
@@ -714,11 +714,11 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 	int ln = 0;
 	if (m_codeByte == 2)
 	{
-		ln = strlen(message) / 2;
+		ln = (int)strlen(message) / 2;
 	}
 	else
 	{
-		ln = strlen(message) / 2;
+		ln = (int)strlen(message) / 2;
 	}
 
 
@@ -2349,7 +2349,7 @@ void CMyFont::SetFontNameGothicMincho(LPSTR font1,LPSTR font2,LPSTR replaceChara
 	if (font1 != NULL)
 	{
 		ReplaceName(font1,replaceChara);
-		int ln = strlen(font1);
+		int ln = (int)strlen(font1);
 		if (ln>254) ln = 254;
 		memcpy(m_gothicFontName,font1,ln);
 		m_gothicFontName[ln] = 0;
@@ -2360,7 +2360,7 @@ void CMyFont::SetFontNameGothicMincho(LPSTR font1,LPSTR font2,LPSTR replaceChara
 	if (font2 != NULL)
 	{
 		ReplaceName(font2,replaceChara);
-		int ln = strlen(font2);
+		int ln = (int)strlen(font2);
 		if (ln>254) ln = 254;
 		memcpy(m_minchoFontName,font2,ln);
 		m_minchoFontName[ln] = 0;
@@ -2375,7 +2375,7 @@ void CMyFont::ReplaceName(LPSTR name,LPSTR replaceChara)
 	if (replaceChara == NULL) return;
 	char rep = *replaceChara;
 
-	int ln = strlen(name);
+	int ln = (int)strlen(name);
 	int n = 0;
 	while (n<ln)
 	{

@@ -73,7 +73,7 @@ LPSTR CNameList::CheckSameNameExist(void)
 
 void CNameList::AddName(LPSTR name, BOOL bNoCheckFlag)
 {
-	int ln = strlen(name);
+	int ln = (int)strlen(name);
 	if ((ln>WORK_LENGTH) || (ln==0))
 	{
 		if (bNoCheckFlag == FALSE)
@@ -203,7 +203,7 @@ void CNameList::SaveAngouRoutine(LPSTR filename)
 	while (flg)
 	{
 		fseek(file,block*8192,SEEK_SET);
-		int ln = fread(tmp,sizeof(char),8192,file);
+		int ln = (int)fread(tmp,sizeof(char),8192,file);
 
 		//
 		for (int i=0;i<8192/4;i++)
@@ -302,7 +302,12 @@ BOOL CNameList::LoadFile(LPSTR filename,BOOL angouFlag,BOOL silent,BOOL fullPath
 //	char* tmp = new char[fsize+2+1024];
 	char* tmp0 = new char[(int)fileSize+2+16+1024];
 
+#if defined _WIN64
+	long long p = (long long)tmp0;
+#else
 	int p = (int)tmp0;
+#endif
+
 	p += 63;
 	p &= ~63;
 	char* tmp = (char*)p;
@@ -317,7 +322,7 @@ BOOL CNameList::LoadFile(LPSTR filename,BOOL angouFlag,BOOL silent,BOOL fullPath
 
 //	ZeroMemory(tmp,fsize+2);
 
-	lMax = fread(tmp,sizeof(char),(int)fileSize,file);
+	lMax = (int)fread(tmp,sizeof(char),(int)fileSize,file);
 	fclose(file);
 
 
@@ -442,7 +447,7 @@ void CNameList::SetName(int n,LPSTR name)
 	if (name == NULL) return;
 	if ((n<0) || (n>=m_nameKosuuMax)) return;
 
-	int ln = strlen(name);
+	int ln = (int)strlen(name);
 	if (ln>WORK_LENGTH-2) ln = WORK_LENGTH-2;
 
 	memcpy(m_nameData + n * WORK_LENGTH,name,ln);
@@ -458,10 +463,10 @@ int CNameList::GetNameNumber(LPSTR nam,int skip,int start)
 {
 	if (m_nameKosuu == 0) return -1;
 
-	int l1 = strlen(nam);
+	int l1 = (int)strlen(nam);
 	for (int i=start;i<m_nameKosuu;i+=skip)
 	{
-		int l2 = strlen(m_nameData + i * sizeof(char) * WORK_LENGTH);
+		int l2 = (int)strlen(m_nameData + i * sizeof(char) * WORK_LENGTH);
 		if (l1 == l2)
 		{
 //			if (memcmp(nam,m_nameData + i * sizeof(char) * WORK_LENGTH,l1) == 0) return i;

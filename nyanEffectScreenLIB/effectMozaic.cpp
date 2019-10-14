@@ -229,6 +229,10 @@ void CEffectMozaic::PrintMozaicMain(int sx, int sy, int ex, int ey,int sizeX,int
 
 	int* rndTable = rndData;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -299,6 +303,10 @@ SKIP1:
 			emms
 		}
 	}
+
+#endif
+
+
 #endif
 
 }

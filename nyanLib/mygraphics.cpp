@@ -346,6 +346,9 @@ void CMyGraphics::NiseFlip(HWND hwnd,int x,int y,int sizeX,int sizeY,int waitFla
 
 	HDC src = CreateCompatibleDC(hdc);
 
+
+//	for (int i = 0; i < 800 * 600; i++) { m_lpScreenBuffer[i] = i; }
+
 	HGDIOBJ old = SelectObject(src,m_dib);
 	BitBlt(hdc,x,y,sizeX,sizeY,src,x,y,SRCCOPY);
 	SelectObject(src,old);

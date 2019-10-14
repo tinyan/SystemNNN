@@ -410,6 +410,11 @@ void CEffectKomorebi::Print(LPVOID lpEffect,int layer)
 	int loopY = sizeY;
 
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -526,6 +531,10 @@ SKIP99:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
+
 #endif
 }
 

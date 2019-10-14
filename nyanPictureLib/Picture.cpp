@@ -89,8 +89,12 @@ BOOL CPicture::CreateMaskBuffer(int sz)
 	if (ptr != NULL)
 	{
 		m_maskPic0 = ptr;
+#if defined _WIN64
+		long long p2 = (long long)ptr;
+#else
 		int p2 = (int)ptr;
-		p2 += 63;
+#endif
+p2 += 63;
 		p2 &= (~63);
 		m_maskPic = (char*)p2;
 		m_maskSize = sz;
@@ -143,7 +147,7 @@ CPicture::CPicture(int sizeX, int sizeY,BOOL createMaskFlag,BOOL b256Flag)
 	m_charaClipYEnd= m_pictureSizeY;
 
 	m_256Flag = b256Flag;
-
+	m_pic = nullptr;
 
 	int sz = sizeX * sizeY*sizeof(int);
 	if (b256Flag)
@@ -240,7 +244,11 @@ int CPicture::LoadBitmapHeaderAndPalette(FILE* file,int* rgbTable,BOOL b256Flag)
 
 					if (m_palette0 != NULL)
 					{
-						m_palette = (LPVOID) (( ((int)m_palette0) + 63) & (~63));
+#if defined _WIN64
+						m_palette = (LPVOID)((((long long)m_palette0) + 63) & (~63));
+#else
+						m_palette = (LPVOID)((((int)m_palette0) + 63) & (~63));
+#endif
 						CopyMemory(m_palette,rgbTable,1024);
 					}
 				}
@@ -354,7 +362,11 @@ BOOL CPicture::MakeDataBuffer(int sz)
 		if (m_pic0 != NULL)
 		{
 			m_picBufferSize = sz;
+#if defined _WIN64
+			long long p = (long long)m_pic0;
+#else
 			int p = (int)m_pic0;
+#endif
 			p += 63;
 			p &= (~63);
 			p += 128;
@@ -453,7 +465,7 @@ BOOL CPicture::LoadDWQData(FILE* file, int* rgbTable, BOOL b256Flag)
 			int blockY = sizeY - readY;
 			if (blockY > readBlockMax) blockY = readBlockMax;
 
-			int rd = fread(m_tmpBuffer,sizeof(char),readSize * blockY,file);
+			int rd = (int)fread(m_tmpBuffer,sizeof(char),readSize * blockY,file);
 			m_restReadSize -= rd;
 
 			for (int y=0;y<blockY;y++)
@@ -542,7 +554,7 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 	if (p == 0) p = 256;
 	minus += p* 4;
 
-	int readLength = fread(m_tmpBuffer,sizeof(char),m_dwqSize - minus,file);
+	int readLength = (int)fread(m_tmpBuffer,sizeof(char),m_dwqSize - minus,file);
 	m_restReadSize -= readLength;
 
 	int ptr = 0;
@@ -674,11 +686,11 @@ BOOL CPicture::LoadMask(FILE* file)
 	
 	if (m_packFileFlag == FALSE)
 	{
-		readLength = fread(m_tmpBuffer,sizeof(char),1024*1024*3,file);
+		readLength = (int)fread(m_tmpBuffer,sizeof(char),1024*1024*3,file);
 	}
 	else
 	{
-		readLength = fread(m_tmpBuffer,sizeof(char),m_restReadSize,file);
+		readLength = (int)fread(m_tmpBuffer,sizeof(char),m_restReadSize,file);
 	}
 	
 	int ptr = 0;
@@ -753,6 +765,10 @@ void CPicture::Toumeika(void)
 	int loopX = m_pictureSizeX;
 	int loopY = m_pictureSizeY;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -809,6 +825,8 @@ SKIP1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -905,7 +923,7 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 	m_256Flag = b256Flag;
 	m_maskExistFlag = FALSE;
 
-	int fln = strlen(filename);
+	int fln = (int)strlen(filename);
 	memcpy(m_fileName,filename,fln+1);
 
 	int rgbTable[256];
@@ -977,7 +995,11 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 
 				if (m_palette0 != NULL)
 				{
-					m_palette = (LPVOID) (( ((int)m_palette0) + 63) & (~63));
+#if defined _WIN64
+					m_palette = (LPVOID)((((long long)m_palette0) + 63) & (~63));
+#else
+					m_palette = (LPVOID)((((int)m_palette0) + 63) & (~63));
+#endif
 					CopyMemory(m_palette,rgbTable,1024);
 				}
 
@@ -1325,7 +1347,7 @@ void CPicture::TransLucentBlt3(int x, int y, int srcX, int srcY, int sizeX, int 
 
 void CPicture::SetDirName(LPSTR dirname)
 {
-	int ln = strlen(dirname);
+	int ln = (int)strlen(dirname);
 	if (ln>14) ln = 14;
 	memcpy(m_dirName,dirname,ln);
 	m_dirName[ln] = 0;
@@ -1334,7 +1356,7 @@ void CPicture::SetDirName(LPSTR dirname)
 
 void CPicture::SetExtName(LPSTR extname)
 {
-	int ln = strlen(extname);
+	int ln = (int)strlen(extname);
 	if (ln!=3) return;
 
 	memcpy(m_extName,extname,ln);
@@ -2254,6 +2276,11 @@ void CPicture::DeltaBlt(int putX, int putY, int srcX, int srcY, int sizeX, int s
 
 	if (md == 2)
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -2381,10 +2408,16 @@ SKIP:
 			pop ebx
 			pop eax
 		}
+#endif
 	}
 
 	if (md == 0)
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -2468,6 +2501,7 @@ SKIPC:
 			pop ebx
 			pop eax
 		}
+#endif
 	}
 
 }
@@ -2542,6 +2576,11 @@ void CPicture::LeftBlt(int putX, int putY, int srcX, int srcY, int sizeX, int si
 
 	if (md == 2)
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -2649,6 +2688,7 @@ SKIP1:
 			pop ebx
 			pop eax
 		}
+#endif
 	}
 
 }
@@ -2724,6 +2764,11 @@ void CPicture::RightBlt(int putX, int putY, int srcX, int srcY, int sizeX, int s
 
 	if (md == 2)
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -2835,6 +2880,8 @@ SKIP1:
 			pop ebx
 			pop eax
 		}
+#endif
+
 	}
 
 }
@@ -3270,6 +3317,11 @@ BOOL CPicture::GetScreen(int x, int y, int sizeX, int sizeY)
 
 	int srcPitch = screenSizeX * 4;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -3307,6 +3359,7 @@ LOOP1:
 		pop ebx
 		pop eax
 	}
+#endif
 
 	SetMaskExist(FALSE);
 
@@ -3339,6 +3392,11 @@ BOOL CPicture::GetScreen(void)
 	int srcPitch = screenSizeX * 4;
 	int srcLoopX = screenSizeX;
 	int srcLoopY = screenSizeY;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -3376,6 +3434,7 @@ LOOP1:
 		pop ebx
 		pop eax
 	}
+#endif
 
 	Flush();
 	return TRUE;
@@ -3481,7 +3540,11 @@ BOOL CPicture::ReSize(int x, int y)
 				DELETEARRAY(m_maskPic0);
 				m_maskPic0 = ptr;
 
+#if defined _WIN64
+				long long p2 = (long long)ptr;
+#else
 				int p2 = (int)ptr;
+#endif
 				p2 += 63;
 				p2 &= (~63);
 				m_maskPic = (char*)p2;
@@ -3738,8 +3801,8 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 		if ((*tagName) != 0)
 		{
 //			int ln = strlen(tagName);
-			int ln = strlen(checkTag);
-			int ln2 = strlen(filename);
+			int ln = (int)strlen(checkTag);
+			int ln2 = (int)strlen(filename);
 			if (ln2>=ln)
 			{
 //				memcpy(check1,tagName,ln);
@@ -3777,7 +3840,7 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 	char komojiFileName[256];
 
 	//serach en
-	int ln3 = strlen(filename);
+	int ln3 = (int)strlen(filename);
 	
 	int en = 0;
 	int en2 = 0;
@@ -3803,7 +3866,7 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 	int ln30 = ln3;
 	if (foundEn)
 	{
-		ln30 = strlen(filename+en2);
+		ln30 = (int)strlen(filename+en2);
 	}
 	else
 	{

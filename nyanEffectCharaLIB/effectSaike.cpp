@@ -191,6 +191,10 @@ void CEffectSaike::Print(LPVOID lpEffect,int layer)
 	int addColor = (addR << 16) | (addG << 8) | addB;
 
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -307,6 +311,7 @@ SKIP_M:
 		pop eax
 	}
 
+#endif
 
 
 }

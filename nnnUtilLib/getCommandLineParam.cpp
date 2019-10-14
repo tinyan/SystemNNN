@@ -21,7 +21,7 @@ int CGetCommandLineParam::GetParam(int buffKosuu,int buffSize,char** lplpBuff,LP
 	if (buffKosuu <= 0) return 0;
 
 	BOOL found = FALSE;
-	int ln = strlen(lpCmd);
+	int ln = (int)strlen(lpCmd);
 
 	int n = 0;
 	int start = 0;

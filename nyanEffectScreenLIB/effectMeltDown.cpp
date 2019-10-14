@@ -135,6 +135,11 @@ void CEffectMeltDown::Print(LPVOID lpEffect,int layer)
 
 	int lPitch = screenSizeX * sizeof(int);
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -169,6 +174,10 @@ void CEffectMeltDown::Print(LPVOID lpEffect,int layer)
 		pop ebx
 		pop eax
 	}
+
+#endif
+
+
 #endif
 
 }

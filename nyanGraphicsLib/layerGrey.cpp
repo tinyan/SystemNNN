@@ -41,6 +41,35 @@ void CLayerGrey::Print(int ps256)
 
 //	int col = (r << 16) | (g<<8) | b;
 
+#if defined _WIN64
+#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+	int* edi = dst;
+	for (int i = 0; i < loopSize; i++)
+	{
+		int d = *edi;
+		int r = (d >> 16) & 0xff;
+		int g = (d >> 8) & 0xff;
+		int b = (d) & 0xff;
+		int y = r * 76 + g * 150 + b * 29;
+		y >>= 8;
+
+		int colR = r * nega256work + y * ps256work;
+		int colG = g * nega256work + y * ps256work;
+		int colB = b * nega256work + y * ps256work;
+
+		colR >>= 8;
+		colG >>= 8;
+		colB >>= 8;
+
+		int color = (colR << 16) | (colG << 8) | colB;
+		*edi = color;
+
+		edi++;
+	}
+
+#else
+
 	__asm
 	{
 		push eax
@@ -119,5 +148,7 @@ LOOP1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 

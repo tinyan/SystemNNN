@@ -867,6 +867,11 @@ void CEffectCharaMetal::Print(LPVOID lpEffect,int layer)
 		int* tablePtr = metalWork;
 		tablePtr += putY;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -957,12 +962,19 @@ SKIP1:
 			pop eax
 			emms
 		}
+#endif
+
 	}
 	else
 	{
 		int* tablePtr = metalWork;
 		tablePtr += putX;
 		tablePtr += startNanameDelta;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 		__asm
 		{
@@ -1055,6 +1067,8 @@ SKIP1B:
 			pop eax
 			emms
 		}
+#endif
+
 	}
 }
 #endif

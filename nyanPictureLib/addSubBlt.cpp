@@ -55,6 +55,11 @@ void CAddSubBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData
 		percent *= -1;
 	}
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -166,4 +171,6 @@ SKIP3:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }

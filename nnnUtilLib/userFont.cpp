@@ -31,7 +31,11 @@ CUserFont::CUserFont(LPSTR fontfilename)
 	int sz = (int)fileSize;
 
 	m_userFontData0 = new char[sz+64];
+#if defined _WIN64
+	long long p = (long long)m_userFontData0;
+#else
 	int p = (int)m_userFontData0;
+#endif
 	p += 63;
 	p &= ~63;
 	m_userFontData = (char*)p;
@@ -64,13 +68,21 @@ CUserFont::CUserFont(LPSTR fontfilename)
 	m_fontDataSize = (m_userFontSize + 7) & (~7);
 
 	m_makedFontWork0 = new char[m_fontDataSize*m_fontDataSize+63];
+#if defined _WIN64
+	long long p2 = (long long)m_makedFontWork0;
+#else
 	int p2 = (int)m_makedFontWork0;
+#endif
 	p2 += 63;
 	p2 &= (~63);
 	m_makedFontWork = (char*)p2;
 
 	m_makedFont0 = new char[m_userFontSize*m_userFontSize+63];
+#if defined _WIN64
+	long long p3 = (long long)m_makedFont0;
+#else
 	int p3 = (int)m_makedFont0;
+#endif
 	p3 += 63;
 	p3 &= (~63);
 	m_makedFont = (char*)p3;
@@ -154,6 +166,10 @@ void CUserFont::MakeFont2(int cd)
 	int dstPitch1 = m_fontDataSize;
 	int dstPitch = m_fontDataSize * (8/m_userFontType);
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -253,6 +269,7 @@ LOOP11:
 		pop ebx
 		pop eax
 	}
+#endif
 }
 
 void CUserFont::MakeFont4(int cd)
@@ -265,6 +282,11 @@ void CUserFont::MakeFont4(int cd)
 
 	int dstPitch1 = m_fontDataSize;
 	int dstPitch = m_fontDataSize * (8/m_userFontType);
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -337,7 +359,7 @@ LOOP21:
 		pop ebx
 		pop eax
 	}
-
+#endif
 }
 
 void CUserFont::MakeFont8(int cd)
@@ -350,6 +372,10 @@ void CUserFont::MakeFont8(int cd)
 	int loopY = m_fontDataSize / (8/m_userFontType);
 
 	int sz = m_fontDataSize * m_fontDataSize;
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -379,6 +405,7 @@ void CUserFont::MakeFont8(int cd)
 		pop ebx
 		pop eax
 	}
+#endif
 }
 
 

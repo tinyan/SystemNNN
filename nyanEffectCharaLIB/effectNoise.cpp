@@ -442,6 +442,11 @@ yStart += putY;
 	if (mask == NULL) return;
 	mask += srcY * picSizeX;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -573,6 +578,9 @@ SKIP99:
 
 		emms
 	}
+
+#endif
+
 #endif
 }
 

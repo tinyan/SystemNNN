@@ -356,6 +356,11 @@ void CGreyBlt2::GreyBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID sr
 	int ps256work = ps256;
 	int nega256work = 256-ps256;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -459,7 +464,7 @@ LOOP_B_2:
 		pop eax
 	}
 
-
+#endif
 
 }
 
@@ -489,6 +494,11 @@ void CGreyBlt2::MaskGreyBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID sr
 
 	int ps256work = ps256;
 	int nega256work = 256-ps256;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -618,6 +628,8 @@ SKIP_M:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

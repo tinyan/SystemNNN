@@ -75,6 +75,11 @@ void CColorAddBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picDa
 		mask += srcPoint.y * maskPicSizeX;
 		int maskPitch = srcSize.cx;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -185,11 +190,18 @@ SKIPD1:
 			pop ebx
 			pop eax
 		}
+#endif
+
 	}
 	else
 	{
 		if (transFlag)
 		{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 			__asm
 			{
 				push eax
@@ -278,9 +290,16 @@ SKIPB1:
 				pop ebx
 				pop eax
 			}
+#endif
+
 		}
 		else
 		{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 			__asm
 			{
 				push eax
@@ -366,6 +385,7 @@ NOTMUL3:
 				pop ebx
 				pop eax
 			}
+#endif
 
 		}
 	}

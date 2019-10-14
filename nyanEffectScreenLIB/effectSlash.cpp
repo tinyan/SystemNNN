@@ -182,8 +182,11 @@ void CEffectSlash::Print(LPVOID lpEffect,int layer)
 	if (space>maxSpace) space = maxSpace;
 
 
-
+#if defined _WIN64
+	long long ptr = (long long)m_work;
+#else
 	int ptr = (int)m_work;
+#endif
 	ptr += 31;
 	ptr &= ~31;
 	void* alignedWork = (void*)ptr;
@@ -267,6 +270,11 @@ void CEffectSlash::Print(LPVOID lpEffect,int layer)
 
 	if ((lp->para[1] == 0) || (lp->para[1] == 1))
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -433,9 +441,16 @@ EXIT0:
 			pop ebx
 			pop eax
 		}
+#endif
+
 	}
 	else	//よこ
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -530,6 +545,8 @@ SKIPY2:
 			pop ebx
 			pop eax
 		}
+#endif
+
 	}
 
 

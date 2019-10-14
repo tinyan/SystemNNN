@@ -659,7 +659,7 @@ void CCommonSystemFile::SetMaxMovieCharaNumber(int n)
 void CCommonSystemFile::SetDefaultSei(LPSTR sei)
 {
 	if (sei == NULL) return;
-	int ln = strlen(sei);
+	int ln = (int)strlen(sei);
 	if (ln >= 16) return;
 	memcpy(m_defaultSei,sei,ln+1);
 }
@@ -667,7 +667,7 @@ void CCommonSystemFile::SetDefaultSei(LPSTR sei)
 void CCommonSystemFile::SetDefaultMei(LPSTR mei)
 {
 	if (mei == NULL) return;
-	int ln = strlen(mei);
+	int ln = (int)strlen(mei);
 	if (ln >= 16) return;
 	memcpy(m_defaultMei,mei,ln+1);
 }
@@ -776,7 +776,7 @@ void CCommonSystemFile::SetOkikae(int n,char* mes)
 	if ((n>=0) && (n<OKIKAE_SYSTEM_MAX))
 	{
 		char* ptr = &(m_okikae.okikae[64*n]);
-		int ln = strlen(mes);
+		int ln = (int)strlen(mes);
 		if (ln>32) ln = 32;
 		memcpy(ptr,mes,ln);
 		*(ptr+ln) = 0;

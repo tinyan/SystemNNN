@@ -324,6 +324,11 @@ void CEffectTaiyo::PrintLightCircle(int x, int y, int r, int colR, int colG, int
 	int* screen = CMyGraphics::GetScreenBuffer();
 	int lPitch = screenSizeX*sizeof(int);
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -386,6 +391,7 @@ SKIP1:
 		pop eax
 		emms
 	}
+#endif
 
 }
 
@@ -502,6 +508,11 @@ void CEffectTaiyo::PrintLightTorus(int x, int y, int r, int hole, int colR, int 
 	int* screen = CMyGraphics::GetScreenBuffer();
 	int lPitch = screenSizeX * sizeof(int);
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -584,5 +595,8 @@ SKIP2:
 		pop eax
 		emms
 	}
+
+#endif
+
 }
 #endif

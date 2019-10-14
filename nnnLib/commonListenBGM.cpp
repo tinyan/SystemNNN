@@ -216,7 +216,7 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 				for (int i=0;i<m_bgmKosuu;i++)
 				{
 					LPSTR musicName = m_bgmList->GetName(i*8);
-					int ln = strlen(musicName);
+					int ln = (int)strlen(musicName);
 
 					for (int k=0;k<ln;k++)
 					{

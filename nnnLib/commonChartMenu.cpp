@@ -4204,7 +4204,7 @@ void CCommonChartMenu::MakeHeader(int* work, int sz, int cd, LPSTR mes)
 
 	ZeroMemory(header->general.message,16);
 
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 	if (ln>15) ln = 15;
 	memcpy(header->general.message,mes,ln);
 }

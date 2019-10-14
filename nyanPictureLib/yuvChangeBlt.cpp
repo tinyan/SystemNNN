@@ -102,6 +102,11 @@ void CYUVChangeBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picD
 
 	int* tablePtr = m_table256;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -282,6 +287,9 @@ SKIP1:
 		pop eax
 		emms
 	}
+
+#endif
+
 }
 
 

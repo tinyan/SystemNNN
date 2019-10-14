@@ -410,7 +410,7 @@ void COggDecoder::MyErrorOut(LPSTR mes, LPSTR title)
 	char titleMessage[256];
 	if (title != NULL)
 	{
-		int ln = strlen(title);
+		int ln = (int)strlen(title);
 		if (ln>254) ln = 254;
 		memcpy(titleMessage,title,ln);
 		titleMessage[ln] = 0;
@@ -419,7 +419,7 @@ void COggDecoder::MyErrorOut(LPSTR mes, LPSTR title)
 	else
 	{
 		char et[] = "ERROR";
-		memcpy(titleMessage,et,strlen(et)+1);
+		memcpy(titleMessage,et,(int)strlen(et)+1);
 	}
 //	MessageBox(NULL,mes,titleMessage,MB_OK | MB_ICONEXCLAMATION);
 	OutputDebugString(mes);

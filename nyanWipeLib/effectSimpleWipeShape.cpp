@@ -111,6 +111,11 @@ void CEffectSimpleWipeShape::PrintShape(void)
 	int src1Pitch = m_startPitch;
 	int src2Pitch = m_endPitch;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -232,6 +237,7 @@ LAST1:
 		pop eax
 	}
 
+#endif
 
 
 }
@@ -260,6 +266,11 @@ void CEffectSimpleWipeShape::PrintShape1(void)
 	int* src2 = (int*)m_endBuffer;
 	int src1Pitch = m_startPitch;
 	int src2Pitch = m_endPitch;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -320,6 +331,8 @@ SKIP2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -354,6 +367,10 @@ void CEffectSimpleWipeShape::PrintGradShape(void)
 	if (m_gradSize>0) delta = 256 / m_gradSize;
 
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -468,6 +485,7 @@ SKIP4:
 		pop ebx
 		pop eax
 	}
+#endif
 
 	//
 }

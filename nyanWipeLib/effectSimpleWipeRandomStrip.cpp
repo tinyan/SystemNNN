@@ -81,6 +81,11 @@ void CEffectSimpleWipeRandomStrip::Print(CPicture* lpPicStart, CPicture* lpPicEn
 	int loopY = screenSizeY;
 	int loopX = screenSizeX;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -132,6 +137,8 @@ SKIP1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

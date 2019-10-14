@@ -41,6 +41,42 @@ void CLayerSepia::Print(int ps256,int r,int g,int b)
 
 	int col = (r << 16) | (g<<8) | b;
 
+#if defined _WIN64
+#pragma message("*** ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+	int* edi = dst;
+	for (int i = 0; i < loopSize; i++)
+	{
+		int d = *edi;
+		int srcR = (d >> 16) & 0xff;
+		int srcG = (d >> 8) & 0xff;
+		int srcB = (d) & 0xff;
+		int y = srcR * 76 + srcG * 150 + srcB * 29;
+		y >>= 8;
+		int sepiaR = y * r;
+		int sepiaG = y * g;
+		int sepiaB = y * b;
+		sepiaR >>= 8;
+		sepiaG >>= 8;
+		sepiaB >>= 8;
+
+		int colR = srcR * nega256work + sepiaR * ps256work;
+		int colG = srcG * nega256work + sepiaG * ps256work;
+		int colB = srcB * nega256work + sepiaB * ps256work;
+
+		colR >>= 8;
+		colG >>= 8;
+		colB >>= 8;
+
+		int color = (colR << 16) | (colG << 8) | colB;
+		*edi = color;
+
+		edi++;
+	}
+
+
+#else
+
 	__asm
 	{
 		push eax
@@ -119,5 +155,7 @@ LOOP1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 

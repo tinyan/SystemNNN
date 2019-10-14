@@ -475,6 +475,11 @@ void CEffectColorBalance::Print(LPVOID lpEffect,int layer)
 		colorAddSub[i*2+1] = (subR << 16) | (subG<<8) | subB;
 	}
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -581,6 +586,9 @@ SKIP1:
 		pop eax
 		emms
 	}
+
+#endif
+
 #endif
 
 }

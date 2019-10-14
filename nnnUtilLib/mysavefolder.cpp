@@ -136,7 +136,7 @@ void CMySaveFolder::ChangeFolderType(int type,BOOL remakeFlag)
 	        SHGetPathFromIDList(pidl,szPath); // ƒpƒX‚É•ÏŠ·‚·‚é
 		    pMalloc->Free(pidl);              // Žæ“¾‚µ‚½IDL‚ð‰ð•ú‚·‚é (CoTaskMemFree‚Å‚à‰Â)
 
-			int ln = strlen(szPath);
+			int ln = (int)strlen(szPath);
 			if (ln>1022) ln = 1022;
 
 			memcpy(m_userFolder,szPath,ln);
@@ -171,7 +171,7 @@ void CMySaveFolder::ChangeCompanyFolder(LPSTR companyFolder,BOOL remakeFlag)
 	}
 	else
 	{
-		int ln = strlen(companyFolder);
+		int ln = (int)strlen(companyFolder);
 		if (ln>126) ln = 126;
 		memcpy(m_companyName,companyFolder,ln+1);
 		m_companyName[ln+1] = 0;
@@ -193,7 +193,7 @@ void CMySaveFolder::ChangeGameFolder(LPSTR gameFolder,BOOL remakeFlag)
 	}
 	else
 	{
-		int ln = strlen(gameFolder);
+		int ln = (int)strlen(gameFolder);
 		if (ln>254) ln = 254;
 		memcpy(m_gameName,gameFolder,ln+1);
 		m_gameName[ln+1] = 0;
@@ -215,7 +215,7 @@ void CMySaveFolder::ChangeSaveFolder(LPSTR saveFolder,BOOL remakeFlag)
 	}
 	else
 	{
-		int ln = strlen(saveFolder);
+		int ln = (int)strlen(saveFolder);
 		if (ln>126) ln = 126;
 		memcpy(m_saveName,saveFolder,ln+1);
 		m_saveName[ln+1] = 0;
@@ -525,7 +525,7 @@ BOOL CMySaveFolder::DeleteSubFolder(LPSTR subFolder,BOOL deleteSubFolderFlag,BOO
 				else
 				{
 					LPSTR filename = finddata.cFileName;
-					int ln = strlen(filename);
+					int ln = (int)strlen(filename);
 
 					delok = TRUE;
 

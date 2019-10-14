@@ -109,7 +109,7 @@ void CAutoSelectControl::Finish(void)
 	wsprintf(mes,"\x00d\x00aSELECT:");
 	for (int i=0;i<m_playLevel;i++)
 	{
-		int ln = strlen(mes);
+		int ln = (int)strlen(mes);
 		wsprintf(mes+ln,"-[%d] ",m_selected[i]+1);
 	}
 

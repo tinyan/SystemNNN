@@ -257,6 +257,11 @@ void CStretchBlt::Print(POINT dstPoint,POINT srcPoint,SIZE dstSize,SIZE srcSize,
 	if (loopX<1) return;
 	if (loopY<1) return;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 
 	__asm
 	{
@@ -787,6 +792,8 @@ EXIT1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

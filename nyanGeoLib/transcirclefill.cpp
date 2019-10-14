@@ -82,6 +82,10 @@ void CTransCircleFill::Print(int x, int y, int rx, int ry, int r, int g, int b,i
 		}
 	}
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 
 __asm
@@ -155,6 +159,8 @@ SKIP1:
 
 		emms
 	}
+#endif
+
 }
 
 

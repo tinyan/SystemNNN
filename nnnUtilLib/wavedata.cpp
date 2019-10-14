@@ -121,7 +121,7 @@ BOOL CWaveData::LoadSystemWave(LPSTR dirName, LPSTR filenameOnly)
 //	if (stricmp(filenameOnly,m_fileName) == 0) return TRUE;
 	if (filenameOnly == NULL) return FALSE;
 
-	int fln = strlen(filenameOnly);
+	int fln = (int)strlen(filenameOnly);
 	memcpy(m_fileName,filenameOnly,fln+1);
 	char filename[256];
 
@@ -161,7 +161,7 @@ BOOL CWaveData::LoadWave(LPSTR filenameOnly)
 	tag[1] = *(filenameOnly+1);
 	tag[2] = 0;
 
-	int fln = strlen(filenameOnly);
+	int fln = (int)strlen(filenameOnly);
 	memcpy(m_fileName,filenameOnly,fln+1);
 	
 	char filename[256];
@@ -203,7 +203,7 @@ BOOL CWaveData::LoadPackedWave(LPSTR filenameOnly)//,LPSTR packFile, LPSTR table
 	if (packNumber == -1) return FALSE;
 
 
-	int fln = strlen(filenameOnly);
+	int fln = (int)strlen(filenameOnly);
 	memcpy(m_fileName,filenameOnly,fln+1);
 	
 	char filename[256];
@@ -286,7 +286,7 @@ BOOL CWaveData::LoadWaveRoutine(FILE* file,int loadSize)
 //		int readSize0 = m_game->GetCDVAWSize(filename);
 
 		if (loadSize <= 0) loadSize = 1024*1600;
-		int readSize = fread(m_commonBuffer,sizeof(char),loadSize,file);
+		int readSize = (int)fread(m_commonBuffer,sizeof(char),loadSize,file);
 
 //		m_huffMan->HuffManDecode(m_commonBuffer,m_data+20+headerSize,readSize);
 	}
@@ -300,7 +300,7 @@ makedDataSize -= 8;
 	
 		ReCreateCommonBuffer(loadSize);
 
-		int readSize = fread(m_commonBuffer,sizeof(char),loadSize - 64 - 20 - headerSize - 8,file);
+		int readSize = (int)fread(m_commonBuffer,sizeof(char),loadSize - 64 - 20 - headerSize - 8,file);
 
 
 		//check and re-create common bufffer
@@ -383,7 +383,7 @@ int CWaveData::GetCDVAWSeekPointer(int packNumber, LPSTR filename, int* lpSize)
 	filenamework[8] = 0;
 	filenamework[9] = 0;
 
-	int ln = strlen(filename);
+	int ln = (int)strlen(filename);
 	if (ln>8) ln = 8;
 	if (ln<4)
 	{
@@ -516,8 +516,11 @@ BOOL CWaveData::AdjustWaveLevel(int percent)
 	int midLoop = 0;
 	int lastLoop = 0;
 
-
+#if defined _WIN64
+	long long tmp = (long long)dataPtr;
+#else
 	int tmp = (int)dataPtr;
+#endif
 	//first adjust
 	if (tmp & 0x2)
 	{
@@ -547,6 +550,11 @@ BOOL CWaveData::AdjustWaveLevel(int percent)
 
 
 	int multiData = (percent * 256) / 100;
+
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -630,6 +638,7 @@ SKIP3:
 
 		emms
 	}
+#endif
 
 	m_adjustWaveLevelFlag = TRUE;
 

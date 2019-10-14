@@ -62,6 +62,39 @@ void CAddSub::Print(int deltaR,int deltaG,int deltaB)
 	int addColor = (addR << 16) | (addG << 8) | addB;
 	int subColor = (subR << 16) | (subG << 8) | subB;
 
+#if defined _WIN64
+#pragma message("***実装したにゃ　ここにc++実装が必要にゃ " __FILE__)
+	int loop = screenSizeX * screenSizeY;
+
+	for (int i = 0; i < loop; i++)
+	{
+		int d = *dst;
+		int r = (d >> 16) & 0xff;
+		int g = (d >>  8) & 0xff;
+		int b = (d     ) & 0xff;
+
+		r += addR;
+		g += addG;
+		b += addB;
+		r -= subR;
+		g -= subG;
+		b -= subB;
+
+		if (r < 0) r = 0;
+		if (r > 255) r = 255;
+		if (g < 0) g = 0;
+		if (g > 255) g = 255;
+		if (b < 0) b = 0;
+		if (b > 255) b = 255;
+
+		int color = (r << 16) | (g << 8) | b;
+
+		*dst = color;
+		dst++;
+
+	}
+#else
+
 	__asm
 	{
 		push eax
@@ -124,6 +157,9 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 
 
@@ -173,13 +209,55 @@ void CAddSub::PrintClip(int startX,int startY,int sizeX,int sizeY,int deltaR,int
 	int* dst = CMyGraphics::GetScreenBuffer();
 	int lPitch = screenSizeX * sizeof(int);
 	dst += startX;
-	dst += startY * screenSizeX;
+	int delta = startY * screenSizeX;
+	dst += delta;
 
 	int loopX = sizeX;
 	int loopY = sizeY;
 
 	int addColor = (addR << 16) | (addG << 8) | addB;
 	int subColor = (subR << 16) | (subG << 8) | subB;
+
+#if defined _WIN64
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+
+	int* edi = dst;
+	for (int j=0;j<loopY;j++)
+	{
+		int* pushedi = edi;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			int d = *edi;
+			int r = (d >> 16) & 0xff;
+			int g = (d >> 8) & 0xff;
+			int b = (d) & 0xff;
+
+			r += addR;
+			g += addG;
+			b += addB;
+			r -= subR;
+			g -= subG;
+			b -= subB;
+
+			if (r < 0) r = 0;
+			if (r > 255) r = 255;
+			if (g < 0) g = 0;
+			if (g > 255) g = 255;
+			if (b < 0) b = 0;
+			if (b > 255) b = 255;
+
+			int color = (r << 16) | (g << 8) | b;
+
+			*edi = color;
+			edi++;
+		}
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
+
+
+#else
 
 	__asm
 	{
@@ -235,6 +313,7 @@ LOOP1B:
 		pop ebx
 		pop eax
 	}
+#endif
 
 }
 

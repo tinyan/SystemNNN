@@ -342,7 +342,7 @@ void CGameCallBack::LogMessage(int msg,WPARAM wParam,LPARAM lParam)
 	{
 		wsprintf(mes,"\x00d\x00a");
 	}
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 
 	FILE* file = CMyFile::OpenFullPath("wmlog.txt","ab");
 	if (file != NULL)
@@ -357,7 +357,7 @@ void CGameCallBack::LogMessage(LPSTR mes)
 {
 	if (m_debugOkFlag == FALSE) return;
 
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 
 	FILE* file = CMyFile::OpenFullPath("wmlog.txt","ab");
 	if (file != NULL)
@@ -2017,7 +2017,7 @@ else
 		LPSTR answerString = NULL;
 		if (GetInitGameString(&answerString,name))
 		{
-			int ln = strlen(answerString);
+			int ln = (int)strlen(answerString);
 			if (ln>126) ln = 126;
 			if (ln>0)
 			{
@@ -2055,7 +2055,7 @@ else
 					wsprintf(name,"renameTag%d",i+1);
 					if (GetInitGameString(&tagName,name))
 					{
-						int ln = strlen(tagName);
+						int ln = (int)strlen(tagName);
 						if (ln > 62) ln = 62;
 						memcpy(m_renameTag + 64 * i,tagName,ln);
 
@@ -3338,7 +3338,7 @@ else
 		char key[256];
 		sprintf_s(key,"specialVoiceName%d",i+1);
 		GetInitGameString(&name,key);
-		int ln = strlen(name);
+		int ln = (int)strlen(name);
 		if (ln>62) ln = 62;
 		memcpy(m_specialVoiceName + i*64,name,ln);
 		m_specialVoiceName[i*64+ln] = 0;
@@ -9239,7 +9239,7 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 			char names[256];
 			if (name != NULL)
 			{
-				int ln = strlen(name);
+				int ln = (int)strlen(name);
 				memcpy_s(names,256,name,ln+1);
 				char c = names[3];
 				c += 'a';
@@ -16168,7 +16168,7 @@ void CGameCallBack::AddDebugLog(LPSTR mes)
 		}
 		else
 		{
-			int ln = strlen(mes);
+			int ln = (int)strlen(mes);
 
 			FILE* file = CMyFile::OpenFullPath("debuglog666.txt","ab");
 			if (file != NULL)

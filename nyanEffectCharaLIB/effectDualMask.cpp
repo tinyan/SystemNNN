@@ -293,6 +293,10 @@ void CEffectDualMask::Print(LPVOID lpEffect,int layer)
 	dst += screenSizeX * putY1;
 	dst += putX1;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 
 	__asm
@@ -419,6 +423,8 @@ SKIP1:
 
 		emms
 	}
+
+#endif
 
 
 #endif

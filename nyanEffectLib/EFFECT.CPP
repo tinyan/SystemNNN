@@ -382,7 +382,7 @@ void CEffect::TaihiAllEffectToStaticBuffer(void)
 
 		CPicture* lpPic = GetPicture(i);
 		LPSTR filename = lpPic->GetFileName();
-		int ln = strlen(filename);
+		int ln = (int)strlen(filename);
 		if (ln>254) ln = 254;
 		memcpy(m_staticFileNameBuffer[i],filename,ln);
 		m_staticFileNameBuffer[i][ln] = 0;

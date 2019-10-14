@@ -787,6 +787,11 @@ void CEffectHahen::PrintNormalPoligon(int* lpPicSrc, int picSizeX, int n, int pu
 
 	int trans = ps256;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -918,6 +923,7 @@ EXIT1:
 		pop ebx
 		pop eax
 	}
+#endif
 
 }
 

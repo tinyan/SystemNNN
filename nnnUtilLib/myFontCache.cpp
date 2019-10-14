@@ -121,6 +121,11 @@ BOOL CMyFontCache::GetData(int n,CPicture* lpPic)
 	src += sz2.cx * offsetY;
 	srcMask += sz2.cx * offsetY;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -180,7 +185,7 @@ SKIP2:
 		pop ebx
 		pop eax
 	}
-
+#endif
 
 	return TRUE;
 }
@@ -197,7 +202,7 @@ SIZE CMyFontCache::GetSize(int n)
 
 int CMyFontCache::SearchData(LPSTR message,int fontSize,int colR,int colG,int colB,int sukima,int kageColor)
 {
-	int ln = strlen(message);
+	int ln = (int)strlen(message);
 	if (ln > 254) return -1;
 
 	for (int i=0;i<m_dataKosuu;i++)
@@ -227,7 +232,7 @@ int CMyFontCache::AddData(LPSTR message,int fontSize,int colR,int colG,int colB,
 	if (m_fontOffScreen == NULL) return -1;
 #endif
 
-	int ln = strlen(message);
+	int ln = (int)strlen(message);
 	if (ln > 254) return -1;
 
 	if ((fontSize <= m_bufferSizeY) && (m_dataKosuu < m_dataKosuuMax))
@@ -356,6 +361,12 @@ int CMyFontCache::SetDataSub(int ln,int fontSize,LPSTR message,int colR,int colG
 #endif
 
 #if !defined _TINYAN3DLIB_
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -415,6 +426,8 @@ SKIP2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 #else
 
 	__asm
@@ -603,6 +616,11 @@ LOOP2:
 //		dstMask += sz.cx * offsetY;
 
 #if !defined _TINYAN3DLIB_
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -662,6 +680,8 @@ SKIP2RUBI:
 			pop ebx
 			pop eax
 		}
+#endif
+
 #else
 	__asm
 	{

@@ -49,6 +49,11 @@ void CColorBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,char* maskPic,S
 
 	int col = (r << 16) | (g<<8) | b;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -137,5 +142,6 @@ SKIP1:
 
 		emms
 	}
+#endif
 
 }

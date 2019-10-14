@@ -121,6 +121,11 @@ void CEffectSimpleWipeMozaic::Print(CPicture* lpPicStart, CPicture* lpPicEnd, in
 
 	src += (m_startPoint.x + rndX) + (m_startPoint.y + rndY) * m_startPicSize.cx;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -208,6 +213,7 @@ EXIT1:
 		pop ebx
 		pop eax
 	}
+#endif
 
 
 

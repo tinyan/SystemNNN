@@ -41,8 +41,11 @@ CEffectSnow::CEffectSnow(CAllEffect* lpAll) : CCommonEffect(lpAll)
 
 	CPicture::m_errorPrintFlag = old;
 
-
+#if defined _WIN64
+	Init((LPVOID)(long long)m_kosuuMax);
+#else
 	Init((LPVOID)m_kosuuMax);
+#endif
 	InitSnow();
 }
 
@@ -122,7 +125,11 @@ void CEffectSnow::BeginPrint(LPVOID para,int layer)
 void CEffectSnow::Init(LPVOID para,int layer)
 {
 	int kosuu = m_kosuuMax;
+#if defined _WIN64
+	if (para != NULL) kosuu = (int)(long long)para;
+#else
 	if (para != NULL) kosuu = (int)para;
+#endif
 
 	if (kosuu<1) kosuu = 1;
 	if (kosuu > m_kosuuMax) kosuu = m_kosuuMax;

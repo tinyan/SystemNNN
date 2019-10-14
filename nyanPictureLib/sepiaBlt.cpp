@@ -361,6 +361,11 @@ void CSepiaBlt::SepiaBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID s
 
 	int col = (r << 16) | (g<<8) | b;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -470,6 +475,7 @@ LOOP_B_2:
 		pop eax
 	}
 
+#endif
 
 
 }
@@ -502,6 +508,11 @@ void CSepiaBlt::MaskSepiaBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID s
 	int nega256work = 256-ps256;
 
 	int col = (r << 16) | (g<<8) | b;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -638,6 +649,8 @@ SKIP_M:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

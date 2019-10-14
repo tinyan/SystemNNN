@@ -53,6 +53,60 @@ void CTransLucentBlt2::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID p
 
 	if ((loopY<=0) || (loopX<=0)) return;
 
+	int alpha = transPercent;
+	int one_minus_alpha = 256 - transPercent;
+
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	int* esi = src;
+	int* edi = dst;
+	int ebx = mask;
+
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushesi = esi;
+		int* pushedi = edi;
+
+
+		for (int i = 0; i < loopX; i++)
+		{
+			int eax = *src;
+			if (eax != ebx)
+			{
+				int srcR = (eax >> 16) & 0xff;
+				int srcG = (eax >>  8) & 0xff;
+				int srcB = (eax      ) & 0xff;
+
+				int dstData = *edi;
+				int dstR = (dstData >> 16) & 0xff;
+				int dstG = (dstData >>  8) & 0xff;
+				int dstB = (dstData     ) & 0xff;
+
+				int colR = srcR * alpha + dstR * one_minus_alpha;
+				int colG = srcG * alpha + dstG * one_minus_alpha;
+				int colB = srcB * alpha + dstB * one_minus_alpha;
+
+				colR >>= 8;
+				colG >>= 8;
+				colB >>= 8;
+
+				int color = (colR << 16) | (colG << 8) | colB;
+
+				*edi = color;
+			}
+
+
+			esi++;
+			edi++;
+		}
+		esi = pushesi;
+		edi = pushedi;
+		esi += srcPitch / 4;
+		edi += dstPitch / 4;
+
+	}
+#else
+
 	__asm
 	{
 		push eax
@@ -130,4 +184,6 @@ SKIP1:
 		pop ebx
 		pop eax
 	}
+
+#endif
 }

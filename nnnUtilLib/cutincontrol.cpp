@@ -83,7 +83,7 @@ CCutinControl::CCutinControl(BOOL editorFlag)
 		m_cutinCharaNumber[i] = found;
 
 		LPSTR tag = m_cutinChara->GetName(i*m_cutinParamKosuu+1);
-		m_tagLength[i] = strlen(tag);
+		m_tagLength[i] = (int)strlen(tag);
 		m_zahyo[i].x = atoi(m_cutinChara->GetName(i*m_cutinParamKosuu+2));
 		m_zahyo[i].y = atoi(m_cutinChara->GetName(i*m_cutinParamKosuu+3));
 		m_nextZahyo[i].x = atoi(m_cutinChara->GetName(i*m_cutinParamKosuu+4));
@@ -242,7 +242,7 @@ int CCutinControl::GetFontDeltaSize(int layer)
 
 int CCutinControl::OnNewFile(int layer,LPSTR filename)
 {
-	int ln = strlen(filename);
+	int ln = (int)strlen(filename);
 	char mes[1024];
 
 

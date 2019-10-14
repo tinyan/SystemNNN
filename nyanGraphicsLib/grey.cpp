@@ -36,6 +36,11 @@ void CGrey::Print(void)
 
 	int loopSize = screenSizeX * screenSizeY / 4;
 
+#if defined _WIN64
+	PrintClip(0, 0, screenSizeX, screenSizeY);
+	return;
+#else
+
 	__asm
 	{
 		push eax
@@ -131,6 +136,8 @@ LOOP1:
 		pop eax
 
 	}
+#endif
+
 }
 
 void CGrey::PrintClip(int startX,int startY,int sizeX,int sizeY)
@@ -157,6 +164,32 @@ void CGrey::PrintClip(int startX,int startY,int sizeX,int sizeY)
 	int lPitch = screenSizeX * sizeof(int);
 
 //	int loopSize = screenSizeX * screenSizeY / 4;
+
+#if defined _WIN64
+#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	int* edi = dst;
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushedi = edi;
+		
+		for (int i = 0; i < loopX; i++)
+		{
+			int d = *edi;
+			int r = (d >> 16) & 0xff;
+			int g = (d >>  8) & 0xff;
+			int b = (d      ) & 0xff;
+			int y = r * 76 + g * 150 + b * 29;
+			y >>= 8;
+			int color = (y << 16) | (y << 8) | y;
+			*edi = color;
+
+			edi++;
+		}
+
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
+#else
 
 	__asm
 	{
@@ -221,6 +254,8 @@ LOOP1B:
 		pop eax
 
 	}
+#endif
+
 }
 
 /*_*/

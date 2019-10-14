@@ -221,6 +221,10 @@ void CEffectStretch::Print(LPVOID lpEffect,int layer)
 
 			int srcPitch = picSizeX*4 * 2;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 			__asm
 			{
@@ -294,6 +298,8 @@ LOOP02:
 				pop eax
 				emms
 			}
+#endif
+
 			return;
 		}
 
@@ -382,6 +388,11 @@ LOOP02:
 
 	int sizeXmul4 = picSizeX * 4;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -457,6 +468,7 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
 
 	return;
 }

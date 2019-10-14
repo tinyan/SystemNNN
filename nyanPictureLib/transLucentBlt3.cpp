@@ -53,6 +53,78 @@ void CTransLucentBlt3::Print(POINT putPoint,POINT srcPoint, SIZE putSize,LPVOID 
 
 	if ((loopY<=0) || (loopX<=0)) return;
 
+	int alpha = transPercent;
+	int one_minus_alpha = 256 - transPercent;
+
+
+#if defined _WIN64
+#pragma message("***ŽÀ‘•‚µ‚½‚É‚á‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+
+	int* esi = src;
+	int* edi = dst;
+	char* ebx = maskTable;
+
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushesi = esi;
+		int* pushedi = edi;
+		char* pushebx = ebx;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			int maskData = 0xff & (int)(*ebx);
+			if (maskData != 0)
+			{
+				int srcData = *src;
+				int dstData = *dst;
+
+				int alpha2 = maskData * alpha;
+				int one_minus_alpha2 = 256 - alpha2;
+
+				if (alpha2 == 255*255)
+				{
+					*edi = srcData;
+				}
+				else
+				{
+					int srcR = (srcData >> 16) & 0xff;
+					int srcG = (srcData >> 8) & 0xff;
+					int srcB = (srcData) & 0xff;
+
+					int dstData = *edi;
+					int dstR = (dstData >> 16) & 0xff;
+					int dstG = (dstData >> 8) & 0xff;
+					int dstB = (dstData) & 0xff;
+
+					int colR = srcR * alpha + dstR * one_minus_alpha;
+					int colG = srcG * alpha + dstG * one_minus_alpha;
+					int colB = srcB * alpha + dstB * one_minus_alpha;
+
+					colR >>= 8;
+					colG >>= 8;
+					colB >>= 8;
+
+					int color = (colR << 16) | (colG << 8) | colB;
+
+					*edi = color;
+
+
+				}
+			}
+			esi++;
+			edi++;
+			ebx++;
+		}
+		esi = pushesi;
+		edi = pushedi;
+		ebx = pushebx;
+		esi += srcPitch / 4;
+		edi += dstPitch / 4;
+		ebx += maskPitch;
+	}
+#else
+
 	__asm
 	{
 		push eax
@@ -164,6 +236,8 @@ SKIP1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

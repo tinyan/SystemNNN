@@ -258,7 +258,7 @@ bool CMyIME::MyCallback(
 BOOL CMyIME::CheckKanjiOnly(LPSTR mes)
 {
 	if (mes == NULL) return FALSE;
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 	int n = 0;
 	
 	while (n<ln)

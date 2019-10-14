@@ -28,6 +28,14 @@ void CMulti::End(void)
 
 void CMulti::Print(int percentR,int percentG,int percentB)
 {
+	int screenSizeX = CMyGraphics::GetScreenSizeX();
+	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+#if defined _WIN64
+	PrintClip(0, 0, screenSizeX, screenSizeY, percentR, percentG, percentB);
+	return;
+#endif
+
 	if (percentG == -1) percentG = percentR;
 	if (percentB == -1) percentB = percentG;
 
@@ -41,8 +49,6 @@ void CMulti::Print(int percentR,int percentG,int percentB)
 //	if (percent < 0) percent = 0;
 //	if (percent > 100) percent = 100;
 
-	int screenSizeX = CMyGraphics::GetScreenSizeX();
-	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
 	int* dst = CMyGraphics::GetScreenBuffer();
 
@@ -66,6 +72,11 @@ void CMulti::Print(int percentR,int percentG,int percentB)
 	int mulR= (percentR * 256)/100;
 	int mulG= (percentG * 256)/100;
 	int mulB= (percentB * 256)/100;
+
+#if defined _WIN64
+//#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -152,6 +163,8 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 void CMulti::PrintClip(int startX,int startY,int sizeX,int sizeY,int percentR,int percentG ,int percentB)
@@ -181,7 +194,8 @@ void CMulti::PrintClip(int startX,int startY,int sizeX,int sizeY,int percentR,in
 	int* dst = CMyGraphics::GetScreenBuffer();
 
 	dst += startX;
-	dst += startY * screenSizeX;
+	int delta = startY * screenSizeX;
+	dst += delta;
 	int lPitch = screenSizeX * sizeof(int);
 
 	int loopX = sizeX;
@@ -191,6 +205,37 @@ void CMulti::PrintClip(int startX,int startY,int sizeX,int sizeY,int percentR,in
 	int mulR= (percentR * 256)/100;
 	int mulG= (percentG * 256)/100;
 	int mulB= (percentB * 256)/100;
+
+#if defined _WIN64
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+	int* edi = dst;
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushedi = edi;
+		for (int i = 0; i < loopX; i++)
+		{
+			int d = *edi;
+			int r = (d >> 16) & 0xff;
+			int g = (d >>  8) & 0xff;
+			int b = (d     ) & 0xff;
+
+			r *= mulR;
+			g *= mulG;
+			b *= mulB;
+
+			r >>= 8;
+			g >>= 8;
+			b >>= 8;
+
+			int col = (r << 16) | (g << 8) | b;
+			*edi = col;
+
+			edi++;
+		}
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
+#else
 
 	__asm
 	{
@@ -251,6 +296,9 @@ LOOP1B:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 
 /*_*/

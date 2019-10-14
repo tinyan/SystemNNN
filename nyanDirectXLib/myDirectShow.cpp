@@ -93,7 +93,7 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 //		m_useVMR9Flag = false;
 	}
 
-	int ln = strlen(filename);
+	int ln = (int)strlen(filename);
 	memcpy(m_lastFileName,filename,ln+1);
 
 	//ÇøÇ·ÇÒÇ∆Ç∆Ç‹Ç¡ÇƒÇ¢ÇÈÇ©ÅH
@@ -362,8 +362,13 @@ void CMyDirectShow::ChangeVolume(int vol)
 BOOL CMyDirectShow::OnNotify(void)
 {
 	long evCode;
+#if defined _WIN64
+	long long param1;
+	long long param2;
+#else
 	long param1;
 	long param2;
+#endif
 
 	BOOL flg = FALSE;
 	if (m_mediaEventEx == NULL) return TRUE;

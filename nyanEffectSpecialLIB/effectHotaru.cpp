@@ -619,8 +619,11 @@ void CEffectHotaru::Print(LPVOID lpEffect,int layer)
 	int col2 = 0x7f7f7f;
 
 
-
+#if defined _WIN64
+	long long pt = (long long)m_lightTable;
+#else
 	int pt = (int)m_lightTable;
+#endif
 	pt += 31;
 	pt &= ~31;
 	int* lightTable = (int*)pt;
@@ -717,6 +720,10 @@ void CEffectHotaru::Print(LPVOID lpEffect,int layer)
 
 
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -830,6 +837,8 @@ SKIP1:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 #endif
 

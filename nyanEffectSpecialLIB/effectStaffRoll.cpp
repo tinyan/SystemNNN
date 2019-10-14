@@ -378,6 +378,11 @@ void CEffectStaffRoll::PrintStaffRollSub(LPVOID lpEffect,int layerStart, int del
 
 #else
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -578,6 +583,9 @@ EXIT99:
 
 		emms
 	}
+
+#endif
+
 #endif
 }
 

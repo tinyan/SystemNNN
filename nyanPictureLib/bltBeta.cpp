@@ -40,10 +40,29 @@ void CBltBeta::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,S
 
 	if ((loopY<=0) || (loopX<=0)) return;
 
+#if defined _WIN64
+#pragma message("*** ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	int* esi = src;
+	int* edi = dst;
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushesi = esi;
+		int* pushedi = edi;
+
+		memcpy(edi, esi, loopX * sizeof(int));
+
+		esi = pushesi;
+		edi = pushedi;
+		esi += srcPitch / 4;
+		edi += dstPitch / 4;
+	}
+#else
+
 
 	if ((srcPoint.x == 0) && (putSize.cx == screenSizeX) && (putPoint.x==0))
 	{
 		int loopX2 = loopX / 8;
+
 
 		__asm
 		{
@@ -114,6 +133,7 @@ LOOP2:
 	}
 	else
 	{
+
 		__asm
 		{
 			push eax
@@ -149,5 +169,7 @@ LOOP_N1:
 			pop ebx
 			pop eax
 		}
+
 	}
+#endif
 }

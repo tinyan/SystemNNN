@@ -650,6 +650,11 @@ static int aaa = 0;
 	int loopX = screenSizeX;
 	int loopY = screenSizeY;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -778,6 +783,9 @@ SKIP21:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 #endif
 

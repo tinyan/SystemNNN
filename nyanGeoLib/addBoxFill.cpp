@@ -76,6 +76,10 @@ void CAddBoxFill::Print(int x, int y, int sizeX, int sizeY, int r, int g, int b,
 
 	int lPitch = screenSizeX * sizeof(int);
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -125,5 +129,6 @@ LOOP2:
 
 		emms
 	}
+#endif
 
 }

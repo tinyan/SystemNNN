@@ -54,6 +54,72 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 	if ((loopX <= 0) || (loopY <= 0)) return;
 
 
+#if defined _WIN64
+#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+	int* esi = src;
+	int* edi = dst;
+	char* ebx = mask;
+
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushesi = esi;
+		int* pushedi = edi;
+		char* pushebx = ebx;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			int maskData = 0xff & (int)(*ebx);
+			if (maskData != 0)
+			{
+				int srcData = *src;
+				int dstData = *dst;
+
+
+				if (maskData == 255 * 255)
+				{
+					*edi = srcData;
+				}
+				else
+				{
+					int srcR = (srcData >> 16) & 0xff;
+					int srcG = (srcData >> 8) & 0xff;
+					int srcB = (srcData) & 0xff;
+
+					int dstData = *edi;
+					int dstR = (dstData >> 16) & 0xff;
+					int dstG = (dstData >> 8) & 0xff;
+					int dstB = (dstData) & 0xff;
+
+					int colR = srcR * maskData + dstR * (256- maskData);
+					int colG = srcG * maskData + dstG * (256 - maskData);
+					int colB = srcB * maskData + dstB * (256 - maskData);
+
+					colR >>= 8;
+					colG >>= 8;
+					colB >>= 8;
+
+					int color = 0xff000000 | (colR << 16) | (colG << 8) | colB;
+
+					*edi = color;
+
+
+				}
+			}
+			esi++;
+			edi++;
+			ebx++;
+		}
+		esi = pushesi;
+		edi = pushedi;
+		ebx = pushebx;
+		esi += srcPitch / 4;
+		edi += dstPitch / 4;
+		ebx += maskPitch;
+	}
+
+#else
+
 	__asm
 	{
 		push eax
@@ -142,6 +208,8 @@ SKIP1:
 		emms
 
 	}
+#endif
+
 }
 
 

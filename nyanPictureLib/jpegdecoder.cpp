@@ -666,7 +666,11 @@ void CJpegDecoder::InitStaticData(void)
 	if (m_yuvBuffer == NULL)
 	{
 		m_yuvBuffer0 = new short[8*8*(1280/8)*2 + 8];
+#if defined _WIN64
+		long long p = (long long)m_yuvBuffer0;
+#else
 		int p = (int)m_yuvBuffer0;
+#endif
 		p += 7;
 		p &= ~7;
 
@@ -676,7 +680,11 @@ void CJpegDecoder::InitStaticData(void)
 	if (m_rgbBuffer == NULL)
 	{
 		m_rgbBuffer0 = new int[64*4+8];
+#if defined _WIN64
+		long long p = (long long)m_rgbBuffer0;
+#else
 		int p = (int)m_rgbBuffer0;
+#endif
 		p += 7;
 		p &= ~7;
 
@@ -741,6 +749,12 @@ if (aaa == 0)
 */
 	short* src = yuvBuffer;
 	int* dst = rgbBuffer;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -999,6 +1013,8 @@ LOOP1:
 		emms
 EXIT0:
 	}
+#endif
+
 
 	return TRUE;
 }
@@ -1007,10 +1023,17 @@ EXIT0:
 
 void CJpegDecoder::EMMSRoutine(void)
 {
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		emms
 	}
+#endif
+
 }
 
 
@@ -1413,6 +1436,11 @@ BOOL CJpegDecoder::IDCTFastMMX(int* srcData, short* dstBuffer, short* dctTable,i
 	void* table = dctTable;
 	void* dst = dstBuffer;
 	void* src = srcData;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -2160,6 +2188,7 @@ paddw mm3,const_MYHALF
 		emms
 EXIT0:
 	}
+#endif
 
 	return TRUE;
 }
@@ -2172,7 +2201,12 @@ char* CJpegDecoder::HuffmanSearchCommand(char* dataPtr, int maxDataSize)
 {
 	char* src = dataPtr;
 	int loopSize = maxDataSize;
-	char* ans;
+	char* ans = nullptr;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -2212,7 +2246,7 @@ LAST:
 		pop ecx
 		pop eax
 	}
-
+#endif
 	return ans;
 }
 
@@ -2230,10 +2264,10 @@ int CJpegDecoder::HuffmanDecode(char* srcData, int bitNokori, int* dstBuffer, in
 
 	int loopBlock = block;
 	char* src = srcData;
-	char* srcEnd;
+	char* srcEnd = nullptr;
 	int* dst = dstBuffer;
 //	int bits = bitNokori;
-	int bitsEnd;
+	int bitsEnd = 0;
 
 	short* table1;
 	short* table2;
@@ -2278,6 +2312,11 @@ int CJpegDecoder::HuffmanDecode(char* srcData, int bitNokori, int* dstBuffer, in
 
 	char hufferr = 0;
 
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -2718,6 +2757,7 @@ EXIT0:
 	emms
 
 	}
+#endif
 
 
 	m_oldDCY = oldDCY;

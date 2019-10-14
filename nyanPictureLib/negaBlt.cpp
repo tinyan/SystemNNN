@@ -47,6 +47,11 @@ void CNegaBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,S
 	{
 		loopX /= 4;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -140,9 +145,16 @@ LOOP2:
 			pop ebx
 			pop eax
 		}
+#endif
+
 	}
 	else
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -209,6 +221,7 @@ LOOP_B2:
 			pop ebx
 			pop eax
 		}
+#endif
 
 	}
 }

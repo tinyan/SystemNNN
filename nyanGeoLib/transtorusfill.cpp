@@ -130,6 +130,10 @@ void CTransTorusFill::Print(int x, int y, int rx, int ry, int x2, int y2, int rx
 	}
 
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
 
 __asm
 	{
@@ -240,6 +244,7 @@ SKIP2:
 
 		emms
 	}
+#endif
 
 }
 

@@ -209,6 +209,9 @@ int CMiniGameNurie::Calcu(void)
 				int loopX = sizeX;
 				int loopY = sizeY;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á")
+#else
 				__asm
 				{
 					push eax
@@ -289,6 +292,7 @@ SKIP1:
 					pop ebx
 					pop eax
 				}
+#endif
 			}
 		}
 	}

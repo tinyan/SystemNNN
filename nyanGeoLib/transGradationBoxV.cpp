@@ -140,6 +140,11 @@ void CTransGradationBoxV::Print(POINT leftTop,SIZE size,int r1, int g1, int b1, 
 		delta[i*2+1] = (rr & 0xffff);
 	}
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -192,6 +197,9 @@ LOOP2:
 		pop eax
 		emms
 	}
+
+#endif
+
 }
 
 

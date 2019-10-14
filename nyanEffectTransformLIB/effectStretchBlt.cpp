@@ -392,7 +392,11 @@ void CEffectStretchBlt::Print(LPVOID lpEffect,int layer)
 	LONGLONG addColor64 = (LONGLONG)addColor;
 	LONGLONG subColor64 = (LONGLONG)subColor;
 
-	
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -908,7 +912,8 @@ EXIT1:
 
 		emms
 	}
-	
+#endif
+
 
 }
 #else

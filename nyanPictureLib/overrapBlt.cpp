@@ -94,6 +94,10 @@ void COverrapBlt::PrintWithScreen(POINT endPoint,LPVOID endPic,SIZE endPicSize,i
 //	double tmp1;
 //	double tmp2;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -182,6 +186,7 @@ LOOP2:
 
 		emms
 	}
+#endif
 
 }
 
@@ -247,6 +252,11 @@ void COverrapBlt::Print(POINT startPoint,LPVOID startPic,SIZE startPicSize,POINT
 	next += nextPoint.x;
 	next += nextPoint.y * rc2.right;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -333,7 +343,7 @@ LOOP2:
 
 		emms
 	}
-
+#endif
 }
 
 

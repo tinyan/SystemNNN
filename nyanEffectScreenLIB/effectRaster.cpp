@@ -191,6 +191,11 @@ void CEffectRaster::Print(LPVOID lpEffect,int layer)
 
 	int srcPitch = screenSizeX * sizeof(int);
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -271,5 +276,8 @@ SKIP:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 #endif
 }

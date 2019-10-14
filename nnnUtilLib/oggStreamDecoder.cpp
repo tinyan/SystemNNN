@@ -102,7 +102,7 @@ BOOL COggStreamDecoder::StartDecode2(LPVOID file)
 	m_buffer = ogg_sync_buffer(&m_oggSyncState,4096);
 OutputDebugString("S");
 
-	int readSize = fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
+	int readSize = (int)fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
 //	int readSize;
 //	ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
 	ogg_sync_wrote(&m_oggSyncState,readSize);
@@ -186,7 +186,7 @@ OutputDebugString("S");
 
 
 
-			readSize = fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
+			readSize = (int)fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
 //			ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
 //OutputDebugString("A");
 
@@ -255,7 +255,7 @@ int COggStreamDecoder::Decode(void)
 		{
 //OutputDebugString("*");
 			m_buffer=ogg_sync_buffer(&m_oggSyncState,4096);
-			int readSize = fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
+			int readSize = (int)fread(m_buffer,sizeof(char),4096,(FILE*)m_file);
 //			int readSize;
 //			ReadFile(m_fileHandle,m_buffer,4096,(DWORD*)&readSize,NULL);
 			ogg_sync_wrote(&m_oggSyncState,readSize);
@@ -498,7 +498,7 @@ void COggStreamDecoder::MyErrorOut(LPSTR mes, LPSTR title)
 	char titleMessage[256];
 	if (title != NULL)
 	{
-		int ln = strlen(title);
+		int ln = (int)strlen(title);
 		if (ln>254) ln = 254;
 		memcpy(titleMessage,title,ln);
 		titleMessage[ln] = 0;

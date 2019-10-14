@@ -167,7 +167,7 @@ void CMyTextInputBox::SetText(LPSTR name,BOOL moveFlag)
 		return;
 	}
 
-	int ln = strlen(name);
+	int ln = (int)strlen(name);
 	if (ln>m_maxLength[m_nowParameterNumber])
 	{
 		ln = m_maxLength[m_nowParameterNumber];
@@ -354,7 +354,7 @@ BOOL CMyTextInputBox::AddKanji(int high,int low)
 	m_changedFlag = TRUE;
 
 	char* ptr = GetText();
-	int ln = strlen(ptr);
+	int ln = (int)strlen(ptr);
 
 	if (ln<0) return FALSE;
 	if (ln>m_textBufferSize-2) return FALSE;
@@ -386,7 +386,7 @@ BOOL CMyTextInputBox::AddKanji(int high,int low)
 BOOL CMyTextInputBox::DelKanji(void)
 {
 	char* ptr = GetText();
-	int ln = strlen(ptr);
+	int ln = (int)strlen(ptr);
 
 	if (ln < 0) return FALSE;
 	if (ln < 1) return FALSE;
@@ -652,7 +652,7 @@ POINT CMyTextInputBox::GetCursorZahyo(void)
 {
 	POINT pt = GetTextZahyo();
 	char* mes = GetText();
-	int ln = strlen(mes);
+	int ln = (int)strlen(mes);
 
 	int codeByte = CMyFont::m_codeByte;
 
@@ -683,13 +683,13 @@ POINT CMyTextInputBox::GetTextZahyo(POINT pt,LPSTR name,int maxLen,int alignMode
 	if (alignMode == 1)
 	{
 		x += areaSize / 2;
-		int ln = strlen(name);
+		int ln = (int)strlen(name);
 		x -= ((ln/2)*(mojiSize))/2;
 	}
 	else if (alignMode == 2)
 	{
 		x += areaSize;
-		int ln = strlen(name);
+		int ln = (int)strlen(name);
 		x -= (ln/2)*mojiSize;
 	}
 

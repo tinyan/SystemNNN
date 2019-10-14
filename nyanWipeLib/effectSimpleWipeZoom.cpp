@@ -126,6 +126,11 @@ void CEffectSimpleWipeZoom::Print(CPicture* lpPicStart, CPicture* lpPicEnd, int 
 	int srcPitch = srcPicSizeX * 4;
 	int dstPitch = screenSizeX * 4;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -188,6 +193,8 @@ LOOP2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

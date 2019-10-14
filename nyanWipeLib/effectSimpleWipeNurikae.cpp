@@ -85,6 +85,11 @@ void CEffectSimpleWipeNurikae::Print(CPicture* lpPicStart, CPicture* lpPicEnd, i
 
 	if (nuriType == 0)
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -137,10 +142,16 @@ SKIP1B:
 			pop ebx
 			pop eax
 		}
+#endif
 
 	}
 	else
 	{
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 		__asm
 		{
 			push eax
@@ -189,6 +200,8 @@ SKIP2B:
 			pop ebx
 			pop eax
 		}
+#endif
+
 	}
 }
 

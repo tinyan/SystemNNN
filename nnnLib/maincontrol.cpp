@@ -78,15 +78,62 @@ BOOL CMainControl::m_windowChangingFlag = TRUE;
 
 CMainControl::CMainControl(CCommonSystemFile* lpSystemFile,CWheelMouse* lpWheel)
 {
+	m_className = nullptr;
 
 	m_this = this;
 	m_windowChangingFlag = FALSE;
 	m_systemOk = FALSE;
 
+
+	m_systemBpp = 32;
+	m_randomSeed = 0;
+	m_directXErrorTitle = nullptr;
+	m_hInstance = nullptr;
+	m_directXErrorMessage = nullptr;
+	m_directXErrorMustAbortFlag = 0;
+	m_bppErrorMustAbortFlag = 0;
+	m_checkDirectXFlag = 0;
+
+	
+	m_highVersion = 0;
+	m_middleVersion = 0;
+	m_lowVersion = 0;
+	m_mmxErrorMustAbortFlag = 0;
+	m_mutexCheckFlag = 0;
+	m_needBpp = 32;
+	m_desktopWindowSizeX = 800;
+	m_desktopWindowSizeY = 600;
+	m_desktopWindowStartX = 0;
+	m_desktopWindowStartY = 0;
+	m_desktopWindowEndX = 800;
+	m_desktopWindowEndY = 600;
+	m_windowSizeX = 800;
+	m_windowSizeY = 600;
+	m_hWnd = nullptr;
+	m_mutexName = nullptr;
+	m_wndclass = WNDCLASS();
+	m_bppErrorMessage = nullptr;
+	m_bppErrorTitle = nullptr;
+	m_mmxErrorMessage = nullptr;
+	m_mmxErrorTitle = nullptr;
+	m_mutexErrorMessage = nullptr;
+	m_mutexErrorTitle = nullptr;
+	m_windowSizeErrorMessage = nullptr;
+	m_windowSizeErrorMustAbortFlag = 0;
+	m_windowSizeErrorTitle = nullptr;
+	m_windowTitle = nullptr;
+
+//	memset(m_makedBppErrorMessage, 0, sizeof(m_makedBppErrorMessage));
+	//memset m_makedWindowSizeErrorMessage
+
+	for (int i = 0; i < 16; i++)
+	{
+		m_eventHandle[i] = nullptr;
+		m_threadHandle[i] = nullptr;
+		m_threadID[i] = 0;
+	}
+
 	m_myFile = new CMyFile(TRUE);
-
-
-
 
 	//load setup(mainControl.xtx),setup2(game.xtx)
 	m_setup = new CNameList();
@@ -402,7 +449,13 @@ BOOL CMainControl::CheckSystem(void)
 
 HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC lpfnWndProc)
 {
-	CoInitialize(NULL);
+	if (CoInitialize(NULL) != S_OK)
+	{
+		//error!!
+		
+		return nullptr;
+	}
+
 	m_coInitFlag = TRUE;
 
 	if (lpfnWndProc == NULL)
@@ -601,6 +654,7 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 
 	//fill
 	int fillWindowFlag = 1;
+
 	GetInitGameParam(&fillWindowFlag,"fillStartWindowFlag");
 
 	if (fillWindowFlag)
@@ -608,8 +662,12 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 		HDC hdc = GetDC(hWnd);
 		RECT rc;
 		SetRect(&rc,0,0,m_windowSizeX,m_windowSizeY);
-		FillRect(hdc,&rc,(HBRUSH)(COLOR_WINDOW + fillWindowFlag));
-	//	TextOut(hdc,0,0,m_startMessage,(int)strlen(m_startMessage));
+#if defined _WIN64
+		FillRect(hdc,&rc,(HBRUSH)(COLOR_WINDOW + (long long)fillWindowFlag));
+#else
+		FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOW + fillWindowFlag));
+#endif
+		//	TextOut(hdc,0,0,m_startMessage,(int)strlen(m_startMessage));
 		ReleaseDC(m_hWnd,hdc);
 	}
 
@@ -1648,9 +1706,11 @@ WaitMessage();
 
 unsigned int __stdcall CMainControl::ThreadAddr(void* dummy)
 {
-	CoInitialize(NULL);
-	m_this->Game2(dummy);
-	CoUninitialize();
+	if (CoInitialize(NULL) == S_OK)
+	{
+		m_this->Game2(dummy);
+		CoUninitialize();
+	}
 #if defined _MT
 	_endthreadex(0);
 #endif

@@ -471,6 +471,12 @@ void CEffectBura::PrintBuraSub(LPVOID lpEffect, int startX, int startY, double d
 	if (ps2>256) ps2 = 256;
 
 	//left up routine
+
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -581,6 +587,7 @@ SKIP2:
 		pop ebx
 		pop eax
 	}
+#endif
 
 }
 

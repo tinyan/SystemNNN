@@ -13,14 +13,23 @@ CEffectBathWindow::CEffectBathWindow(CAllEffect* lpAll) : CCommonEffect(lpAll)
 	m_lastEraseY = -1;
 
 	m_yuge0 = new char[32*32 * 4 + 8];
+#if defined _WIN64
+	long long pt = (long long)m_yuge0;
+#else
 	int pt = (int)m_yuge0;
+#endif
 	pt += 7;
 	pt &= (~7);
 	m_yuge = (char*)pt;
 	ZeroMemory(m_yuge,32*32*4);
 
 	m_kesu0 = new char[128*128 * 2 + 8];
+#if defined _WIN64
+	pt = (long long)m_kesu0;
+#else
 	pt = (int)m_kesu0;
+#endif
+
 	pt += 7;
 	pt &= (~7);
 	m_kesu = (char*)pt;
@@ -289,6 +298,11 @@ void CEffectBathWindow::Calcu(LPVOID lpEffect,int layer)
 
 	int yugePat = rand() % 4;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -376,6 +390,7 @@ EXIT1:
 		pop eax
 		emms
 	}
+#endif
 
 
 /*
@@ -528,7 +543,7 @@ EXIT1:
 
 	if (dontErase == FALSE)
 	{
-		if ((kesuSizeX > 0) && (kesuSizeX > 0))
+		if ((kesuSizeX > 0) && (kesuSizeY > 0))
 		{
 			int kesuPat = rand() % 2;
 			unsigned char* src2 = (unsigned char*)(&m_kesu[kesuPat * 128*128]);
@@ -754,6 +769,12 @@ void CEffectBathWindow::MaskMergeToScreen(CPicture* lpPic)
 	int loopAmari = (picSizeX * picSizeY) & 3;
 
 	char* maskPtr = lpPic->GetMaskPic();
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -830,5 +851,6 @@ SKIP2M:
 		pop ebx
 		pop eax
 	}
+#endif
 
 }

@@ -84,6 +84,11 @@ void CRedBlt::RedBltTrans256(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID s
 	int loopY = putSize.cy;
 	int loopX = putSize.cx;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -141,6 +146,9 @@ SKIP_T256:
 		pop ebx
 		pop eax
 	}
+
+#endif
+
 }
 
 
@@ -165,6 +173,11 @@ void CRedBlt::RedBltBeta256(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID sr
 
 	int loopY = putSize.cy;
 	int loopX = putSize.cy;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -221,6 +234,8 @@ LOOP_256_2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -243,6 +258,11 @@ void CRedBlt::RedBltTrans(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID srcP
 
 	int loopY = putSize.cy;
 	int loopX = putSize.cy;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -289,6 +309,8 @@ SKIP_T:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 void CRedBlt::RedBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID srcPic,SIZE picSize)
@@ -309,6 +331,11 @@ void CRedBlt::RedBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID srcPi
 	int srcPitch = picSize.cx * sizeof(int);
 	int loopY = putSize.cy;
 	int loopX = putSize.cx;
+
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -355,6 +382,8 @@ LOOP_2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 
@@ -383,6 +412,10 @@ void CRedBlt::MaskRedBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID srcPi
 	int loopY = putSize.cy;
 	int loopX = putSize.cx;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+#else
 
 	__asm
 	{
@@ -479,6 +512,8 @@ SKIP_M:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 

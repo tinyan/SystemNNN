@@ -30,7 +30,7 @@ int CPrintCard::m_percent = 50;
 
 CPrintCard::CPrintCard(LPSTR filenameTag,SIZE size,BOOL useType)
 {
-	int ln = strlen(filenameTag);
+	int ln = (int)strlen(filenameTag);
 	m_filenameTag = new char[ln + 2];
 	memcpy(m_filenameTag,filenameTag,ln+1);
 

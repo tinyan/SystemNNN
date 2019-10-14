@@ -206,6 +206,11 @@ void CEffectCurtain::Print(LPVOID lpEffect,int layer)
 
 	int lPitch = screenSizeX * 4;
 
+#if defined _WIN64
+#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+
+#else
+
 	__asm
 	{
 		push eax
@@ -251,6 +256,8 @@ SKIP2:
 		pop ebx
 		pop eax
 	}
+#endif
+
 }
 
 #endif
