@@ -320,7 +320,9 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		LPSTR font2Name = m_defaultFont2FileName;
 		GetInitGameString(&font2Name,"fileNameDifferenceFont");
 		CPicture* suujiPic2 = m_game->GetSystemPicture(font2Name);
-		m_suuji2 = new CSuuji(suujiPic2,m_fontSizeX2,m_fontSizeY2,2,m_fontNextX2);
+		m_differentKeta = 2;
+		GetInitGameParam(&m_differentKeta, "differentKeta");
+		m_suuji2 = new CSuuji(suujiPic2,m_fontSizeX2,m_fontSizeY2, m_differentKeta,m_fontNextX2);
 	}
 
 
@@ -1101,8 +1103,8 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 
 				int putX2 = putX + m_differencePrintX;
 				int putY2 = putY + m_differencePrintY;
-				int putX3 = putX2 + m_fontNextX2 * 2;
-				int putX4 = putX2 + m_fontNextX2 * 3;
+				int putX3 = putX2 + m_fontNextX2 * m_differentKeta;
+				int putX4 = putX2 + m_fontNextX2 * (m_differentKeta+1);
 					
 
 				if (total < 10)

@@ -30,6 +30,8 @@ public:
 	virtual int Calcu(void);
 	virtual int Print(void);
 
+	virtual void FinalExitRoutine(void) override;
+
 	int* m_checkPrintZahyo;
 	int* m_optPrintZahyo;
 
@@ -412,6 +414,11 @@ protected:
 
 	int m_realVolumeMinTable[10];
 	int m_realVolumeMaxTable[10];
+
+	int m_inSetVar;
+	int m_inSetVarData;
+	int m_outSetVar;
+	int m_outSetVarData;
 
 private:
 

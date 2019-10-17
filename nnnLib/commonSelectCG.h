@@ -52,7 +52,7 @@ private:
 	int m_addPicSrcKosuuX;
 	int m_addPicSrcKosuuY;
 
-
+	int m_differentKeta;
 	int m_cgCharaNumber;
 	int m_cgNumber;
 

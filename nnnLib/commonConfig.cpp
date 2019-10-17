@@ -272,6 +272,32 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		if (m_backScriptFlag) m_useEffectPicKosuu[i] = 16;//all used
 	}
 
+	m_inSetVar = -1;
+	m_inSetVarData = 0;
+
+	LPSTR inSetVarName = NULL;
+	if (GetInitGameString(&inSetVarName, "inSetVarName"))
+	{
+		if (inSetVarName != NULL)
+		{
+			m_inSetVar = m_game->GetVarNumber(inSetVarName);
+			GetInitGameParam(&m_inSetVarData, "inSetVarData");
+		}
+	}
+
+	m_outSetVar = -1;
+	m_outSetVarData = 0;
+
+	LPSTR outSetVarName = NULL;
+	if (GetInitGameString(&outSetVarName, "outSetVarName"))
+	{
+		if (outSetVarName != NULL)
+		{
+			m_outSetVar = m_game->GetVarNumber(outSetVarName);
+			GetInitGameParam(&m_outSetVarData, "outSetVarData");
+		}
+	}
+
 
 	m_tabButton = NULL;
 //	m_ppTabButton = NULL;
@@ -1456,11 +1482,25 @@ void CCommonConfig::End(void)
 }
 
 
+void CCommonConfig::FinalExitRoutine(void)
+{
+	CCommonGeneral::FinalExitRoutine();
+	if (m_outSetVar != -1)
+	{
+		m_game->SetVarData(m_outSetVar, m_outSetVarData);
+	}
+}
 
 
 int CCommonConfig::Init(void)
 {
 //	char filename[256];
+
+	if (m_inSetVar != -1)
+	{
+		m_game->SetVarData(m_inSetVar, m_inSetVarData);
+	}
+
 	m_game->StopScriptSoundAndVoice();
 
 	m_pageYoyaku = -1;

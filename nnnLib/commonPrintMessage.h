@@ -471,6 +471,11 @@ private:
 
 	int m_messageEffectTimeYoyaku;
 	int m_messageEffectSpeed;
+
+	int m_appendSkipName;
+	CPicture* m_lprintAddImagePic;
+	int m_lprintAddImageFlag;
+
 };
 
 #endif

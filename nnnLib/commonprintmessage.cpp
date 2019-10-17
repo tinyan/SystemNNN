@@ -142,7 +142,7 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 	m_printY = m_printY0;
 	m_nextX = m_nextX0;
 	m_nextY = m_nextY0;
-
+	
 	m_spaceX0 = 1;
 	GetInitGameParam(&m_spaceX0,"space");
 	m_spaceX = m_spaceX0;
@@ -152,6 +152,19 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 	m_LPrintY = 100;
 	m_LNextX = m_nextX;
 	m_LNextY = m_nextY;
+
+	m_appendSkipName = 1;
+	GetInitGameParam(&m_appendSkipName, "appendSkipName");
+
+	m_lprintAddImageFlag = 0;
+	GetInitGameParam(&m_lprintAddImageFlag, "LPrintAddImageFlag");
+	m_lprintAddImagePic = NULL;
+	if (m_lprintAddImageFlag)
+	{
+		LPSTR imagename = "lprintimage";
+		GetInitGameString(&imagename, "FilenameLPrintImage");
+		m_lprintAddImagePic = m_game->GetSystemPicture(imagename);
+	}
 
 	GetInitGameParam(&m_LPrintX,"LPrintX");
 	GetInitGameParam(&m_LPrintY,"LPrintY");
@@ -1489,9 +1502,13 @@ int CCommonPrintMessage::Print(void)
 		CAreaControl::SetNextAllPrint();
 	}
 
+	if (m_lprintAddImageFlag)
+	{
+		CAreaControl::SetNextAllPrint();
+	}
+
 
 	BOOL b = CAreaControl::CheckAllPrintMode();
-
 
 	if (m_printMode == CODE_SYSTEMCOMMAND_OVERRAP)
 	{
@@ -1504,6 +1521,16 @@ int CCommonPrintMessage::Print(void)
 	else
 	{
 		m_game->PrintEffect();
+
+		if (m_lprintAddImageFlag)
+		{
+			if ((m_printMode == CODE_SYSTEMCOMMAND_LPRINT) || (m_printMode == CODE_SYSTEMCOMMAND_APPEND))
+			{
+				m_lprintAddImagePic->Put(0, 0, TRUE);
+
+			}
+		}
+
 
 		if (m_printMode == CODE_SYSTEMCOMMAND_DRAW)
 		{
@@ -2496,7 +2523,10 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		check[ln]=0;
 		if (m_nameColor->SearchName(check) != -1)
 		{
-			mes += skps;
+			if (m_appendSkipName)
+			{
+				mes += skps;
+			}
 		}
 	}
 
