@@ -197,6 +197,8 @@ protected:
 	int m_exitStopVoiceFadeOutTime;
 	int m_backlogClearFlag;
 
+	int m_overWriteLayerOff;
+	int m_overwriteLayerOffVar;
 };
 
 

@@ -48,7 +48,11 @@ void CTransCircleFill::Print(int x, int y, int rx, int ry, int r, int g, int b,i
 
 	for (int j=0;j<screenSizeY;j++)
 	{
-		*(table+j*2) = 0;
+#if defined _WIN64
+		*(table+(long long)j*2) = 0;
+#else
+		* (table + j * 2) = 0;
+#endif
 	}
 
 	int yStart = y - ry;
@@ -59,7 +63,7 @@ void CTransCircleFill::Print(int x, int y, int rx, int ry, int r, int g, int b,i
 
 	for (int j=yStart;j<=yEnd;j++)
 	{
-		double yy = (double)(j - y);
+		double yy = (double)((double)j - (double)y);
 		yy /= ry;
 		yy = yy*yy;
 		yy *= -1.0;
@@ -77,13 +81,72 @@ void CTransCircleFill::Print(int x, int y, int rx, int ry, int r, int g, int b,i
 		
 		if (sizeX>0)
 		{
-			*(table+j*2) = sizeX;
-			*(table+j*2+1) = xStart;
+#if defined _WIN64
+			*(table+(long long)j*2) = sizeX;
+			*(table+(long long)j*2+1) = xStart;
+#else
+			* (table + j * 2) = sizeX;
+			*(table + j * 2 + 1) = xStart;
+#endif
+
 		}
 	}
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+	int* edi = dst;
+	int* ebx = table;
+
+	int alpha = percent256;
+	int oneMinusAlpha = percent256Neg;
+
+	int addR = (r * alpha);
+	int addG = (g * alpha);
+	int addB = (b * alpha);
+
+	for (int j = 0; j < screenSizeY; j++)
+	{
+		int* pushedi = edi;
+
+
+		int ecx = *ebx;
+		if (ecx > 0)
+		{
+			edi += *(ebx + 1);
+			for (int i = 0; i < ecx;i++)
+			{
+
+				int d = *edi;
+				int srcR = (d << 16) & 0xff;
+				int srcG = (d << 8) & 0xff;
+				int srcB = (d) & 0xff;
+
+				int rr = (srcR * oneMinusAlpha);
+				int gg = (srcG * oneMinusAlpha);
+				int bb = (srcB * oneMinusAlpha);
+
+				rr += addR;
+				gg += addG;
+				bb += addB;
+
+				rr >>= 8;
+				gg >>= 8;
+				bb >>= 8;
+
+				int c = (rr << 16) | (gg < 8) | bb;
+				*edi = c;
+
+
+
+				edi++;
+			}
+		}
+
+		edi = pushedi;
+		edi += lPitch / 4;
+		ebx+=2;
+
+	}
 
 #else
 

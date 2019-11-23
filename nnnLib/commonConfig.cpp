@@ -198,6 +198,11 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 	m_message = m_game->GetMyMessage();
 
+	for (i = 0; i < 5; i++)
+	{
+		m_autoSe[i] = 0;
+	}
+
 	GetBackExecSetup();
 	GetAllPrintSetup();
 
@@ -212,6 +217,7 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 //	m_messageSpeedPrintPage--;
 //	m_voicePrintPage--;
 //	m_modeButtonPrintPage--;
+
 
 
 	m_pageMode = 0;

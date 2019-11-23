@@ -61,7 +61,12 @@ void CDaikei::Print(POINT leftUpperPoint, int sizeUpperX, POINT leftBottomPoint,
 	if (loopY<=0) return;
 
 	int* dst = CMyGraphics::GetScreenBuffer();
-	dst += screenSizeX * startY;
+
+#if defined _WIN64
+	dst += (long long)screenSizeX * (long long)startY;
+#else
+	dst += (size_t)(screenSizeX * startY);
+#endif
 
 	int col = (r<<16) | (g<<8) | b;
 
@@ -96,7 +101,30 @@ void CDaikei::Print(POINT leftUpperPoint, int sizeUpperX, POINT leftBottomPoint,
 
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+	int eax = col;
+	int* edi = dst;
+	int* ebx = dxtable;
+	for (int j = 0; j < loopY;j++)
+	{
+//		int* pushebx = ebx;
+		int* pushedi = edi;
+		int ecx = *ebx;
+		if (ecx > 0)
+		{
+			int edx = *(ebx + 1);
+			edi += edx;
+			for (int i = 0; i < ecx;i++)
+			{
+				*edi = eax;
+				edi++;
+			}
+		}
+
+		ebx += 2;
+		edi = pushedi;
+		edi += dstPitch / 4;
+	}
 
 #else
 

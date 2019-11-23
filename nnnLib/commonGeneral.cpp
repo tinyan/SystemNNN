@@ -1283,10 +1283,15 @@ void CCommonGeneral::FillPicture(CPicture* lpPic, int colR, int colG, int colB)
 
 //#if defined _WIN64
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
 
 
-
+	int* edi = dst;
+	for (int i = 0; i < sz; i++)
+	{
+		*edi = col;
+		edi++;
+	}
 //	for (int i = 0; i < sz; i++)
 	//{
 	//	*dst = col;

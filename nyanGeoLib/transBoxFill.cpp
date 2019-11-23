@@ -44,7 +44,11 @@ void CTransBoxFill::Print(int x, int y, int sizeX, int sizeY, int r, int g, int 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 
 	dst += x;
-	dst += y*screenSizeX;
+#if defined _WIN64
+	dst += (long long)y*(long long)screenSizeX;
+#else
+	dst += y * screenSizeX;
+#endif
 
 	int loopX = sizeX;
 	int loopY = sizeY;
@@ -64,7 +68,48 @@ void CTransBoxFill::Print(int x, int y, int sizeX, int sizeY, int r, int g, int 
 	int lPitch = screenSizeX * sizeof(int);
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+
+	int alpha = dwAlpha;
+	int oneMinusAlpha = dwAlpha2;
+	int* edi = dst;
+
+	int addR = (r * alpha);
+	int addG = (g * alpha);
+	int addB = (b * alpha);
+
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushedi = edi;
+		for (int i = 0; i < loopX; i++)
+		{
+			int d = *edi;
+			int srcR = (d << 16) & 0xff;
+			int srcG = (d <<  8) & 0xff;
+			int srcB = (d      ) & 0xff;
+
+			int rr = (srcR * oneMinusAlpha);
+			int gg = (srcG * oneMinusAlpha);
+			int bb = (srcB * oneMinusAlpha);
+
+			rr += addR;
+			gg += addG;
+			bb += addB;
+
+			rr >>= 8;
+			gg >>= 8;
+			bb >>= 8;
+
+			int c = (rr << 16) | (gg < 8) | bb;
+			*edi = c;
+
+			edi++;
+		}
+
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
+
 
 #else
 

@@ -518,7 +518,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 void CGameCallBack::GeneralCreate(void)
 {
-//	return;
+	//	return;
 
 	AddDebugLog("CGame::GeneralCreate1");
 
@@ -536,11 +536,11 @@ void CGameCallBack::GeneralCreate(void)
 	m_taihiID4 = new int[256];
 
 
-	for (i=0;i<4;i++)
+	for (i = 0; i < 4; i++)
 	{
 		m_threadControlHandle[i] = NULL;
 #if defined _MT
-		m_threadControlHandle[i] = CreateEvent(NULL,TRUE,FALSE,NULL);
+		m_threadControlHandle[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
 #endif
 	}
 
@@ -551,42 +551,42 @@ void CGameCallBack::GeneralCreate(void)
 	AddDebugLog("CGame::GeneralCreate2");
 
 	m_setup = new CNameList();
-//	m_setup2 = new CNameList();
-//	m_setup3 = new CNameList();
-	LoadSetupFile("game",256);
-//	LoadSetupFile2("dataFile",256);
-//	LoadSetupFile("miniGame",512);
+	//	m_setup2 = new CNameList();
+	//	m_setup3 = new CNameList();
+	LoadSetupFile("game", 256);
+	//	LoadSetupFile2("dataFile",256);
+	//	LoadSetupFile("miniGame",512);
 
-//	m_logFileName[0] = '_';
-//	m_logFileName[1] = 0;
+	//	m_logFileName[0] = '_';
+	//	m_logFileName[1] = 0;
 
 	AddDebugLog("CGame::GeneralCreate3");
 
 	int errorLogFlag = 0;
-	GetInitGameParam(&errorLogFlag,"errorLogFlag");
+	GetInitGameParam(&errorLogFlag, "errorLogFlag");
 	if (errorLogFlag) CNNNLog::StartLog();
 
 	int startupLoadErrorPrintFlag = 0;
-	GetInitGameParam(&startupLoadErrorPrintFlag,"startupLoadErrorPrintFlag");
+	GetInitGameParam(&startupLoadErrorPrintFlag, "startupLoadErrorPrintFlag");
 	if (startupLoadErrorPrintFlag)
 	{
 		CPicture::m_errorPrintFlag = TRUE;
 	}
 
 	int codeByte = 2;
-	GetInitGameParam(&codeByte,"codeByte");
+	GetInitGameParam(&codeByte, "codeByte");
 	if (codeByte == 1)
 	{
 		CMyFont::m_codeByte = 1;
 	}
 
 	int rightShift1byte = 2;
-	GetInitGameParam(&rightShift1byte,"rightShift1Byte");
+	GetInitGameParam(&rightShift1byte, "rightShift1Byte");
 	CMyFont::m_rightShift1byte = rightShift1byte;
 
 
 	LPSTR localeString = NULL;
-	if (GetInitGameString(&localeString,"locale"))
+	if (GetInitGameString(&localeString, "locale"))
 	{
 		CMyLocale::SetLocale(localeString);
 	}
@@ -612,47 +612,50 @@ void CGameCallBack::GeneralCreate(void)
 		CMyDirectShow::m_xAudio2 = m_useXAudio2;
 	}
 
-//	GetInitGameParam(&m_useXAudio2, "useXAudio2");
-//	CMyDirectSound::m_xAudioFlag = m_useXAudio2;
+	//	GetInitGameParam(&m_useXAudio2, "useXAudio2");
+	//	CMyDirectSound::m_xAudioFlag = m_useXAudio2;
 #endif
 
 
+	m_notPlaySameMusic = 0;
+	GetInitGameParam(&m_notPlaySameMusic, "notPlaySameMusic");
 
-	GetInitGameParam(&m_layerKosuuMax,"layerExpand");
+
+	GetInitGameParam(&m_layerKosuuMax, "layerExpand");
 	m_pictureKosuuMax = m_layerKosuuMax;//同じである必要がある
 
 	CEffect::m_layerKosuuMaxSetup = m_layerKosuuMax;
 	CEffect::m_pictureKosuuMaxSetup = m_pictureKosuuMax;
 
 	int animeEffectEnable = 0;
-	if (GetInitGameParam(&animeEffectEnable,"animeEffectEnable"))
+	if (GetInitGameParam(&animeEffectEnable, "animeEffectEnable"))
 	{
 		CEffectAnimation::SetAnimeEffectEnable(animeEffectEnable);
 	}
 	int animeBufferMax = 60;
-	if (GetInitGameParam(&animeBufferMax,"animeBufferMax"))
+	if (GetInitGameParam(&animeBufferMax, "animeBufferMax"))
 	{
 		CEffectAnimation::SetAnimeBufferMax(animeBufferMax);
 	}
 	int animeBufferDepth = 32;
-	if (GetInitGameParam(&animeBufferDepth,"animeBufferDepth"))
+	if (GetInitGameParam(&animeBufferDepth, "animeBufferDepth"))
 	{
 		CEffectAnimation::SetBufferDepth(animeBufferDepth);
 	}
 
 	AddDebugLog("CGame::GeneralCreate4");
 
-	for (i=0;i<m_pictureKosuuMax;i++)
+	for (i = 0; i < m_pictureKosuuMax; i++)
 	{
-		SetDontLoadDWQ(i,0);
+		SetDontLoadDWQ(i, 0);
 	}
 
 	AddDebugLog("CGame::GeneralCreate5");
 
-	GetInitGameParam(&debugMusicNumberPrintFlag,"debugMusicNumberPrintFlag");
+	GetInitGameParam(&debugMusicNumberPrintFlag, "debugMusicNumberPrintFlag");
 
 	int dontCreateGUID = 0;
-	GetInitGameParam(&dontCreateGUID,"dontCreateGUID");
+	GetInitGameParam(&dontCreateGUID, "dontCreateGUID");
 	if (dontCreateGUID == 0)
 	{
 		m_systemFile->CreateGUID();
@@ -660,12 +663,12 @@ void CGameCallBack::GeneralCreate(void)
 
 	AddDebugLog("CGame::GeneralCreate6");
 
-//	m_activeErrorFlag = FALSE;
+	//	m_activeErrorFlag = FALSE;
 
-//	CPicture::InitStaticData();
+	//	CPicture::InitStaticData();
 
 	int dwqPackLevel = 0;
-	GetInitGameParam(&dwqPackLevel,"dwqPackLevel");
+	GetInitGameParam(&dwqPackLevel, "dwqPackLevel");
 	CPicture::SetDataPackLevel(dwqPackLevel);
 
 	AddDebugLog("CGame::GeneralCreate7");
@@ -675,26 +678,26 @@ void CGameCallBack::GeneralCreate(void)
 
 	AddDebugLog("CGame::GeneralCreate8");
 
-//	m_realWindowSizeX = m_viewControl->GetRealWindowSizeX();
-//	m_realWindowSizeY = m_viewControl->GetRealWindowSizeY();
-//	m_viewOffsetX = m_viewControl->GetViewOffsetX();
-//	m_viewOffsetY = m_viewControl->GetViewOffsetY();
+	//	m_realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	//	m_realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+	//	m_viewOffsetX = m_viewControl->GetViewOffsetX();
+	//	m_viewOffsetY = m_viewControl->GetViewOffsetY();
 
 
 	int outerFillColorR = 0;
 	int outerFillColorG = 0;
 	int outerFillColorB = 0;
-	GetInitGameParam(&outerFillColorR,"outerFillColorR");
-	GetInitGameParam(&outerFillColorG,"outerFillColorG");
-	GetInitGameParam(&outerFillColorB,"outerFillColorB");
-	CMyDirectDraw::SetOutColor(outerFillColorR,outerFillColorG,outerFillColorB);
+	GetInitGameParam(&outerFillColorR, "outerFillColorR");
+	GetInitGameParam(&outerFillColorG, "outerFillColorG");
+	GetInitGameParam(&outerFillColorB, "outerFillColorB");
+	CMyDirectDraw::SetOutColor(outerFillColorR, outerFillColorG, outerFillColorB);
 
 	AddDebugLog("CGame::GeneralCreate9");
 
 	int notUseDirectDraw = m_systemFile->m_systemdata.notUseDirectDraw;
 	if (notUseDirectDraw == 0)
 	{
-		GetInitGameParam(&notUseDirectDraw,"notUseDirectDraw");
+		GetInitGameParam(&notUseDirectDraw, "notUseDirectDraw");
 	}
 	CMyDirectDraw::m_notUseDirectDraw = notUseDirectDraw;
 	m_notUseDirectDraw = notUseDirectDraw;
@@ -702,14 +705,14 @@ void CGameCallBack::GeneralCreate(void)
 
 	AddDebugLog("CGame::GeneralCreate10");
 
-//OutputDebugString("\nGeneralCreate -1");
+	//OutputDebugString("\nGeneralCreate -1");
 	m_textureCacheControl = NULL;
 #if defined _TINYAN3DLIB_
 	if (m_systemFile->m_systemdata.fullScreenFlag)
 	{
 		SetFocus(m_hWnd);
-//		m_myDirect3D = new CMyDirect3D(m_hWnd,TRUE);
-		m_myDirect3D = new CMyDirect3D(m_hWnd,FALSE);
+		//		m_myDirect3D = new CMyDirect3D(m_hWnd,TRUE);
+		m_myDirect3D = new CMyDirect3D(m_hWnd, FALSE);
 	}
 	else
 	{
@@ -720,21 +723,21 @@ void CGameCallBack::GeneralCreate(void)
 #endif
 
 	int jpegMMX = 1;
-	GetInitGameParam(&jpegMMX,"jpegMMX");
+	GetInitGameParam(&jpegMMX, "jpegMMX");
 	if (jpegMMX == 0)
 	{
 		CJpegDecoder::SetCalcuFloat();
 	}
-//	int realWindowSizeX = 1024;
-//	int realWindowSizeY = 768;
+	//	int realWindowSizeX = 1024;
+	//	int realWindowSizeY = 768;
 
 	AddDebugLog("CGame::GeneralCreate11");
 
-	m_myGraphics = new CMyGraphics(m_windowSizeX,m_windowSizeY,notUseDirectDraw);
+	m_myGraphics = new CMyGraphics(m_windowSizeX, m_windowSizeY, notUseDirectDraw);
 	int okikaeMax = 100;
-	GetInitGameParam(&m_autoDebugWait,"okikae");
+	GetInitGameParam(&m_autoDebugWait, "okikae");
 	int useDefaultOkikae = 0;
-	GetInitGameParam(&useDefaultOkikae,"useDefaultOkikae");
+	GetInitGameParam(&useDefaultOkikae, "useDefaultOkikae");
 
 
 	m_autoExtDataLoadKosuu = 0;
@@ -746,13 +749,13 @@ void CGameCallBack::GeneralCreate(void)
 
 	AddDebugLog("CGame::GeneralCreate12");
 
-	m_okikaeData = new COkikaeData(okikaeMax,okikaeMax,useDefaultOkikae);
-	for (int i=0;i<100;i++)
+	m_okikaeData = new COkikaeData(okikaeMax, okikaeMax, useDefaultOkikae);
+	for (int i = 0; i < 100; i++)
 	{
 		char* okikaeMessage = m_systemFile->GetOkikae(i);
 		if (okikaeMessage != NULL)
 		{
-			m_okikaeData->SetSystemOkikaeMessage(i,okikaeMessage);
+			m_okikaeData->SetSystemOkikaeMessage(i, okikaeMessage);
 		}
 	}
 
@@ -760,16 +763,16 @@ void CGameCallBack::GeneralCreate(void)
 
 
 	CMyMessage::m_okikaeData = m_okikaeData;
-//	SetAutoSaveSubClass(m_autoSaveDataList->SearchName("okikae"),m_okikaeData);
+	//	SetAutoSaveSubClass(m_autoSaveDataList->SearchName("okikae"),m_okikaeData);
 
 
-//	CMyGraphics::SetScreenBufferSize(m_windowSizeX,m_windowSizeY);
-//	CPicture::SetBpp(bpp);
-//	CPicture::m_screenSizeX = m_windowSizeX;
-//	CPicture::m_screenSizeY = m_windowSizeY;
+	//	CMyGraphics::SetScreenBufferSize(m_windowSizeX,m_windowSizeY);
+	//	CPicture::SetBpp(bpp);
+	//	CPicture::m_screenSizeX = m_windowSizeX;
+	//	CPicture::m_screenSizeY = m_windowSizeY;
 
-//	m_screenBuffer = new int[640*480+640*2];
-//	CMyGraphics::InitStaticData();
+	//	m_screenBuffer = new int[640*480+640*2];
+	//	CMyGraphics::InitStaticData();
 
 #if !defined _TINYAN3DLIB_
 	CAllGraphics::FillScreen();
@@ -779,23 +782,23 @@ void CGameCallBack::GeneralCreate(void)
 
 	m_autoSelectControl = NULL;
 	m_autoDebugMode = 0;
-	GetInitGameParam(&m_autoDebugMode,"autoDebugMode");
+	GetInitGameParam(&m_autoDebugMode, "autoDebugMode");
 	if (m_autoDebugMode)
 	{
 		m_autoSelectControl = new CAutoSelectControl();
 	}
 	m_autoDebugWait = 50;
-	GetInitGameParam(&m_autoDebugWait,"autoDebugWait");
+	GetInitGameParam(&m_autoDebugWait, "autoDebugWait");
 
 	AddDebugLog("CGame::GeneralCreate15");
 
-//	CPicture::FillScreen();
+	//	CPicture::FillScreen();
 
 
 
 
 	m_layerOffVar = new int[2200];
-	for (int i=0;i<2200;i++)
+	for (int i = 0; i < 2200; i++)
 	{
 		m_layerOffVar[i] = -1;
 	}
@@ -803,7 +806,7 @@ void CGameCallBack::GeneralCreate(void)
 	AddDebugLog("CGame::GeneralCreate16");
 
 	int vistaCheck = 1;
-	GetInitGameParam(&vistaCheck,"vistaCheck");
+	GetInitGameParam(&vistaCheck, "vistaCheck");
 	if (vistaCheck)
 	{
 		/*
@@ -824,7 +827,7 @@ void CGameCallBack::GeneralCreate(void)
 
 
 	int notSrcCopyFlagEnable = 0;
-	GetInitGameParam(&notSrcCopyFlagEnable,"notSrcCopyFlagEnable");
+	GetInitGameParam(&notSrcCopyFlagEnable, "notSrcCopyFlagEnable");
 	if (notSrcCopyFlagEnable) CSuperButtonSetup::SetNotCopyFlagEnable();
 
 	AddDebugLog("CGame::GeneralCreate17");
@@ -840,33 +843,33 @@ void CGameCallBack::GeneralCreate(void)
 
 	int datafileSetupDontCreateFlag = 0;
 	int saveDisable = 0;
-	GetInitGameParam(&saveDisable,"saveClassDisable");
+	GetInitGameParam(&saveDisable, "saveClassDisable");
 	int loadDisable = 0;
-	GetInitGameParam(&loadDisable,"loadClassDisable");
+	GetInitGameParam(&loadDisable, "loadClassDisable");
 	if (saveDisable && loadDisable)
 	{
 		datafileSetupDontCreateFlag = 1;
 	}
-	GetInitGameParam(&datafileSetupDontCreateFlag,"dataFileDontCreate");
+	GetInitGameParam(&datafileSetupDontCreateFlag, "dataFileDontCreate");
 
 	if (datafileSetupDontCreateFlag == 0)
 	{
 		m_dataFileSetup = new CDataFileSetup();
 	}
 
-//MessageBox(NULL,"gamecallback:const-0-1-0.5","game",MB_OK);
-//CAllGeo::BoxFill(10,10,300,300,55,66,77);
+	//MessageBox(NULL,"gamecallback:const-0-1-0.5","game",MB_OK);
+	//CAllGeo::BoxFill(10,10,300,300,55,66,77);
 
 	AddDebugLog("CGame::GeneralCreate19");
 
-	GetInitGameString(&m_companyName,"companyName");
-	GetInitGameString(&m_productName,"gameName");
+	GetInitGameString(&m_companyName, "companyName");
+	GetInitGameString(&m_productName, "gameName");
 
 	//特殊文字をスペースに変更
 
 
 	m_facePrintFlag = 0;
-	GetInitGameParam(&m_facePrintFlag,"facePrintMode");
+	GetInitGameParam(&m_facePrintFlag, "facePrintMode");
 
 
 	m_autoSaveDataList = new CAutoSaveDataList();
@@ -877,12 +880,12 @@ void CGameCallBack::GeneralCreate(void)
 
 
 
-	for (int i=0;i<256;i++)
+	for (int i = 0; i < 256; i++)
 	{
 		m_autoExtDataLoadMode[i] = 0;
 	}
 
-	for (int i=0;i<256;i++)
+	for (int i = 0; i < 256; i++)
 	{
 		m_autoExtDataLoadSub[i] = 0;
 		m_autoSaveSubDataClass[i] = NULL;
@@ -890,16 +893,16 @@ void CGameCallBack::GeneralCreate(void)
 
 	AddDebugLog("CGame::GeneralCreate21");
 
-	for (int i=0;i<256;i++)
+	for (int i = 0; i < 256; i++)
 	{
 		int md = 0;
 		char name[256];
-		wsprintf(name,"autoExtDataMode%d",i+1);
+		wsprintf(name, "autoExtDataMode%d", i + 1);
 
 		LPSTR modeName = NULL;
 
-		if (GetInitGameString(&modeName,name))
-//		if (GetInitGameParam(&md,name))
+		if (GetInitGameString(&modeName, name))
+			//		if (GetInitGameParam(&md,name))
 		{
 			int md = m_systemModeList->GetModeNumberByName(modeName);
 			if (md > 0)
@@ -916,17 +919,17 @@ void CGameCallBack::GeneralCreate(void)
 
 	AddDebugLog("CGame::log1");
 
-	for (int i=0;i<256;i++)
+	for (int i = 0; i < 256; i++)
 	{
 		int sb = 0;
 		char name[256];
-		wsprintf(name,"autoExtDataSub%d",i+1);
+		wsprintf(name, "autoExtDataSub%d", i + 1);
 
 		LPSTR subName = NULL;
 
-		if (GetInitGameString(&subName,name))
+		if (GetInitGameString(&subName, name))
 		{
-//			int s = m_systemModeList->GetModeNumberByName(modeName);
+			//			int s = m_systemModeList->GetModeNumberByName(modeName);
 			int s = m_autoSaveDataList->SearchName(subName);
 
 			if (s > 0)
@@ -970,79 +973,79 @@ void CGameCallBack::GeneralCreate(void)
 
 
 	m_clearAutoAfterLoad = 0;
-	GetInitGameParam(&m_clearAutoAfterLoad,"clearAutoAfterLoad");
+	GetInitGameParam(&m_clearAutoAfterLoad, "clearAutoAfterLoad");
 
 
 	//当面どちらも有効
 	m_saveHeaderName = m_defaultSaveHeader;
-	GetInitGameString(&m_saveHeaderName,"saveHeaderName");
-//	m_dataFileSetup->GetInitGameString(&m_saveHeaderName,"saveHeaderName");
+	GetInitGameString(&m_saveHeaderName, "saveHeaderName");
+	//	m_dataFileSetup->GetInitGameString(&m_saveHeaderName,"saveHeaderName");
 
 	m_extSaveDataKosuu = 0;
-	GetInitGameParam(&m_extSaveDataKosuu,"extSaveDataNumber");
+	GetInitGameParam(&m_extSaveDataKosuu, "extSaveDataNumber");
 
 
 
 	m_koukaonOnseiDontStopFlag = 0;
-	GetInitGameParam(&m_koukaonOnseiDontStopFlag,"seVoiceDontStopFlag");
+	GetInitGameParam(&m_koukaonOnseiDontStopFlag, "seVoiceDontStopFlag");
 
 	m_skipToScriptVoiceStopFlag = 0;
-	GetInitGameParam(&m_skipToScriptVoiceStopFlag,"skipToScriptVoiceStopFlag");
+	GetInitGameParam(&m_skipToScriptVoiceStopFlag, "skipToScriptVoiceStopFlag");
 
 
-//	m_dataFileSetup->GetInitGameParam(&m_extSaveDataKosuu,"extSaveDataNumber");
+	//	m_dataFileSetup->GetInitGameParam(&m_extSaveDataKosuu,"extSaveDataNumber");
 	m_extSaveDataSizeTable = NULL;
-	if ((m_extSaveDataKosuu+m_autoExtDataLoadKosuu+m_autoExtSubDataLoadKosuu) > 0)
+	if ((m_extSaveDataKosuu + m_autoExtDataLoadKosuu + m_autoExtSubDataLoadKosuu) > 0)
 	{
-		m_extSaveDataSizeTable = new int[m_extSaveDataKosuu+m_autoExtDataLoadKosuu+m_autoExtSubDataLoadKosuu];
-		for (int i=0;i<m_autoExtDataLoadKosuu;i++)
+		m_extSaveDataSizeTable = new int[m_extSaveDataKosuu + m_autoExtDataLoadKosuu + m_autoExtSubDataLoadKosuu];
+		for (int i = 0; i < m_autoExtDataLoadKosuu; i++)
 		{
 			m_extSaveDataSizeTable[i] = 0;//dummy auto size=0
 		}
 
-		for (int i=0;i<m_autoExtSubDataLoadKosuu;i++)
+		for (int i = 0; i < m_autoExtSubDataLoadKosuu; i++)
 		{
-			m_extSaveDataSizeTable[m_autoExtDataLoadKosuu+i] = 0;
+			m_extSaveDataSizeTable[m_autoExtDataLoadKosuu + i] = 0;
 		}
 
-		for (int i=0;i<m_extSaveDataKosuu;i++)
+		for (int i = 0; i < m_extSaveDataKosuu; i++)
 		{
 			char name[256];
-			wsprintf(name,"extSaveDataSize%d",i+1);
-			m_extSaveDataSizeTable[i+m_autoExtDataLoadKosuu+m_autoExtSubDataLoadKosuu] = 0;
-			GetInitGameParam(&m_extSaveDataSizeTable[i+m_autoExtDataLoadKosuu+m_autoExtSubDataLoadKosuu],name);
-//			m_dataFileSetup->GetInitGameParam(&m_extSaveDataSizeTable[i],name);
+			wsprintf(name, "extSaveDataSize%d", i + 1);
+			m_extSaveDataSizeTable[i + m_autoExtDataLoadKosuu + m_autoExtSubDataLoadKosuu] = 0;
+			GetInitGameParam(&m_extSaveDataSizeTable[i + m_autoExtDataLoadKosuu + m_autoExtSubDataLoadKosuu], name);
+			//			m_dataFileSetup->GetInitGameParam(&m_extSaveDataSizeTable[i],name);
 		}
 	}
 
 	m_varControlLoadDWQErrorPrint = 0;
-	GetInitGameParam(&m_varControlLoadDWQErrorPrint,"varControlLoadDWQErrorPrint");
+	GetInitGameParam(&m_varControlLoadDWQErrorPrint, "varControlLoadDWQErrorPrint");
 
 
 	m_shiftSkipMessageOnly = 0;
-	GetInitGameParam(&m_shiftSkipMessageOnly,"shiftSkipMessageOnly");
+	GetInitGameParam(&m_shiftSkipMessageOnly, "shiftSkipMessageOnly");
 
 	m_autoMessageCheckKillShift = 0;
 	m_cannotSkipCheckKillShift = 0;
-	GetInitGameParam(&m_autoMessageCheckKillShift,"autoMessageCheckKillShift");
-	GetInitGameParam(&m_cannotSkipCheckKillShift,"cannotSkipCheckKillShift");
+	GetInitGameParam(&m_autoMessageCheckKillShift, "autoMessageCheckKillShift");
+	GetInitGameParam(&m_cannotSkipCheckKillShift, "cannotSkipCheckKillShift");
 
 
 	m_quickSaveEnable = 0;
-	GetInitGameParam(&m_quickSaveEnable,"quickSaveEnable");
+	GetInitGameParam(&m_quickSaveEnable, "quickSaveEnable");
 	m_quickLoadEnable = m_quickSaveEnable;
-	GetInitGameParam(&m_quickLoadEnable,"quickLoadEnable");
+	GetInitGameParam(&m_quickLoadEnable, "quickLoadEnable");
 	m_quickSavePrint = m_quickSaveEnable;
-	GetInitGameParam(&m_quickSavePrint,"quickSavePrint");
+	GetInitGameParam(&m_quickSavePrint, "quickSavePrint");
 	m_quickLoadPrint = m_quickLoadEnable;
-	GetInitGameParam(&m_quickLoadPrint,"quickLoadPrint");
+	GetInitGameParam(&m_quickLoadPrint, "quickLoadPrint");
 
 	m_quickLoadDelay = 0;
-	GetInitGameParam(&m_quickLoadDelay,"quickLoadDelay");
+	GetInitGameParam(&m_quickLoadDelay, "quickLoadDelay");
 	m_quickLoadYoyaku = 0;
 
 	m_quickLoadGetScreen = 0;//つかわない。すでに1と同等の処理がはいっていた
-	GetInitGameParam(&m_quickLoadGetScreen,"quickLoadGetScreen");
+	GetInitGameParam(&m_quickLoadGetScreen, "quickLoadGetScreen");
 
 
 	m_quickSaveKey = 0;
@@ -1052,7 +1055,7 @@ void CGameCallBack::GeneralCreate(void)
 	if (m_quickSaveEnable)
 	{
 		LPSTR keyName = NULL;
-		if (GetInitGameString(&keyName,"quickSaveKey"))
+		if (GetInitGameString(&keyName, "quickSaveKey"))
 		{
 			int accelKey = atoi(keyName);
 			if (accelKey == 0)
@@ -1067,13 +1070,13 @@ void CGameCallBack::GeneralCreate(void)
 			m_quickSaveKey = accelKey;
 		}
 
-		GetInitGameParam(&m_quickSaveCommentFlag,"quickSaveCommentFlag");
+		GetInitGameParam(&m_quickSaveCommentFlag, "quickSaveCommentFlag");
 	}
 
 	if (m_quickLoadEnable)
 	{
 		LPSTR keyName = NULL;
-		if (GetInitGameString(&keyName,"quickLoadKey"))
+		if (GetInitGameString(&keyName, "quickLoadKey"))
 		{
 			int accelKey = atoi(keyName);
 			if (accelKey == 0)
@@ -1091,46 +1094,46 @@ void CGameCallBack::GeneralCreate(void)
 
 
 	m_quickSaveSound = -1;
-	GetInitGameParam(&m_quickSaveSound,"quickSaveSound");
+	GetInitGameParam(&m_quickSaveSound, "quickSaveSound");
 	m_quickLoadSound = m_quickSaveSound;
-	GetInitGameParam(&m_quickLoadSound,"quickLoadSound");
+	GetInitGameParam(&m_quickLoadSound, "quickLoadSound");
 	m_quickLoadErrorSound = m_quickLoadSound;
-	GetInitGameParam(&m_quickLoadErrorSound,"quickLoadErrorSound");
-	
+	GetInitGameParam(&m_quickLoadErrorSound, "quickLoadErrorSound");
+
 	//total volume?
 
 	m_totalVolumeUseFlag = 0;
-	GetInitGameParam(&m_totalVolumeUseFlag,"totalVolumeUseFlag");
+	GetInitGameParam(&m_totalVolumeUseFlag, "totalVolumeUseFlag");
 
 
 	//reset mute?
 
 
 	m_useCutinFlag = 0;
-	GetInitGameParam(&m_useCutinFlag,"useCutinFlag");
+	GetInitGameParam(&m_useCutinFlag, "useCutinFlag");
 
 
 	m_directXInitVolumeFlag = 0;
-	GetInitGameParam(&m_directXInitVolumeFlag,"directXVolumeFlag");
+	GetInitGameParam(&m_directXInitVolumeFlag, "directXVolumeFlag");
 
 	m_directXInitVolume = 60;
-	GetInitGameParam(&m_directXInitVolume,"directXVolume");
+	GetInitGameParam(&m_directXInitVolume, "directXVolume");
 
 	m_frameTime = 50;
-	GetInitGameParam(&m_frameTime,"frameTime");
+	GetInitGameParam(&m_frameTime, "frameTime");
 	m_defaultFrameTime = m_frameTime;
 
 
 
 	m_scriptRunMode = 0;
 
-//	m_enableMidiButtonFlag = 1;
-//	m_enableCDButtonFlag = 1;
+	//	m_enableMidiButtonFlag = 1;
+	//	m_enableCDButtonFlag = 1;
 
 	m_saveCommentKosuuMax = 4;
 	m_saveCommentLength = 256;
 	m_saveComment = new char*[m_saveCommentKosuuMax];
-	for (i=0;i<m_saveCommentKosuuMax;i++)
+	for (i = 0; i < m_saveCommentKosuuMax; i++)
 	{
 		m_saveComment[i] = new char[m_saveCommentLength];
 		m_saveComment[i][0] = 0;
@@ -1141,35 +1144,35 @@ void CGameCallBack::GeneralCreate(void)
 	AddDebugLog("CGame::log2");
 
 
-//	GetInitGameParam(&m_enableMidiButtonFlag,"configMidiButtonFlag");
-//	GetInitGameParam(&m_enableCDButtonFlag,"configCDDAButtonFlag");
+	//	GetInitGameParam(&m_enableMidiButtonFlag,"configMidiButtonFlag");
+	//	GetInitGameParam(&m_enableCDButtonFlag,"configCDDAButtonFlag");
 
 
 	m_printStartMessageFlag = 1;
-	GetInitGameParam(&m_printStartMessageFlag,"startMessageFlag");
+	GetInitGameParam(&m_printStartMessageFlag, "startMessageFlag");
 	if (m_printStartMessageFlag)
 	{
 		m_startMessage = m_defaultStartMessage;
-		GetInitGameString(&m_startMessage,"startMessage");
+		GetInitGameString(&m_startMessage, "startMessage");
 	}
 
 	m_loadVoiceErrorPrintFlag = 0;
-	GetInitGameParam(&m_loadVoiceErrorPrintFlag,"loadVoiceErrorPrintFlag");
+	GetInitGameParam(&m_loadVoiceErrorPrintFlag, "loadVoiceErrorPrintFlag");
 	m_loadSeErrorPrintFlag = 0;
-	GetInitGameParam(&m_loadSeErrorPrintFlag,"loadSeErrorPrintFlag");
+	GetInitGameParam(&m_loadSeErrorPrintFlag, "loadSeErrorPrintFlag");
 
 
 	m_backScriptSetCGOkFlag = 0;
-	GetInitGameParam(&m_backScriptSetCGOkFlag,"backScriptSetCGOkFlag");
+	GetInitGameParam(&m_backScriptSetCGOkFlag, "backScriptSetCGOkFlag");
 
 	m_modalCannotCloseFlag = 1;
-	GetInitGameParam(&m_modalCannotCloseFlag,"modalCannotCloseFlag");
+	GetInitGameParam(&m_modalCannotCloseFlag, "modalCannotCloseFlag");
 
 
 	m_useHsavemask = 0;
 	m_hSaveList = NULL;
 	m_hSaveMaskPic = NULL;
-	GetInitGameParam(&m_useHsavemask,"useHsaveMask");
+	GetInitGameParam(&m_useHsavemask, "useHsaveMask");
 	if (m_useHsavemask)
 	{
 		m_hSaveList = new CNameList();
@@ -1181,7 +1184,7 @@ void CGameCallBack::GeneralCreate(void)
 	m_miniCGReduce = 6;
 	m_miniCGSizeX = 132;
 	m_miniCGSizeY = 100;
-	GetInitGameParam(&m_miniCGReduce,"miniCGReduce");
+	GetInitGameParam(&m_miniCGReduce, "miniCGReduce");
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 	if (m_miniCGReduce > 0)
@@ -1199,63 +1202,69 @@ void CGameCallBack::GeneralCreate(void)
 		}
 	}
 
-	GetInitGameParam(&m_miniCGSizeX,"miniCGSizeX");
-	GetInitGameParam(&m_miniCGSizeY,"miniCGSizeY");
-	
+	GetInitGameParam(&m_miniCGSizeX, "miniCGSizeX");
+	GetInitGameParam(&m_miniCGSizeY, "miniCGSizeY");
+
 	m_cgDataControl = new CCGDataControl(m_systemFile);
 
-//	m_cgCharaKosuu = 0;
-//	m_cgKosuu = NULL;
-//	m_cgList = NULL;
-//	m_cgListControl = NULL;
+	//	m_cgCharaKosuu = 0;
+	//	m_cgKosuu = NULL;
+	//	m_cgList = NULL;
+	//	m_cgListControl = NULL;
 
-//	int cgCharaKosuu = CCommonSystemFile::GetCGCharaNinzu();
-//	GetInitGameParam(&cgCharaKosuu,"cgCharaNumber");
-//	if (cgCharaKosuu > 0) CreateCGList(cgCharaKosuu);
+	//	int cgCharaKosuu = CCommonSystemFile::GetCGCharaNinzu();
+	//	GetInitGameParam(&cgCharaKosuu,"cgCharaNumber");
+	//	if (cgCharaKosuu > 0) CreateCGList(cgCharaKosuu);
 
 
 
-	GetInitGameParam(&m_f9KeyExitOffFlag,"f9KeyExitOffFlag");
-	GetInitGameParam(&m_escKeyExitOffFlag,"escKeyExitOffFlag");
+	GetInitGameParam(&m_f9KeyExitOffFlag, "f9KeyExitOffFlag");
+	GetInitGameParam(&m_escKeyExitOffFlag, "escKeyExitOffFlag");
 
 	m_f4Ok = 1;
 	m_f5Ok = 1;
-	GetInitGameParam(&m_f4Ok,"F4OK");
-	GetInitGameParam(&m_f5Ok,"F5Ok");
+	GetInitGameParam(&m_f4Ok, "F4OK");
+	GetInitGameParam(&m_f5Ok, "F5Ok");
 
 	m_optionStartMouseButton = 2;
-	GetInitGameParam(&m_optionStartMouseButton,"optionStartMouseButton");
+	GetInitGameParam(&m_optionStartMouseButton, "optionStartMouseButton");
 
 
 	m_movieVolumeNotUse = 0;
-	GetInitGameParam(&m_movieVolumeNotUse,"movieVolumeNotUse");
+	GetInitGameParam(&m_movieVolumeNotUse, "movieVolumeNotUse");
 
 	m_soundVoiceVolumeNotUse = 1;
-	GetInitGameParam(&m_soundVoiceVolumeNotUse,"soundVoiceVolumeNotUse");
+	GetInitGameParam(&m_soundVoiceVolumeNotUse, "soundVoiceVolumeNotUse");
 
 	m_noWaitVSync = 0;
-	GetInitGameParam(&m_noWaitVSync,"noWaitVSync");
+	GetInitGameParam(&m_noWaitVSync, "noWaitVSync");
 
 
-	GetInitGameParam(&m_adjustFullScreenLost,"adjustFullScreenLost");
-//OutputDebugString("\nGeneralCreate -2");
+	GetInitGameParam(&m_adjustFullScreenLost, "adjustFullScreenLost");
+	//OutputDebugString("\nGeneralCreate -2");
 
 
 
 	m_backLogDisableCount = 0;
 	m_backLogDisableTime = 100;
-//	m_backLogDisableTime = 1000;
+	//	m_backLogDisableTime = 1000;
 	m_backLogDisableCheckTime = 3;
 	m_backLogDisableCheckFlag = 1;
-	GetInitGameParam(&m_backLogDisableTime,"backLogDisableTime");
-	GetInitGameParam(&m_backLogDisableCheckTime,"backLogDisableCheckTime");
-	GetInitGameParam(&m_backLogDisableCheckFlag,"backLogDisableCheckFlag");
+	GetInitGameParam(&m_backLogDisableTime, "backLogDisableTime");
+	GetInitGameParam(&m_backLogDisableCheckTime, "backLogDisableCheckTime");
+	GetInitGameParam(&m_backLogDisableCheckFlag, "backLogDisableCheckFlag");
 	m_backLogDisableOldTime = 0;
 
 
 
 	m_charaVoiceVolumeDelta = 2;
-	GetInitGameParam(&m_charaVoiceVolumeDelta,"charaVoiceVolumeDelta");
+	GetInitGameParam(&m_charaVoiceVolumeDelta, "charaVoiceVolumeDelta");
+#if defined __USE_XAUDIO2__
+	if (CMyDirectSound::m_xAudioFlag)
+	{
+		GetInitGameParam(&m_charaVoiceVolumeDelta, "charaVoiceVolumeDeltaXAudio2");
+	}
+#endif
 
 	m_maxSkipFrame = 2;
 	GetInitGameParam(&m_maxSkipFrame,"maxSkipFrame");
@@ -9713,6 +9722,17 @@ void CGameCallBack::SystemFunctionMusic(int para1,LPVOID para2)
 
 	if (musicNumber > 0)
 	{
+		if (m_lastMusicNumber == musicNumber - 1)
+		{
+			if (m_notPlaySameMusic)
+			{
+				return;
+			}
+		}
+	}
+
+	if (musicNumber > 0)
+	{
 		BOOL fff = FALSE;
 		if ((m_skipNextCommandFlag == FALSE) || (m_skipEffectCommandFlag == FALSE))
 		{
@@ -11089,13 +11109,17 @@ void CGameCallBack::BltToFront(void)
 	{
 		RECT srcRect = m_viewControl->GetSrcRect(0,0,realWindowSizeX,realWindowSizeY);
 		RECT dstRect = m_viewControl->GetDstRect(0,0,realWindowSizeX,realWindowSizeY);
-		if (m_notUseDirectDraw == 0)
+
+		if (!CheckUseDirect2D())
+//		if (m_notUseDirectDraw == 0)
 		{
 			m_directDraw->NiseFlip2(dstRect,srcRect, waitFlag);
 		}
 		else
 		{
-			m_myGraphics->NiseFlip(m_hWnd,0,0,realWindowSizeX,realWindowSizeY,waitFlag);
+			m_directDraw->NiseFlip2(dstRect, srcRect, waitFlag);
+
+//			m_myGraphics->NiseFlip(m_hWnd,0,0,realWindowSizeX,realWindowSizeY,waitFlag);
 		}
 	}
 	else
@@ -11114,14 +11138,16 @@ void CGameCallBack::BltToFront(void)
 
 //			BOOL waitFlag = FALSE;
 			if (i>0) waitFlag = FALSE;
-			if (m_notUseDirectDraw == 0)
+//			if (m_notUseDirectDraw == 0)
+			if (!CheckUseDirect2D())
 			{
 				m_directDraw->NiseFlip2(dstRect,srcRect,waitFlag);
 //				m_directDraw->NiseFlip2(startX,startY,sizeX,sizeY,waitFlag);
 			}
 			else
 			{
-				m_myGraphics->NiseFlip(m_hWnd,startX,startY,sizeX,sizeY,waitFlag);
+				m_directDraw->NiseFlip2(dstRect, srcRect, waitFlag);
+//				m_myGraphics->NiseFlip(m_hWnd,startX,startY,sizeX,sizeY,waitFlag);
 			}
 		}
 	}
@@ -12407,6 +12433,9 @@ void CGameCallBack::PlaySystemSound(int n,int volumeType)
 			vol += GetVoiceVolumeByName(m_systemSeList->GetName(n*2));
 		}
 	}
+
+	if (vol < 0) vol = 0;
+	if (vol > 100) vol = 100;
 
 	m_systemSound[m_useSystemSoundNumber]->SetVolume(vol);
 	m_systemSound[m_useSystemSoundNumber]->Play();
@@ -15229,6 +15258,15 @@ BOOL CGameCallBack::CheckMiniGame(int modeNumber)
 	}
 
 	return FALSE;
+}
+
+int CGameCallBack::GetLayerOff(int varNumber)
+{
+	if ((varNumber >= 0) && (varNumber < 2200))
+	{
+		return m_layerOffVar[varNumber];
+	}
+	return -1;
 }
 
 void CGameCallBack::SetLayerOff(int layeroff)

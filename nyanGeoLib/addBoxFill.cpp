@@ -44,8 +44,11 @@ void CAddBoxFill::Print(int x, int y, int sizeX, int sizeY, int r, int g, int b,
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 
 	dst += x;
-	dst += y*screenSizeX;
-
+#if defined _WIN64
+	dst += (long long)y*(long long)screenSizeX;
+#else
+	dst += y * screenSizeX;
+#endif
 	int loopX = sizeX;
 	int loopY = sizeY;
 
@@ -77,8 +80,38 @@ void CAddBoxFill::Print(int x, int y, int sizeX, int sizeY, int r, int g, int b,
 	int lPitch = screenSizeX * sizeof(int);
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+	int* edi = dst;
+	for (int j = 0; j < loopY;j++)
+	{
+		int* pushedi = edi;
+		for (int i = 0; i < loopX;i++)
+		{
+			int d = *edi;
+			int srcR = (d << 16) & 0xff;
+			int srcG = (d << 8) & 0xff;
+			int srcB = (d) & 0xff;
 
+			int rr = srcR + addR - subR;
+			int gg = srcG + addG - subG;
+			int bb = srcB + addB - subB;
+
+			if (rr < 0) rr = 0;
+			if (rr >255) rr = 255;
+			if (gg < 0) gg = 0;
+			if (gg > 255) gg = 255;
+			if (bb < 0) bb = 0;
+			if (bb > 255) bb = 255;
+
+			int c = (rr << 16) | (gg << 8) | bb;
+			*dst = c;
+			dst++;
+		}
+
+
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
 #else
 
 	__asm

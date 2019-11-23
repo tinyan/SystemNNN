@@ -110,8 +110,12 @@ void CTransGradationBoxV::Print(POINT leftTop,SIZE size,int r1, int g1, int b1, 
 	int* delta = m_work;
 	int* dst = CMyGraphics::GetScreenBuffer();
 	int dstPitch = screenSizeX * sizeof(int);
-
+#if defined _WIN64
+	dst += (long long)screenSizeX * (long long)y1;
+#else
 	dst += screenSizeX * y1;
+#endif
+
 	dst += x1;
 
 
@@ -141,8 +145,50 @@ void CTransGradationBoxV::Print(POINT leftTop,SIZE size,int r1, int g1, int b1, 
 	}
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
 
+	int* edi = dst;
+	int* ebx = delta;
+	for (int j = 0; j < loopY; j++)
+	{
+		int* pushedi = edi;
+
+		int addB = *(ebx) & 0xffff;
+		int addG = (*(ebx)>>16) & 0xffff;
+		int addR = *(ebx+1) & 0xffff;
+
+		addB -= 256;
+		addG -= 256;
+		addR -= 256;
+
+
+		for (int i = 0; i < loopX; i++)
+		{
+			int d = *edi;
+			int rr = (d >> 16) & 0xff;
+			int gg = (d >>  8) & 0xff;
+			int bb = (d      ) & 0xff;
+
+			rr += addR;
+			gg += addG;
+			bb += addB;
+			if (rr < 0) rr = 0;
+			if (rr > 255) rr = 255;
+			if (gg < 0) gg = 0;
+			if (gg > 255) gg = 255;
+			if (bb < 0) bb = 0;
+			if (bb > 255) bb = 255;
+
+			int c = (rr << 16) | (gg << 8) | bb;
+			*edi = c;
+
+			edi++;
+		}
+
+		edi = pushedi;
+		edi += dstPitch / 4;
+		ebx += 2;
+	}
 #else
 
 	__asm

@@ -48,8 +48,13 @@ void CTransTorusFill::Print(int x, int y, int rx, int ry, int x2, int y2, int rx
 
 	for (int j=0;j<screenSizeY;j++)
 	{
-		*(table+j*4) = 0;
-		*(table+j*4+2) = 0;
+#if defined _WIN64
+		*(table+(long long)j*4) = 0;
+		*(table+(long long)j*4+2) = 0;
+#else
+		* (table + j * 4) = 0;
+		*(table + j * 4 + 2) = 0;
+#endif
 	}
 
 	int yStart = y - ry;
@@ -68,7 +73,7 @@ void CTransTorusFill::Print(int x, int y, int rx, int ry, int x2, int y2, int rx
 
 	for (int j=yStart;j<=yEnd;j++)
 	{
-		double yy = (double)(j - y);
+		double yy = (double)((double)j - (double)y);
 		yy /= ry;
 		yy = yy*yy;
 		yy *= -1.0;
@@ -88,13 +93,20 @@ void CTransTorusFill::Print(int x, int y, int rx, int ry, int x2, int y2, int rx
 		{
 			if ((j<yStart2) || (j>yEnd2))
 			{
-				*(table+j*4) = sizeX;
-				*(table+j*4+1) = xStart;
-				*(table+j*4+2) = 0;
+#if defined _WIN64
+				*(table+(long long)j*4) = sizeX;
+				*(table+(long long)j*4+1) = xStart;
+				*(table+(long long)j*4+2) = 0;
+#else
+				* (table + j * 4) = sizeX;
+				*(table + j * 4 + 1) = xStart;
+				*(table + j * 4 + 2) = 0;
+#endif
+
 			}
 			else
 			{
-				double yy2 = (double)(j-y2);
+				double yy2 = (double)((double)j-(double)y2);
 				yy2 /= ry2;
 				yy2 = yy2*yy2;
 				yy2 *= -1.0;
@@ -114,16 +126,27 @@ void CTransTorusFill::Print(int x, int y, int rx, int ry, int x2, int y2, int rx
 
 				if (sizeX2>0)
 				{
-					*(table+j*4) = sizeX2;
-					*(table+j*4+1) = xStart;
+#if defined _WIN64
+					*(table+(long long)j*4) = sizeX2;
+					*(table+(long long)j*4+1) = xStart;
+#else
+					* (table + j * 4) = sizeX2;
+					*(table + j * 4 + 1) = xStart;
+#endif
+
 					ptr += 2;
 				}
 
 				int sizeX3 = xEnd - xEnd2 + 1;
 				if (sizeX3>0)
 				{
-					*(table+j*4+ptr) = sizeX3;
-					*(table+j*4+ptr+1) = xEnd2;
+#if defined _WIN64
+					*(table+(long long)j*4+ptr) = sizeX3;
+					*(table+(long long)j*4+ptr+1) = xEnd2;
+#else
+					* (table + j * 4 + ptr) = sizeX3;
+					*(table + j * 4 + ptr + 1) = xEnd2;
+#endif
 				}
 			}
 		}
@@ -131,8 +154,63 @@ void CTransTorusFill::Print(int x, int y, int rx, int ry, int x2, int y2, int rx
 
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
 
+	int* edi = dst;
+	int* ebx = table;
+
+	int alpha = percent256;
+	int oneMinusAlpha = percent256Neg;
+
+	int addR = (r * alpha);
+	int addG = (g * alpha);
+	int addB = (b * alpha);
+
+	for (int j = 0; j < screenSizeY; j++)
+	{
+		int* pushedi = edi;
+		for (int k = 0; k < 2; k++)
+		{
+			edi = pushedi;
+
+			int ecx = *ebx;
+			if (ecx > 0)
+			{
+				edi += *(ebx + 1);
+				for (int i = 0; i < ecx; i++)
+				{
+
+					int d = *edi;
+					int srcR = (d << 16) & 0xff;
+					int srcG = (d << 8) & 0xff;
+					int srcB = (d) & 0xff;
+
+					int rr = (srcR * oneMinusAlpha);
+					int gg = (srcG * oneMinusAlpha);
+					int bb = (srcB * oneMinusAlpha);
+
+					rr += addR;
+					gg += addG;
+					bb += addB;
+
+					rr >>= 8;
+					gg >>= 8;
+					bb >>= 8;
+
+					int c = (rr << 16) | (gg < 8) | bb;
+					*edi = c;
+
+					edi++;
+				}
+			}
+
+
+			ebx += 2;
+		}
+
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
 #else
 
 __asm

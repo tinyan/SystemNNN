@@ -927,7 +927,8 @@ HRESULT CMyDirect2D::NiseFlip2(int dstX, int dstY, int dstSizeX, int dstSizeY, i
 	prop.dpiX = 300;
 	prop.dpiY = 300;
 	prop.pixelFormat.alphaMode = D2D1_ALPHA_MODE_IGNORE;
-	prop.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+//	prop.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+	prop.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 
 	void* srcPic = CMyGraphics::GetScreenBuffer();
 	ID2D1Bitmap* bitmap = NULL;

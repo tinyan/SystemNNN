@@ -8,6 +8,7 @@
 
 #include "..\nyanlib\include\myfile.h"
 
+#include "..\nnnLib\mainControl.h"
 #include "..\nyanLib\INCLUDE\commonmacro.h"
 #include "myDirect2D.h"
 #include "MyDirectDraw.h"
@@ -1246,6 +1247,9 @@ BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
 
 	m_edgeX = GetSystemMetrics(SM_CXFIXEDFRAME );
 	m_edgeY = GetSystemMetrics(SM_CYFIXEDFRAME );
+
+	m_edgeX = CMainControl::GetClientOffsetX();
+	m_edgeY = CMainControl::GetClientOffsetY();
 
 
 	long style = GetWindowLong(m_hWnd,GWL_STYLE);

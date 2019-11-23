@@ -115,6 +115,18 @@ CCommonSelectScene::CCommonSelectScene(CGameCallBack* lpGame) : CCommonGeneral(l
 	GetInitGameParam(&m_blockKosuuX,"blockNumberX");
 	GetInitGameParam(&m_blockKosuuY,"blockNumberY");
 
+	m_overWriteLayerOff = 0;
+	GetInitGameParam(&m_overWriteLayerOff , "overWriteLayerOff");
+
+
+	m_overwriteLayerOffVar = -1;
+	LPSTR layerOffVar = NULL;
+	GetInitGameString(&layerOffVar, "overwriteLayerOffVar");
+	if (layerOffVar)
+	{
+		m_overwriteLayerOffVar = m_game->GetVarNumber(layerOffVar);
+	}
+
 	m_picMustPrintPercent = 0;
 	GetInitGameParam(&m_picMustPrintPercent,"picMustPrintPercent");
 
@@ -1109,6 +1121,41 @@ void CCommonSelectScene::FinalExitRoutine(void)
 //wsprintf(mes,"layeroff = %d",layerOff);
 //MessageBox(NULL,mes,"layeroff",MB_OK);
 		m_game->SetLayerOff(layerOff);
+
+
+		//
+		if (m_overWriteLayerOff == 1)
+		{
+			layerOff = 0;
+
+			for (int var = 0; var < 2200; var++)
+			{
+				int layer = m_game->GetLayerOff(var);
+				if (layer != -1)
+				{
+					int varData = m_game->GetCalcuVarData(var);
+					if (varData )
+					{
+						layerOff |= (1 << layer);
+					}
+				}
+			}
+			m_game->SetLayerOff(layerOff);
+		}
+
+		if (m_overWriteLayerOff == 2)
+		{
+
+			if (m_overwriteLayerOffVar != -1)
+			{
+				if (m_game->GetCalcuVarData(m_overwriteLayerOffVar) == 0)
+				{
+					layerOff = 0;
+				}
+			}
+			m_game->SetLayerOff(layerOff);
+		}
+
 
 		if (m_game->StartSceneMode())
 		{

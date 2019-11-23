@@ -69,7 +69,11 @@ void CAddCircleFill::Print(int x, int y, int rx, int ry, int dr, int dg, int db,
 
 	for (int j=0;j<screenSizeY;j++)
 	{
-		*(table+j*2) = 0;
+#if defined _WIN64
+		*(table+(long long)j*2) = 0;
+#else
+		* (table + j * 2) = 0;
+#endif
 	}
 
 	int yStart = y - ry;
@@ -80,7 +84,7 @@ void CAddCircleFill::Print(int x, int y, int rx, int ry, int dr, int dg, int db,
 
 	for (int j=yStart;j<=yEnd;j++)
 	{
-		double yy = (double)(j - y);
+		double yy = (double)((double)j - (double)y);
 		yy /= ry;
 		yy = yy*yy;
 		yy *= -1.0;
@@ -98,15 +102,61 @@ void CAddCircleFill::Print(int x, int y, int rx, int ry, int dr, int dg, int db,
 		
 		if (sizeX>0)
 		{
-			*(table+j*2) = sizeX;
-			*(table+j*2+1) = xStart;
+#if defined _WIN64
+			*(table+(long long)j*2) = sizeX;
+			*(table+(long long)j*2+1) = xStart;
+#else
+			* (table + j * 2) = sizeX;
+			*(table + j * 2 + 1) = xStart;
+#endif
 		}
 	}
 
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
 
+	int* edi = dst;
+	int* ebx = table;
+	for (int j = 0; j < screenSizeY;j++)
+	{
+		int* pushedi = edi;
+
+		int ecx = *ebx;
+		if (ecx > 0)
+		{
+			int eax = *(ebx + 1);
+			eax *= 2;
+			edi += eax;
+
+			for (int i = 0; i < ecx; i++)
+			{
+				int d = *edi;
+				int srcR = (d << 16) & 0xff;
+				int srcG = (d << 8) & 0xff;
+				int srcB = (d) & 0xff;
+
+				int rr = srcR + addR - subR;
+				int gg = srcG + addG - subG;
+				int bb = srcB + addB - subB;
+
+				if (rr < 0) rr = 0;
+				if (rr > 255) rr = 255;
+				if (gg < 0) gg = 0;
+				if (gg > 255) gg = 255;
+				if (bb < 0) bb = 0;
+				if (bb > 255) bb = 255;
+
+				int c = (rr << 16) | (gg << 8) | bb;
+				*dst = c;
+				dst++;
+
+			}
+		}
+		edi = pushedi;
+		edi += lPitch / 4;
+		ebx += 2;
+	}
 #else
 
 __asm

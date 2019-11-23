@@ -61,6 +61,9 @@ public:
 	static MSG m_msg;
 	CMyFile* m_myFile;
 
+	static int GetClientOffsetX(void);
+	static int GetClientOffsetY(void);
+
 protected:
 	HANDLE m_eventHandle[16];
 	HANDLE m_threadHandle[16];
@@ -202,6 +205,9 @@ private:
 	int m_syskeyaltoff;
 	int m_syskeywinoff;
 	int m_syskeyappsoff;
+
+	static int m_clientOffsetX;
+	static int m_clientOffsetY;
 
 	BOOL m_systemOk;
 

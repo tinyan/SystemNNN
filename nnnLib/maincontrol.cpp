@@ -71,6 +71,9 @@ char CMainControl::m_defaultDirectXErrorMessage[] = "DirectXがインストールされて
 char CMainControl::m_defaultDirectXErrorTitle[] = "警告";
 
 
+int CMainControl::m_clientOffsetX = 0;
+int CMainControl::m_clientOffsetY = 0;
+
 
 CMainControl* CMainControl::m_this = NULL;
 
@@ -572,7 +575,8 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 		WS_SYSMENU |
 		//								WS_THICKFRAME |
 		WS_MAXIMIZEBOX |
-		WS_MINIMIZEBOX
+		WS_MINIMIZEBOX |
+		WS_BORDER 
 		)&nonFullFlag) |
 		WS_POPUP |
 		WS_VISIBLE
@@ -583,6 +587,8 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 	sizeX = rc.right - rc.left;
 	sizeY = rc.bottom - rc.top;
 
+	m_clientOffsetX = (sizeX - realWindowSizeX) / 2;
+	m_clientOffsetY = (sizeY - GetSystemMetrics(SM_CYCAPTION) - realWindowSizeY) / 2;
 
 
 //	int sizeX = realWindowSizeX + 2 * (GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER));
@@ -636,7 +642,8 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 								WS_OVERLAPPED   |						
 								WS_CAPTION |
 								WS_SYSMENU |
-//								WS_THICKFRAME |
+								WS_BORDER | 
+							//	WS_THICKFRAME |
 								WS_MAXIMIZEBOX | 
 								WS_MINIMIZEBOX  
 								)&nonFullFlag) | 
@@ -1976,6 +1983,15 @@ LRESULT CALLBACK CMainControl::MainWndProc( HWND hWnd, UINT message, WPARAM wPar
 
 } /* MainWndproc */
 
+int CMainControl::GetClientOffsetX(void)
+{
+	return m_clientOffsetX;
+}
+
+int CMainControl::GetClientOffsetY(void)
+{
+	return m_clientOffsetY;
+}
 
 
 

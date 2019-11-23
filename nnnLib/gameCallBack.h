@@ -393,6 +393,7 @@ public:
 
 	virtual int GetCGBlockNumber(int cgCharaNumber,int cgNumber);
 
+	int GetLayerOff(int var);
 
 
 	virtual int GetFrameTime(void) {return m_frameTime;}
@@ -1814,6 +1815,8 @@ protected:
 //private:
 	//dummy
 	int m_nowFrameCount;
+
+	int m_notPlaySameMusic;
 
 	BOOL m_gameCreateFlagGeneral;
 	int m_overrunBuffer;

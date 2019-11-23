@@ -53,7 +53,11 @@ void CBoxFill::Print(int x,int y,int sizeX,int sizeY,int r,int g,int b)
 //}
 
 	dst += x;
-	dst += y*screenSizeX;
+#if defined _WIN64
+	dst += (long long)y*(long long)screenSizeX;
+#else
+	dst += y * screenSizeX;
+#endif
 
 	int loopX = sizeX;
 	int loopY = sizeY;
@@ -62,8 +66,21 @@ void CBoxFill::Print(int x,int y,int sizeX,int sizeY,int r,int g,int b)
 	int lPitch = screenSizeX * sizeof(int);
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+	int* edi = dst;
+	int eax = col;
 
+	for (int j = 0; j < loopY;j++)
+	{
+		int* pushedi = edi;
+		for (int i = 0; i < loopX; i++)
+		{
+			*edi = eax;
+			edi++;
+		}
+		edi = pushedi;
+		edi += lPitch / 4;
+	}
 #else
 
 	__asm
