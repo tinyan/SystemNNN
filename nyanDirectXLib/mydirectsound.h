@@ -65,7 +65,8 @@ protected:
 
 	LPVOID m_lpDirectSound;
 	LPVOID m_lpPrimaryBuffer;
-	LPVOID m_lpDirectSoundBuffer[DSOUND_BUFFER_KOSUU];
+	//LPVOID m_lpDirectSoundBuffer[DSOUND_BUFFER_KOSUU];
+	LPVOID* m_lpDirectSoundBuffer;
 
 
 //	LPDIRECTSOUNDBUFFER m_lpDirectSoundBufferForStream;

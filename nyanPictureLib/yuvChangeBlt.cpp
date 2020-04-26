@@ -6,9 +6,14 @@
 #include "..\nyanLib\include\myGraphics.h"
 #include "yuvChangeBlt.h"
 
+
 CYUVChangeBlt::CYUVChangeBlt()
 {
-	for (int i=0;i<256;i++)
+	m_table256 = new int[256];
+
+
+
+	for (int i = 0; i < 256; i++)
 	{
 		if (i == 0)
 		{
@@ -21,6 +26,7 @@ CYUVChangeBlt::CYUVChangeBlt()
 	}
 }
 
+
 CYUVChangeBlt::~CYUVChangeBlt()
 {
 	End();
@@ -28,6 +34,7 @@ CYUVChangeBlt::~CYUVChangeBlt()
 
 void CYUVChangeBlt::End(void)
 {
+	DELETEARRAY(m_table256);
 }
 
 
@@ -46,13 +53,13 @@ void CYUVChangeBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picD
 	char* mask = (char*)maskData;
 
 	src += srcPoint.x;
-	src += srcPoint.y * picSize.cx;
+	src += (SSIZE_T)srcPoint.y * picSize.cx;
 
 	dst += putPoint.x;
-	dst += putPoint.y * screenSizeX;
+	dst += (SSIZE_T)putPoint.y * screenSizeX;
 
 	mask += srcPoint.x;
-	mask += srcPoint.y * picSize.cx;
+	mask += (SSIZE_T)srcPoint.y * picSize.cx;
 
 
 	int dstPitch = screenSizeX * sizeof(int);

@@ -506,11 +506,11 @@ BOOL CMyDirect2D::Restore(BOOL flg)
 }
 
 
-HRESULT CMyDirect2D::Activate(BOOL bActive)
+bool CMyDirect2D::Activate(BOOL bActive)
 {
 	//@@@
-	return 0;
-
+	return false;
+	/*
 
 	BOOL b = FALSE;
 
@@ -544,23 +544,25 @@ HRESULT CMyDirect2D::Activate(BOOL bActive)
 	}
 
 	return b;
+	*/
 
 }
 
 
 
-HRESULT CMyDirect2D::Lock(void)
+bool CMyDirect2D::Lock(void)
 {
 	//@@@
-	return 0;
+	return false;
 
+	/*
 	if (m_fullScreenFlag)
 	{
-		if (m_lpBack == NULL) return FALSE;
+		if (m_lpBack == NULL) return false;
 	}
 	else
 	{
-		if (m_lpBack == NULL) return FALSE;
+		if (m_lpBack == NULL) return false;
 	}
 
 	//	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
@@ -593,6 +595,8 @@ HRESULT CMyDirect2D::Lock(void)
 
 	m_lockedFlag = FALSE;
 	return FALSE;
+	*/
+
 }
 
 HRESULT CMyDirect2D::Unlock(void)

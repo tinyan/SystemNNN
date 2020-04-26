@@ -21,7 +21,7 @@ public:
 
 	
 	BOOL CheckInitOk(void) override;
-	HRESULT Lock(void) override;
+	bool Lock(void) override;
 	HRESULT Unlock(void) override;
 	HRESULT Flip(void) override;
 	HRESULT NiseFlip(int x, int y, int sizeX, int sizeY, BOOL waitVSync = FALSE) override;
@@ -35,7 +35,7 @@ public:
 
 	HDC GetMyDC() override;
 	void ReleaseMyDC(HDC hdc) override;
-	HRESULT Activate(BOOL bActive = TRUE) override;
+	bool Activate(BOOL bActive = TRUE) override;
 
 //	void SetWindowSize(int x, int y) override;
 

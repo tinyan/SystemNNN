@@ -220,6 +220,9 @@ CMyMessage::CMyMessage(CMyFont* lpMyFont, CRubiFont* lpRubiFont)
 	m_pic = m_myFont->GetPic();
 
 	m_gradFlag = FALSE;
+	m_gradStartX = 0;
+	m_gradEndX = 0;
+
 	m_effectType = 0;
 	m_effectCount1000 = 0;
 
@@ -346,7 +349,8 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 				continue;
 			}
 
-			if ((cmd == OKIKAE_RUBI_END) || (cmd == OKIKAE_KYOCHO_END))
+//			if ((cmd == OKIKAE_RUBI_END) || (cmd == OKIKAE_KYOCHO_END))
+			if (cmd == OKIKAE_RUBI_END)//OKIKAE_RUBI_END == OKIKAE_KYOCHO_END
 			{
 				rubiFlag = 0;
 				kyochoFlag = 0;
@@ -711,7 +715,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					int ln1 = (int)strlen(m_sei) / 2;
 					if ((nowLen + ln1) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 2 * nowLen,m_sei,ln1*2);
+						memcpy(m_messageWork + 2 * (SSIZE_T)nowLen,m_sei,(SSIZE_T)ln1*2);
 						if (bNewCol)
 						{
 							for (int i=0;i<ln1;i++)
@@ -730,8 +734,8 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					{
 						for (int b1 = 0;b1<ln1;b1++)
 						{
-							*(m_messageWork + 2 * (nowLen + b1))     = *(m_sei+b1);
-							*(m_messageWork + 2 * (nowLen + b1) + 1) = *(m_sei+b1);
+							*(m_messageWork + 2 * ((SSIZE_T)nowLen + b1))     = *(m_sei+b1);
+							*(m_messageWork + 2 * ((SSIZE_T)nowLen + b1) + 1) = *(m_sei+b1);
 						}
 						//memcpy(m_messageWork + 1 * nowLen,m_sei,ln1);//@@@@
 
@@ -756,7 +760,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					int ln2 = (int)strlen(m_mei) / 2;
 					if ((nowLen + ln2) <= MYMESSAGE_MAX)
 					{
-						memcpy(m_messageWork + 2 * nowLen,m_mei,ln2*2);
+						memcpy(m_messageWork + 2 * (SSIZE_T)nowLen,m_mei,(SSIZE_T)ln2*2);
 						if (bNewCol)
 						{
 							for (int i=0;i<ln2;i++)
@@ -775,8 +779,8 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					{
 						for (int b1 = 0;b1<ln2;b1++)
 						{
-							*(m_messageWork + 2 * (nowLen + b1))     = *(m_mei+b1);
-							*(m_messageWork + 2 * (nowLen + b1) + 1) = *(m_mei+b1);
+							*(m_messageWork + 2 * ((SSIZE_T)nowLen + b1))     = *(m_mei+b1);
+							*(m_messageWork + 2 * ((SSIZE_T)nowLen + b1) + 1) = *(m_mei+b1);
 						}
 //						memcpy(m_messageWork + 1 * nowLen,m_mei,ln2);//@@@@
 						if (bNewCol)
@@ -798,7 +802,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				int ln3 = (int)strlen(m_hana) / 2;
 				if ((nowLen + ln3) <= MYMESSAGE_MAX)
 				{
-					memcpy(m_messageWork + 2 * nowLen,m_hana,ln3*2);
+					memcpy(m_messageWork + 2 * (SSIZE_T)nowLen,m_hana,(SSIZE_T)ln3*2);
 					if (bNewCol)
 					{
 						for (int i=0;i<ln3;i++)
@@ -1036,14 +1040,14 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					{
 						if (codeByte == 2)
 						{
-							memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+							memcpy(m_messageWork + 2 * (SSIZE_T)nowLen,okikaeMessage,(SSIZE_T)ln3*2);
 						}
 						else
 						{
 							for (int o3=0;o3<ln3;o3++)
 							{
-								*(m_messageWork + 2 * nowLen + o3*2 + 0) = *(okikaeMessage + o3);
-								*(m_messageWork + 2 * nowLen + o3*2 + 1) = *(okikaeMessage + o3);
+								*(m_messageWork + 2 * (SSIZE_T)nowLen + (SSIZE_T)o3*2 + 0) = *(okikaeMessage + o3);
+								*(m_messageWork + 2 * (SSIZE_T)nowLen + (SSIZE_T)o3*2 + 1) = *(okikaeMessage + o3);
 							}
 						}
 
@@ -1072,14 +1076,14 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 					{
 						if (codeByte == 2)
 						{
-							memcpy(m_messageWork + 2 * nowLen,okikaeMessage,ln3*2);
+							memcpy(m_messageWork + 2 * (SSIZE_T)nowLen,okikaeMessage,(SSIZE_T)ln3*2);
 						}
 						else
 						{
 							for (int o3=0;o3<ln3;o3++)
 							{
-								*(m_messageWork + 2 * nowLen + o3*2 + 0) = *(okikaeMessage + o3);
-								*(m_messageWork + 2 * nowLen + o3*2 + 1) = *(okikaeMessage + o3);
+								*(m_messageWork + 2 * (SSIZE_T)nowLen + (SSIZE_T)o3*2 + 0) = *(okikaeMessage + o3);
+								*(m_messageWork + 2 * (SSIZE_T)nowLen + (SSIZE_T)o3*2 + 1) = *(okikaeMessage + o3);
 							}
 						}
 						if (bNewCol)

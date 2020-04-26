@@ -345,8 +345,8 @@ void CSepiaBlt::SepiaBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID s
 
 	int* src = (int*)srcPic;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 //	maskPic += srcPoint.x;
 //	maskPic += srcPoint.y * picSizeX;
@@ -493,11 +493,11 @@ void CSepiaBlt::MaskSepiaBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID s
 
 	int* src = (int*)srcPic;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	maskPic += srcPoint.x;
-	maskPic += srcPoint.y * picSizeX;
+	maskPic += (SSIZE_T)srcPoint.y * picSizeX;
 
 	int srcPitch = picSizeX * 4;
 	int maskPitch = picSizeX;

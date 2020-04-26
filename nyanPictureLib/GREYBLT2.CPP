@@ -342,8 +342,8 @@ void CGreyBlt2::GreyBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID sr
 
 	int* src = (int*)srcPic;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 //	maskPic += srcPoint.x;
 //	maskPic += srcPoint.y * picSizeX;
@@ -481,11 +481,11 @@ void CGreyBlt2::MaskGreyBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID sr
 
 	int* src = (int*)srcPic;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	maskPic += srcPoint.x;
-	maskPic += srcPoint.y * picSizeX;
+	maskPic += (SSIZE_T)srcPoint.y * picSizeX;
 
 	int srcPitch = picSizeX * 4;
 	int maskPitch = picSizeX;

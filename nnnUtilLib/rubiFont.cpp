@@ -89,6 +89,9 @@ CRubiFont::CRubiFont(HWND hwnd)
 	m_specialFontPic->GetPicSize(&rc);
 	m_specialFontSizeX = rc.right;
 
+	m_fontAdjustWidth = 16;
+	m_fontAdjustHeight = 32;
+
 
 	char gothic[] = "‚l‚r ƒSƒVƒbƒN";
 	char mincho[] = "‚l‚r –¾’©";

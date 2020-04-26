@@ -42,7 +42,7 @@ CMyGraphics::CMyGraphics(int sizeX,int sizeY,int notUseDirectDraw)
 
 	if (m_notUseDirectDraw == 0)
 	{
-		m_lpScreenBuffer = new int[sizeX*(sizeY+2)];
+		m_lpScreenBuffer = new int[(SSIZE_T)sizeX*((SSIZE_T)sizeY+2)];
 		m_dib = NULL;
 	}
 	else
@@ -66,9 +66,9 @@ CMyGraphics::CMyGraphics(int sizeX,int sizeY,int notUseDirectDraw)
 
 
 
-	ZeroMemory(m_lpScreenBuffer,sizeX*(sizeY+2));
+	ZeroMemory(m_lpScreenBuffer,(SSIZE_T)sizeX*((SSIZE_T)sizeY+2));
 
-	m_commonX8Buffer = new int[sizeY * 8];
+	m_commonX8Buffer = new int[(SSIZE_T)sizeY * 8];
 	
 	//ÇªÇÃëºÇ‡èâä˙âªÇ∑ÇÈ
 	//

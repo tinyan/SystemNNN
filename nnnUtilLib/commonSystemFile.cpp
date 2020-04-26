@@ -25,6 +25,8 @@ char CCommonSystemFile::m_saveFileNameNormal[] = "sysfile";
 char CCommonSystemFile::m_saveFileNameTaiken[] = "tsysfile";
 char CCommonSystemFile::m_saveFileNameNormal2[] = "sysfile2";
 char CCommonSystemFile::m_saveFileNameTaiken2[] = "tsysfile2";
+char CCommonSystemFile::m_saveFileNameNormal3[] = "sysfile3";
+char CCommonSystemFile::m_saveFileNameTaiken3[] = "tsysfile3";
 
 int CCommonSystemFile::m_maxScriptNumberForInit = 64;
 int CCommonSystemFile::m_maxCGCharaNumberForInit = 20;
@@ -62,8 +64,13 @@ CCommonSystemFile::CCommonSystemFile()
 	}
 	else
 	{
+#if !defined __SYSTEMNNN_VER2__
 		m_saveFileNameOnly = m_saveFileNameNormal2;
 		if (m_taikenFlag) m_saveFileNameOnly = m_saveFileNameTaiken2;
+#else
+		m_saveFileNameOnly = m_saveFileNameNormal3;
+		if (m_taikenFlag) m_saveFileNameOnly = m_saveFileNameTaiken3;
+#endif
 	}
 
 	CalcuInitParameter();
@@ -103,11 +110,13 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 			char ermes[1024];
 			if (CCommonGameVersion::CheckTaikenOrNetVersion() == FALSE)
 			{
-				wsprintf(ermes,"システムファイル:%s\\sysfile.savが見つかりません",saveFolder);
+//				wsprintf(ermes,"システムファイル:%s\\sysfile.savが見つかりません",saveFolder);
+				wsprintf(ermes, "システムファイル:%s\\%s.savが見つかりません", saveFolder, m_saveFileNameOnly);
 			}
 			else
 			{
-				wsprintf(ermes,"システムファイル:%s\\tsysfile.savが見つかりません",saveFolder);
+//				wsprintf(ermes,"システムファイル:%s\\tsysfile.savが見つかりません",saveFolder);
+				wsprintf(ermes, "システムファイル:%s\\%s.savが見つかりません", saveFolder, m_saveFileNameOnly);
 			}
 
 			MessageBox(NULL,ermes,"Error",MB_OK);
@@ -203,6 +212,12 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 		fread(&m_charaVoiceFlag.code,sizeof(char),m_charaVoiceFlag.size-4,file);
 	}
 
+	if (dataKosuu > 14)
+	{
+		fread(&m_systemFlag2.size, sizeof(m_systemFlag2.size), 1, file);
+		fread(&m_systemFlag2.code, sizeof(char), m_systemFlag2.size - 4, file);
+	}
+
 	fclose(file);
 
 	return TRUE;
@@ -226,6 +241,7 @@ void CCommonSystemFile::CreateInitData(void)
 	ZeroMemory(&m_achievement,sizeof(m_achievement));
 	ZeroMemory(&m_term,sizeof(m_term));
 	ZeroMemory(&m_charaVoiceFlag,sizeof(m_charaVoiceFlag));
+	ZeroMemory(&m_systemFlag2, sizeof(m_systemFlag2));
 
 	//Make Info
 	m_dataHeader.size = sizeof(m_dataHeader);
@@ -388,6 +404,10 @@ void CCommonSystemFile::CreateInitData(void)
 	m_charaVoiceFlag.code = 16;
 	CopyMemory(m_charaVoiceFlag.message,"CHARAVOICEFLAG ",16);
 
+	m_systemFlag2.size = sizeof(m_systemFlag2);
+	m_systemFlag2.code = 17;
+	CopyMemory(m_systemFlag2.message, "SYSTEMFLAG2    ", 16);
+
 }
 
 BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
@@ -396,6 +416,9 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	GetLocalTime(&st);
 
 	m_dataHeader.dataKosuu = 14;
+#if defined __SYSTEMNNN_VER2__
+	m_dataHeader.dataKosuu = 15;
+#endif
 
 	m_systemdata.year = st.wYear;
 	m_systemdata.month = st.wMonth;
@@ -458,7 +481,9 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	fwrite(&m_achievement,sizeof(m_achievement),1,file);
 	fwrite(&m_term,sizeof(m_term),1,file);
 	fwrite(&m_charaVoiceFlag,sizeof(m_charaVoiceFlag),1,file);
-	
+#if defined __SYSTEMNNN_VER2__
+	fwrite(&m_systemFlag2, sizeof(m_systemFlag2), 1, file);
+#endif
 	fclose(file);
 
 	return TRUE;
@@ -963,6 +988,15 @@ void CCommonSystemFile::ClearAllCharaVoiceFlag(void)
 	ZeroMemory(ptr,sz);
 }
 
+void CCommonSystemFile::ClearAllSystemFlag2(void)
+{
+	LPVOID ptr = &(m_systemFlag2.lastSaveFileNumber);
+	int sz = sizeof(m_systemFlag2.lastSaveFileNumber);
+	ZeroMemory(ptr, sz);
+	ptr = &(m_systemFlag2.pad[0]);
+	sz = sizeof(m_systemFlag2.pad);
+	ZeroMemory(ptr, sz);
+}
 
 void CCommonSystemFile::SetCGCharaNinzu(int n)
 {

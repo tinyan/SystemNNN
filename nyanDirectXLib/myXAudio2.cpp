@@ -76,14 +76,17 @@ CMyXAudio2::~CMyXAudio2()
 void CMyXAudio2::End(void)
 {
 	// stop sound
-	for (int i = 0; i<DSOUND_BUFFER_KOSUU; i++)
+	if (m_lpDirectSoundBuffer)
 	{
-		IXAudio2SourceVoice* lp = (IXAudio2SourceVoice*)(m_lpDirectSoundBuffer[i]);
-		if (lp != NULL)
+		for (int i = 0; i < DSOUND_BUFFER_KOSUU; i++)
 		{
-			lp->Stop();
-			//release‚Í‚¢‚ç‚È‚¢‚Û‚¢
-			m_lpDirectSoundBuffer[i] = NULL;
+			IXAudio2SourceVoice* lp = (IXAudio2SourceVoice*)(m_lpDirectSoundBuffer[i]);
+			if (lp != NULL)
+			{
+				lp->Stop();
+				//release‚Í‚¢‚ç‚È‚¢‚Û‚¢
+				m_lpDirectSoundBuffer[i] = NULL;
+			}
 		}
 	}
 

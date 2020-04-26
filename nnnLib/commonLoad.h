@@ -31,6 +31,7 @@ public:
 	virtual BOOL QuickLoad(void);
 
 	virtual BOOL CheckQuickLoadDataExist(void);
+	bool CheckExistSaveData(void);
 
 
 protected:

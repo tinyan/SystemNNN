@@ -95,11 +95,6 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 //	m_displayModeChangedFlag = bFullScreen;
 
 	m_direct2D = NULL;
-	if (m_direct2DFlag)
-	{
-//		m_direct2D = new CMyDirect2D(hwnd, hinstance, sizeX, sizeY, col, bFullScreen, deviceNumber);
-		return;
-	}
 
 
 
@@ -129,6 +124,37 @@ CMyDirectDraw::CMyDirectDraw(HWND hwnd,HINSTANCE hinstance, int sizeX,int sizeY,
 	m_lockedFlag = FALSE;
 
 	m_initFlag = FALSE;
+
+	m_addr = nullptr;
+	m_bitCount = 8;
+	m_edgeX = 0;
+	m_edgeY = 0;
+
+	m_lPitch = 0;
+	m_maskBlue = 0xff;
+	m_maskGreen = 0xff00;
+	m_maskRed = 0xff0000;
+
+	m_menuBarY = 0;
+	m_printX = 0;
+	m_printY = 0;
+
+	m_shiftBlue = 0;
+	m_shiftGreen = 8;
+	m_shiftRed = 16;
+
+	m_windowStartX = 0;
+	m_windowStartY = 0;
+	m_windowEndX = 800;
+	m_windowEndY = 600;
+
+
+
+	if (m_direct2DFlag)
+	{
+		return;
+	}
+
 
 	if (m_notUseDirectDraw) return;
 
@@ -509,22 +535,22 @@ BOOL CMyDirectDraw::Restore(BOOL flg)
 }
 
 
-HRESULT CMyDirectDraw::Activate(BOOL bActive)
+bool CMyDirectDraw::Activate(BOOL bActive)
 {
 	if (m_direct2DFlag)
 	{
-		return TRUE;//@@@
+		return true;//@@@
 	}
 
 
 
-	if (m_notUseDirectDraw) return FALSE;
+	if (m_notUseDirectDraw) return false;
 
 #if defined _TINYAN3DLIB_
-	return FALSE;
+	return false;
 #endif
 
-	BOOL b = FALSE;
+	bool b = false;
 
 	if (bActive)
 	{
@@ -538,7 +564,7 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 			{
 //				MessageBox(NULL,"1","2",MB_OK);
 				m_lpFront->Restore();
-				b = TRUE;
+				b = true;
 			}
 		}
 
@@ -550,7 +576,7 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 				m_lpBack->Restore();
 				ClearBackSurface();
 
-				b = TRUE;
+				b = true;
 			}
 		}
 	}
@@ -561,15 +587,15 @@ HRESULT CMyDirectDraw::Activate(BOOL bActive)
 
 
 
-HRESULT CMyDirectDraw::Lock(void)
+bool CMyDirectDraw::Lock(void)
 {
 	if (m_direct2DFlag)
 	{
-		return TRUE;//@@@
+		return true;//@@@
 	}
 
 
-	if (m_notUseDirectDraw) return FALSE;
+	if (m_notUseDirectDraw) return false;
 
 #if defined _TINYAN3DLIB_
 	return DD_OK;
@@ -577,11 +603,11 @@ HRESULT CMyDirectDraw::Lock(void)
 
 	if (m_fullScreenFlag)
 	{
-		if (m_lpBack == NULL) return FALSE;
+		if (m_lpBack == NULL) return false;
 	}
 	else
 	{
-		if (m_lpBack == NULL) return FALSE;
+		if (m_lpBack == NULL) return false;
 	}
 
 //	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
@@ -609,11 +635,11 @@ HRESULT CMyDirectDraw::Lock(void)
 		m_lPitch = (int)ddsd.lPitch;
 		m_addr = ddsd.lpSurface;
 		m_lockedFlag=TRUE;
-		return TRUE;
+		return true;
 	}
 
 	m_lockedFlag=FALSE;
-	return FALSE;
+	return false;
 }
 
 HRESULT CMyDirectDraw::Unlock(void)

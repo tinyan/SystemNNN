@@ -41,8 +41,8 @@ void CTransLucentBlt2::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID p
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 //	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
-	src += srcPoint.y * srcSize.cx + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int srcPitch = srcSize.cx * sizeof(int);
 
@@ -57,7 +57,7 @@ void CTransLucentBlt2::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID p
 	int one_minus_alpha = 256 - transPercent;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***　実装したにゃ。ここにc++実装が必要にゃ " __FILE__)
 	int* esi = src;
 	int* edi = dst;
 	int ebx = mask;

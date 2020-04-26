@@ -199,8 +199,8 @@ public:
 //	static int m_screenSizeY;
 	BOOL CheckGenshokuSize(int sizeX,int sizeY);
 
-	static int m_dataPackLevel;
-	static void SetDataPackLevel(int level){m_dataPackLevel = level;}
+	static SSIZE_T m_dataPackLevel;
+	static void SetDataPackLevel(SSIZE_T level){m_dataPackLevel = level;}
 
 	static char** m_ppPackTable;
 	static BOOL* m_pack64Flag;
@@ -211,6 +211,10 @@ public:
 	LPVOID GetTexture(void);
 	static void SetModeNumberForDebug(int md);
 	static int m_modeNumber;
+
+	static char m_old[8192];
+	static char m_tmp[8192];
+	static char m_unpack[8192];
 
 protected:
 //	int m_bmpSizeX;			//n byte
@@ -226,7 +230,7 @@ protected:
 
 	LPVOID m_pic0;
 	LPVOID m_pic;
-	int m_picBufferSize;
+	SSIZE_T m_picBufferSize;
 
 //	char* m_antiMask;
 //	int m_antiMaskSize;
@@ -283,7 +287,7 @@ protected:
 
 	int LoadBitmapHeaderAndPalette(FILE* file,int* rgbTable,BOOL b256Flag = FALSE);
 	int LoadDWQHeader(FILE* file);
-	BOOL MakeDataBuffer(int sz);
+	BOOL MakeDataBuffer(SSIZE_T sz);
 //	BOOL LoadBitmapData(FILE* file,int* rgbTable,BOOL b256Flag);
 	BOOL LoadDWQData(FILE* file,int* rgbTable, BOOL b256Flag = FALSE);
 	BOOL LoadPackedDWQData(FILE* file, int* rgbTable, BOOL b256Flag = FALSE);

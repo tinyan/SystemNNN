@@ -35,8 +35,8 @@ void CNegaBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,S
 	int dstPitch = screenSizeX * sizeof(int);
 	int srcPitch = srcSize.cx * sizeof(int);
 
-	src += srcPoint.y * srcSize.cx + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int loopY = putSize.cy;
 	int loopX = putSize.cx;

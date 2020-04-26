@@ -77,8 +77,8 @@ void CGreyBlt::GreyBltTrans256(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID
 	char* src = (char*)srcPic;
 	char tr = *src;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int* pPal = (int*)lpPalette;
 
@@ -175,8 +175,8 @@ void CGreyBlt::GreyBltBeta256(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID 
 	char* src = (char*)srcPic;
 //	char tr = *src;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int* pPal = (int*)lpPalette;
 
@@ -271,8 +271,8 @@ void CGreyBlt::GreyBltTrans(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID sr
 	int* src = (int*)srcPic;
 	int tr = *src;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int srcPitch = picSize.cx * sizeof(int);
 
@@ -356,8 +356,8 @@ void CGreyBlt::GreyBltBeta(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID src
 	int* src = (int*)srcPic;
 	int tr = *src;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int srcPitch = picSize.cx * sizeof(int);
 	int loopY = putSize.cy;
@@ -438,11 +438,11 @@ void CGreyBlt::MaskGreyBlt(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID src
 
 	int* src = (int*)srcPic;
 
-	src += srcPoint.y * picSizeX + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * picSizeX + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	maskPic += srcPoint.x;
-	maskPic += srcPoint.y * picSizeX;
+	maskPic += (SSIZE_T)srcPoint.y * picSizeX;
 
 	int srcPitch = picSizeX * 4;
 	int maskPitch = picSizeX;

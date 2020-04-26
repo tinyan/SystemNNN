@@ -119,7 +119,8 @@ private:
 	int m_useVMR9Flag;
 	int m_vmr9RenderType;
 
-	char m_lastFileName[256];
+//	char m_lastFileName[256];
+	char* m_lastFileName;
 
 	BOOL CheckVMR9Connected(void);
 	BOOL m_vmrErrorFlag;

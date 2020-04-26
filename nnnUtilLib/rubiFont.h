@@ -75,6 +75,9 @@ private:
 
 	BITMAPV4HEADER m_bmi;
 
+	int m_fontAdjustWidth;
+	int m_fontAdjustHeight;
+
 };
 
 

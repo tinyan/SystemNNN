@@ -878,6 +878,8 @@ void CCommonSave::SaveNowData(void)
 	m_ppDataFile[m_clickButtonNumber]->Save(m_clickButtonNumber + m_page * m_blockX * m_blockY);
 	m_ppDataFile[m_clickButtonNumber]->LoadHeaderAndPic(m_clickButtonNumber + m_page * m_blockX * m_blockY);
 
+	m_game->SetLastSelectSaveLoad(m_clickButtonNumber + m_page * m_blockX * m_blockY);
+
 	m_game->SetLastSaveSlot(m_clickButtonNumber + m_page * m_blockX * m_blockY);
 }
 
@@ -885,6 +887,8 @@ BOOL CCommonSave::QuickSave(void)
 {
 	m_ppDataFile[0]->Save(m_quickSaveSlotNumber);
 	m_ppDataFile[0]->LoadHeaderAndPic(m_quickSaveSlotNumber);
+
+	m_game->SetLastSelectSaveLoad(m_quickSaveSlotNumber);
 
 	if (m_quickSetLastFlag)
 	{

@@ -40,9 +40,9 @@ void CTransLucentBlt3::Print(POINT putPoint,POINT srcPoint, SIZE putSize,LPVOID 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 //	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
-	src += srcPoint.y * srcSize.cx + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
-	maskTable += srcPoint.y * srcSize.cx + srcPoint.x;
+	src += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
+	maskTable += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
 
 	int srcPitch = srcSize.cx * sizeof(int);
 	int dstPitch = screenSizeX * 4;

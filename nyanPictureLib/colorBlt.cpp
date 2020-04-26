@@ -32,11 +32,11 @@ void CColorBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,char* maskPic,S
 
 	int* dst = CMyGraphics::GetScreenBuffer();
 	dst += putPoint.x;
-	dst += putPoint.y * screenSizeX;
+	dst += (SSIZE_T)putPoint.y * screenSizeX;
 
 	char* mask = maskPic;
 	mask += srcPoint.x;
-	mask += srcPoint.y * screenSizeX;
+	mask += (SSIZE_T)srcPoint.y * screenSizeX;
 
 
 	int maskPitch = srcSize.cx;

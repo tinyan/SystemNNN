@@ -31,9 +31,9 @@ void CAddSubBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 //	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
-	src += srcPoint.y * srcSize.cx + srcPoint.x;
-	mask += srcPoint.y * srcSize.cx + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
+	mask += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int srcPitch = srcSize.cx * sizeof(int);
 	int maskPitch = srcSize.cx;

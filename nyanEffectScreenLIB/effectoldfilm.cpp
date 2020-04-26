@@ -27,7 +27,7 @@ BOOL CEffectOldFilm::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int l
 	EFFECT* lp = (EFFECT*)lpEffect;
 	
 	int k = paraKosuu;
-	if (k>13) k = 13;
+	if (k>15) k = 15;
 
 	int para[16];
 	int i;
@@ -71,8 +71,10 @@ BOOL CEffectOldFilm::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int l
 	if (paraKosuu<12) para[11] = 80;	//iji rnd
 	if (paraKosuu<13) para[12] = 30;	//print rnd
 
-	
-	for (i=0;i<13;i++)
+	if (paraKosuu < 14) para[13] = 100; //min trans percent
+	if (paraKosuu < 15) para[14] = 100; //min trans percent
+
+	for (i=0;i<15;i++)
 	{
 		lp->para[i] = para[i];
 	}
@@ -202,7 +204,25 @@ void CEffectOldFilm::Print(LPVOID lpEffect,int layer)
 
 		if ((rand() % 100) < printRnd)
 		{
-			CAllGeo::BoxFill(putX,putY,putSizeX,putSizeY,colR,colG,colB);
+			int psMin = lp->para[13];
+			int psMax = lp->para[14];
+			if (psMin > psMax)
+			{
+				int tmp = psMin;
+				psMin = psMax;
+				psMax = tmp;
+			}
+			int dv = psMax - psMin + 1;
+			int ps = psMin + (rand() % dv);
+			if (ps >= 100)
+			{
+				CAllGeo::BoxFill(putX, putY, putSizeX, putSizeY, colR, colG, colB);
+			}
+			else
+			{
+				CAllGeo::TransBoxFill(putX, putY, putSizeX, putSizeY, colR, colG, colB,ps);
+
+			}
 		}
 	}
 }

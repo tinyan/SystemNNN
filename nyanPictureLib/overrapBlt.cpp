@@ -77,10 +77,10 @@ void COverrapBlt::PrintWithScreen(POINT endPoint,LPVOID endPic,SIZE endPicSize,i
 	int* org = dst;
 
 	org += orgPoint.x;
-	org += orgPoint.y * rc.right;
+	org += (SSIZE_T)orgPoint.y * rc.right;
 
 	next += nextPoint.x;
-	next += nextPoint.y * rc2.right;
+	next += (SSIZE_T)nextPoint.y * rc2.right;
 
 
 //	int tmp[64];
@@ -247,10 +247,10 @@ void COverrapBlt::Print(POINT startPoint,LPVOID startPic,SIZE startPicSize,POINT
 	int* dst = CMyGraphics::GetScreenBuffer();
 
 	org += orgPoint.x;
-	org += orgPoint.y * rc.right;
+	org += (SSIZE_T)orgPoint.y * rc.right;
 
 	next += nextPoint.x;
-	next += nextPoint.y * rc2.right;
+	next += (SSIZE_T)nextPoint.y * rc2.right;
 
 #if defined _WIN64
 #pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)

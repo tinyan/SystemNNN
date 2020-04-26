@@ -76,6 +76,19 @@ int CMyFont::m_fukuroTable[3][3] =
 int CMyFont::m_rightShift1byte = 2;
 
 
+
+int CALLBACK EnumFontFamExProc(
+
+	ENUMLOGFONTEX *lpelfe, // pointer to logical-font data
+
+	NEWTEXTMETRICEX *lpntme, // pointer to physical-font data
+
+	int FontType, // type of font
+
+	LPARAM lParam // application-defined data
+);
+
+
 void CMyFont::SetFukuroType(int type)
 {
 	int i,j;
@@ -262,6 +275,10 @@ CMyFont::CMyFont(HWND hwnd,LPSTR fontName)
 	char gothic1Byte[] = "Consolas";
 	char mincho1Byte[] = "Courier New";
 
+	m_fontAdjustWidth = 16;
+	m_fontAdjustHeight = 32;
+	m_fontAdjustWidth2 = 16;
+	m_fontAdjustHeight2 = 32;
 
 
 	LPSTR fontname1;
@@ -319,6 +336,9 @@ CMyFont::CMyFont(HWND hwnd,LPSTR fontName)
 	memcpy(m_fontName1,fontname1,ln1+1);
 	memcpy(m_fontName2,fontname2,ln2+1);
 
+	//get adjust size
+	EnumFontAndGetAdjustSize(fontname1,fontname2);
+
 
 	int i = 0;
 	for (i=0;i<=MYFONT_SIZE_MAX;i++)
@@ -332,11 +352,43 @@ CMyFont::CMyFont(HWND hwnd,LPSTR fontName)
 		HFONT hfont = MakeFont(fontname1,fontsize);
 		if (hfont == NULL)
 		{
-			hfont = MakeFont(fontname2,fontsize);
+//			hfont = MakeFont(fontname2,fontsize);
 		}
 
 		m_font[fontsize] = hfont;
 	}
+
+
+	bool allDone = true;
+	for (i = 0; i < 7; i++)
+	{
+		int fontsize = m_fontSizeTable[i];
+		if (m_font[fontsize] == nullptr)
+		{
+			allDone = false;
+			break;
+		}
+	}
+
+	if (!allDone)
+	{
+		//new get adjust size
+
+		for (i = 0; i < 7; i++)
+		{
+			int fontsize = m_fontSizeTable[i];
+			if (m_font[fontsize] == nullptr)
+			{
+				HFONT hfont = MakeFont(fontname2, fontsize,1);
+				m_font[fontsize] = hfont;
+			}
+		}
+	}
+
+
+
+
+
 
 	m_fontFlag = FALSE;
 	m_nowFontSize = -1;
@@ -454,6 +506,101 @@ void CMyFont::ClearCache(void)
 #endif
 
 
+typedef struct _tagFONTCALLBACLSTRUCT
+{
+	LPSTR fontname1;
+	LPSTR fontname2;
+
+	int adjustX;
+	int adjustY;
+	int adjustX2;
+	int adjustY2;
+} FONTCALLBACKSTRUCT;
+
+
+void CMyFont::EnumFontAndGetAdjustSize(LPSTR fontname1,LPSTR fontname2)
+{
+	HDC hdc;
+	
+	hdc = GetDC(m_hWnd);
+
+	LOGFONT lf;
+	ZeroMemory(&lf, sizeof(lf));
+	lf.lfCharSet = SHIFTJIS_CHARSET;
+	lf.lfFaceName[0] = 0;
+	lf.lfPitchAndFamily = 0;
+
+
+	FONTCALLBACKSTRUCT fontCallbackStruct;
+	fontCallbackStruct.fontname1 = fontname1;
+	fontCallbackStruct.fontname2 = fontname2;
+	fontCallbackStruct.adjustX = 16;
+	fontCallbackStruct.adjustY = 32;
+	fontCallbackStruct.adjustX2 = 16;
+	fontCallbackStruct.adjustY2 = 32;
+
+	EnumFontFamiliesEx(hdc, &lf, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)(&fontCallbackStruct), 0);
+
+	m_fontAdjustWidth = fontCallbackStruct.adjustX;
+	m_fontAdjustHeight = fontCallbackStruct.adjustY;
+	m_fontAdjustWidth2 = fontCallbackStruct.adjustX2;
+	m_fontAdjustHeight = fontCallbackStruct.adjustY2;
+
+
+	ReleaseDC(m_hWnd, hdc);
+
+}
+
+
+int CALLBACK EnumFontFamExProc(
+
+	ENUMLOGFONTEX *lpelfe, // pointer to logical-font data
+
+	NEWTEXTMETRICEX *lpntme, // pointer to physical-font data
+
+	int FontType, // type of font
+
+	LPARAM lParam // application-defined data
+)
+{
+	LPSTR name = lpelfe->elfLogFont.lfFaceName;
+	int ln = strlen(name);
+
+	if (strlen(name) >= 254) return FALSE;
+
+	if ((*name) == '@')
+	{
+		return TRUE;
+	}
+
+	int h = lpelfe->elfLogFont.lfHeight;
+	int w = lpelfe->elfLogFont.lfWidth;
+
+	FONTCALLBACKSTRUCT* lpStruct = (FONTCALLBACKSTRUCT*)lParam;
+
+
+	if (_strcmpi(lpStruct->fontname1, name) == 0)
+	{
+		lpStruct->adjustX = w;
+		lpStruct->adjustY = h;
+		char mes[256];
+		sprintf_s(mes, 256, "fontname1 found %s %d %d\n", name, w, h);
+		OutputDebugString(mes);
+	}
+
+	if (_strcmpi(lpStruct->fontname2, name) == 0)
+	{
+		lpStruct->adjustX2 = w;
+		lpStruct->adjustY2 = h;
+		char mes[256];
+		sprintf_s(mes, 256, "fontname2 found %s %d %d\n", name, w, h);
+		OutputDebugString(mes);
+	}
+	return TRUE;
+}
+
+
+
 CPicture* CMyFont::GetPic(void)
 {
 	return m_pic;
@@ -481,7 +628,7 @@ void CMyFont::BeginPrint(int fontsize, BOOL bAntiAliasFlag)
 			hfont = MakeFont(m_fontName1,m_nowFontSize);
 			if (hfont == NULL)
 			{
-				hfont = MakeFont(m_fontName2,m_nowFontSize);
+				hfont = MakeFont(m_fontName2,m_nowFontSize,1);
 			}
 
 			m_font[m_nowFontSize] = hfont;
@@ -1856,12 +2003,41 @@ int CMyFont::GetFontSize(int fontsize)
 
 
 
-HFONT CMyFont::MakeFont(LPSTR fontname,int fontsize)
+HFONT CMyFont::MakeFont(LPSTR fontname,int fontsize,int fontReserve)
 {
+	int fontSizeX = 16;
+	int fontSizeY = 32;
+	if (fontReserve == 0)
+	{
+		fontSizeX = (fontsize * m_fontAdjustWidth) / 32;
+		fontSizeY = (fontsize * m_fontAdjustHeight) / 32;
+	}
+	else//==1
+	{
+		fontSizeX = (fontsize * m_fontAdjustWidth2) / 32;
+		fontSizeY = (fontsize * m_fontAdjustHeight2) / 32;
+
+	}
+
+
+	char mes[256];
+	sprintf_s(mes, 256, "MakeFont %s size=%d X=%d Y=%d res=%d", fontname, fontsize, fontSizeX, fontSizeY, fontReserve);
+	OutputDebugString(mes);
+
+
+	return CreateFont(fontSizeY * 2, fontSizeX * 2, 0, 0, m_fontWeight, m_fontItalic, FALSE, FALSE,
+		m_charaSet, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		FIXED_PITCH | FF_DONTCARE,
+		fontname);
+
+
+	/*
 	return CreateFont(	fontsize*2,fontsize*2/2,0,0,m_fontWeight,m_fontItalic,FALSE,FALSE,
 						m_charaSet,OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS ,DEFAULT_QUALITY,
 						FIXED_PITCH | FF_DONTCARE,
 						fontname);
+						*/
+
 }
 
 

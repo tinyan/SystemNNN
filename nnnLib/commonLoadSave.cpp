@@ -215,6 +215,8 @@ CCommonLoadSave::CCommonLoadSave(CGameCallBack* lpGame,LPSTR modename) : CCommon
 
 	GetBGMSetup();
 
+	m_notInitPage = false;
+
 	if (_stricmp(modename,"load") == 0)
 	{
 		m_exitFadeOutSpecialMode = TITLE_MODE;
@@ -258,6 +260,25 @@ int CCommonLoadSave::Init(void)
 	{
 		m_printLastSelect->Init();
 	}
+
+
+	if (!m_notInitPage)
+	{
+		int last = m_game->GetLastSelectSaveLoad();
+		if (last >= 0)
+		{
+			m_page = last / (m_blockX * m_blockY);
+			if (m_page >= m_pageMax)
+			{
+				m_page = m_pageMax - 1;
+			}
+			if (m_page < 0)
+			{
+				m_page = 0;
+			}
+		}
+	}
+
 
 
 	m_game->StopScriptSoundAndVoice();
@@ -987,7 +1008,9 @@ void CCommonLoadSave::ChangePage(int page)
 	//reload
 
 	CAreaControl::SetNextAllPrint();
+	m_notInitPage = true;
 	Init();
+	m_notInitPage = false;
 }
 
 

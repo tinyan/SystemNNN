@@ -30,7 +30,7 @@ public:
 	void BeginRubiPrint(int fontsize = 16,BOOL bAntiAliasFlag = TRUE);
 	void EndRubiPrint(void);
 
-	HFONT MakeFont(LPSTR fontname, int fontsize);
+	HFONT MakeFont(LPSTR fontname, int fontsize,int fontReserve = 0);
 
 	static int m_fontSizeTable[7];
 	CPicture* GetPic(void);
@@ -152,6 +152,12 @@ private:
 
 	int m_charaSet;
 
+	int m_fontAdjustWidth;
+	int m_fontAdjustHeight;
+	int m_fontAdjustWidth2;
+	int m_fontAdjustHeight2;
+
+	void EnumFontAndGetAdjustSize(LPSTR fontname1, LPSTR fontname2);
 };
 
 

@@ -35,13 +35,13 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 	char* mask = (char*)maskData;
 
 	src += srcPoint.x;
-	src += srcPoint.y * picSize.cx;
+	src += (SSIZE_T)srcPoint.y * picSize.cx;
 
 	dst += putPoint.x;
-	dst += putPoint.y * screenSizeX;
+	dst += (SSIZE_T)putPoint.y * screenSizeX;
 
 	mask += srcPoint.x;
-	mask += srcPoint.y * picSize.cx;
+	mask += (SSIZE_T)srcPoint.y * picSize.cx;
 
 
 	int dstPitch = screenSizeX * sizeof(int);

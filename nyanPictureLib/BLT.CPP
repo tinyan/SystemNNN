@@ -30,8 +30,8 @@ void CBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 //	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
-	src += srcPoint.y * srcSize.cx + srcPoint.x;
-	dst += putPoint.y * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
 
 	int srcPitch = srcSize.cx * sizeof(int);
 	int dstPitch = screenSizeX * 4;

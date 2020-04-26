@@ -446,15 +446,15 @@ void CEffectMoveMaskWipe::Print(LPVOID lpEffect,int layer)
 	int yZahyo = 0;
 
 
-	__int64 alfa64;
-	__int64 alfa64m;
-	__int64 multiData64;
-	__int64 src1src2;
 
 #if defined _WIN64
 #pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 #else
+	__int64 alfa64;
+	__int64 alfa64m;
+	__int64 multiData64;
+	__int64 src1src2;
 
 	__asm
 	{

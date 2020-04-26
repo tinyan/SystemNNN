@@ -30,6 +30,9 @@ UINT CWheelMouse::m_wm_message =
 #if defined __USE_XAUDIO2__
 !IsWindowsVistaOrGreater() ? RegisterWindowMessage(MSH_MOUSEWHEEL) : 0;
 #else
+RegisterWindowMessage(MSH_MOUSEWHEEL);
+
+/*
 
 					(
 						(
@@ -46,6 +49,8 @@ UINT CWheelMouse::m_wm_message =
 					  )
 
                  ? RegisterWindowMessage(MSH_MOUSEWHEEL) : 0;
+				 */
+
 #endif
 
 

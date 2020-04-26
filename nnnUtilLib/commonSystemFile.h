@@ -302,6 +302,21 @@ public:
 		int flag[65536*8/32];
 	} CHARAVOICEFLAG;
 
+	typedef struct tagSYSTEMFLAG2
+	{
+		int size;
+		int code;
+		int dummy;
+		int dummy2;
+
+		char message[16];
+
+		int lastSaveFileNumber;
+		int pad[256 - 1];
+
+	} SYSTEMFLAG2;
+
+
 	SYSTEMDATAINFO m_dataHeader;	
 	SYSTEMDATA m_systemdata;
 //	CGDATA m_cgdata[8];
@@ -318,6 +333,7 @@ public:
 	ACHIEVEMENT m_achievement;
 	NNNTERM m_term;
 	CHARAVOICEFLAG m_charaVoiceFlag;
+	SYSTEMFLAG2 m_systemFlag2;
 
 
 //	int GetSceneSubKosuuMax(int sceneNumber);
@@ -336,6 +352,8 @@ public:
 	static char m_saveFileNameTaiken[];
 	static char m_saveFileNameNormal2[];
 	static char m_saveFileNameTaiken2[];
+	static char m_saveFileNameNormal3[];
+	static char m_saveFileNameTaiken3[];
 
 	static void SetMaxScriptNumber(int n = 64);
 	static void SetMaxCGCharaNumber(int n = 20);
@@ -368,7 +386,7 @@ public:
 	void ClearAllAchievement(void);
 	void ClearAllTerm(void);
 	void ClearAllCharaVoiceFlag(void);
-
+	void ClearAllSystemFlag2(void);
 
 	int GetVarType(void);
 

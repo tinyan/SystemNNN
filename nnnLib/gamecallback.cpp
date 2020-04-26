@@ -332,11 +332,11 @@ void CGameCallBack::LogMessage(int msg,WPARAM wParam,LPARAM lParam)
 	char mes[1024];
 	if (msg == WM_MOVE)
 	{
-		wsprintf(mes,"\x00d\x00aMOVE:%d %d",lParam & 0xffff,(lParam  >> 16) & 0xffff);
+		wsprintf(mes,"\x00d\x00aMOVE:%d %d",(int)(lParam & 0xffff),(int)((lParam  >> 16) & 0xffff));
 	}
 	else if (msg == WM_SIZE)
 	{
-		wsprintf(mes,"\x00d\x00aSIZE %d %d",lParam & 0xffff,(lParam  >> 16) & 0xffff);
+		wsprintf(mes,"\x00d\x00aSIZE %d %d",(int)(lParam & 0xffff),(int)((lParam  >> 16) & 0xffff));
 	}
 	else
 	{
@@ -997,7 +997,7 @@ void CGameCallBack::GeneralCreate(void)
 	m_extSaveDataSizeTable = NULL;
 	if ((m_extSaveDataKosuu + m_autoExtDataLoadKosuu + m_autoExtSubDataLoadKosuu) > 0)
 	{
-		m_extSaveDataSizeTable = new int[m_extSaveDataKosuu + m_autoExtDataLoadKosuu + m_autoExtSubDataLoadKosuu];
+		m_extSaveDataSizeTable = new int[(SSIZE_T)m_extSaveDataKosuu + m_autoExtDataLoadKosuu + m_autoExtSubDataLoadKosuu];
 		for (int i = 0; i < m_autoExtDataLoadKosuu; i++)
 		{
 			m_extSaveDataSizeTable[i] = 0;//dummy auto size=0
@@ -1879,7 +1879,7 @@ else
 	m_miniCG = NULL;
 
 	//‚±‚±‚ð‰Â•ÏƒTƒCƒY‚É
-	m_miniCG = new int[m_miniCGSizeX*m_miniCGSizeY];
+	m_miniCG = new int[(SSIZE_T)m_miniCGSizeX*m_miniCGSizeY];
 
 
 //AddErrorLog("3");
@@ -2017,8 +2017,8 @@ else
 	m_answerStringNumber = 0;
 	
 	GetInitGameParam(&m_answerStringNumber,"answerStringNumber");
-	m_answerStringData = new char[128*m_answerStringNumber+2];
-	ZeroMemory(m_answerStringData,128*m_answerStringNumber+2);
+	m_answerStringData = new char[128*(SSIZE_T)m_answerStringNumber+2];
+	ZeroMemory(m_answerStringData,128*(SSIZE_T)m_answerStringNumber+2);
 	for (int i=0;i<m_answerStringNumber;i++)
 	{
 		char name[256];
@@ -2030,9 +2030,9 @@ else
 			if (ln>126) ln = 126;
 			if (ln>0)
 			{
-				memcpy(m_answerStringData + i * 128,answerString,ln);
-				*(m_answerStringData + i * 128 + ln) = 0;
-				*(m_answerStringData + i * 128 + ln+1) = 0;
+				memcpy(m_answerStringData + (SSIZE_T)i * 128,answerString,ln);
+				*(m_answerStringData + (SSIZE_T)i * 128 + ln) = 0;
+				*(m_answerStringData + (SSIZE_T)i * 128 + ln+1) = 0;
 			}
 		}
 	}
@@ -2055,7 +2055,7 @@ else
 			GetInitGameParam(&m_renameTagKosuu,"renameTagNumber");
 			if (m_renameTagKosuu > 0)
 			{
-				m_renameTag = new char[64*m_renameTagKosuu];
+				m_renameTag = new char[64*(SSIZE_T)m_renameTagKosuu];
 				for (int i=0;i<m_renameTagKosuu;i++)
 				{
 					m_renameTag[i*64] = 0;
@@ -2066,7 +2066,7 @@ else
 					{
 						int ln = (int)strlen(tagName);
 						if (ln > 62) ln = 62;
-						memcpy(m_renameTag + 64 * i,tagName,ln);
+						memcpy(m_renameTag + 64 * (SSIZE_T)i,tagName,ln);
 
 						m_renameTag[64*i+ln] = 0;
 						m_renameTag[64*i+ln+1] = 0;
@@ -3239,7 +3239,7 @@ else
 		if (GetInitGameString(&seiInitData,"seiInitData"))
 		{
 			int len1a = (int)strlen(seiInitData);
-			memcpy(m_systemFile->m_systemdata.sei,seiInitData,len1a+1);
+			memcpy(m_systemFile->m_systemdata.sei,seiInitData,(SSIZE_T)len1a+1);
 
 			int seiClearFlag = 0;
 			GetInitGameParam(&seiClearFlag,"seiClearFlag");
@@ -3262,7 +3262,7 @@ else
 		if (GetInitGameString(&meiInitData,"meiInitData"))
 		{
 			int len2a = (int)strlen(meiInitData);
-			memcpy(m_systemFile->m_systemdata.mei,meiInitData,len2a+1);
+			memcpy(m_systemFile->m_systemdata.mei,meiInitData,(SSIZE_T)len2a+1);
 
 			int meiClearFlag = 0;
 			GetInitGameParam(&meiClearFlag,"meiClearFlag");
@@ -3340,7 +3340,7 @@ else
 	m_nameIsSpecialVoiceFlag = -1;
 	m_specialVoiceNameKosuu = 0;
 	GetInitGameParam(&m_specialVoiceNameKosuu,"specialVoiceNameNumber");
-	m_specialVoiceName = new char[m_specialVoiceNameKosuu * 64 + 1];
+	m_specialVoiceName = new char[(SSIZE_T)m_specialVoiceNameKosuu * 64 + 1];
 	for (int i=0;i<m_specialVoiceNameKosuu;i++)
 	{
 		LPSTR name = GetGameDefaultSeiMei(1);
@@ -3349,7 +3349,7 @@ else
 		GetInitGameString(&name,key);
 		int ln = (int)strlen(name);
 		if (ln>62) ln = 62;
-		memcpy(m_specialVoiceName + i*64,name,ln);
+		memcpy(m_specialVoiceName + (SSIZE_T)i*64,name,ln);
 		m_specialVoiceName[i*64+ln] = 0;
 		m_specialVoiceName[i*64+ln+1] = 0;
 	}
@@ -4050,7 +4050,7 @@ void CGameCallBack::ReceiveUserFunction0(int cmd, int paraKosuu, int* paraPtr)
 		{
 			if ((checkTo >= 0) && (checkTo < m_answerStringNumber))
 			{
-				LPSTR toMessage = m_answerStringData + 128 * checkTo;
+				LPSTR toMessage = m_answerStringData + 128 * (SSIZE_T)checkTo;
 				if (strcmp(fromMessage,toMessage) == 0)
 				{
 					same = 1;
@@ -5757,13 +5757,13 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 	//names
 	LPSTR sei = lp->playerSei;
 	int ln1 = (int)strlen(sei);
-	memcpy(CMyMessage::m_sei,sei,ln1+1);
-	memcpy(m_systemFile->m_systemdata.sei,sei,ln1+1);
+	memcpy(CMyMessage::m_sei,sei,(SSIZE_T)ln1+1);
+	memcpy(m_systemFile->m_systemdata.sei,sei,(SSIZE_T)ln1+1);
 
 	LPSTR mei = lp->playerMei;
 	int ln2 = (int)strlen(mei);
-	memcpy(CMyMessage::m_mei,mei,ln2+1);
-	memcpy(m_systemFile->m_systemdata.mei,mei,ln2+1);
+	memcpy(CMyMessage::m_mei,mei,(SSIZE_T)ln2+1);
+	memcpy(m_systemFile->m_systemdata.mei,mei,(SSIZE_T)ln2+1);
 
 
 	int frame = lp->frame;
@@ -6026,7 +6026,7 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 		{
 			ln = m_saveCommentLength-2;
 		}
-		memcpy(largeComment[i],cmt,ln+2);
+		memcpy(largeComment[i],cmt,(SSIZE_T)ln+2);
 	}
 
 
@@ -6034,11 +6034,11 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	//names
 	LPSTR sei = CMyMessage::m_sei;
 	int ln1 = (int)strlen(sei);
-	memcpy(lp->playerSei,sei,ln1+1);
+	memcpy(lp->playerSei,sei,(SSIZE_T)ln1+1);
 
 	LPSTR mei = CMyMessage::m_mei;
 	int ln2 = (int)strlen(mei);
-	memcpy(lp->playerMei,mei,ln2+1);
+	memcpy(lp->playerMei,mei,(SSIZE_T)ln2+1);
 
 
 
@@ -9249,7 +9249,7 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 			if (name != NULL)
 			{
 				int ln = (int)strlen(name);
-				memcpy_s(names,256,name,ln+1);
+				memcpy_s(names,256,name,(SSIZE_T)ln+1);
 				char c = names[3];
 				c += 'a';
 				c -= '0';
@@ -9527,9 +9527,12 @@ OutputDebugString(mes998);
 #endif
 				}
 
-				memcpy(&m_loopVoiceFileName[ch*64],name,fln);
-				m_loopVoiceFileName[ch*64+fln] = 0;
-				m_loopVoiceFileName[ch*64+fln+1] = 0;
+				if (ch >= 0)
+				{
+					memcpy(&m_loopVoiceFileName[ch * 64], name, fln);
+					m_loopVoiceFileName[ch * 64 + fln] = 0;
+					m_loopVoiceFileName[ch * 64 + fln + 1] = 0;
+				}
 
 				if (PlayScriptVoice(ch))
 				{
@@ -10249,7 +10252,7 @@ void CGameCallBack::SystemFunctionLoadDWQ(int para1,LPVOID para2)
 					{
 						if (d < m_renameTagKosuu)
 						{
-							LPSTR renameTag = m_renameTag + (d-1)*64;
+							LPSTR renameTag = m_renameTag + ((SSIZE_T)d-1)*64;
 
 							if ((*renameTag) != 0)
 							{
@@ -11316,6 +11319,10 @@ void CGameCallBack::ChangeMode(void)
 
 	int returnCode = GetReturnCode();
 	int newGameMode = returnCode & 0xff;
+	if (newGameMode >= MODE_MAX)
+	{
+		newGameMode = NOTHING_MODE;//error!!!
+	}
 	SetGameMode(newGameMode);
 
 //	if (newGameMode > 0)
@@ -15426,15 +15433,15 @@ void CGameCallBack::SetSeiMei(LPSTR sei,LPSTR mei)
 	if (sei != NULL)
 	{
 		int ln1 = (int)strlen(sei);
-		memcpy(m_systemFile->m_systemdata.sei,sei,ln1+1);
-		memcpy(CMyMessage::m_sei,sei,ln1+1);
+		memcpy(m_systemFile->m_systemdata.sei,sei,(SSIZE_T)ln1+1);
+		memcpy(CMyMessage::m_sei,sei,(SSIZE_T)ln1+1);
 	}
 
 	if (mei != NULL)
 	{
 		int ln2 = (int)strlen(mei);
-		memcpy(m_systemFile->m_systemdata.mei,mei,ln2+1);
-		memcpy(CMyMessage::m_mei,mei,ln2+1);
+		memcpy(m_systemFile->m_systemdata.mei,mei,(SSIZE_T)ln2+1);
+		memcpy(CMyMessage::m_mei,mei,(SSIZE_T)ln2+1);
 	}
 }
 
@@ -16258,6 +16265,29 @@ BOOL CGameCallBack::CheckUseDirect2D(void)
 
 void CGameCallBack::SetSkipMovie(void){m_newSkipMovieFlag = TRUE;}
 BOOL CGameCallBack::CheckSkipMovie(void){return m_newSkipMovieFlag;}
+
+
+bool CGameCallBack::CheckExistSaveData(void)
+{
+	CCommonLoad* load = (CCommonLoad*)m_general[LOAD_MODE];
+	if (load != nullptr)
+	{
+		return load->CheckExistSaveData();
+	}
+
+
+	return false;
+}
+
+
+int CGameCallBack::GetLastSelectSaveLoad(void)
+{
+	return m_systemFile->m_systemFlag2.lastSaveFileNumber - 1;
+}
+void CGameCallBack::SetLastSelectSaveLoad(int n)
+{
+	m_systemFile->m_systemFlag2.lastSaveFileNumber = n + 1;
+}
 
 
 

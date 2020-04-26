@@ -64,7 +64,7 @@ void CChangeTransLucentBlt::Print(POINT dstPoint,SIZE putSize,LPVOID picData1,LP
 //	maskPtr2 += srcY * picSize.cx;
 
 	screen += dstPoint.x;
-	screen += dstPoint.y * screenSizeX;
+	screen += (SSIZE_T)dstPoint.y * screenSizeX;
 
 //	src1 += srcX;
 //	src1 += srcY * picSize.cx;
@@ -311,7 +311,7 @@ void CChangeTransLucentBlt::PrintBeta(POINT dstPoint,SIZE putSize,LPVOID picData
 //	maskPtr2 += srcY * picSize.cx;
 
 	screen += dstPoint.x;
-	screen += dstPoint.y * screenSizeX;
+	screen += (SSIZE_T)dstPoint.y * screenSizeX;
 
 //	src1 += srcX;
 //	src1 += srcY * picSize.cx;
@@ -491,7 +491,7 @@ void CChangeTransLucentBlt::PrintBeta256(POINT dstPoint,SIZE putSize,LPVOID picD
 //	maskPtr2 += srcY * picSize.cx;
 
 	screen += dstPoint.x;
-	screen += dstPoint.y * screenSizeX;
+	screen += (SSIZE_T)dstPoint.y * screenSizeX;
 
 //	src1 += srcX;
 //	src1 += srcY * picSize.cx;

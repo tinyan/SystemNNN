@@ -145,7 +145,7 @@ BOOL CPngLoader::LoadFile(FILE* file)
 	unsigned char** image = m_imagePointer;
 	for (int j=0;j<(int)nHeight;j++)
 	{
-		image[j] =  m_buffer + lineBytes * j;
+		image[j] =  m_buffer + (SSIZE_T)lineBytes * j;
 	}
 
 	m_gammaExistFlag = FALSE;
@@ -282,7 +282,7 @@ void CPngLoader::GetPic8AndPalette(char* lpPic8,int* lpPalette)
 			unsigned char* src = m_imagePointer[j];
 
 			char* dst = lpPic8;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 			memcpy(dst,src,sizeX);
 		}
 		memcpy(lpPalette,m_paletteTable,sizeof(int)*256);
@@ -444,7 +444,7 @@ void CPngLoader::GetPicData(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			int sizeX2 = sizeX / 2;
 			for (int i=0;i<sizeX2;i++)
@@ -482,7 +482,7 @@ void CPngLoader::GetPicData(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			int sizeX4 = sizeX / 4;
 			for (int i=0;i<sizeX4;i++)
@@ -541,7 +541,7 @@ void CPngLoader::GetPicData(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			int sizeX8 = sizeX / 8;
 			for (int i=0;i<sizeX8;i++)
@@ -596,7 +596,7 @@ void CPngLoader::GetPicData(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			for (int i=0;i<sizeX;i++)
 			{
@@ -618,7 +618,7 @@ void CPngLoader::GetPicData(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			for (int i=0;i<sizeX;i++)
 			{
@@ -652,7 +652,7 @@ void CPngLoader::GetPicDataWithPalette(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			for (int i=0;i<sizeX;i++)
 			{
@@ -669,7 +669,7 @@ void CPngLoader::GetPicDataWithPalette(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 			
 			int sizeX2 = sizeX / 2;
 			for (int i=0;i<sizeX2;i++)
@@ -705,7 +705,7 @@ void CPngLoader::GetPicDataWithPalette(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			int sizeX4 = sizeX / 4;
 			for (int i=0;i<sizeX4;i++)
@@ -746,7 +746,7 @@ void CPngLoader::GetPicDataWithPalette(int* lpPic)
 		{
 			unsigned char* src = m_imagePointer[j];
 			int* dst = lpPic;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			int sizeX8 = sizeX / 8;
 			for (int i=0;i<sizeX8;i++)
@@ -808,7 +808,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 			src += offset;
 
 			unsigned char* dst = (unsigned char*)lpMask;
-			dst += sizeX * j;
+			dst += (SSIZE_T)sizeX * j;
 
 			for (int i=0;i<sizeX;i++)
 			{
@@ -833,7 +833,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 						for (int i=0;i<sizeX;i++)
 						{
@@ -852,7 +852,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 
 						int sizeX2 = sizeX / 2;
@@ -890,7 +890,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 
 						int sizeX4 = sizeX / 4;
@@ -936,7 +936,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 						int sizeX8 = sizeX / 8;
 						for (int i=0;i<sizeX8;i++)
@@ -980,7 +980,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 						for (int i=0;i<sizeX;i++)
 						{
@@ -1008,7 +1008,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 						for (int i=0;i<sizeX;i++)
 						{
@@ -1041,10 +1041,10 @@ void CPngLoader::GetMaskData(char* lpMask)
 					for (int j=0;j<sizeY;j++)
 					{
 						unsigned char* isrc = (unsigned char*)m_tmpPic;
-						isrc += m_picSize.cx * j * sizeof(int);
+						isrc += (SSIZE_T)m_picSize.cx * j * sizeof(int);
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 						for (int i=0;i<sizeX;i++)
 						{
@@ -1079,7 +1079,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 						for (int i=0;i<sizeX;i++)
 						{
@@ -1113,7 +1113,7 @@ void CPngLoader::GetMaskData(char* lpMask)
 						unsigned char* src = m_imagePointer[j];
 
 						unsigned char* dst = (unsigned char*)lpMask;
-						dst += sizeX * j;
+						dst += (SSIZE_T)sizeX * j;
 
 						for (int i=0;i<sizeX;i++)
 						{
@@ -1150,7 +1150,7 @@ void CPngLoader::ReCreateBuffer(int needSize)
 	int makeSize = (needSize+1024*1024-1) / (1024*1024);
 	makeSize *= 1024*1024;
 
-	m_buffer = new unsigned char[makeSize + 1024*4 + 256];
+	m_buffer = new unsigned char[(SSIZE_T)makeSize + 1024*4 + 256];
 	m_bufferSize = makeSize;
 }
 

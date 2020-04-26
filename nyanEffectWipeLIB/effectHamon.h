@@ -27,8 +27,8 @@ public:
 
 private:
 	int* m_table;
-	int* m_calcuTable;
-	int* m_calcuTable2;
+	//int* m_calcuTable;
+	//int* m_calcuTable2;
 
 	int* m_vector;
 

@@ -24,15 +24,27 @@ CEffectHamon::CEffectHamon(CAllEffect* lpAll) : CCommonEffect(lpAll)
 
 	m_clipY1 = -666;
 
+	m_sizeY1 = 1;
+	m_clipX1 = -666;
+	m_sizeX1 = 1;
+
+
 	m_vector = NULL;
 	m_vectorAdjusted = NULL;
 	m_vectorMakedFlag = FALSE;
 	m_vectorCenterX = screenSizeX / 2;
-	m_vectorCenterX = screenSizeY / 2;
+	m_vectorCenterY = screenSizeY / 2;
 
-	m_hamonKyoriMax = int(sqrt(((double)(screenSizeX*screenSizeX + screenSizeY*screenSizeY))) + 1);
+#if defined _WIN64
+	m_hamonKyoriMax = int(sqrt(((double)((long long)screenSizeX * screenSizeX + (long long)screenSizeY * screenSizeY))) + 1);
+#else
+	m_hamonKyoriMax = int(sqrt(((double)(screenSizeX * screenSizeX + screenSizeY * screenSizeY))) + 1);
+#endif
 
 	m_table = new int[m_hamonKyoriMax];
+	
+
+
 //	m_calcuTable = new int[(screenSizeX/HAMON_BUNKATSU+2) * (screenSizeY/HAMON_BUNKATSU+2) * 1];
 //	m_calcuTable2 = new int[(screenSizeX/HAMON_BUNKATSU+2) * 1];
 }
@@ -71,10 +83,12 @@ BOOL CEffectHamon::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int lay
 	{
 		int asx = (screenSizeX + 3) & ~3;
 
-		m_vector = new int[(asx * screenSizeY * 3) / 2 + 8];
+			
 #if defined _WIN64
+		m_vector = new int[((long long)asx * screenSizeY * 3) / 2 + 8];
 		long long pt = (long long)m_vector;
 #else
+		m_vector = new int[(asx * screenSizeY * 3) / 2 + 8];
 		int pt = (int)m_vector;
 #endif
 		pt += 31;
@@ -160,8 +174,13 @@ BOOL CEffectHamon::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int lay
 
 		for (int y=0;y<screenSizeY;y++)
 		{
+#if defined _WIN64
+			double yy = (double)((long long)y - para[3]);
+			int y_2 = ((long long)y-para[3]) * ((long long)y-para[3]);
+#else
 			double yy = (double)(y - para[3]);
-			int y_2 = (y-para[3]) * (y-para[3]);
+			int y_2 = (y - para[3]) * (y - para[3]);
+#endif
 
 			for (int x=0;x<screenSizeX;x+=4)
 			{
@@ -175,10 +194,17 @@ BOOL CEffectHamon::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int lay
 				if (rr2<1) rr2 = 1;
 				if (rr3<1) rr3 = 1;
 
+#if defined _WIN64
+				double xx0 = (double)((long long)x - para[2]);
+				double xx1 = (double)((long long)x - para[2] +1);
+				double xx2 = (double)((long long)x - para[2] +2);
+				double xx3 = (double)((long long)x - para[2] +3);
+#else
 				double xx0 = (double)(x - para[2]);
-				double xx1 = (double)(x - para[2] +1);
-				double xx2 = (double)(x - para[2] +2);
-				double xx3 = (double)(x - para[2] +3);
+				double xx1 = (double)(x - para[2] + 1);
+				double xx2 = (double)(x - para[2] + 2);
+				double xx3 = (double)(x - para[2] + 3);
+#endif
 
 				double r0 = sqrt((double)rr0);
 				double r1 = sqrt((double)rr1);
@@ -384,7 +410,12 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 			}
 			else if (k<lim2)
 			{
+#if defined _WIN64
+				pw = (power * ((long long)lim2 - k)) / ((long long)lim2 - lim1);
+#else
 				pw = (power * (lim2 - k)) / (lim2 - lim1);
+#endif
+
 			}
 
 			int n = (c * (-omega) + i) % rambda;

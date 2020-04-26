@@ -74,6 +74,10 @@ CCommonTitle::CCommonTitle(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	}
 
 
+	m_noSaveDataToMaskMenu = 0;
+	GetInitGameParam(&m_noSaveDataToMaskMenu, "NoSaveDataToMaskMenu");
+
+
 	m_menuStartWaitTime = 0;
 	m_menuStartEffectTime = 0;
 	m_menuStartEffectType = 0;
@@ -290,6 +294,27 @@ int CCommonTitle::Init(void)
 	{
 		m_menu2->SetEnable(1,FALSE);	//disabel load
 	}
+
+
+//Data‚ª‚È‚¢ê‡Load‚ðƒ}ƒXƒN
+	if (m_noSaveDataToMaskMenu != 0)
+	{
+		bool bCannotLoad = true;
+		if (m_game->CheckExistSaveData())
+		{
+			bCannotLoad = false;
+		}
+		if (bCannotLoad)
+		{
+			m_menu2->SetEnable(1, FALSE);	//disabel load
+		}
+		else
+		{
+			m_menu2->SetEnable(1, TRUE);
+		}
+	}
+
+
 
 	if (m_disableOmakeFlag)
 	{

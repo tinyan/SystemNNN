@@ -151,6 +151,7 @@ protected:
 	SIZE m_savePicSize;
 
 	CCommonAnimeParts* m_printLastSelect;
+	bool m_notInitPage;
 
 };
 

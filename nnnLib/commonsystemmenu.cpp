@@ -105,6 +105,10 @@ CCommonSystemMenu::CCommonSystemMenu(CGameCallBack* lpGame) : CCommonGeneral(lpG
 		m_menu->SetPicture(i,CSuperButtonPicture::GetPicture(5+i));
 	}
 
+	m_noSaveDataToMaskMenu = 0;
+	GetInitGameParam(&m_noSaveDataToMaskMenu, "NoSaveDataToMaskMenu");
+
+
 	m_sceneBackFileName = NULL;
 	GetInitGameString(&m_sceneBackFileName,"systemMenuSceneBackFileName");
 
@@ -602,6 +606,26 @@ OutputDebugString("[SystemMenu::sceneMode]");
 	if (m_disableLoadFlag)
 	{
 		m_menu->SetEnable(m_loadButtonNumber,FALSE);
+	}
+	else
+	{
+		if (m_noSaveDataToMaskMenu != 0)
+		{
+			bool bCannotLoad = true;
+			if (m_game->CheckExistSaveData())
+			{
+				bCannotLoad = false;
+			}
+			if (bCannotLoad)
+			{
+				m_menu->SetEnable(m_loadButtonNumber, FALSE);
+			}
+			else
+			{
+				m_menu->SetEnable(m_loadButtonNumber, TRUE);
+			}
+		}
+
 	}
 
 

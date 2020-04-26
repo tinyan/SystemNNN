@@ -18,7 +18,7 @@ public:
 	virtual ~CMyDirectDraw();
 	virtual void End(void);
 	virtual BOOL CheckInitOk(void);
-	virtual HRESULT Lock(void);
+	virtual bool Lock(void);
 	virtual HRESULT Unlock(void);
 	virtual HRESULT Flip(void);
 	virtual HRESULT NiseFlip(int x, int y, int sizeX,int sizeY,BOOL waitVSync = FALSE);
@@ -32,7 +32,7 @@ public:
 
 	virtual HDC GetMyDC();
 	virtual void ReleaseMyDC(HDC hdc);
-	virtual HRESULT Activate(BOOL bActive = TRUE);
+	virtual bool Activate(BOOL bActive = TRUE);
 
 	virtual void SetWindowSize(int x, int y);
 

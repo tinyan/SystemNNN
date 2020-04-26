@@ -36,7 +36,7 @@ public:
 	static BOOL m_calcuFloatFlag;
 
 	static void SetCalcuFloat(BOOL flg = TRUE){m_calcuFloatFlag = flg;}
-	float m_aanScalesFloat[64];
+	static float m_aanScalesFloat[64];
 
 private:
 	char* HuffmanSearchCommand(char* dataptr, int maxDataSize);
@@ -70,10 +70,10 @@ private:
 
 	static int m_yuvDQTTableNumber[256];	//3‚Å‚¢‚¢‚Í‚¸
 
-	static int m_huffLengthTable[4][256];
-	static int m_huffCodeTable[4][256];
-	static int m_huffHenkanTable[4][256+16];
-	static int m_huffCalcuTable[4][256*2];
+	static int m_huffLengthTable[64][256];
+	static int m_huffCodeTable[64][256];
+	static int m_huffHenkanTable[64][256+16];
+	static int m_huffCalcuTable[64][256*2];
 
 	void UVFact4(short* ptr);
 	void UVFact4Float(float* ptr);

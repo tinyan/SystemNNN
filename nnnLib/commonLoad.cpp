@@ -317,6 +317,7 @@ void CCommonLoad::FinalExitRoutine(void)
 		CreateExitScreen();
 
 		m_ppDataFile[m_clickButtonNumber]->Load(m_clickButtonNumber+m_page*m_blockX*m_blockY);
+		m_game->SetLastSelectSaveLoad(m_clickButtonNumber + m_page * m_blockX*m_blockY);
 		m_game->InitLoadGame();
 		m_exitScreen->Put(0,0,FALSE);
 
@@ -345,6 +346,8 @@ int CCommonLoad::ProcessDataClicked(int n)
 {
 	m_ppDataFile[m_clickButtonNumber]->Load(n+m_page*m_blockX*m_blockY);
 	m_game->InitLoadGame();
+	m_game->SetLastSelectSaveLoad(n + m_page * m_blockX*m_blockY);
+
 	CAreaControl::SetNextAllPrint();
 	return -1;
 }
@@ -415,6 +418,8 @@ BOOL CCommonLoad::QuickLoad(void)
 
 	CreateExitScreen();
 	
+	m_game->SetLastSelectSaveLoad(m_quickLoadSlotNumber);
+
 	m_ppDataFile[0]->Load(m_quickLoadSlotNumber);
 	m_game->InitLoadGame();
 	m_exitScreen->Put(0,0,FALSE);
@@ -435,6 +440,20 @@ BOOL CCommonLoad::CheckQuickLoadDataExist(void)
 	return TRUE;
 }
 
+bool CCommonLoad::CheckExistSaveData(void)
+{
+	int n = m_pageMax * m_blockX * m_blockY;
+	for (int i = 0; i < n; i++)
+	{
+		m_ppDataFile[0]->LoadHeaderAndPic(i);
+		if (m_ppDataFile[0]->CheckDataExist())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 /*_*/
 

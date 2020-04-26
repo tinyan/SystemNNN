@@ -23,7 +23,7 @@
 char CPicture::m_extName[] = "dwq";
 char CPicture::m_dirName[16] = "dwq";
 
-int CPicture::m_dataPackLevel = 0;
+SSIZE_T CPicture::m_dataPackLevel = 0;
 
 //not used!
 //BOOL CPicture::m_notAntiAliasFlag = FALSE;
@@ -44,6 +44,10 @@ char CPicture::m_packTagName[10][8]=
 	"ta","bg","ev","sc","sm","sys","","","",""
 };
 
+
+char CPicture::m_old[8192] = { 0 };
+char CPicture::m_tmp[8192] = { 0 };
+char CPicture::m_unpack[8192] = { 0 };
 
 #if !defined _DEBUG
 BOOL CPicture::m_errorPrintFlag = FALSE;
@@ -85,7 +89,12 @@ BOOL CPicture::CreateMaskBuffer(int sz)
 	DELETEARRAY(m_maskPic0);
 	m_maskPic = NULL;
 
+#if defined _WIN64
+	char* ptr = new char[(long long)sz + 64];
+#else
 	char* ptr = new char[sz + 64];
+#endif
+
 	if (ptr != NULL)
 	{
 		m_maskPic0 = ptr;
@@ -149,10 +158,10 @@ CPicture::CPicture(int sizeX, int sizeY,BOOL createMaskFlag,BOOL b256Flag)
 	m_256Flag = b256Flag;
 	m_pic = nullptr;
 
-	int sz = sizeX * sizeY*sizeof(int);
+	SSIZE_T sz = (SSIZE_T)sizeX * sizeY*sizeof(int);
 	if (b256Flag)
 	{
-		sz = sizeX * sizeY;
+		sz = (SSIZE_T)sizeX * sizeY;
 	}
 	MakeDataBuffer(sz+64);
 
@@ -337,11 +346,12 @@ int CPicture::LoadDWQHeader(FILE* file)
 }
 
 
-BOOL CPicture::MakeDataBuffer(int sz)
+BOOL CPicture::MakeDataBuffer(SSIZE_T sz)
 {
 	if ((m_pic0 == NULL) || (( m_pic0 != NULL) && (m_picBufferSize < sz)))
 	{
 		LPVOID lp = new char[sz+128];
+
 
 		if (lp == NULL)
 		{
@@ -465,17 +475,17 @@ BOOL CPicture::LoadDWQData(FILE* file, int* rgbTable, BOOL b256Flag)
 			int blockY = sizeY - readY;
 			if (blockY > readBlockMax) blockY = readBlockMax;
 
-			int rd = (int)fread(m_tmpBuffer,sizeof(char),readSize * blockY,file);
+			int rd = (int)fread(m_tmpBuffer,sizeof(char),(SSIZE_T)readSize * blockY,file);
 			m_restReadSize -= rd;
 
 			for (int y=0;y<blockY;y++)
 			{
 				int* ptr = (int*)m_pic;
-				ptr += (readY+y) * m_pictureSizeX;
+				ptr += ((SSIZE_T)readY+y) * m_pictureSizeX;
 
 				char* src = m_tmpBuffer;
 //				src += y * 3 * sizeX;
-				src += y * readSize;
+				src += (SSIZE_T)y * readSize;
 
 				for (int i=0;i<sizeX;i++)
 				{
@@ -501,7 +511,7 @@ BOOL CPicture::LoadDWQData(FILE* file, int* rgbTable, BOOL b256Flag)
 
 
 
-	for (int j=0;j<sizeY;j++)
+	for (SSIZE_T j=0;j<sizeY;j++)
 	{
 		fread(tmp,sizeof(char),readSize,file);
 		m_restReadSize -= readSize;
@@ -554,7 +564,7 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 	if (p == 0) p = 256;
 	minus += p* 4;
 
-	int readLength = (int)fread(m_tmpBuffer,sizeof(char),m_dwqSize - minus,file);
+	int readLength = (int)fread(m_tmpBuffer,sizeof(char),(SSIZE_T)m_dwqSize - minus,file);
 	m_restReadSize -= readLength;
 
 	int ptr = 0;
@@ -563,17 +573,19 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 	int sizeX = m_pictureSizeX;
 	int sizeY = m_pictureSizeY;
 
-	char old[8192];
-	char tmp[8192];
+
+//	char old[8192];
+//	char tmp[8192];
 
 	int i;
 		
 	for (i=0;i<sizeX;i++)
 	{
-		old[i] = 0;
+		m_old[i] = 0;
+		m_tmp[i] = 0;
 	}
 
-	for (int j=0;j<sizeY;j++)
+	for (SSIZE_T j=0;j<sizeY;j++)
 	{
 		//unpack
 		int xPtr = 0;
@@ -583,7 +595,7 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 			ptr++;
 			if (c != 0)
 			{
-				tmp[xPtr] = c;
+				m_tmp[xPtr] = c;
 				xPtr++;
 			}
 			else
@@ -592,7 +604,7 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 				ptr++;
 				for (int ii=0;ii<ln;ii++)
 				{
-					tmp[xPtr] = 0;
+					m_tmp[xPtr] = 0;
 					xPtr++;
 				}
 			}
@@ -601,8 +613,8 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 		//xor
 		for (i=0;i<sizeX;i++)
 		{
-			tmp[i] ^= old[i];
-			old[i] = tmp[i];
+			m_tmp[i] ^= m_old[i];
+			m_old[i] = m_tmp[i];
 		}
 
 
@@ -610,7 +622,7 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 		{
 			char* ptr0 = (char*)m_pic;
 			ptr0 += j * m_pictureSizeX;
-			CopyMemory(ptr0,tmp,m_pictureSizeX);
+			CopyMemory(ptr0,m_tmp,m_pictureSizeX);
 		}
 		else
 		{
@@ -619,7 +631,7 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 
 			for (i=0;i<sizeX;i++)
 			{
-				int c = ((int)tmp[i]) & 0xff;
+				int c = ((int)m_tmp[i]) & 0xff;
 				*ptr00 = rgbTable[c];
 				ptr00++;
 			}
@@ -695,14 +707,15 @@ BOOL CPicture::LoadMask(FILE* file)
 	
 	int ptr = 0;
 
-	char old[8192];
-	char unpack[8192];
+	//char old[8192];
+	//char unpack[8192];
 
 	int i;
 	
 	for (i=0;i<m_pictureSizeX;i++)
 	{
-		old[i] = 0;
+		m_old[i] = 0;
+		m_unpack[i] = 0;
 	}
 
 	for (int j=0;j<m_pictureSizeY;j++)
@@ -715,7 +728,7 @@ BOOL CPicture::LoadMask(FILE* file)
 			ptr++;
 			if (c != 0)
 			{
-				unpack[xPtr] = c;
+				m_unpack[xPtr] = c;
 				xPtr++;
 			}
 			else
@@ -724,7 +737,7 @@ BOOL CPicture::LoadMask(FILE* file)
 				ptr++;
 				for (int ii=0;ii<ln;ii++)
 				{
-					unpack[xPtr] = 0;
+					m_unpack[xPtr] = 0;
 					xPtr++;
 				}
 			}
@@ -733,15 +746,15 @@ BOOL CPicture::LoadMask(FILE* file)
 		//xor
 		for (i=0;i<m_pictureSizeX;i++)
 		{
-			unpack[i] ^= old[i];
-			old[i] = unpack[i];
+			m_unpack[i] ^= m_old[i];
+			m_old[i] = m_unpack[i];
 		}
 
 		for (i=0;i<m_pictureSizeX;i++)
 		{
-			int c = ((int)unpack[i]) & 0xff;
+			int c = ((int)m_unpack[i]) & 0xff;
 			int r = rgbquad[c].rgbRed;
-			*(m_maskPic + i + j * m_pictureSizeX) = (char)r;
+			*(m_maskPic + i + (SSIZE_T)j * m_pictureSizeX) = (char)r;
 		}
 	}
 
@@ -890,7 +903,7 @@ void CPicture::CutDataByMask(void)
 
 //	ptr0 = (int*)m_pic;
 	ptr0 = (char*)m_maskPic;
-	ptr0 += (m_pictureSizeX-1);
+	ptr0 += ((SSIZE_T)m_pictureSizeX-1);
 	cutX = m_pictureSizeX;
 
 	for (int i=m_pictureSizeX-1;i>=0;i--)
@@ -924,7 +937,7 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 	m_maskExistFlag = FALSE;
 
 	int fln = (int)strlen(filename);
-	memcpy(m_fileName,filename,fln+1);
+	memcpy(m_fileName,filename,(SSIZE_T)fln+1);
 
 	int rgbTable[256];
 
@@ -1163,7 +1176,7 @@ void CPicture::CutData(void)
 
 
 	ptr0 = (int*)m_pic;
-	ptr0 += (m_pictureSizeX-1);
+	ptr0 += ((SSIZE_T)m_pictureSizeX-1);
 	cutX = m_pictureSizeX;
 
 	for (int i=m_pictureSizeX-1;i>=0;i--)
@@ -1969,14 +1982,14 @@ BOOL CPicture::ChangeTranslateBlt(int x, int y, int srcX, int srcY, int sizeX, i
 	char* maskData2 = pic2->GetMaskPic();
 
 	srcData += srcX;
-	srcData += srcSize.cx * srcY;
+	srcData += (SSIZE_T)srcSize.cx * srcY;
 	maskData += srcX;
-	maskData += srcSize.cx * srcY;
+	maskData += (SSIZE_T)srcSize.cx * srcY;
 
 	srcData2 += srcX2;
-	srcData2 += srcSize2.cx * srcY2;
+	srcData2 += (SSIZE_T)srcSize2.cx * srcY2;
 	maskData2 += srcX2;
-	maskData2 += srcSize2.cx * srcY2;
+	maskData2 += (SSIZE_T)srcSize2.cx * srcY2;
 
 	CAllPicture::ChangeTransLucentBlt(dstPoint,putSize,srcData,srcData2,maskData,maskData2,srcSize,srcSize2,ps1,ps2);
 
@@ -2081,9 +2094,9 @@ BOOL CPicture::ChangeBlt(int x, int y, int srcX, int srcY, int sizeX, int sizeY,
 		char* srcData = (char*)GetPictureBuffer();
 		char* srcData2 = (char*)(pic2->GetPictureBuffer());
 		srcData += srcX;
-		srcData += srcSize.cx * srcY;
+		srcData += (SSIZE_T)srcSize.cx * srcY;
 		srcData2 += srcX2;
-		srcData2 += srcSize2.cx * srcY2;
+		srcData2 += (SSIZE_T)srcSize2.cx * srcY2;
 		int* paletteData = (int*)GetPalette();
 		int* paletteData2 = (int*)(pic2->GetPalette());
 
@@ -2111,9 +2124,9 @@ BOOL CPicture::ChangeBlt(int x, int y, int srcX, int srcY, int sizeX, int sizeY,
 */
 
 	srcData += srcX;
-	srcData += srcSize.cx * srcY;
+	srcData += (SSIZE_T)srcSize.cx * srcY;
 	srcData2 += srcX2;
-	srcData2 += srcSize2.cx * srcY2;
+	srcData2 += (SSIZE_T)srcSize2.cx * srcY2;
 
 
 	CAllPicture::ChangeTransLucentBlt(dstPoint,putSize,srcData,srcData2,maskData,maskData2,srcSize,srcSize2,ps1,ps2);
@@ -2251,18 +2264,18 @@ void CPicture::DeltaBlt(int putX, int putY, int srcX, int srcY, int sizeX, int s
 		if (sizeY<=0) return;
 	}
 
-	src += picSizeX * srcY;
+	src += (SSIZE_T)picSizeX * srcY;
 	src += srcX;
 
 	if (md == 2)
 	{
-		mask += picSizeX * srcY;
+		mask += (SSIZE_T)picSizeX * srcY;
 		mask += srcX;
 	}
 
 	//int* dst = (int*)m_lpScreenBuffer;
 	int* dst = CMyGraphics::GetScreenBuffer();
-	dst += putY * screenSizeX;
+	dst += (SSIZE_T)putY * screenSizeX;
 
 	int putX2 = putX;
 
@@ -2518,7 +2531,7 @@ void CPicture::LeftBlt(int putX, int putY, int srcX, int srcY, int sizeX, int si
 
 	if (oldPutY < putY)
 	{
-		cutPtr += (putY - oldPutY);
+		cutPtr += ((SSIZE_T)putY - oldPutY);
 	}
 
 
@@ -2551,15 +2564,15 @@ void CPicture::LeftBlt(int putX, int putY, int srcX, int srcY, int sizeX, int si
 	}
 
 	src += srcX;
-	src += srcY * picSizeX;
+	src += (SSIZE_T)srcY * picSizeX;
 
 	dst += putX;
-	dst += putY * screenSizeX;
+	dst += (SSIZE_T)putY * screenSizeX;
 
 	if (md == 2)
 	{
 		mask += srcX;
-		mask += srcY * picSizeX;
+		mask += (SSIZE_T)srcY * picSizeX;
 	}
 
 	int* workPtr = cutPtr;
@@ -2705,7 +2718,7 @@ void CPicture::RightBlt(int putX, int putY, int srcX, int srcY, int sizeX, int s
 
 	if (oldPutY < putY)
 	{
-		cutPtr += (putY - oldPutY);
+		cutPtr += ((SSIZE_T)putY - oldPutY);
 	}
 
 
@@ -2739,15 +2752,15 @@ void CPicture::RightBlt(int putX, int putY, int srcX, int srcY, int sizeX, int s
 	}
 
 	src += srcX;
-	src += srcY * picSizeX;
+	src += (SSIZE_T)srcY * picSizeX;
 
 	dst += putX;
-	dst += putY * screenSizeX;
+	dst += (SSIZE_T)putY * screenSizeX;
 
 	if (md == 2)
 	{
 		mask += srcX;
-		mask += srcY * picSizeX;
+		mask += (SSIZE_T)srcY * picSizeX;
 	}
 
 	int* workPtr = cutPtr;
@@ -3304,12 +3317,12 @@ BOOL CPicture::GetScreen(int x, int y, int sizeX, int sizeY)
 	int* dst = (int*)m_pic;
 	
 	dst += putX;
-	dst += putY * m_pictureSizeX;
+	dst += (SSIZE_T)putY * m_pictureSizeX;
 
 	int lPitch = 4 * m_pictureSizeX;
 
 	src += x;
-	src += y * screenSizeX;
+	src += (SSIZE_T)y * screenSizeX;
 
 
 	int loopX = sizeX;
@@ -3450,10 +3463,10 @@ BOOL CPicture::CheckOnPic(int x, int y,int transPointX,int transPointY)
 	{
 		char* ptr = (char*)m_pic;
 		
-		char trans = *(ptr + transPointX + transPointY * m_pictureSizeX);
+		char trans = *(ptr + transPointX + (SSIZE_T)transPointY * m_pictureSizeX);
 
 		ptr += x;
-		ptr += y * m_pictureSizeX;
+		ptr += (SSIZE_T)y * m_pictureSizeX;
 
 		char dt = *ptr;
 
@@ -3467,7 +3480,7 @@ BOOL CPicture::CheckOnPic(int x, int y,int transPointX,int transPointY)
 			if (ptr == NULL) return FALSE;
 //			int trans = *(ptr + transPointX + transPointY * m_pictureSizeX);
 			ptr += x;
-			ptr += y * m_pictureSizeX;
+			ptr += (SSIZE_T)y * m_pictureSizeX;
 			char dt = *ptr;
 //			if (dt != trans) return TRUE;
 			if (dt != 0) return TRUE;
@@ -3476,9 +3489,9 @@ BOOL CPicture::CheckOnPic(int x, int y,int transPointX,int transPointY)
 		{
 			int* ptr = (int*)m_pic;
 			if (ptr == NULL) return FALSE;
-			int trans = *(ptr + transPointX + transPointY * m_pictureSizeX);
+			int trans = *(ptr + transPointX + (SSIZE_T)transPointY * m_pictureSizeX);
 			ptr += x;
-			ptr += y * m_pictureSizeX;
+			ptr += (SSIZE_T)y * m_pictureSizeX;
 			int dt = *ptr;
 			if (dt != trans) return TRUE;
 		}
@@ -3491,7 +3504,7 @@ BOOL CPicture::CheckOnPic(int x, int y,int transPointX,int transPointY)
 
 BOOL CPicture::ReSize(int x, int y)
 {
-	int sz = x * y;
+	SSIZE_T sz = (SSIZE_T)x * y;
 	if (m_256Flag == FALSE) sz *= 4;
 
 	if (sz <= m_picBufferSize)
@@ -3534,7 +3547,7 @@ BOOL CPicture::ReSize(int x, int y)
 
 		if (sz>m_maskSize)
 		{
-			char* ptr = new char[sz+64];
+			char* ptr = new char[(SSIZE_T)sz+64];
 			if (ptr != NULL)
 			{
 				DELETEARRAY(m_maskPic0);
@@ -3600,7 +3613,7 @@ int CPicture::GetFileMode(void)
 void CPicture::InitStaticData(int tmpMegaBytes)
 {
 //	if (m_lpScreenBuffer == NULL) m_lpScreenBuffer = new int[m_screenSizeX*m_screenSizeY+m_screenSizeX*2];
-	if (m_tmpBuffer == NULL) m_tmpBuffer = new char[54+1024+1024*1024*tmpMegaBytes];
+	if (m_tmpBuffer == NULL) m_tmpBuffer = new char[54+1024+1024*1024*(SSIZE_T)tmpMegaBytes];
 	
 
 	if (m_dataPackLevel > 0)
@@ -3899,10 +3912,10 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 	}
 
 	BOOL foundFlag = FALSE;
-	int foundLevel = 0;
-	int foundNumber = 0;
+	SSIZE_T foundLevel = 0;
+	SSIZE_T foundNumber = 0;
 
-	for (int level = m_dataPackLevel-1;level>=0;level--)
+	for (SSIZE_T level = m_dataPackLevel-1;level>=0;level--)
 	{
 		char* ptr = m_ppPackTable[level*10+tagNumber];
 		
@@ -3911,13 +3924,13 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 			//search name
 			int* ptr2 = (int*)ptr;
 
-			int nameKosuu = *ptr2;
+			SSIZE_T nameKosuu = *ptr2;
 
 			if (nameKosuu>0)
 			{
-				int minN = 0;
-				int maxN = nameKosuu-1;
-				int centerN = (minN + maxN) / 2;
+				SSIZE_T minN = 0;
+				SSIZE_T maxN = nameKosuu-1;
+				SSIZE_T centerN = (minN + maxN) / 2;
 
 				BOOL myTrue = TRUE;
 				while(myTrue)
@@ -3984,7 +3997,7 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 //	}
 
 	char packFilename[256];
-	wsprintf(packFilename,"dwq\\%s%d.gpk",m_packTagName[tagNumber],foundLevel);
+	wsprintf(packFilename,"dwq\\%s%d.gpk",m_packTagName[tagNumber],(int)foundLevel);
 	FILE* file = CMyFile::Open(packFilename,"rb");
 
 //	if (ff)
@@ -4028,7 +4041,7 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 
 	m_packFileFlag = TRUE;
 
-	if (foundNumber < fileKosuu-1)
+	if (foundNumber < (SSIZE_T)fileKosuu-1)
 	{
 		int offset2 = *(ptr4 + 1 + fileKosuu + foundNumber + 1);
 		LONGLONG offset2_64 = (LONGLONG)offset2;

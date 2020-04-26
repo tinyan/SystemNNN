@@ -29,6 +29,9 @@ CMyDirectSound::CMyDirectSound(HWND hwnd)
 	m_primarySampleRate = 22050;
 	m_primaryBit = 16;
 
+	m_nowSoundNumber = 0;
+
+	m_lpDirectSoundBuffer = new LPVOID[DSOUND_BUFFER_KOSUU];
 	for (int i=0;i<DSOUND_BUFFER_KOSUU;i++)
 	{
 		m_lpDirectSoundBuffer[i] = NULL;
@@ -58,12 +61,15 @@ CMyDirectSound::~CMyDirectSound()
 void CMyDirectSound::End(void)
 {
 	// stop sound
-	for (int i=0;i<DSOUND_BUFFER_KOSUU;i++)
+	if (m_lpDirectSoundBuffer)
 	{
-		LPDIRECTSOUNDBUFFER lp = (LPDIRECTSOUNDBUFFER)(m_lpDirectSoundBuffer[i]);
-		if (lp != NULL)
+		for (int i = 0; i < DSOUND_BUFFER_KOSUU; i++)
 		{
-			lp->Stop();
+			LPDIRECTSOUNDBUFFER lp = (LPDIRECTSOUNDBUFFER)(m_lpDirectSoundBuffer[i]);
+			if (lp != NULL)
+			{
+				lp->Stop();
+			}
 		}
 	}
 
@@ -84,16 +90,21 @@ void CMyDirectSound::End(void)
 
 
 	//release object
-	for (int i=0;i<DSOUND_BUFFER_KOSUU;i++)
+	if (m_lpDirectSoundBuffer)
 	{
-		LPDIRECTSOUNDBUFFER lp = (LPDIRECTSOUNDBUFFER)(m_lpDirectSoundBuffer[i]);
-		if (lp != NULL)
+		for (int i=0;i<DSOUND_BUFFER_KOSUU;i++)
 		{
-			lp->Release();
-			m_lpDirectSoundBuffer[i] = NULL;
+			LPDIRECTSOUNDBUFFER lp = (LPDIRECTSOUNDBUFFER)(m_lpDirectSoundBuffer[i]);
+			if (lp != NULL)
+			{
+				lp->Release();
+				m_lpDirectSoundBuffer[i] = NULL;
+			}
 		}
-	}
 
+
+		DELETEARRAY(m_lpDirectSoundBuffer);
+	}
 //	if (m_lpDirectSoundBufferForStream != NULL)
 //	{
 //		ENDRELEASE(m_lpDirectSoundBufferForStream);

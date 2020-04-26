@@ -112,6 +112,8 @@ protected:
 	int m_autoDebugWait;
 	CAutoSelectControl* m_autoSelectControl;
 
+	int m_noSaveDataToMaskMenu;
+
 };
 
 

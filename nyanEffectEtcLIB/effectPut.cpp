@@ -151,8 +151,14 @@ void CEffectPut::Print(LPVOID lpEffect,int layer)
 	int sz = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
-
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+	
+	for (int i = 0; i < sz;i++)
+	{
+		*dst = *src;
+		src++;
+		dst++;
+	}
 #else
 
 	__asm
@@ -194,7 +200,13 @@ void CEffectPut::PutScreen(void)
 	int sz = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
+	for (int i = 0; i < sz; i++)
+	{
+		*dst = *src;
+		src++;
+		dst++;
+	}
 
 #else
 

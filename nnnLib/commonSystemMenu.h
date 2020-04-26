@@ -226,6 +226,8 @@ protected:
 
 	int m_exitWarningSound;
 
+	int m_noSaveDataToMaskMenu;
+
 private:
 };
 

@@ -838,6 +838,9 @@ public:
 	int GetHintNumber(void);
 
 	BOOL CheckUseDirect2D(void);
+	bool CheckExistSaveData(void);
+	int GetLastSelectSaveLoad(void);
+	void SetLastSelectSaveLoad(int n);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}

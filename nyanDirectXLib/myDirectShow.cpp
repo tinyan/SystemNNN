@@ -36,6 +36,8 @@ CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 	m_playFlag = FALSE;
 	m_completeFlag = FALSE;
 
+	m_pauseTime = 0;
+
 
 	m_mediaSeek = NULL;
 	m_basicAudio = NULL;
@@ -62,7 +64,12 @@ CMyDirectShow::CMyDirectShow(HWND hwnd,int message,int useVMR9Flag)
 	m_fullMonitorSize.cx = 800;
 	m_fullMonitorSize.cy = 600;
 
+	m_aspectFitSize.cx = 800;
+	m_aspectFitSize.cy = 600;
 
+	m_filterGraph_ = nullptr;
+
+	m_lastFileName = new char[256];
 //	if (IsWindows10OrGreater())
 	{
 		//m_useVMR9Flag = 0;
@@ -78,6 +85,7 @@ void CMyDirectShow::End(void)
 {
 	StopMovie();
 	ReleaseRoutine();
+	DELETEARRAY(m_lastFileName);
 }
 
 
@@ -94,7 +102,7 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 	}
 
 	int ln = (int)strlen(filename);
-	memcpy(m_lastFileName,filename,ln+1);
+	memcpy(m_lastFileName,filename,(SSIZE_T)ln+1);
 
 	//ÇøÇ·ÇÒÇ∆Ç∆Ç‹Ç¡ÇƒÇ¢ÇÈÇ©ÅH
 	StopMovie();

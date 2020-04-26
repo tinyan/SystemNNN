@@ -80,16 +80,28 @@ int CJpegDecoder::m_huffmanDecodedBuffer[64*6] = {0};
 
 int CJpegDecoder::m_yuvDQTTableNumber[256] = {0};	//3でいいはず
 
-int CJpegDecoder::m_huffLengthTable[4][256] = {0};
-int CJpegDecoder::m_huffCodeTable[4][256] = {0};
-int CJpegDecoder::m_huffHenkanTable[4][256+16] = {0};
-int CJpegDecoder::m_huffCalcuTable[4][256*2] = {0};
+int CJpegDecoder::m_huffLengthTable[64][256] = {0};
+int CJpegDecoder::m_huffCodeTable[64][256] = {0};
+int CJpegDecoder::m_huffHenkanTable[64][256+16] = {0};
+int CJpegDecoder::m_huffCalcuTable[64][256*2] = {0};
+float CJpegDecoder::m_aanScalesFloat[64] = {0.0f};
 
 short* CJpegDecoder::m_pad0 = NULL;
 
 CJpegDecoder::CJpegDecoder()
 {
+	m_oldDCY = 0;
+	m_oldDCU = 0;
+	m_oldDCV = 0;
+	m_markerSize = 0;
+	m_picSizeX = 16;
+	m_picSizeY = 16;
+	m_hufferr = 0;
+
 	double p = 3.14159265358979;
+
+	for (int i = 0; i < 64; i++) m_aanScalesFloat[i] = 0.0f;
+
 	for (int j=0;j<8;j++)
 	{
 		float aj = 1.0f;
@@ -158,7 +170,7 @@ BOOL CJpegDecoder::Decode(char* pJpegData,CPicture* lpPicture)
 		int k;
 		int sz;
 
-		int i;
+		
 
 		switch(cmd)
 		{
@@ -193,7 +205,7 @@ BOOL CJpegDecoder::Decode(char* pJpegData,CPicture* lpPicture)
 			//サンプリングファクター無視
 
 
-			for (i=0;i<3;i++)	//モノクロ非対応
+			for (SSIZE_T i=0;i<3;i++)	//モノクロ非対応
 			{
 //				int type = GetBYTEData(jpegPtr+8+0+i*3);
 				int hv = GetBYTEData(jpegPtr+8+1+i*3);
@@ -252,7 +264,7 @@ BOOL CJpegDecoder::Decode(char* pJpegData,CPicture* lpPicture)
 
 BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 {
-	int i,j;
+	
 //static int tmflag = 0;
 
 	m_oldDCY = 0;
@@ -264,7 +276,7 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 
 	int ns = GetBYTEData(pJpegData + 2);
 	int csi[4];
-	for (i=0;i<ns;i++)
+	for (SSIZE_T i=0;i<ns;i++)
 	{
 		int k = GetBYTEData(pJpegData + 3+i*2) - 1;
 //		if ((k<0) || (k>3))
@@ -296,35 +308,35 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 	RECT rc;
 	lpPicture->GetPicSize(&rc);
 
-	int lPitch = rc.right;
+	SSIZE_T lPitch = rc.right;
 
 	int* dst0 = dst;
 
-	int mcuKosuu = 0;
+	SSIZE_T mcuKosuu = 0;
 
 
 
-	int picSizeX = m_picSizeX;
-	int picSizeY = m_picSizeY;
+	SSIZE_T picSizeX = m_picSizeX;
+	SSIZE_T picSizeY = m_picSizeY;
 
 
-	int sampleFactX = m_yuvDQTTableNumber[0*3];
-	int sampleFactY = m_yuvDQTTableNumber[0*3+1];
-	int sampleBlock = sampleFactX * sampleFactY;
+	SSIZE_T sampleFactX = m_yuvDQTTableNumber[0*3];
+	SSIZE_T sampleFactY = m_yuvDQTTableNumber[0*3+1];
+	SSIZE_T sampleBlock = sampleFactX * sampleFactY;
 
-	int blockX = (loopX + sampleFactX-1) / sampleFactX;
-	int blockY = (loopY + sampleFactY-1) / sampleFactY;
+	SSIZE_T blockX = (loopX + sampleFactX-1) / sampleFactX;
+	SSIZE_T blockY = (loopY + sampleFactY-1) / sampleFactY;
 
 
 
 
 //	for (j=0;j<loopY;j++)
-	for (j=0;j<blockY;j++)
+	for (SSIZE_T j=0;j<blockY;j++)
 	{
 		dst = dst0;
 
 //		for (i=0;i<loopX;i++)
-		for (i=0;i<blockX;i++)
+		for (SSIZE_T i=0;i<blockX;i++)
 		{
 
 
@@ -381,11 +393,16 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 
 
 			//idct
+#if defined _WIN64
+			bool	bMustUseFloat = true;
+#else
+			bool	bMustUseFloat = false;
+#endif
 
 
-			if (m_calcuFloatFlag == FALSE)
+			if ((m_calcuFloatFlag == FALSE) && !bMustUseFloat)
 			{
-				for (int pp=0;pp<sampleBlock;pp++)
+				for (SSIZE_T pp=0;pp<sampleBlock;pp++)
 				{
 					IDCTFastMMX(m_huffmanDecodedBuffer+64*pp,yuvBuffer+pp*64*3,&m_DQTTable[m_yuvDQTTableNumber[0*3+2]*64]);
 				}
@@ -405,14 +422,14 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 				//yuv->rgb
 
 				//
-				for (int ppp=0;ppp<sampleBlock;ppp++)
+				for (SSIZE_T ppp=0;ppp<sampleBlock;ppp++)
 				{
 					YUV2RGB(yuvBuffer+ppp*64*3,m_rgbBuffer+ppp*64);
 				}
 			}
 			else
 			{
-				for (int pp=0;pp<sampleBlock;pp++)
+				for (SSIZE_T pp=0;pp<sampleBlock;pp++)
 				{
 					IDCTFastFloat(m_huffmanDecodedBuffer+64*pp,yuvBufferFloat+pp*64*3,&m_DQTTable[m_yuvDQTTableNumber[0*3+2]*64]);
 				}
@@ -432,7 +449,7 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 				//yuv->rgb
 
 				//
-				for (int ppp=0;ppp<sampleBlock;ppp++)
+				for (SSIZE_T ppp=0;ppp<sampleBlock;ppp++)
 				{
 					YUV2RGBFloat(yuvBufferFloat+ppp*64*3,m_rgbBuffer+ppp*64);
 				}
@@ -442,15 +459,15 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 
 
 
-			for (int py=0;py<sampleFactY;py++)
+			for (SSIZE_T py=0;py<sampleFactY;py++)
 			{
-				for (int px=0;px<sampleFactX;px++)
+				for (SSIZE_T px=0;px<sampleFactX;px++)
 				{
-					int psizex = 8;
-					int psizey = 8;
+					SSIZE_T psizex = 8;
+					SSIZE_T psizey = 8;
 
-					int ex = (i*sampleFactX+px)*8+8;
-					int ey = (j*sampleFactY+py)*8+8;
+					SSIZE_T ex = (i*sampleFactX+px)*8+8;
+					SSIZE_T ey = (j*sampleFactY+py)*8+8;
 
 					if (ex>picSizeX)
 					{
@@ -468,12 +485,12 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 					int* dstdst = dst + px*8 + py*lPitch*8;
 					int* dstdst0 = dstdst;
 	
-					for (int jj=0;jj<psizey;jj++)
+					for (SSIZE_T jj=0;jj<psizey;jj++)
 					{
 						rgbBuffer = rgbBuffer0;
 						dstdst = dstdst0;
 
-						for (int ii=0;ii<psizex;ii++)
+						for (SSIZE_T ii=0;ii<psizex;ii++)
 						{
 							*dstdst = *rgbBuffer;	//このへんがおかしいにゃ＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠
 							dstdst++;
@@ -509,25 +526,25 @@ BOOL CJpegDecoder::DecodeMain(char* pJpegData, CPicture* lpPicture)
 
 void CJpegDecoder::UVFact4(short* ptr)
 {
-	int sampleFactX = m_yuvDQTTableNumber[0*3];
-	int sampleFactY = m_yuvDQTTableNumber[0*3+1];
+	SSIZE_T sampleFactX = m_yuvDQTTableNumber[0*3];
+	SSIZE_T sampleFactY = m_yuvDQTTableNumber[0*3+1];
 //	int sampleBlock = sampleFactX * sampleFactY;
 
-	int miniX = 8 / sampleFactX;
-	int miniY = 8 / sampleFactY;
+	SSIZE_T miniX = 8 / sampleFactX;
+	SSIZE_T miniY = 8 / sampleFactY;
 
-	for (int uv=0;uv<2;uv++)
+	for (SSIZE_T uv=0;uv<2;uv++)
 	{
-		for (int y=sampleFactY-1;y>=0;y--)
+		for (SSIZE_T y=sampleFactY-1;y>=0;y--)
 		{
-			for (int x=sampleFactX-1;x>=0;x--)
+			for (SSIZE_T x=sampleFactX-1;x>=0;x--)
 			{
 				short* src = ptr + 64 + uv*64 + x * miniX + y * 8*miniY;
 				short* dst = ptr + 64 + uv*64 + (x+y*sampleFactX)*64*3;
 
-				for (int j=miniY-1;j>=0;j--)
+				for (SSIZE_T j = miniY - 1; j >= 0; j--)
 				{
-					for (int i=miniX-1;i>=0;i--)
+					for (SSIZE_T i = miniX - 1; i >= 0; i--)
 					{
 						short d = *(src+i+j*8);
 
@@ -535,7 +552,8 @@ void CJpegDecoder::UVFact4(short* ptr)
 						{
 							for (int ii=0;ii<sampleFactX;ii++)
 							{
-								*(dst + i*sampleFactX+ii+(j*sampleFactY+jj)*8) = d;
+								* (dst + i * sampleFactX + ii + (j * sampleFactY + jj) * 8) = d;
+
 //						*(dst + i*2+1+j*2*8) = d;
 //						*(dst + i*2+(j*2+1)*8) = d;
 //						*(dst + i*2+1+(j*2+1)*8) = d;
@@ -576,7 +594,12 @@ int CJpegDecoder::GetDQT(char* pDQT)
 //	int tableNumber = GetBYTEData(pDQT+k) & 0xf;
 	int cc = GetBYTEData(pDQT+k);
 
+#if defined _WIN64
+	long long tableNumber = cc & 0x3;	//0-3
+#else
 	int tableNumber = cc & 0x3;	//0-3
+#endif
+
 	int bitType = cc >> 4;
 
 	k++;
@@ -720,8 +743,8 @@ BOOL CJpegDecoder::YUV2RGB(short* yuvBuffer, int* rgbBuffer)
 	LONGLONG fix_n344 = 0x0e9fbe9fbe9fbe9fb;
 	LONGLONG fix_1772 = 0x07168716871687168;
 
-	LONGLONG tempRRRRRRRR;
-	LONGLONG tempGGGGGGGG;
+	LONGLONG tempRRRRRRRR = 0;
+	LONGLONG tempGGGGGGGG = 0;
 /*
 #if defined _DEBUG
 static int aaa = 0;
@@ -751,7 +774,7 @@ if (aaa == 0)
 	int* dst = rgbBuffer;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("*** ここにc++実装が必要にゃ Win64では使わないので不要にゃ" __FILE__)
 
 #else
 
@@ -1024,7 +1047,7 @@ EXIT0:
 void CJpegDecoder::EMMSRoutine(void)
 {
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("***ここにc++実装が必要にゃ Win64ではつかないので不要にゃ" __FILE__)
 
 #else
 
@@ -1438,7 +1461,7 @@ BOOL CJpegDecoder::IDCTFastMMX(int* srcData, short* dstBuffer, short* dctTable,i
 	void* src = srcData;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+#pragma message("*** ここにc++実装が必要にゃ win64では使わないので不要にゃ" __FILE__)
 
 #else
 
@@ -2269,8 +2292,8 @@ int CJpegDecoder::HuffmanDecode(char* srcData, int bitNokori, int* dstBuffer, in
 //	int bits = bitNokori;
 	int bitsEnd = 0;
 
-	short* table1;
-	short* table2;
+	short* table1 = nullptr;
+	short* table2 = nullptr;
 
 	int* table1DCY = &m_huffCalcuTable[0][0];
 	int* table2DCY = &m_huffHenkanTable[0][0];
@@ -2308,7 +2331,7 @@ int CJpegDecoder::HuffmanDecode(char* srcData, int bitNokori, int* dstBuffer, in
 		startBitData = d;
 	}
 
-	int huffTempLoopCount;
+	int huffTempLoopCount = 0;
 
 	char hufferr = 0;
 
@@ -2766,7 +2789,7 @@ EXIT0:
 
 	m_hufferr = hufferr;
 
-	return ((srcEnd - src)<<3) | bitsEnd;
+	return (int)(((srcEnd - src)<<3) | bitsEnd);
 }
 
 
@@ -5647,20 +5670,34 @@ void CJpegDecoder::UVFact4Float(float* ptr)
 		{
 			for (int x=sampleFactX-1;x>=0;x--)
 			{
-				float* src = ptr + 64 + uv*64 + x * miniX + y * 8*miniY;
-				float* dst = ptr + 64 + uv*64 + (x+y*sampleFactX)*64*3;
+#if defined _WIN64
+				float* src = ptr + 64 + (long long)uv*64 + (long long)x * miniX + (long long)y * 8*(long long)miniY;
+				float* dst = ptr + 64 + (long long)uv*64 + (x+(long long)y*sampleFactX)*64*3;
+#else
+				float* src = ptr + 64 + uv * 64 + x * miniX + y * 8 * miniY;
+				float* dst = ptr + 64 + uv * 64 + (x + y * sampleFactX) * 64 * 3;
+#endif
 
 				for (int j=miniY-1;j>=0;j--)
 				{
 					for (int i=miniX-1;i>=0;i--)
 					{
-						float d = *(src+i+j*8);
+#if defined _WIN64
+						float d = *(src+i+(long long)j*8);
+#else
+						float d = *(src + i + j * 8);
+#endif
 
 						for (int jj=0;jj<sampleFactY;jj++)
 						{
 							for (int ii=0;ii<sampleFactX;ii++)
 							{
-								*(dst + i*sampleFactX+ii+(j*sampleFactY+jj)*8) = d;
+#if defined _WIN64
+								*(dst + (long long)i*sampleFactX+ii+((long long)j*sampleFactY+jj)*8) = d;
+#else
+								* (dst + i * sampleFactX + ii + (j * sampleFactY + jj) * 8) = d;
+#endif
+
 //						*(dst + i*2+1+j*2*8) = d;
 //						*(dst + i*2+(j*2+1)*8) = d;
 //						*(dst + i*2+1+(j*2+1)*8) = d;

@@ -54,8 +54,8 @@ void CColorAddBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picDa
 
 	int* dst = CMyGraphics::GetScreenBuffer();
 
-	src += srcPoint.y  * srcSize.cx + srcPoint.x;
-	dst += putPoint.y  * screenSizeX + putPoint.x;
+	src += (SSIZE_T)srcPoint.y  * srcSize.cx + srcPoint.x;
+	dst += (SSIZE_T)putPoint.y  * screenSizeX + putPoint.x;
 
 	int srcPitch = srcSize.cx * sizeof(int);
 	int loopY = putSize.cy;
@@ -72,7 +72,7 @@ void CColorAddBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picDa
 		int maskPicSizeX = srcSize.cx;
 
 		mask += srcPoint.x;
-		mask += srcPoint.y * maskPicSizeX;
+		mask += (SSIZE_T)srcPoint.y * maskPicSizeX;
 		int maskPitch = srcSize.cx;
 
 #if defined _WIN64

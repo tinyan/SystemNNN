@@ -51,13 +51,13 @@ BOOL CGenshoku16::GenshokuMain(CPicture* lpPic)
 
 
 	//???
-	for (int y=0;y<screenSizeY;y+=4)
+	for (SSIZE_T y=0;y<screenSizeY;y+=4)
 	{
-		for (int x=0;x<screenSizeX;x+=8)
+		for (SSIZE_T x=0;x<screenSizeX;x+=8)
 		{
-			for (int j=0;j<4;j++)
+			for (SSIZE_T j=0;j<4;j++)
 			{
-				for (int i=0;i<8;i++)
+				for (SSIZE_T i=0;i<8;i++)
 				{
 					int* ptr = lpBuffer;
 					ptr += (i+x) + (j+y) * screenSizeX;
