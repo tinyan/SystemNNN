@@ -1415,6 +1415,8 @@ int CCommonPrintMessage::Calcu(void)
 	ShakinHensai();
 	CalcuFrameMoji();
 
+	m_game->CheckAndPlayPoolVoice();
+	
 	m_game->CalcuEffectOnly();
 
 	m_maeSkipFlag = m_skipFlag;

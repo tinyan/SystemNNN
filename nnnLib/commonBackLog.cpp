@@ -382,6 +382,11 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		}
 	}
 
+	m_firstMessagePrintFlag = 1;
+	GetInitGameParam(&m_firstMessagePrintFlag, "firstMessagePrintFlag");
+	m_firstBarPrintFlag = 1;
+	GetInitGameParam(&m_firstBarPrintFlag, "firstBarPrintFlag");
+
 
 	if (messageReplace != NULL)
 	{
@@ -922,8 +927,14 @@ void CCommonBackLog::Clear(void)
 		*(m_voiceFile + i * VOICEFILE_LENGTH) = 0;
 	}
 //	AddMessage("#赤#猫#白　過去、それは単なる通過点の集まり・・・　#赤#猫");
-	AddMessage(m_firstMessage);
-	AddBar();
+	if (m_firstMessagePrintFlag != 0)
+	{
+		AddMessage(m_firstMessage);
+	}
+	if (m_firstBarPrintFlag != 0)
+	{
+		AddBar();
+	}
 }
 
 void CCommonBackLog::AddSeparator(void)

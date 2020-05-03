@@ -9,6 +9,8 @@
 #include "calcuSpeed.h"
 
 
+int CCalcuSpeed::m_customParam = 100;
+
 
 CCalcuSpeed::CCalcuSpeed()
 {
@@ -291,6 +293,18 @@ int CCalcuSpeed::calcu(int count, int countMax, int startData, int endData, int 
 		// ^2
 
 		d = (d*d);
+	}
+	else if (kasokuType == 3)
+	{
+		double k = (double)m_customParam;
+		if (k < 1.0) k = 1.0;
+		if (k > 1000) k = 1000.0;
+		k *= 0.01;
+
+		if (d > 0.0)
+		{
+			d = pow(d, k);
+		}
 	}
 	else if (kasokuType == 4)
 	{

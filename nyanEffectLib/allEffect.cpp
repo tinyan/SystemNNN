@@ -57,7 +57,7 @@
 #include "..\nyanEffectCharaLib\effectTaClip.h"
 #include "..\nyanEffectCharaLib\effectTrans.h"
 #include "..\nyanEffectCharaLib\effectZantetsu.h"
-
+#include "..\nyanEffectCharaLib\effectCharaMozaic.h"
 
 
 //nyaneffectetclib
@@ -141,6 +141,7 @@
 #include "..\nyanEffectSpecialLib\effectFusuma.h"
 #include "..\nyanEffectSpecialLib\effectHanabira.h"
 #include "..\nyanEffectSpecialLib\effectHotaru.h"
+#include "..\nyanEffectSpecialLib\effectHotaruNew.h"
 #include "..\nyanEffectSpecialLib\effectKe.h"
 #include "..\nyanEffectSpecialLib\effectKira.h"
 #include "..\nyanEffectSpecialLib\effectKomorebi.h"
@@ -249,6 +250,7 @@ CAllEffect::CAllEffect()
 	m_ppEffects[EFFECT_HAMON] = new CEffectHamon(this);
 	m_ppEffects[EFFECT_HANABIRA] = new CEffectHanabira(this);
 	m_ppEffects[EFFECT_HOTARU] = new CEffectHotaru(this);
+	m_ppEffects[EFFECT_HOTARUNEW] = new CEffectHotaruNew(this);
 	m_ppEffects[EFFECT_KAGEROU] = new CEffectKagerou(this);
 	m_ppEffects[EFFECT_KIRA] = new CEffectKira(this);
 	m_ppEffects[EFFECT_KOMAANIME] = new CEffectKomaAnime(this);
@@ -314,6 +316,7 @@ CAllEffect::CAllEffect()
 	m_ppEffects[EFFECT_GEOTORUSADD] = new CEffectGeoTorusAdd(this);
 	m_ppEffects[EFFECT_GEOPOLYGONADD] = new CEffectGeoPolygonAdd(this);
 	m_ppEffects[EFFECT_GEOBOXADD] = new CEffectGeoBoxAdd(this);
+	m_ppEffects[EFFECT_CHARAMOZAIC] = new CEffectCharaMozaic(this);
 #if !defined _TINYAN3DLIB_
 	m_ppEffects[EFFECT_BSPLINE2] = new CEffectBSpline2(this);
 	m_ppEffects[EFFECT_COLORBALANCE] = new CEffectColorBalance(this);

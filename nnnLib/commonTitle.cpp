@@ -48,6 +48,7 @@
 
 
 char CCommonTitle::m_defaultBGFileName[] = "title_bg";
+char CCommonTitle::m_defaultHTML[] = "http://www2s.biglobe.ne.jp/~tinyan/index.htm";
 
 
 //char CCommonTitle::m_defaultButtonFileName[] = "ta_title_bt1";
@@ -141,7 +142,28 @@ CCommonTitle::CCommonTitle(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		m_menu2->SetPicture(i,CSuperButtonPicture::GetPicture(superStart+i));
 	}
 
+	superStart += m_basicButtonKosuu + m_extButtonKosuu;
+	m_htmlButtonEnable = 0;
+	GetInitGameParam(&m_htmlButtonEnable, "EnableHtmlButton");
+	m_htmlButton = nullptr;
+	m_HTMLaddr = m_defaultHTML;
+	if (m_htmlButtonEnable > 0)
+	{
+		m_htmlButton = new CCommonButton(m_setup, "HTML");
+		m_htmlButton->SetPicture(CSuperButtonPicture::GetPicture(superStart));
+		GetInitGameString(&m_HTMLaddr, "HTMLaddr");
+		superStart++;
+	}
 
+	m_lastLoadButtonEnable = 0;
+	GetInitGameParam(&m_lastLoadButtonEnable, "EnableLastLoadButton");
+	m_lastLoadButton = nullptr;
+	if (m_lastLoadButtonEnable > 0)
+	{
+		m_lastLoadButton = new CCommonButton(m_setup, "LastLoad");
+		m_lastLoadButton->SetPicture(CSuperButtonPicture::GetPicture(superStart));
+		superStart++;
+	}
 
 
 
@@ -200,6 +222,8 @@ CCommonTitle::~CCommonTitle()
 
 void CCommonTitle::End(void)
 {
+	ENDDELETECLASS(m_lastLoadButton);
+	ENDDELETECLASS(m_htmlButton);
 	ENDDELETECLASS(m_menu2);
 
 //	DELETEARRAY(m_printZahyoY);
@@ -213,6 +237,8 @@ void CCommonTitle::End(void)
 int CCommonTitle::Init(void)
 {
 	m_newGameFlag = FALSE;
+	m_lastLoadFlag = false;
+
 	m_game->SetupNameDefault();
 	m_game->ClearBackLog();
 	m_game->SetLayerOff();
@@ -288,6 +314,30 @@ int CCommonTitle::Init(void)
 	}
 
 	m_menu2->Init();
+
+	if (m_htmlButtonEnable > 0)
+	{
+		CPicture* lpPic = m_htmlButton->GetPicture();
+		LPSTR name = m_htmlButton->GetFileName();
+		char filename[256];
+		wsprintf(filename, "sys\\%s", name);
+		lpPic->LoadDWQ(filename);
+		m_htmlButton->Init();
+		SetHTMPButtonMode();
+	}
+
+	if (m_lastLoadButtonEnable > 0)
+	{
+		CPicture* lpPic = m_lastLoadButton->GetPicture();
+		LPSTR name = m_lastLoadButton->GetFileName();
+		char filename[256];
+		wsprintf(filename, "sys\\%s", name);
+		lpPic->LoadDWQ(filename);
+		m_lastLoadButton->Init();
+		SetLastLoadButtonMode();
+	}
+
+
 
 //	体験版、ネット版でload omakeのマスク
 	if (m_disableLoadFlag)
@@ -377,6 +427,7 @@ int CCommonTitle::Calcu(void)
 			}
 		}
 
+
 		if (m_game->GetAutoDebugMode())
 		{
 			BOOL autoDebugOk = TRUE;
@@ -400,6 +451,77 @@ int CCommonTitle::Calcu(void)
 					m_extScenario = 0;
 					return ReturnFadeOut(-1);
 				}
+			}
+		}
+
+		int HTMLrt = NNNBUTTON_NOTHING;
+		if (m_htmlButtonEnable > 0)
+		{
+			HTMLrt = m_htmlButton->Calcu(m_inputStatus);
+
+			int HTMLst = CCommonButton::GetButtonStatus(HTMLrt);
+			int HTMLrequestSoundFlag = CCommonButton::CheckRequestSound(HTMLrt);
+//			int HTMLsound = 0;
+			if (HTMLrequestSoundFlag)
+			{
+				sound = CCommonButton::GetButtonSound(HTMLrt);
+				if (sound > 0)
+				{
+					m_game->PlaySystemSound(sound - 1);
+				}
+			}
+			int HTMLexistDataFlag = CCommonButton::CheckExistData(HTMLrt);
+			int HTMLnm = -1;
+			if (HTMLexistDataFlag)
+			{
+				HTMLnm = CCommonButton::GetButtonData(HTMLrt);
+			}
+
+
+			if (HTMLnm >= 0)
+			{
+				m_htmlButton->Init();
+
+				//ShellExecute(m_game->GetGameHWND(), "open", "http://www2s.biglobe.ne.jp/~tinyan/index.htm");
+				
+				//once?
+
+				ShellExecute(nullptr, "open",m_HTMLaddr,NULL,NULL,SW_SHOW);
+
+			}
+		}
+
+		int lastLoadrt = NNNBUTTON_NOTHING;
+		if (m_lastLoadButtonEnable > 0)
+		{
+			lastLoadrt = m_lastLoadButton->Calcu(m_inputStatus);
+
+			int lastLoadst = CCommonButton::GetButtonStatus(lastLoadrt);
+			int lastLoadrequestSoundFlag = CCommonButton::CheckRequestSound(lastLoadrt);
+//			int lastLoadsound = 0;
+			if (lastLoadrequestSoundFlag)
+			{
+				sound = CCommonButton::GetButtonSound(lastLoadrt);
+				if (sound > 0)
+				{
+					m_game->PlaySystemSound(sound - 1);
+				}
+			}
+			int lastLoadexistDataFlag = CCommonButton::CheckExistData(lastLoadrt);
+			int lastLoadnm = -1;
+			if (lastLoadexistDataFlag)
+			{
+				lastLoadnm = CCommonButton::GetButtonData(lastLoadrt);
+			}
+
+			if (lastLoadnm >= 0)
+			{
+
+			//	m_game->SetBackScriptMode(FALSE);
+			//	m_game->SetDefaultFrameRate();
+
+				m_lastLoadFlag = TRUE;
+				return ReturnFadeOut(-1);
 			}
 		}
 
@@ -537,6 +659,14 @@ int CCommonTitle::Print(void)
 	if (startMode == 0)
 	{
 		m_menu2->Print(b);
+		if (m_htmlButtonEnable > 0)
+		{
+			m_htmlButton->Print(b);
+		}
+		if (m_lastLoadButtonEnable > 0)
+		{
+			m_lastLoadButton->Print(b);
+		}
 	}
 	else if (startMode == 2)
 	{
@@ -550,6 +680,25 @@ int CCommonTitle::Print(void)
 		pt.x = m_menuStartDeltaX;
 		pt.y = m_menuStartDeltaY;
 		m_menu2->AppearPrint(count,countMax,type,pt);
+
+		POINT delta;
+		delta.x = 0;
+		delta.y = 0;
+
+		int ps = (count * 100) / countMax;
+		if (ps < 0) ps = 0;
+		if (ps > 100) ps = 100;
+
+
+		if (m_htmlButtonEnable > 0)
+		{
+			m_htmlButton->Put(delta, ps);
+		}
+
+		if (m_lastLoadButtonEnable > 0)
+		{
+			m_lastLoadButton->Put(delta, ps);
+		}
 	}
 
 //	CAllGeo::BoxFill(100,100,300,300,127,192,64);
@@ -594,6 +743,30 @@ void CCommonTitle::EndStartWaitMode(void)
 
 void CCommonTitle::FinalExitRoutine(void)
 {
+	if (m_lastLoadFlag)
+	{
+//		if (m_createExitScreenFlag)
+		{
+			CreateExitScreen();
+		}
+
+		m_game->SetSceneMode(FALSE);
+
+
+
+		int lastSaveDataNumber = m_game->GetLastSelectSaveLoad();
+
+		m_game->ExecSaveData(lastSaveDataNumber);
+
+		m_exitScreen->Put(0, 0, FALSE);
+		CAreaControl::SetNextAllPrint();
+
+//		m_game->SetYoyaku();
+		m_lastLoadFlag = FALSE;
+
+		return;
+	}
+
 	if (m_newGameFlag)
 	{
 		if (m_createExitScreenFlag)
@@ -627,5 +800,52 @@ int CCommonTitle::EndMode(void)
 {
 	return -1;
 }
+
+void CCommonTitle::OnScreenModeChanged(void)
+{
+	SetHTMPButtonMode();
+}
+
+void CCommonTitle::SetHTMPButtonMode(void)
+{
+	if (m_htmlButtonEnable > 0)
+	{
+		int md = m_game->GetSystemParam(NNNPARAM_SCREENMODE);
+		if (md != 0)
+		{
+			m_htmlButton->SetEnable(false);
+		}
+		else
+		{
+			m_htmlButton->SetEnable(true);
+		}
+		m_htmlButton->Init();
+	}
+}
+
+void CCommonTitle::SetLastLoadButtonMode(void)
+{
+	if (m_lastLoadButtonEnable > 0)
+	{
+		bool b = false;
+
+
+		if (m_game->CheckExistLastSaveData())
+		{
+			b = true;
+		}
+		if (b)
+		{
+			m_lastLoadButton->SetEnable();
+		}
+		else
+		{
+			m_lastLoadButton->SetEnable(FALSE);
+		}
+
+		m_lastLoadButton->Init();
+	}
+}
+
 /*_*/
 

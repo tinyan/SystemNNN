@@ -31,6 +31,8 @@ public:
 	virtual void FinalExitRoutine(void);
 	virtual int EndMode(void);
 
+	void OnScreenModeChanged(void);
+
 protected:
 	BOOL m_disableLoadFlag;
 	BOOL m_disableOmakeFlag;
@@ -39,7 +41,10 @@ protected:
 //	LPSTR m_filenameButton;
 
 	static char m_defaultBGFileName[];
-//	static char m_defaultButtonFileName[];
+	static char m_defaultHTML[];
+	LPSTR m_HTMLaddr;
+
+	//	static char m_defaultButtonFileName[];
 //	static char m_defaultSpecialButtonFileNameTag[];
 
 //	int m_menuPrintX;
@@ -52,6 +57,11 @@ protected:
 //	int m_menuKosuuY;
 
 	CMenuButtonGroup* m_menu2;
+
+	CCommonButton* m_htmlButton;
+	int m_htmlButtonEnable;
+	CCommonButton* m_lastLoadButton;
+	int m_lastLoadButtonEnable;
 
 //	CMyButtonGroup* m_menu;
 
@@ -113,6 +123,11 @@ protected:
 	CAutoSelectControl* m_autoSelectControl;
 
 	int m_noSaveDataToMaskMenu;
+
+	void SetHTMPButtonMode(void);
+	void SetLastLoadButtonMode(void);
+
+	bool m_lastLoadFlag;
 
 };
 

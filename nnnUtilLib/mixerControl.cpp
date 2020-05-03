@@ -32,7 +32,13 @@ CMixerControl::CMixerControl(BOOL masterVolumeFlag)
 		m_xp = FALSE;
 	}
 #else
-	
+
+//	if (!IsWindowsVistaOrGreater())
+	//{
+//		m_xp = FALSE;
+//	}
+
+	/*
 	OSVERSIONINFO osVersion;
 	osVersion.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&osVersion);
@@ -43,6 +49,8 @@ CMixerControl::CMixerControl(BOOL masterVolumeFlag)
 			m_xp = FALSE;
 		}
 	}
+	*/
+
 	
 #endif
 

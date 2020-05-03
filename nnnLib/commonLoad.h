@@ -32,7 +32,8 @@ public:
 
 	virtual BOOL CheckQuickLoadDataExist(void);
 	bool CheckExistSaveData(void);
-
+	bool CheckExistSaveDataOne(int n);
+	bool LoadDataOnly(int n);
 
 protected:
 	virtual int ProcessDataClicked(int n);

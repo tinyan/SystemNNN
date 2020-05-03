@@ -219,6 +219,9 @@ protected:
 	int m_separatorColorG;
 	int m_separatorColorB;
 
+	int m_firstMessagePrintFlag;
+	int m_firstBarPrintFlag;
+
 	char* m_separatorMessage;
 	static char m_separatorData[][16];
 	static char m_separatorData_1byte[][16];

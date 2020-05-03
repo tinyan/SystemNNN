@@ -658,6 +658,9 @@ int CCommonSelectMessage::Calcu(void)
 {
 	int codeByte = CMyFont::m_codeByte;
 
+	m_game->CheckAndPlayPoolVoice();
+
+
 	if (m_firstAppearType != 0)
 	{
 		if (m_firstAppearCount < m_firstAppearTime)

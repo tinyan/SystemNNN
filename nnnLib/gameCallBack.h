@@ -613,7 +613,7 @@ public:
 
 	void RestartLoopSoundAndVoice(void);
 
-	BOOL PlayScriptSe(int ch);
+	BOOL PlayScriptSe(int ch,int systemSE = 0);
 	BOOL PlayScriptVoice(int ch);
 
 	void SetLastSaveOkGameMode(int md);
@@ -841,6 +841,16 @@ public:
 	bool CheckExistSaveData(void);
 	int GetLastSelectSaveLoad(void);
 	void SetLastSelectSaveLoad(int n);
+
+	bool CheckExistLastSaveData(void);
+	bool ExecSaveData(int n);
+
+	bool CheckPoolVoiceFlag(int ch);
+	void SetPoolVoiceFlag(int ch, bool flag);
+	void CheckAndPlayPoolVoice(void);
+	void PlayPoolVoice(int ch);
+
+	void StopAllScriptVoice(void);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1823,6 +1833,9 @@ protected:
 
 	BOOL m_gameCreateFlagGeneral;
 	int m_overrunBuffer;
+
+	bool m_poolVoiceFlag[4];
+	int m_noWaitSameChara[4];
 };
 
 #endif

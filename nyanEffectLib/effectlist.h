@@ -206,7 +206,9 @@
 
 #define EFFECT_ANIMATION 137
 
+#define EFFECT_HOTARUNEW 138
 
+#define EFFECT_CHARAMOZAIC 139
 
 #endif
 /*_*/

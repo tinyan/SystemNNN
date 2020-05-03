@@ -17,7 +17,7 @@ public:
 	virtual BOOL SetData(char* data,int dataSize, int channel,int samplingRate,int samplingBit,BOOL loopFlag = FALSE);
 
 	virtual void Play(BOOL loopFlag = FALSE);
-	virtual void Stop(BOOL waitFlag = FALSE);
+	virtual void Stop(BOOL waitFlag = FALSE,bool releaseFlag = false);
 
 	virtual void SetVolume(int volume);
 
@@ -26,6 +26,7 @@ public:
 	virtual void SetMoveTime(int tm);
 	virtual void SetDoppler(int dop);
 
+	virtual bool IsPlaying(void);
 
 	virtual void SetVelocity(float speedX,float speedY,float speedZ);
 	virtual void Set3DPosition(float x,float y,float z);

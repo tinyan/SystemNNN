@@ -151,9 +151,18 @@ BOOL CScriptVoiceControl::GetLoopFlag(int n)
 	return m_loopVoiceWork[n*16+0];
 }
 
+bool CScriptVoiceControl::IsPlaying(int ch)
+{
+	return m_scriptVoice[ch]->IsPlaying();
+}
+
 
 void CScriptVoiceControl::Play(int ch,BOOL loopFlag,int fadeTime)
 {
+	char mes[256];
+	sprintf_s(mes, 256, "\nCScriptVoiceControl::Play %d ", ch);
+	OutputDebugString(mes);
+
 	m_fadeTime[ch] = fadeTime * 100;
 
 	if (fadeTime > 0)
@@ -218,10 +227,16 @@ void CScriptVoiceControl::AllStop(void)
 {
 	for (int i=0;i<m_voiceKosuu;i++)
 	{
+//		m_scriptVoice[i]->Stop(FALSE,true);
+		char mes[256];
+		sprintf_s(mes, 256, "\nCScriptVoiceControl::AllStop %d ", i);
+		OutputDebugString(mes);
 		m_scriptVoice[i]->Stop();
+
 		m_fadeTime[i] = 0;
 		InvalidateVolumeCommand(i);
 
+		Sleep(1);
 //		SetLoopFlag(i,FALSE);
 	}
 }

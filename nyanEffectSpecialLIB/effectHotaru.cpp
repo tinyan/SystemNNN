@@ -25,8 +25,8 @@ CEffectHotaru::CEffectHotaru(CAllEffect* lpAll) : CCommonEffect(lpAll)
 	m_setY = 300;
 	m_setSizeX = 100;
 	m_setSizeY = 100;
-	m_speedX = -100;
-	m_speedY = 10;
+	m_speedX = -3;
+	m_speedY = -2;
 	m_loopFlag = 0;
 	m_yure = 15;
 
@@ -92,8 +92,8 @@ BOOL CEffectHotaru::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int la
 	if (paraKosuu<5) para[4] = 100;	//sizeX
 	if (paraKosuu<6) para[5] = 100;	//sizeY
 
-	if (paraKosuu<7) para[6] = 100;	//speedx
-	if (paraKosuu<8) para[7] = 100;	//speedy
+	if (paraKosuu<7) para[6] = -2;	//speedx
+	if (paraKosuu<8) para[7] = -3;	//speedy
 
 	if (paraKosuu<9) para[8] = 255;	//r
 	if (paraKosuu<10) para[9] = 255;	//g

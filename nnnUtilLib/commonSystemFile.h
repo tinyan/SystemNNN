@@ -312,7 +312,14 @@ public:
 		char message[16];
 
 		int lastSaveFileNumber;
-		int pad[256 - 1];
+		int continueVoice;
+		int pad1[2];
+
+		int scriptSEVolume;
+		int scriptSESwitch;
+		int pad2[2];
+
+		int pad[256 - 8];
 
 	} SYSTEMFLAG2;
 

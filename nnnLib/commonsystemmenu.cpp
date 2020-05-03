@@ -426,6 +426,7 @@ OutputDebugString("[SystemMenu::sceneMode]");
 
 
 	m_game->StopScriptSoundAndVoice();
+//	m_game->PlaySystemSound(-1);
 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
@@ -711,6 +712,7 @@ int CCommonSystemMenu::Calcu(void)
 	if (m_warningFlag)
 	{
 		int rt = m_dialogButton->Calcu(m_inputStatus);
+
 		if (rt != NNNBUTTON_NOTHING)
 		{
 			int nm = ProcessButtonGroup(rt);
@@ -724,6 +726,7 @@ int CCommonSystemMenu::Calcu(void)
 				}
 				else
 				{
+					m_game->StopAllScriptVoice();
 					return ReturnFadeOut(SELECTSCENE_MODE);
 				}
 			}
@@ -732,6 +735,7 @@ int CCommonSystemMenu::Calcu(void)
 			{
 				m_returnToGameFlag = TRUE;
 				//m_game->FuqueAllEffect();
+				//m_game->StopAllScriptVoice();
 				return ReturnFadeOut(m_backMode);
 			}
 		}
@@ -852,13 +856,16 @@ int CCommonSystemMenu::Calcu(void)
 					}
 				}
 
+				m_warningFlag = TRUE;
+
+
 				if (m_exitWarningSound > 0)
 				{
 					m_game->PlaySystemSound(m_exitWarningSound-1);
 				}
 
-				m_warningFlag = TRUE;
 				CAreaControl::SetNextAllPrint();
+
 
 				m_game->Erase();
 
@@ -1022,6 +1029,7 @@ int CCommonSystemMenu::Print(void)
 
 	if (m_warningFlag)
 	{
+
 		if (m_warningMenuPrintFlag)
 		{
 //			m_dialogButton->Print(b);

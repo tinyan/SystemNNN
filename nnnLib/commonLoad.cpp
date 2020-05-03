@@ -455,5 +455,36 @@ bool CCommonLoad::CheckExistSaveData(void)
 	return false;
 }
 
+bool CCommonLoad::CheckExistSaveDataOne(int n)
+{
+//	int n = m_pageMax * m_blockX * m_blockY;
+	m_ppDataFile[0]->LoadHeaderAndPic(n);
+	if (m_ppDataFile[0]->CheckDataExist())
+	{
+		return true;
+	}
+	return false;
+}
+
+
+bool CCommonLoad::LoadDataOnly(int n)
+{
+	//stop sound and music
+//	m_game->StopScriptSoundAndVoice();
+
+//	CreateExitScreen();
+
+//	m_game->SetLastSelectSaveLoad(m_quickLoadSlotNumber);
+
+	m_ppDataFile[0]->Load(n);
+//	m_game->InitLoadGame();
+
+//	m_exitScreen->Put(0, 0, FALSE);
+
+	CAreaControl::SetNextAllPrint();
+
+	return true;
+}
+
 /*_*/
 

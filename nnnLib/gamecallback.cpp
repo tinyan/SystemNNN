@@ -295,6 +295,8 @@
 #include "commonSystemModeList.h"
 #include "commonUserCommandList.h"
 
+#include "..\nyanEffectLib\calcuSpeed.h"
+
 
 #include "wm_user.h"
 
@@ -682,6 +684,11 @@ void CGameCallBack::GeneralCreate(void)
 	//	m_realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 	//	m_viewOffsetX = m_viewControl->GetViewOffsetX();
 	//	m_viewOffsetY = m_viewControl->GetViewOffsetY();
+
+	int speedCustomParam = 100;
+	GetInitGameParam(&speedCustomParam, "SpeedCustomParam");
+	CCalcuSpeed::m_customParam = speedCustomParam;
+
 
 
 	int outerFillColorR = 0;
@@ -4296,6 +4303,12 @@ void CGameCallBack::ToWindowScreen(BOOL directFlag)
 		if (config != NULL) config->ReloadScreenButton();
 	}
 
+	if (md == TITLE_MODE)
+	{
+		CCommonTitle* title = (CCommonTitle*)(m_general[TITLE_MODE]);
+		if (title != NULL) title->OnScreenModeChanged();
+	}
+
 #if defined _TINYAN3DLIB_
 	m_font->ClearCache();
 	m_font->ReCreateDIB();
@@ -4650,6 +4663,13 @@ void CGameCallBack::ToFullScreen(BOOL directFlag)
 		CCommonConfig* config = (CCommonConfig*)(m_general[CONFIG_MODE]);
 		if (config != NULL) config->ReloadScreenButton();
 	}
+
+	if (md == TITLE_MODE)
+	{
+		CCommonTitle* title = (CCommonTitle*)(m_general[TITLE_MODE]);
+		if (title != NULL) title->OnScreenModeChanged();
+	}
+
 
 #if defined _TINYAN3DLIB_
 	m_font->ClearCache();
@@ -5100,6 +5120,12 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 			m_mixer->SetTotalVolume(dat);
 		}
 		break;
+#if defined __SYSTEMNNN_VER2__
+	case NNNPARAM_SCRIPTSEVOLUME:
+		m_systemFile->m_systemFlag2.scriptSEVolume = dat;
+		break;
+#endif
+
 	case NNNPARAM_MUSICSWITCH:
 		m_systemFile->m_systemdata.musicSwitch = dat;
 		if (dat == 0)
@@ -5155,6 +5181,9 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 			}
 		}
 		break;
+#if defined __SYSTEMNNN_VER2__
+		m_systemFile->m_systemFlag2.scriptSESwitch = dat;
+#endif
 	case NNNPARAM_SKIPMODE:
 		m_systemFile->m_systemdata.skipMode = dat;
 		break;
@@ -5250,6 +5279,11 @@ int CGameCallBack::GetSystemParam(int para)
 	case NNNPARAM_TOTALVOLUME:
 		return m_systemFile->m_systemdata.totalVolume;
 		break;
+#if defined __SYSTEMNNN_VER2__
+	case NNNPARAM_SCRIPTSEVOLUME:
+		return m_systemFile->m_systemFlag2.scriptSEVolume;
+		break;
+#endif
 	case NNNPARAM_MUSICSWITCH:
 		return m_systemFile->m_systemdata.musicSwitch;
 		break;
@@ -5290,6 +5324,11 @@ int CGameCallBack::GetSystemParam(int para)
 	case NNNPARAM_TOTALSWITCH:
 		return m_systemFile->m_systemdata.totalVolumeSwitch;
 		break;
+#if defined __SYSTEMNNN_VER2__
+	case NNNPARAM_SCRIPTSESWITCH:
+		return m_systemFile->m_systemFlag2.scriptSESwitch;
+		break;
+#endif
 	case NNNPARAM_SKIPMODE:
 		return m_systemFile->m_systemdata.skipMode;
 		break;
@@ -6665,7 +6704,14 @@ int CGameCallBack::InitNewGame(int uraMode, BOOL demoFlag,int setVar,int setData
 	{
 		m_varControlLayer[i] = 0;
 	}
-
+	for (int i = 0; i < 4; i++)
+	{
+		m_poolVoiceFlag[i] = false;
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		m_noWaitSameChara[i] = 0;
+	}
 
 	AfterInitNewGame();
 	for (int i=1;i<100;i++)
@@ -7892,6 +7938,11 @@ void CGameCallBack::InitLoadGame(void)
 	m_skipToFilmEndFlag = FALSE;
 //	m_skipToFilmEndEnable = FALSE;
 
+	for (int i = 0; i < 4; i++)
+	{
+		m_poolVoiceFlag[i] = false;
+	}
+
 //	CKumiawase* pDoc = (CKumiawase*)m_general[KUMIAWASE_MODE];
 //	pDoc->GetLoadData(m_kumiawaseVar);	//ï\é¶ä÷åWÇÃäGÇÃèâä˙âªÇÃÇΩÇﬂ
 
@@ -9113,18 +9164,39 @@ void CGameCallBack::SystemFunctionSound(int para1,LPVOID para2)
 			m_scriptSoundControl->SetLoopWork(ch,10,dop);
 */
 
-			PlayScriptSe(ch);
+			int systemSE = 0;
+			if (paraKosuu >= 13)
+			{
+				systemSE = *(pData + 12);//systemâπê∫Ç≈èàóù
+			}
+
+			PlayScriptSe(ch,systemSE);
 		}
 	}
 
 	m_nextFadeSe = 0;
 }
 
-BOOL CGameCallBack::PlayScriptSe(int ch)
+BOOL CGameCallBack::PlayScriptSe(int ch,int systemSE)
 {
 	if (CheckTotalVolumeOff()) return TRUE;
 
+#if defined __SYSTEMNNN_VER2__
+	int SESwitch = false;
+	if (systemSE == 0)
+	{
+		SESwitch = GetSystemParam(NNNPARAM_SCRIPTSESWITCH);
+	}
+	else
+	{
+		SESwitch = GetSystemParam(NNNPARAM_SOUNDSWITCH);
+	}
+
+	if (SESwitch != 0)
+//	if (GetSystemParam(NNNPARAM_SCRIPTSESWITCH))
+#else
 	if (GetSystemParam(NNNPARAM_SOUNDSWITCH))
+#endif
 	{
 		m_scriptSoundControl->CalcuTeii(ch);
 		/*
@@ -9158,11 +9230,26 @@ BOOL CGameCallBack::PlayScriptSe(int ch)
 		int dop = m_scriptSoundControl->GetLoopWork(ch,10);
 */
 
-		int loopFlag = m_scriptSoundControl->GetLoopWork(ch,0);
-		int senum = m_scriptSoundControl->GetLoopWork(ch,1);
-		int deltaVolume = m_scriptSoundControl->GetLoopWork(ch,2);
+		int loopFlag = m_scriptSoundControl->GetLoopWork(ch, 0);
+		int senum = m_scriptSoundControl->GetLoopWork(ch, 1);
+		int deltaVolume = m_scriptSoundControl->GetLoopWork(ch, 2);
 
+#if defined __SYSTEMNNN_VER2__
+		int vol = 0;
+		if (systemSE == 0)
+		{
+			vol = GetSystemParam(NNNPARAM_SCRIPTSEVOLUME);
+			OutputDebugString("SCRIPTSEVOLUME\n");
+		}
+		else
+		{
+			vol = GetSystemParam(NNNPARAM_SOUNDVOLUME);
+			OutputDebugString("SOUNDVOLUME\n");
+		}
+#else
 		int vol = GetSystemParam(NNNPARAM_SOUNDVOLUME);
+#endif
+
 		vol += deltaVolume;
 		if (vol<0) vol = 0;
 		if (vol>100) vol = 100;
@@ -9274,6 +9361,7 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 
 
 
+	int vcn = -1;
 	if (voiceNum != -1)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
@@ -9285,7 +9373,7 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 		//set voice flag to system file
 
 		//set voice flag
-		int vcn = VoiceToCharaNumber(name);
+		vcn = VoiceToCharaNumber(name);
 		if (vcn != -1)
 		{
 
@@ -9356,6 +9444,13 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 	}
 
 
+	int noWaitSameChara = 0;
+	if (paraKosuu >= 13)
+	{
+		noWaitSameChara = *(pData + 2+10);
+	}
+	m_noWaitSameChara[ch] = noWaitSameChara;
+
 //	if ((m_skipNextCommandFlag == FALSE)  && (m_demoFlag == FALSE))
 	if (m_skipNextCommandFlag == FALSE)
 	{
@@ -9424,8 +9519,24 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 		{
 			if (voicenum == -1)
 			{
-				m_scriptVoiceControl->Stop(ch,FALSE,m_nextFadeVoice);
-				m_scriptVoiceControl->SetLoopFlag(ch,FALSE);
+				bool notOff = false;
+
+#if defined __SYSTEMNNN_VER2__
+				if (ch < 2)
+				{
+					if (m_systemFile->m_systemFlag2.continueVoice)
+					{
+						notOff = true;
+					}
+				}
+#endif
+
+				if (!notOff)
+				{
+					m_scriptVoiceControl->Stop(ch, FALSE, m_nextFadeVoice);
+					m_scriptVoiceControl->SetLoopFlag(ch, FALSE);
+					SetPoolVoiceFlag(ch, false);
+				}
 //				m_scriptVoice[ch]->Stop();
 //				m_loopVoiceWork[ch*16] = FALSE;
 			}
@@ -9526,21 +9637,112 @@ wsprintf(mes998,"[voicefilename too long error! %s]",name);
 OutputDebugString(mes998);
 #endif
 				}
+				char oldFilename[64];
+				oldFilename[0] = 0;
 
 				if (ch >= 0)
 				{
+					memcpy(oldFilename,&m_loopVoiceFileName[ch * 64], 64);
+					oldFilename[62] = 0;
+					oldFilename[63] = 0;
 					memcpy(&m_loopVoiceFileName[ch * 64], name, fln);
 					m_loopVoiceFileName[ch * 64 + fln] = 0;
 					m_loopVoiceFileName[ch * 64 + fln + 1] = 0;
 				}
 
-				if (PlayScriptVoice(ch))
+				bool voicePool = false;
+#if defined __SYSTEMNNN_VER2__
+
+				//í èÌâπê∫ì¡éÍèàóù
+				if (ch < 2)
 				{
-					if (ch<2)
+					if (m_noWaitSameChara[ch + 2] == 0)
 					{
-						m_messageVoiceLength = m_loadVoiceLength;
-						m_voiceSpeakCount = m_messageVoiceLength;
-						m_voiceSpeakFlag = TRUE;
+						if (m_scriptVoiceControl->IsPlaying(ch + 2))
+						{
+							//same chara
+							char check1[4];
+							memcpy(check1, &m_loopVoiceFileName[(ch + 2) * 64], 2);
+							check1[2] = 0;
+							check1[3] = 0;
+							char check2[4];
+							memcpy(check2, &m_loopVoiceFileName[(ch) * 64], 2);
+							check2[2] = 0;
+							check2[3] = 0;
+
+							if (_stricmp(check1, check2) == 0)
+							{
+								m_scriptVoiceControl->Stop(ch+2);
+								SetPoolVoiceFlag(ch + 2, true);
+							}
+
+						}
+					}
+				}
+
+
+				//å¯â âπâπê∫
+				if (ch >= 2)
+				{
+					if (noWaitSameChara == 0)
+					{
+						//check
+//						memcpy(&m_loopVoiceFileName[ch * 64], name, fln);
+						char check1[4];
+						memcpy(check1, &m_loopVoiceFileName[(ch - 2) * 64], 2);
+						check1[2] = 0;
+						check1[3] = 0;
+						char check2[4];
+						memcpy(check2, &m_loopVoiceFileName[(ch    ) * 64], 2);
+						check2[2] = 0;
+						check2[3] = 0;
+
+						if (_stricmp(check1, check2) == 0)
+						{
+							//is playing?
+							if (m_scriptVoiceControl->IsPlaying(ch-2))
+							{
+								char check3[4];
+								memcpy(check3, oldFilename, 2);
+								check3[2] = 0;
+								check3[3] = 0;
+								if (_stricmp(check2, check3) == 0)
+								{
+									m_scriptVoiceControl->Stop(ch);
+								}
+
+
+								SetPoolVoiceFlag(ch, true);
+								voicePool = true;
+							}
+						}
+					}
+					else
+					{
+						//Ç»Ç¡ÇƒÇÈÇÃÇ™ìØàÍÇæÇ¡ÇΩÇÁÇ»ÇÁÇ≥Ç»Ç¢(Ç»Ç…Ç‡ÇµÇ»Ç¢)
+
+						if (m_scriptVoiceControl->IsPlaying(ch))
+						{
+							if (_stricmp(name, oldFilename) == 0)
+							{
+								m_nextFadeVoice = 0;
+								return;
+							}
+						}
+					}
+				}
+#endif
+				if (!voicePool)
+				{
+					SetPoolVoiceFlag(ch, false);
+					if (PlayScriptVoice(ch))
+					{
+						if (ch < 2)
+						{
+							m_messageVoiceLength = m_loadVoiceLength;
+							m_voiceSpeakCount = m_messageVoiceLength;
+							m_voiceSpeakFlag = TRUE;
+						}
 					}
 				}
 			}
@@ -12409,6 +12611,7 @@ void CGameCallBack::PlaySystemSound(int n,int volumeType)
 		wsprintf(filename,"%s",m_systemSeList->GetName(n*2));
 		if (wave->LoadSystemWave("sys",filename) == FALSE)
 		{
+			return;
 //			MessageBox(NULL,"filename","error",MB_OK);
 		}
 
@@ -14489,6 +14692,8 @@ int CGameCallBack::CheckCodec(void)
 
 void CGameCallBack::StopScriptSoundAndVoice(void)
 {
+	OutputDebugString("\n\nCGameCallBack::StopScriptSoundAndVoice\n");
+
 	int i = 0;
 	for (i=0;i<8;i++)
 	{
@@ -16279,6 +16484,37 @@ bool CGameCallBack::CheckExistSaveData(void)
 	return false;
 }
 
+bool CGameCallBack::CheckExistLastSaveData(void)
+{
+	int n = GetLastSelectSaveLoad();
+	if (n < 0) return false;
+
+	CCommonLoad* load = (CCommonLoad*)m_general[LOAD_MODE];
+	if (load != nullptr)
+	{
+		return load->CheckExistSaveDataOne(n);
+	}
+
+
+	return false;
+}
+
+bool CGameCallBack::ExecSaveData(int n)
+{
+	StopScriptSoundAndVoice();
+
+
+
+	CCommonLoad* load = (CCommonLoad*)m_general[LOAD_MODE];
+	if (load != nullptr)
+	{
+		load->LoadDataOnly(n);
+	}
+
+	InitLoadGame();
+
+	return true;
+}
 
 int CGameCallBack::GetLastSelectSaveLoad(void)
 {
@@ -16290,6 +16526,74 @@ void CGameCallBack::SetLastSelectSaveLoad(int n)
 }
 
 
+bool CGameCallBack::CheckPoolVoiceFlag(int ch)
+{
+	return m_poolVoiceFlag[ch];
+}
+void CGameCallBack::SetPoolVoiceFlag(int ch, bool flag)
+{
+	m_poolVoiceFlag[ch] = flag;
+}
+
+void CGameCallBack::CheckAndPlayPoolVoice(void)
+{
+	for (int ch = 2; ch < 4; ch++)
+	{
+		if (CheckPoolVoiceFlag(ch))
+		{
+			bool b = false;
+
+			if (!m_scriptVoiceControl->IsPlaying(ch - 2))
+			{
+				b = true;
+			}
+			else
+			{
+				//check filename
+				char check1[4];
+				memcpy(check1, &m_loopVoiceFileName[(ch - 2) * 64], 2);
+				check1[2] = 0;
+				check1[3] = 0;
+				char check2[4];
+				memcpy(check2, &m_loopVoiceFileName[(ch) * 64], 2);
+				check2[2] = 0;
+				check2[3] = 0;
+
+				if (_stricmp(check1, check2) != 0)
+				{
+					b = true;
+				}
+
+			}
+
+			if (b)
+			{
+				PlayPoolVoice(ch);
+				SetPoolVoiceFlag(ch, false);
+			}
+
+		}
+	}
+}
+
+void CGameCallBack::PlayPoolVoice(int ch)
+{
+	if (CheckPoolVoiceFlag(ch))
+	{
+		PlayScriptVoice(ch);
+		SetPoolVoiceFlag(ch, false);
+	}
+}
+
+void CGameCallBack::StopAllScriptVoice(void)
+{
+	for (int ch = 0; ch < 4; ch++)
+	{
+		m_scriptVoiceControl->Stop(ch);
+		m_loopVoiceFileName[ch * 64] = 0;
+		SetPoolVoiceFlag(ch, false);
+	}
+}
 
 /*_*/
 

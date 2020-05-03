@@ -14,6 +14,7 @@ public:
 
 	static int calcu(int count, int countMax, int startData = 0, int endData = 100, int delayCount = 0, int speedType = 0, int kasokuType = 0);
 
+	static int m_customParam;
 private:
 };
 

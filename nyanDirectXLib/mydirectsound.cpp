@@ -156,7 +156,8 @@ void CMyDirectSound::Start(BOOL formatSetFlag)
 
 	m_lpDirectSound = lpDirectSound;
 
-	hr = lpDirectSound->SetCooperativeLevel(m_hWnd,DSSCL_PRIORITY);
+	hr = lpDirectSound->SetCooperativeLevel(m_hWnd, DSSCL_PRIORITY);
+//	hr = lpDirectSound->SetCooperativeLevel(m_hWnd, DSSCL_NORMAL);
 	if (hr != DS_OK) return;
 //MessageBox(NULL,"start-4","directsound",MB_OK);
 

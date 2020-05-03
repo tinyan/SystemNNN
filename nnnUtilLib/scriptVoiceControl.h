@@ -22,7 +22,7 @@ public:
 //	void Stop(int ch);
 	void AllStop(void);
 	void StopIfLoops(int ch);
-
+	bool IsPlaying(int ch);
 
 	BOOL SetData(int ch,char* data,int dataSize, int channel,int samplingRate,int samplingBit,BOOL loopFlag = FALSE);
 

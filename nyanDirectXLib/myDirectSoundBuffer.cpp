@@ -64,6 +64,21 @@ void CMyDirectSoundBuffer::End(void)
 }
 
 
+bool CMyDirectSoundBuffer::IsPlaying(void)
+{
+	if (m_dataExistFlag == FALSE) return false;
+	if (m_directSoundBuffer8 == NULL) return false;
+
+	DWORD status;
+	if (((LPDIRECTSOUNDBUFFER8)m_directSoundBuffer8)->GetStatus(&status) == DS_OK)
+	{
+		return ((status & DSBSTATUS_PLAYING) != 0);
+	}
+
+	//error
+	return false;
+
+}
 
 void CMyDirectSoundBuffer::Play(BOOL loopFlag)
 {
@@ -73,6 +88,8 @@ void CMyDirectSoundBuffer::Play(BOOL loopFlag)
 //MessageBox(NULL,"play-2","soundbuf",MB_OK);
 	if (m_directSoundBuffer8 == NULL) return;
 //MessageBox(NULL,"play-3","soundbuf",MB_OK);
+
+	OutputDebugString("\nCMyDirectSoundBuffer::Play");
 
 	Set3DPosition(m_startXYZ[0],m_startXYZ[1],m_startXYZ[2]);
 //MessageBox(NULL,"play-4","soundbuf",MB_OK);
@@ -91,9 +108,10 @@ void CMyDirectSoundBuffer::Play(BOOL loopFlag)
 
 }
 
-void CMyDirectSoundBuffer::Stop(BOOL waitFlag)
+void CMyDirectSoundBuffer::Stop(BOOL waitFlag,bool releaseFlag)
 {
 //MessageBox(NULL,"stop-1","soundbuf",MB_OK);
+	OutputDebugString("CMyDirectSoundBuffer::Stop\n");
 
 	if (m_dataExistFlag == FALSE) return;
 //MessageBox(NULL,"stop-2","soundbuf",MB_OK);
@@ -102,25 +120,53 @@ void CMyDirectSoundBuffer::Stop(BOOL waitFlag)
 //MessageBox(NULL,"stop-3","soundbuf",MB_OK);
 
 	((LPDIRECTSOUNDBUFFER8)m_directSoundBuffer8)->Stop();
+
 //	m_playFlag = FALSE;
 
-	if (waitFlag == FALSE) return;
+	//if (waitFlag == FALSE) return;
 
-	for (int i=0;i<100;i++)
+	if (waitFlag)
 	{
-	//	OutputDebugString(".");
-		DWORD st;
-		HRESULT hr = ((LPDIRECTSOUNDBUFFER8)m_directSoundBuffer8)->GetStatus(&st);
-		if (FAILED(hr))
+		for (int i = 0; i < 100; i++)
 		{
-		//	OutputDebugString("x");
-			return;
+			OutputDebugString(".");
+			DWORD st;
+			HRESULT hr = ((LPDIRECTSOUNDBUFFER8)m_directSoundBuffer8)->GetStatus(&st);
+			if (FAILED(hr))
+			{
+				OutputDebugString("x");
+				return;
+			}
+
+			if ((st & DSBSTATUS_PLAYING) == 0) return;
+			OutputDebugString("-");
+			Sleep(1);
+		}
+	}
+
+
+	if (releaseFlag)
+	{
+		if (m_directSound3DBuffer != NULL)
+		{
+			((LPDIRECTSOUND3DBUFFER8)m_directSound3DBuffer)->Release();
+			m_directSound3DBuffer = NULL;
 		}
 
-		if ((st & DSBSTATUS_PLAYING) == 0) return;
-	//	OutputDebugString("-");
-		Sleep(1);
+		if (m_directSoundBuffer8 != NULL)
+		{
+			((LPDIRECTSOUNDBUFFER8)m_directSoundBuffer8)->Release();
+			m_directSoundBuffer8 = NULL;
+		}
+
+		if (m_directSoundBuffer != NULL)
+		{
+			((LPDIRECTSOUNDBUFFER)m_directSoundBuffer)->Release();
+			m_directSoundBuffer = NULL;
+		}
+		m_dataExistFlag = FALSE;
 	}
+
 //MessageBox(NULL,"stop-99","soundbuf",MB_OK);
 
 }
