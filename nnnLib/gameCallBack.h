@@ -851,6 +851,11 @@ public:
 	void PlayPoolVoice(int ch);
 
 	void StopAllScriptVoice(void);
+	void ReLoadSystemSound(void);
+
+	int GetUseSystemVoiceCount(void);
+	int GetUseSystemVoice(void);
+	void SetUseSystemVoice(int n);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1836,6 +1841,10 @@ protected:
 
 	bool m_poolVoiceFlag[4];
 	int m_noWaitSameChara[4];
+
+	int m_useSystemVoice;
+	CNameList** m_systemVoiceList;
+
 };
 
 #endif

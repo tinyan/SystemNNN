@@ -968,6 +968,26 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 //		m_ppRadioButton = new CCommonCheckButton*[m_radioButtonKosuu];
 	}
 
+	m_systemVoiceButtonPrintPage = 1;
+	GetInitGameParam(&m_systemVoiceButtonPrintPage, "systemVoiceButtonPrintPage");
+
+	m_ppSystemVoiceButton = nullptr;
+	m_systemVoiceButtonKosuu = 0;
+	int systemVoiceCount = m_game->GetUseSystemVoiceCount();
+	if (systemVoiceCount > 0)
+	{
+		m_systemVoiceButtonKosuu = systemVoiceCount + 1;
+
+		m_ppSystemVoiceButton = new CCommonRadioButtonGroup(m_setup,"systemVoice" , lpBG, m_systemVoiceButtonKosuu, NULL);
+
+		for (int k = 0; k < m_systemVoiceButtonKosuu; k++)
+		{
+			CPicture* lpPic = GetUseOkPicture(m_systemVoiceButtonPrintPage);
+			m_ppSystemVoiceButton->SetPicture(lpPic, k, -1);
+		}
+
+	}
+
 
 	m_ppModeButton = new CCommonRadioButtonGroup* [m_modeButtonKosuu];
 	for (i=0;i<m_modeButtonKosuu;i++)
@@ -1144,13 +1164,34 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_windowPercentSe = new int[2+m_windowPercentSeBunkatsu];
 	m_windowPercentSe[0] = 0;
 
+	m_useConfigSeVoice = 0;
+	GetInitGameParam(&m_useConfigSeVoice, "useConfigSeVoice");
 
+	m_seVoice = nullptr;
 	if (m_extSeFlag)
 	{
 		m_seList = new CNameList();
 		m_seList->LoadFile("nya\\configSe.xtx");
 		m_seListKosuu = m_seList->GetNameKosuu() / 2;
 
+		if (m_useConfigSeVoice)
+		{
+			if (m_systemVoiceButtonKosuu > 0)
+			{
+				m_seVoice = new CNameList*[m_systemVoiceButtonKosuu];
+				for (int i = 0; i < m_systemVoiceButtonKosuu; i++)
+				{
+					m_seVoice[i] = new CNameList();
+					if (i > 0)
+					{
+						char filename[256];
+						sprintf_s(filename, 256, "nya\\configSeVoice%d.xtx", i);
+						m_seVoice[i]->LoadFile(filename);
+					}
+				}
+			}
+		}
+		
 
 
 		for (i=0;i<m_volumeKosuu;i++)
@@ -1387,6 +1428,15 @@ void CCommonConfig::End(void)
 	DELETEARRAY(m_windowPercentSe);
 
 
+	if (m_seVoice != nullptr)
+	{
+		for (int i = 0; i < m_systemVoiceButtonKosuu; i++)
+		{
+			ENDDELETECLASS(m_seVoice[i]);
+		}
+		DELETEARRAY(m_seVoice);
+	}
+
 	DELETEARRAY(m_isVoiceTable);
 	DELETEARRAY(m_bunkatsuTable);
 	DELETEARRAY(m_volumeDevideTable);
@@ -1439,6 +1489,9 @@ void CCommonConfig::End(void)
 		}
 		DELETEARRAY(m_ppModeButton);
 	}
+
+	ENDDELETECLASS(m_ppSystemVoiceButton);
+
 
 	if (m_ppVolumeButton != NULL)
 	{
@@ -1756,6 +1809,13 @@ int CCommonConfig::Init(void)
 			m_ppCheckButton[0]->SetState(md);
 			m_ppCheckButton[0]->Init();
 		}
+	}
+
+	if (m_ppSystemVoiceButton != nullptr)
+	{
+		int md = m_game->GetUseSystemVoice();
+		m_ppSystemVoiceButton->SetRadio(md);
+		m_ppSystemVoiceButton->Init(md);
 	}
 
 	int configMask = m_game->GetConfigMask();
@@ -2292,6 +2352,45 @@ int CCommonConfig::Calcu(void)
 					m_ppExpCheckButton[i]->Init();
 				}
 			}
+		}
+	}
+
+	if (m_ppSystemVoiceButton != nullptr)
+	{
+		if (m_page == m_systemVoiceButtonPrintPage - 1)
+		{
+			int rt = NNNBUTTON_NOTHING;
+
+
+			if (m_mode != -1)
+			{
+				rt = m_ppSystemVoiceButton->Calcu(NULL);
+			}
+			else
+			{
+				rt = m_ppSystemVoiceButton->Calcu(m_inputStatus);
+			}
+
+			if (rt != NNNBUTTON_NOTHING)
+			{
+				int nm = ProcessButtonGroup(rt);
+				if (nm >= 0)
+				{
+					m_game->SetUseSystemVoice(nm);
+					m_game->ReLoadSystemSound();
+
+					m_ppSystemVoiceButton->SetRadio(nm);
+					m_ppSystemVoiceButton->Init(nm);
+					ReLoadSystemVoicePic();
+				}
+
+				int st = CCommonButton::GetButtonStatus(rt);
+				if (st == NNNBUTTON_STARTCLICK)
+				{
+					//					m_mode = i + m_voiceCutNinzu;
+				}
+			}
+
 		}
 	}
 
@@ -2914,6 +3013,15 @@ int CCommonConfig::Print(void)
 		}
 	}
 
+	if (m_ppSystemVoiceButton != nullptr)
+	{
+		if (m_page == m_systemVoiceButtonPrintPage - 1)
+		{
+			m_ppSystemVoiceButton->Print(true);
+		}
+	}
+
+
 	for (i=0;i<m_expModeButtonKosuu;i++)
 	{
 		if (m_page == m_expModeButtonPrintPage[i]-1)
@@ -3321,7 +3429,9 @@ void CCommonConfig::PlayExtSe2(int md,int vol)
 	{
 		if (nm < m_seListKosuu)
 		{
-			LPSTR soundName = m_seList->GetName(nm * 2);
+			//LPSTR soundName = m_seList->GetName(nm * 2);
+			LPSTR soundName = GetSoundName(nm);
+
 			if (voiceFlag == FALSE)
 			{
 				int deltaVol = 0;
@@ -3379,7 +3489,9 @@ void CCommonConfig::PlayExtSe(int md,int n,BOOL voiceFlag)
 	{
 		if (nm < m_seListKosuu)
 		{
-			LPSTR soundName = m_seList->GetName(nm * 2);
+//			LPSTR soundName = m_seList->GetName(nm * 2);
+			LPSTR soundName = GetSoundName(nm);
+
 			if (voiceFlag == FALSE)
 			{
 				int deltaVol = 0;
@@ -3398,6 +3510,26 @@ void CCommonConfig::PlayExtSe(int md,int n,BOOL voiceFlag)
 		}
 	}
 }
+
+LPSTR CCommonConfig::GetSoundName(int nm)
+{
+	int type = 0;
+	if (m_useConfigSeVoice)
+	{
+		if (m_systemVoiceButtonKosuu > 0)
+		{
+			type = m_game->GetUseSystemVoice();
+		}
+	}
+
+	if (type == 0)
+	{
+		return m_seList->GetName(nm * 2);
+	}
+	
+	return m_seVoice[type]->GetName(nm * 2);
+}
+
 
 
 
@@ -3596,6 +3728,29 @@ void CCommonConfig::ReLoadAllButtonPic(void)
 		}
 	}
 
+//systemvoice
+
+	if (m_ppSystemVoiceButton != nullptr)
+	{
+		int md = m_ppSystemVoiceButton->GetRadio();
+
+		if (m_page == m_systemVoiceButtonPrintPage - 1)
+		{
+			int radioKosuu = m_ppSystemVoiceButton->GetButtonKosuu();
+
+			for (int i = 0; i < radioKosuu; i++)
+			{
+				int st = 0;
+				if (i == md) st = 1;
+
+				CPicture* lpPic = m_ppSystemVoiceButton->GetPicture(i, st);
+				LPSTR name = m_ppSystemVoiceButton->GetFileName(i, st);
+				char filename[256];
+				wsprintf(filename, "sys\\%s", name);
+				lpPic->LoadDWQ(filename);
+			}
+		}
+	}
 
 
 	for (n=0;n<m_expModeButtonKosuu;n++)
@@ -3832,6 +3987,26 @@ void CCommonConfig::ReLoadModeButtonPic(int n)
 		lpPic->LoadDWQ(filename);
 	}
 }
+
+void CCommonConfig::ReLoadSystemVoicePic(void)
+{
+	if (m_ppSystemVoiceButton == nullptr) return;
+
+	int md = m_ppSystemVoiceButton->GetRadio();
+
+	for (int i = 0; i < m_systemVoiceButtonKosuu; i++)
+	{
+		int st = 0;
+		if (i == md) st = 1;
+
+		CPicture* lpPic = m_ppSystemVoiceButton->GetPicture(i, st);
+		LPSTR name = m_ppSystemVoiceButton->GetFileName(i, st);
+		char filename[256];
+		wsprintf(filename, "sys\\%s", name);
+		lpPic->LoadDWQ(filename);
+	}
+}
+
 
 void CCommonConfig::ReLoadClickButtonPic(int n)
 {

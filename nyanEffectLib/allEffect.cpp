@@ -160,6 +160,7 @@
 #include "..\nyanEffectTransformLib\effectStretch.h"
 #include "..\nyanEffectTransformLib\effectStretchBlt.h"
 #include "..\nyanEffectTransformLib\effectTurn.h"
+#include "..\nyanEffectTransformLib\effectTurnNew.h"
 
 //nyanEffectWipeLib
 #include "..\nyanEffectWipeLib\effectHamon.h"
@@ -317,6 +318,8 @@ CAllEffect::CAllEffect()
 	m_ppEffects[EFFECT_GEOPOLYGONADD] = new CEffectGeoPolygonAdd(this);
 	m_ppEffects[EFFECT_GEOBOXADD] = new CEffectGeoBoxAdd(this);
 	m_ppEffects[EFFECT_CHARAMOZAIC] = new CEffectCharaMozaic(this);
+	m_ppEffects[EFFECT_TURNNEW] = new CEffectTurnNew(this);
+
 #if !defined _TINYAN3DLIB_
 	m_ppEffects[EFFECT_BSPLINE2] = new CEffectBSpline2(this);
 	m_ppEffects[EFFECT_COLORBALANCE] = new CEffectColorBalance(this);

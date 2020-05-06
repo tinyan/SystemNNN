@@ -317,7 +317,8 @@ public:
 
 		int scriptSEVolume;
 		int scriptSESwitch;
-		int pad2[2];
+		int useSystemVoiceNumber;
+		int pad2[1];
 
 		int pad[256 - 8];
 

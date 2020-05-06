@@ -256,6 +256,10 @@ protected:
 
 	CCommonRadioButtonGroup* m_tabButton;
 
+
+	CCommonRadioButtonGroup* m_ppSystemVoiceButton;
+	int m_systemVoiceButtonPrintPage;
+
 	int* m_useEffectPicKosuu;
 	int* m_useSuperPicKosuu;
 
@@ -267,6 +271,7 @@ protected:
 	void ReLoadAllRadioButtonPic(void);
 
 	void ReLoadTabPic(void);
+	void ReLoadSystemVoicePic(void);
 
 	void ReLoadVoiceButtonPic(int n);
 	void ReLoadModeButtonPic(int n);
@@ -284,6 +289,7 @@ protected:
 	int m_voiceAutoLineNumberX;
 	int m_voiceAutoLineNumberY;
 
+	int m_systemVoiceButtonKosuu;
 
 	int m_page;
 	int m_pageMax;
@@ -420,6 +426,10 @@ protected:
 	int m_outSetVar;
 	int m_outSetVarData;
 
+	CNameList** m_seVoice;
+	int m_useConfigSeVoice;
+
+	LPSTR GetSoundName(int nm);
 private:
 
 

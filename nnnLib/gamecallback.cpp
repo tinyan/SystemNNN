@@ -2134,10 +2134,27 @@ else
 	m_faceList = new CNameList();
 	m_functionList = new CNameList();
 
+
+	m_useSystemVoice = 0;
+	GetInitGameParam(&m_useSystemVoice, "useSystemVoice");
+	m_systemVoiceList = nullptr;
+
 	if (noSystemSeFlag == 0)
 	{
 		m_systemSeList = new CNameList();
 		m_systemSeList->LoadFile("nya\\systemse.xtx");
+
+		if (m_useSystemVoice > 0)
+		{
+			m_systemVoiceList = new CNameList*[m_useSystemVoice];
+			for (int i = 0; i < m_useSystemVoice; i++)
+			{
+				m_systemVoiceList[i] = new CNameList();
+				char filename[256];
+				sprintf_s(filename, 256, "nya\\systemvoice%d.xtx", i + 1);
+				m_systemVoiceList[i]->LoadFile(filename);
+			}
+		}
 	}
 
 //	m_facePrintFlag = 0;
@@ -2556,11 +2573,11 @@ else
 		{
 			m_systemWaveArray[i] = new CWaveData();
 
-			char syswavename[256];
-			wsprintf(syswavename,"%s",m_systemSeList->GetName(i*2));
-
-			m_systemWaveArray[i]->LoadSystemWave("sys",syswavename);
+//			char syswavename[256];
+//			wsprintf(syswavename,"%s",m_systemSeList->GetName(i*2));
+//			m_systemWaveArray[i]->LoadSystemWave("sys",syswavename);
 		}
+		ReLoadSystemSound();
 	}
 
 //OutputDebugString("\nGeneralCreate -7");
@@ -3689,6 +3706,14 @@ ENDDELETECLASS(m_waveData);	//dummy
 	ENDDELETECLASS(m_faceControl);
 	ENDDELETECLASS(m_seList);
 	ENDDELETECLASS(m_systemSeList);
+	if (m_systemVoiceList != nullptr)
+	{
+		for (int i = 0; i < m_useSystemVoice; i++)
+		{
+			ENDDELETECLASS(m_systemVoiceList[i]);
+		}
+		DELETEARRAY(m_systemVoiceList);
+	}
 	ENDDELETECLASS(m_varInitData);
 	ENDDELETECLASS(m_saijitsuList);
 	ENDDELETECLASS(m_varList);
@@ -12605,16 +12630,36 @@ void CGameCallBack::PlaySystemSound(int n,int volumeType)
 	}
 	else
 	{
-		if (m_systemSeList == NULL) return;
+		int useSystemVoice = GetUseSystemVoice();
 
-		char filename[256];
-		wsprintf(filename,"%s",m_systemSeList->GetName(n*2));
-		if (wave->LoadSystemWave("sys",filename) == FALSE)
+		if (useSystemVoice == 0)
 		{
-			return;
-//			MessageBox(NULL,"filename","error",MB_OK);
-		}
+			if (m_systemSeList == NULL) return;
 
+			char filename[256];
+			wsprintf(filename, "%s", m_systemSeList->GetName(n * 2));
+			if (wave->LoadSystemWave("sys", filename) == FALSE)
+			{
+				return;
+				//			MessageBox(NULL,"filename","error",MB_OK);
+			}
+		}
+		else
+		{
+			char filename[256];
+			wsprintf(filename, "%s", m_systemVoiceList[useSystemVoice-1]->GetName(n * 2));
+
+			//check voice off???
+
+
+
+			if (wave->LoadSystemWave("sys", filename) == FALSE)
+			{
+				return;
+				//			MessageBox(NULL,"filename","error",MB_OK);
+			}
+
+		}
 //char mes[256];
 //wsprintf(mes,"sound %d",n+1);
 //MessageBox(NULL,mes,"sound",MB_OK);
@@ -16593,6 +16638,49 @@ void CGameCallBack::StopAllScriptVoice(void)
 		m_loopVoiceFileName[ch * 64] = 0;
 		SetPoolVoiceFlag(ch, false);
 	}
+}
+
+void CGameCallBack::ReLoadSystemSound(void)
+{
+	int useSystemSound = 0;
+	CNameList* list = m_systemSeList;
+#if defined __SYSTEMNNN_VER2__
+	useSystemSound = m_systemFile->m_systemFlag2.useSystemVoiceNumber;
+	if (useSystemSound > 0)
+	{
+		list = m_systemVoiceList[useSystemSound - 1];
+	}
+#endif
+
+
+	for (int i = 0; i < m_systemWaveLoadKosuu; i++)
+	{
+		char syswavename[256];
+		sprintf_s(syswavename,256,"%s",list->GetName(i*2));
+		m_systemWaveArray[i]->LoadSystemWave("sys",syswavename);
+	}
+}
+
+int CGameCallBack::GetUseSystemVoiceCount(void)
+{
+	return m_useSystemVoice;
+}
+
+int CGameCallBack::GetUseSystemVoice(void)
+{
+	int useSystemSound = 0;
+	CNameList* list = m_systemSeList;
+#if defined __SYSTEMNNN_VER2__
+	useSystemSound = m_systemFile->m_systemFlag2.useSystemVoiceNumber;
+#endif
+	return useSystemSound;
+}
+
+void CGameCallBack::SetUseSystemVoice(int n)
+{
+#if defined __SYSTEMNNN_VER2__
+	m_systemFile->m_systemFlag2.useSystemVoiceNumber = n;
+#endif
 }
 
 /*_*/

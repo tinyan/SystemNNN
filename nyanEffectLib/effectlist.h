@@ -210,6 +210,8 @@
 
 #define EFFECT_CHARAMOZAIC 139
 
+#define EFFECT_TURNNEW 140
+
 #endif
 /*_*/
 
