@@ -3610,6 +3610,15 @@ void CCommonPrintMessage::GetCutinForSave(int* ptr)
 }
 
 
+int CCommonPrintMessage::GetMessageSpeedTable(int n, bool autoFlag)
+{
+	if (autoFlag)
+	{
+		return m_autoMessageSpeedTable[n];
+	}
+
+	return m_messageSpeedTable[n];
+}
 
 /*_*/
 

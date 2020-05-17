@@ -13223,7 +13223,7 @@ void CGameCallBack::CreateAllClass(BOOL taikenFlag)
 	CreateCommonClass(SELECTHEROIN_MODE);
 	CreateCommonClass(PRINTCALENDAR_MODE);
 
-	CreateCommonClass(PRINTMOVIE_MODE);
+	CreateCommonClass(SELECTMOVIE_MODE);
 	CreateCommonClass(NAMEINPUT_MODE);
 	CreateCommonClass(MYPRINTRESULT_MODE);
 	CreateCommonClass(SELECTCHART_MODE);
@@ -16681,6 +16681,44 @@ void CGameCallBack::SetUseSystemVoice(int n)
 #if defined __SYSTEMNNN_VER2__
 	m_systemFile->m_systemFlag2.useSystemVoiceNumber = n;
 #endif
+}
+
+int CGameCallBack::GetMovieCount(void)
+{
+	int n = m_movieList->GetNameKosuu();
+	return n / 2;
+}
+
+void CGameCallBack::SetDirectMovie(int movieNumber)
+{
+	CCommonPrintMovie* printMovie = (CCommonPrintMovie*)m_general[PRINTMOVIE_MODE];
+	if (printMovie != nullptr)
+	{
+		printMovie->SetBackMode(SELECTMOVIE_MODE);
+//		int para = movieNumber;
+//		printMovie->StartUserCommand(1, &para);
+		printMovie->StartByDirect(movieNumber);
+	}
+}
+
+void CGameCallBack::SetGetMovie(int playerNumber,int n)
+{
+	m_systemFile->SetMovie(playerNumber, n);
+}
+
+bool CGameCallBack::CheckGetMovie(int playerNumber,int n)
+{
+	return m_systemFile->CheckMovie(playerNumber, n);
+}
+
+int CGameCallBack::GetMessageSpeedTable(int n, bool autoFlag)
+{
+	CCommonPrintMessage* printMessage = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
+	if (printMessage != nullptr)
+	{
+		return printMessage->GetMessageSpeedTable(n, autoFlag);
+	}
+	return 20;
 }
 
 /*_*/

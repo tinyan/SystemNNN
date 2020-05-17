@@ -36,7 +36,7 @@ void CColorBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,char* maskPic,S
 
 	char* mask = maskPic;
 	mask += srcPoint.x;
-	mask += (SSIZE_T)srcPoint.y * screenSizeX;
+	mask += (SSIZE_T)srcPoint.y * srcSize.cx;
 
 
 	int maskPitch = srcSize.cx;

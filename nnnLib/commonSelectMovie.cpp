@@ -17,6 +17,8 @@
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\myKeyStatus.h"
 
+#include "..\nnnUtilLib\nnnButtonStatus.h"
+
 #include "..\nnnUtilLib\namelist.h"
 
 #include "commonMode.h"
@@ -46,6 +48,9 @@ char CCommonSelectMovie::m_defaultFont2FileName[] = "ta_sl_font3";
 char CCommonSelectMovie::m_defaultFont3FileName[] = "ta_sl_font3";
 char CCommonSelectMovie::m_defaultCursorFileName[] = "ta_movie_cur";
 
+char CCommonSelectMovie::m_defaultPrefixOff[] = "ta_sm_movie_off";
+char CCommonSelectMovie::m_defaultPrefixOn[] = "ta_sm_movie_on";
+
 
 CCommonSelectMovie::CCommonSelectMovie(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 {
@@ -74,6 +79,17 @@ CCommonSelectMovie::CCommonSelectMovie(CGameCallBack* lpGame) : CCommonGeneral(l
 	GetInitGameParam(&m_picMustPrintPercent, "picMustPrintPercent");
 
 
+	m_useOpeningMovie = 0;
+	GetInitGameParam(&m_useOpeningMovie, "UseOpeningMovie");
+
+	m_movieCount = m_game->GetMovieCount();
+	if (m_useOpeningMovie != 0)
+	{
+		m_movieCount++;
+	}
+
+
+	m_getMovieFlag = new int[m_movieCount];
 
 	m_miniPic = new CPicture*[m_blockKosuuX*m_blockKosuuY];
 	int i = 0;
@@ -118,11 +134,14 @@ CCommonSelectMovie::CCommonSelectMovie(CGameCallBack* lpGame) : CCommonGeneral(l
 
 	GetInitGameParam(&m_cursorPrintX, "cursorPrintX");
 	GetInitGameParam(&m_cursorPrintY, "cursorPrintY");
-	GetInitGameParam(&m_cursorSizeX, "cursprSizeX");
-	GetInitGameParam(&m_cursorSizeY, "cursprSizeY");
+	GetInitGameParam(&m_cursorSizeX, "cursorSizeX");
+	GetInitGameParam(&m_cursorSizeY, "cursorSizeY");
 
 
-
+	m_prefixOff = m_defaultPrefixOff;
+	m_prefixOn = m_defaultPrefixOn;
+	GetInitGameString(&m_prefixOff, "prefixOff");
+	GetInitGameString(&m_prefixOn, "prefixOn");
 
 //	m_cgFlag = new BOOL[maxCGKosuuPerChara];
 
@@ -133,6 +152,33 @@ CCommonSelectMovie::CCommonSelectMovie(CGameCallBack* lpGame) : CCommonGeneral(l
 	LPSTR cursorName = m_defaultCursorFileName;
 	GetInitGameString(&cursorName, "fileNameCursor");
 	m_cursorPic = m_game->GetSystemPicture(cursorName);
+
+
+	m_selectPrintMode = 1;
+	GetInitGameParam(&m_selectPrintMode, "selectPrintMode");
+
+	m_selectPercent = 50;
+	GetInitGameParam(&m_selectPercent, "selectPercent");
+
+	if (m_selectPrintMode == 1)
+	{
+		m_selectColorR = 230;
+		m_selectColorG = 0;
+		m_selectColorB = 50;
+
+		GetInitGameParam(&m_selectColorR, "cursorColorR");
+		GetInitGameParam(&m_selectColorG, "cursorColorG");
+		GetInitGameParam(&m_selectColorB, "cursorColorB");
+	}
+	else if (m_selectPrintMode == 2)
+	{
+		LPSTR cursorName = m_defaultCursorFileName;
+		GetInitGameString(&cursorName, "fileNameCursor");
+		m_cursorPic = m_game->GetSystemPicture(cursorName);
+
+		m_cursorPrintType = 0;
+		GetInitGameParam(&m_cursorPrintType, "cursorPrintType");
+	}
 
 
 	m_totalPercentPrintFlag = 1;
@@ -180,6 +226,10 @@ CCommonSelectMovie::CCommonSelectMovie(CGameCallBack* lpGame) : CCommonGeneral(l
 	GetFadeInOutSetup();
 	GetEnterExitVoiceFileName();
 
+	m_page = 0;
+	m_pageMax = (m_movieCount + m_blockKosuuX * m_blockKosuuY - 1)/(m_blockKosuuX * m_blockKosuuY);
+
+
 //	GetModeNumberBySetup("nextMode",&m_nextMode);
 }
 
@@ -192,31 +242,401 @@ CCommonSelectMovie::~CCommonSelectMovie()
 
 void CCommonSelectMovie::End(void)
 {
+	ENDDELETECLASS(m_pagePrint);
+
+	if (m_miniPic != NULL)
+	{
+		for (int i = 0; i < m_blockKosuuX*m_blockKosuuY; i++)
+		{
+			ENDDELETECLASS(m_miniPic[i]);
+		}
+		DELETEARRAY(m_miniPic);
+	}
+	DELETEARRAY(m_getMovieFlag);
 }
 
 
 
 int CCommonSelectMovie::Init(void)
 {
+	int total = 0;
+	for (int i = 0; i < m_movieCount; i++)
+	{
+		if ((m_useOpeningMovie != 0) && (i == 0))
+		{
+			m_getMovieFlag[i] = 1;
+			total++;
+		}
+		else
+		{
+			int mn = i;
+			if (m_useOpeningMovie == 0)
+			{
+				mn++;
+			}
+			if (m_game->CheckGetMovie(0, mn))
+			{
+
+				m_getMovieFlag[i] = 1;
+					total++;
+			}
+			else
+			{
+				m_getMovieFlag[i] = 0;
+			}
+		}
+	}
+	if (m_movieCount > 0)
+	{
+		m_percent = (total * 100) / m_movieCount;
+	}
+	else
+	{
+		m_percent = 0;
+	}
+
+	m_game->StopScriptSoundAndVoice();
+	m_game->SetDefaultFrameRate();
+
+
+	SetUpDownZahyo();
+	m_updown->SetPageMax(m_pageMax);
+	m_updown->SetPage(m_page);
+
+
+	LoadBackMovie();
+
+
+	LoadUpDownButtonPic();
+	LoadBackButtonPic();
+
+
+
+	m_nowSelectNumber = -1;
+	m_maeSelectNumber = -1;
+
+
+	//	m_back->Init();
+	m_updownBack->Init();
+
+	SetBackButtonZahyo();
+
+	m_selectedNumber = -1;
+
+
+	m_startupWait = 3;
+
+
 	return -1;
 }
 
 int CCommonSelectMovie::Calcu(void)
 {
+	POINT pt = m_mouseStatus->GetZahyo();
+	int mouseX = pt.x;
+	int mouseY = pt.y;
+
+	//	if (m_selectedNumber >= 0)
+	if ((m_selectedNumber != -1) && (m_selectedNumber != -2))
+	{
+		m_count--;
+		if (m_count <= 0)
+		{
+			int fn = m_selectedNumber;
+			if (m_useOpeningMovie == 0)
+			{
+				fn++;
+			}
+			m_game->SetDirectMovie(fn);
+			return ReturnFadeOut(PRINTMOVIE_MODE);
+		}
+		return -1;
+	}
+
+	int rt = m_updownBack->Calcu(m_inputStatus);
+
+	if (rt != NNNBUTTON_NOTHING)
+	{
+		//sound
+		int nm = ProcessUpDownBack(rt);
+		if (nm >= 0)
+		{
+			if (nm == 0)
+			{
+				return ReturnFadeOut(OMAKE_MODE);
+//				return ReturnFadeOut(m_backMode);
+			}
+
+			m_selectedNumber = -1;
+			if (nm > 0)
+			{
+				m_page = nm - 1;
+
+				m_startupWait = 3;
+				LoadBackMovie();
+				CAreaControl::SetNextAllPrint();
+				return -1;
+			}
+		}
+
+		int st = CCommonButton::GetButtonStatus(rt);
+		if (st == NNNBUTTON_STARTCLICK)
+		{
+			int nm = CCommonButton::GetButtonData(rt);
+			m_selectedNumber = -2;
+		}
+	}
+
+	m_maeSelectNumber = m_nowSelectNumber;
+	m_nowSelectNumber = GetOnMovie(mouseX, mouseY);
+
+	if (m_mouseStatus->CheckClick())
+	{
+		if (m_nowSelectNumber != -1)
+		{
+			m_selectedNumber = m_nowSelectNumber + m_page * m_blockKosuuX * m_blockKosuuY;
+
+			m_count = m_length;
+			if (m_selectSound != -1)
+			{
+				m_game->PlaySystemSound(m_selectSound - 1);
+			}
+			//m_game->PlayCommonSystemSound(COMMON_SYSTEMSOUND_OK2);
+			return -1;
+		}
+	}
+
+	if (m_startupWait > 0)
+	{
+		m_startupWait--;
+	}
+	else
+	{
+//		if ((m_nowSelectNumber != m_maeSelectNumber) && (m_nowSelectNumber != -1))
+//		{
+//			if (m_cgPianoSoundFlag)
+//			{
+//				m_game->PlaySystemPiano(m_nowSelectNumber);
+//			}
+//		}
+	}
+
 	return -1;
-	return m_nextMode;
+
+
 }
 
 int CCommonSelectMovie::Print(void)
 {
-//	CAreaControl::SetNextAllPrint();
+	PrintBackScriptOrBG();
+
+	BOOL b = CAreaControl::CheckAllPrintMode();
+
+	if (m_backScriptFlag)
+	{
+		PrintAllMiniPic();
+
+//		if (m_addPicFlag) PrintAddPic();
+		m_pagePrint->Print(m_page + 1, m_pageMax);
+		//		if (m_pagePrintFlag) PrintPage();
+		if (m_totalPercentPrintFlag) PrintTotalPercent();
+	}
+
+
+	m_updownBack->Print(TRUE);
+	//	m_back->Print(TRUE);
+	//	m_updown->Print(TRUE);
+
+	for (int j = 0; j < m_blockKosuuY; j++)
+	{
+		for (int i = 0; i < m_blockKosuuX; i++)
+		{
+			int k = i + j * m_blockKosuuX;
+			BOOL bb = b;
+			if (m_nowSelectNumber != m_maeSelectNumber)
+			{
+				if ((k == m_nowSelectNumber) || (k == m_maeSelectNumber))
+				{
+					bb = TRUE;
+				}
+			}
+
+			if (k == m_selectedNumber) bb = TRUE;
+
+			if (bb)
+			{
+				int putX = m_printX + m_nextX * i;
+				int putY = m_printY + m_nextY * j;
+				int sizeX = m_sizeX;
+				int sizeY = m_sizeY;
+
+				int block = m_page * (m_blockKosuuX * m_blockKosuuY) + k;
+
+				if (m_getMovieFlag[block] > 0)
+				{
+					if (m_backScriptFlag == 0)
+					{
+						m_commonBG->Blt(putX, putY, putX, putY, sizeX, sizeY, FALSE);
+					}
+
+					if ((k == m_nowSelectNumber) || (k == m_selectedNumber))
+					{
+						if ((m_selectedNumber == -1) || (m_count & 1))
+						{
+							int putX1 = putX + m_cursorPrintX;
+							int putY1 = putY + m_cursorPrintY;
+							int sizeX1 = m_cursorSizeX;
+							int sizeY1 = m_cursorSizeY;
+
+							if (m_selectPrintMode == 1)
+							{
+								CAllGeo::TransBoxFill(putX1, putY1, sizeX1, sizeY1, m_selectColorR, m_selectColorG, m_selectColorB, m_selectPercent);
+							}
+							else if (m_selectPrintMode == 2)
+							{
+								if (m_cursorPrintType == 0)
+								{
+									m_cursorPic->Blt(putX1, putY1, 0, 0, sizeX1, sizeY1, TRUE);
+								}
+								else if (m_cursorPrintType == 1)
+								{
+									m_cursorPic->TransLucentBlt3(putX1, putY1, 0, 0, sizeX1, sizeY1, m_selectPercent);
+								}
+								else if (m_cursorPrintType == 2)
+								{
+									m_cursorPic->AddBlt(putX1, putY1, 0, 0, sizeX1, sizeY1);
+								}
+								//								m_cursorPic->Blt(putX,putY,0,0,sizeX,sizeY,TRUE);
+							}
+							//							CPicture::TransBox(putX,putY,sizeX,sizeY,230,0,255,50);
+							//							m_cursorPic->AddBlt(putX-1,putY-1,0,0,135,101);
+						}
+					}
+
+					if (b == FALSE)
+					{
+						CAreaControl::AddArea(putX, putY, sizeX, sizeY);
+					}
+				}
+			}
+		}
+	}
+
+	return 0;
+
+
+
 //	CAllGraphics::FillScreen(m_fillColorR,m_fillColorG,m_fillColorB);
 //	CPicture::FillScreen(m_fillColorR,m_fillColorG,m_fillColorB);
 	return -1;
 }
 
 
+void CCommonSelectMovie::LoadBackMovie(void)
+{
+	char filename[256];
+	if (m_backScriptFlag == 0)
+	{
+		wsprintf(filename, "sys\\%s", m_filenameBG);
+		m_commonBG->LoadDWQ(filename);
+		m_commonBG->Put(0, 0, FALSE);
+	}
 
+	for (int j = 0; j < m_blockKosuuY; j++)
+	{
+		for (int i = 0; i < m_blockKosuuX; i++)
+		{
+			int n0 = j * m_blockKosuuX + i;
+			int block = m_page * (m_blockKosuuX * m_blockKosuuY) + n0;
+
+			if (block < m_movieCount)
+			{
+				int fn = block;
+				if (m_useOpeningMovie == 0)
+				{
+					fn++;
+				}
+
+				if (m_getMovieFlag[block] == 0)
+				{
+					sprintf_s(filename, 256, "sys\\%s%d", m_prefixOff,fn);
+				}
+				else
+				{
+					sprintf_s(filename, 256, "sys\\%s%d", m_prefixOn,fn);
+
+				}
+				m_miniPic[n0]->LoadDWQ(filename);
+			}
+		}
+	}
+
+	if (m_backScriptFlag == 0)
+	{
+		PrintAllMiniPic();
+
+		if (m_totalPercentPrintFlag)
+		{
+			PrintTotalPercent();
+		}
+
+		m_pagePrint->Print(m_page + 1, m_pageMax);
+
+
+		m_commonBG->GetScreen();
+	}
+
+}
+
+int CCommonSelectMovie::GetOnMovie(int mouseX, int mouseY)
+{
+	int x = mouseX - m_printX;
+	int y = mouseY - m_printY;
+
+	if ((x < 0) || (x >= m_nextX * m_blockKosuuX)) return -1;
+	if ((y < 0) || (y >= m_nextY * m_blockKosuuY)) return -1;
+
+	int ax = x % m_nextX;
+	int ay = y % m_nextY;
+	if (ax >= m_sizeX) return -1;
+	if (ay >= m_sizeY) return -1;
+
+	int d = x / m_nextX;
+	d += ((y / m_nextY) * m_blockKosuuX);
+
+	if ((d + m_page * m_blockKosuuX * m_blockKosuuY) >= m_movieCount) return -1;
+
+	if (m_getMovieFlag[d] == 0) return -1;
+
+	return d;
+}
+
+
+void CCommonSelectMovie::PrintTotalPercent(void)
+{
+	m_suuji->Print(m_totalPercentPrintX, m_totalPercentPrintY, m_percent);
+	m_suuji->Put(m_totalPercentPrintX + m_fontNextX1 * 3, m_totalPercentPrintY, 12, 0);
+}
+
+void CCommonSelectMovie::PrintAllMiniPic(void)
+{
+	for (int j = 0; j < m_blockKosuuY; j++)
+	{
+		for (int i = 0; i < m_blockKosuuX; i++)
+		{
+			int n0 = j * m_blockKosuuX + i;
+			int block = m_page * (m_blockKosuuX * m_blockKosuuY) + n0;
+
+			int putX = m_printX + i * m_nextX;
+			int putY = m_printY + j * m_nextY;
+
+			if (block < m_movieCount)
+			{
+				m_miniPic[n0]->Put(putX, putY, TRUE);
+			}
+		}
+	}
+}
 
 /*_*/
 

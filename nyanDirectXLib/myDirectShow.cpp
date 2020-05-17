@@ -296,7 +296,13 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 	{
 	}
 
-	if (hr != S_OK) WaitMediaControl(10);
+	if (hr != S_OK)
+	{
+		OutputDebugString("\n)m_mediaControl)->Run() error");
+
+		WaitMediaControl(10);
+	//	hr = ((IMediaControl*)m_mediaControl)->Run();
+	}
 
 	m_playFlag = TRUE;
 	return TRUE;

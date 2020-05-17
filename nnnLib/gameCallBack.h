@@ -857,6 +857,14 @@ public:
 	int GetUseSystemVoice(void);
 	void SetUseSystemVoice(int n);
 
+	int GetMovieCount(void);
+	void SetDirectMovie(int movieNumber);
+
+	void SetGetMovie(int playerNumber, int n);
+	bool CheckGetMovie(int playerNumber,int n);
+
+	int GetMessageSpeedTable(int n, bool autoFlag);
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}

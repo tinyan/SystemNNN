@@ -37,7 +37,7 @@ protected:
 	static char m_defaultBGFileName[];
 	static char m_defaultButtonFileName[];
 
-	int m_existFlag[4];
+	int m_existFlag[16];
 
 	int m_menuPrintX;
 	int m_menuPrintY;

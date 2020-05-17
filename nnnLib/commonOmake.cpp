@@ -134,11 +134,13 @@ CCommonOmake::CCommonOmake(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	{
 		m_existFlag[i] = 1;
 	}
+	m_existFlag[4] = 0;
 
 
 	GetInitGameParam(&m_existFlag[0],"cgModeExistFlag");
 	GetInitGameParam(&m_existFlag[1],"sceneModeExistFlag");
 	GetInitGameParam(&m_existFlag[2],"bgmModeExistFlag");
+	GetInitGameParam(&m_existFlag[4], "movieModeExistFlag");
 
 
 	if (m_backScriptFlag)
@@ -416,11 +418,14 @@ int CCommonOmake::Init(void)
 //	m_menu2->Init();
 
 	int i = 0;
-	for (i=0;i<3;i++)
+	for (i=0;i<5;i++)
 	{
-		if (m_existFlag[i] == 0)
+		if (i != 3)
 		{
-			m_menu2->SetExist(i,FALSE);
+			if (m_existFlag[i] == 0)
+			{
+				m_menu2->SetExist(i, FALSE);
+			}
 		}
 	}
 
@@ -625,6 +630,9 @@ int CCommonOmake::Calcu(void)
 
 			if (nm == 1)
 			{
+//return ReturnFadeOut(SELECTMOVIE_MODE);
+
+
 	//			m_game->SetSceneMode();
 				
 				if (m_autoSceneCharaFlag)
@@ -656,6 +664,15 @@ int CCommonOmake::Calcu(void)
 			{
 				return ReturnFadeOut(TITLE_MODE);
 	//			return TITLE_MODE;
+			}
+
+			if (m_basicButtonKosuu >= 5)
+			{
+				if (nm == 4)
+				{
+					return ReturnFadeOut(SELECTMOVIE_MODE);
+					//			return TITLE_MODE;
+				}
 			}
 
 			//í èÌí«â¡É{É^Éì

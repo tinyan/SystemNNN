@@ -171,8 +171,8 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 	GetInitGameParam(&m_cursorPrintX,"cursorPrintX");
 	GetInitGameParam(&m_cursorPrintY,"cursorPrintY");
-	GetInitGameParam(&m_cursorSizeX,"cursprSizeX");
-	GetInitGameParam(&m_cursorSizeY,"cursprSizeY");
+	GetInitGameParam(&m_cursorSizeX,"cursorSizeX");
+	GetInitGameParam(&m_cursorSizeY,"cursorSizeY");
 
 
 

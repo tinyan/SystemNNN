@@ -73,6 +73,7 @@ char CCommonConfig::m_defaultBarFileName[] = "ta_opt_bar";
 
 char CCommonConfig::m_defaultPageNumberVarName[] = "コンフィグページ";
 
+char CCommonConfig::m_defaultSampleText[] = "サンプルテキスト";
 
 //#define VOICEBUTTONNUMBER_OFFSET 100
 //#define BACKBUTTONCLICKING_OFFSET 200
@@ -1371,6 +1372,30 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 //	GetInitGameParam(&m_initMovieVolume,"initMovieVolume");
 
 
+	m_sampleText = m_defaultSampleText;
+	m_useSampleText = 0;
+	GetInitGameParam(&m_useSampleText, "useSampleText");
+
+	m_sampleTextPrintX = 0;
+	m_sampleTextPrintY = 0;
+	m_sampleTextFontSize = 24;
+	m_sampleTextCount = 0;
+	m_sampleTextPrintPage = 1;
+	m_sampleTextColorR = 255;
+	m_sampleTextColorG = 255;
+	m_sampleTextColorB = 255;
+	if (m_useSampleText != 0)
+	{
+		GetInitGameParam(&m_sampleTextPrintX, "sampleTextPrintX");
+		GetInitGameParam(&m_sampleTextPrintY, "sampleTextPrintY");
+		GetInitGameParam(&m_sampleTextFontSize, "sampleTextFontSize");
+		GetInitGameParam(&m_sampleTextPrintPage, "sampleTextPrintPage");
+		GetInitGameParam(&m_sampleTextColorR, "sampleTextColorR");
+		GetInitGameParam(&m_sampleTextColorG, "sampleTextColorG");
+		GetInitGameParam(&m_sampleTextColorB, "sampleTextColorB");
+		GetInitGameString(&m_sampleText, "sampleText");
+	}
+
 	GetInitGameParam(&m_initAnimeSwitch,"initAnimeSwitch");
 
 	m_voiceSameBufferFlag = 0;
@@ -1560,11 +1585,19 @@ int CCommonConfig::Init(void)
 		m_game->SetVarData(m_inSetVar, m_inSetVarData);
 	}
 
+	//ここで取得
+	for (int i = 0; i < 5; i++)
+	{
+		m_messageSpeedTable[i] = m_game->GetMessageSpeedTable(i, false);
+		m_autoMessageSpeedTable[i] = m_game->GetMessageSpeedTable(i, true);
+	}
+	m_mojiTime = 0;
+
 	m_game->StopScriptSoundAndVoice();
 
 	m_pageYoyaku = -1;
 	m_pageYoyakuFlag = FALSE;
-
+	m_sampleTextCount = 0;
 
 	ReLoadBackConfigBG();
 
@@ -2698,7 +2731,11 @@ int CCommonConfig::Calcu(void)
 					int vol = m_ppSlider[i]->Calcu(m_mouseStatus);
 					if (vol != -1)
 					{
-						if (i == 0) m_game->SetSystemParam(NNNPARAM_MESSAGESPEED,vol);
+						if (i == 0)
+						{
+							m_game->SetSystemParam(NNNPARAM_MESSAGESPEED, vol);
+							m_mojiTime = 0;
+						}
 						if (i == 6) m_game->SetSystemParam(NNNPARAM_WINDOWPERCENT,100 - vol);
 						if (i == 7) m_game->SetSystemParam(NNNPARAM_AUTOSPEEDSLIDER,vol);
 
@@ -3138,6 +3175,14 @@ int CCommonConfig::Print(void)
 	}
 */
 
+	if (m_useSampleText != 0)
+	{
+		if ((m_sampleTextPrintPage-1) == m_page)
+		{
+			PrintSampleText();
+		}
+	}
+
 	if (m_pageYoyakuFlag)
 	{
 		m_page = m_pageYoyaku;
@@ -3145,6 +3190,50 @@ int CCommonConfig::Print(void)
 		ChangePage();
 	}
 	return -1;
+}
+
+void CCommonConfig::PrintSampleText(void)
+{
+	int frameTime = m_game->GetFrameTime();
+
+	int mojiTime = 0;
+
+	//@@@@@@@@@@@@@@@@@@@@@@@@@ここで実際にかかった時間と調整する必要がある
+	frameTime = m_game->GetNowFrameCount();
+
+	int messageSpeed = m_game->GetSystemParam(NNNPARAM_MESSAGESPEED);
+	//	if (CheckAutoMessage())
+	//	if (CheckAuto())
+	if (m_game->GetSystemParam(NNNPARAM_AUTOMODE))
+	{
+		mojiTime = m_autoMessageSpeedTable[messageSpeed] * frameTime;
+	}
+	else
+	{
+		mojiTime = m_messageSpeedTable[messageSpeed] * frameTime;
+	}
+
+	m_mojiTime += mojiTime;
+	int printMojisuu = m_mojiTime / 1000;
+	int textLen = strlen(m_sampleText) / 2;
+	if (printMojisuu > textLen)
+	{
+		m_mojiTime = 0;
+		printMojisuu = textLen;
+	}
+
+	if (printMojisuu > 0)
+	{
+		char mes[256];
+		memcpy(mes, m_sampleText, printMojisuu * 2);
+		mes[printMojisuu * 2] = 0;
+		mes[printMojisuu * 2+1] = 0;
+		m_message->PrintMessageParts(0, printMojisuu, m_sampleTextPrintX, m_sampleTextPrintY, m_sampleText,m_sampleTextFontSize,
+			m_sampleTextColorR, m_sampleTextColorG, m_sampleTextColorB);
+
+	}
+
+
 }
 
 

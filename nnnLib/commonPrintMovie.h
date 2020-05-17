@@ -39,6 +39,8 @@ public:
 
 	BOOL CheckFirstFrame(void){return m_firstFrame;}
 
+	void StartByDirect(int moveieNumber);
+
 protected:
 	LPSTR m_filenameBG;
 	int m_codecError;
@@ -66,6 +68,8 @@ protected:
 	BOOL m_firstFrame;
 	int m_autoDebugWait;
 
+	bool m_directMovieFlag;
+	int m_directMovieNumber;
 };
 
 #endif

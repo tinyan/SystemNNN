@@ -118,6 +118,7 @@ public:
 	void SetNextMessageEffect(int md);
 	void SetNextMessageEffectTime(int md);
 
+	int GetMessageSpeedTable(int n, bool autoFlag);
 protected:
 	CMyMessage* m_message;
 	CMessageCursor* m_cursor;

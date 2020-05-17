@@ -96,6 +96,7 @@ CCommonPrintMovie::CCommonPrintMovie(CGameCallBack* lpGame) : CCommonGeneral(lpG
 	m_scriptMovieFlag = FALSE;
 	m_dontSaiseiFlag = FALSE;
 
+	m_directMovieFlag = false;
 
 	m_fillExitScreenFlag = 1;
 	GetInitGameParam(&m_fillExitScreenFlag,"fillExitScreenFlag");
@@ -160,44 +161,59 @@ int CCommonPrintMovie::Init(void)
 	if (1)
 	{
 		char filename[1024];
-		if (m_selectMovieFlag)
+		if (m_directMovieFlag)
 		{
-			wsprintf(filename,"movie\\%s",m_selectMovieFileName);
-			m_selectMovieFlag = FALSE;
+			if (m_directMovieNumber == 0)
+			{
+				wsprintf(filename, "movie\\%s", m_selectMovieFileName);
+			}
+			else
+			{
+				LPSTR fname = m_game->GetMovieName(m_directMovieNumber);
+				wsprintf(filename, "movie\\%s",fname);
+			}
 		}
 		else
 		{
-			LPSTR name = m_movieFileName;
-
-			if (m_selectMovieByVarFlag != 0)
+			if (m_selectMovieFlag)
 			{
-				if (m_selectMovieVarNumber != -1)
+				wsprintf(filename, "movie\\%s", m_selectMovieFileName);
+				m_selectMovieFlag = FALSE;
+			}
+			else
+			{
+				LPSTR name = m_movieFileName;
+
+				if (m_selectMovieByVarFlag != 0)
 				{
-					int vn = m_game->GetVarData(m_selectMovieVarNumber);
-
-					if (m_selectMovieByVarFlag == -1)
+					if (m_selectMovieVarNumber != -1)
 					{
-						if (vn == 0)
+						int vn = m_game->GetVarData(m_selectMovieVarNumber);
+
+						if (m_selectMovieByVarFlag == -1)
 						{
-							//dont Ä¶
-							m_dontSaiseiFlag = TRUE;
-							return -1;
+							if (vn == 0)
+							{
+								//dont Ä¶
+								m_dontSaiseiFlag = TRUE;
+								return -1;
+							}
 						}
-					}
 
 
-					if (vn > 0)
-					{
-						name = m_game->GetMovieName(vn);
-						if (name == NULL)
+						if (vn > 0)
 						{
-							name = m_movieFileName;
+							name = m_game->GetMovieName(vn);
+							if (name == NULL)
+							{
+								name = m_movieFileName;
+							}
 						}
 					}
 				}
-			}
 
-			wsprintf(filename,"movie\\%s",name);
+				wsprintf(filename, "movie\\%s", name);
+			}
 		}
 
 	//	m_directShow->SetWindowMode(m_game->GetSystemParam(NNNPARAM_SCREENMODE));
@@ -244,6 +260,10 @@ int CCommonPrintMovie::Calcu(void)
 			return -1;
 		}
 
+		if (m_directMovieFlag)
+		{
+			return m_backMode;
+		}
 		return m_nextMode;
 	}
 
@@ -279,6 +299,10 @@ int CCommonPrintMovie::Calcu(void)
 
 		if (m_scriptMovieFlag == FALSE)
 		{
+			if (m_directMovieFlag)
+			{
+				return m_backMode;
+			}
 			return m_nextMode;
 		}
 		
@@ -396,10 +420,12 @@ void CCommonPrintMovie::StartUserCommand(int paraKosuu,int* paraPtr)
 	{
 		movieNumber = *paraPtr;
 	}
+	m_game->SetGetMovie(0, movieNumber);
 	LPSTR filename = m_game->GetMovieName(movieNumber);
 	SetMovie(filename);
 	m_scriptMovieFlag = TRUE;
 	m_dontSaiseiFlag = FALSE;
+	m_directMovieFlag = false;
 }
 
 
@@ -409,6 +435,13 @@ void CCommonPrintMovie::SetMovie(LPSTR filename)
 	m_selectMovieFileName = filename;
 }
 
+void CCommonPrintMovie::StartByDirect(int movieNumber)
+{
+	m_directMovieFlag = true;
+	m_directMovieNumber = movieNumber;
+	m_scriptMovieFlag = FALSE;
+	m_dontSaiseiFlag = FALSE;
+}
 
 
 int CCommonPrintMovie::CheckCodec(void)

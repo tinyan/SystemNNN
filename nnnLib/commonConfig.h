@@ -45,6 +45,8 @@ public:
 
 	static char m_defaultPageNumberVarName[];
 
+	static char m_defaultSampleText[];
+
 	static int m_defaultVolumeDevideTable[];
 	static int m_defaultBunkatsuTable[];
 	static int m_defaultIsVoiceTable[];
@@ -430,6 +432,24 @@ protected:
 	int m_useConfigSeVoice;
 
 	LPSTR GetSoundName(int nm);
+
+	LPSTR m_sampleText;
+	int m_useSampleText;
+	int m_sampleTextPrintX;
+	int m_sampleTextPrintY;
+	int m_sampleTextFontSize;
+	int m_sampleTextPrintPage;
+	int m_sampleTextCount;
+	int m_sampleTextColorR;
+	int m_sampleTextColorG;
+	int m_sampleTextColorB;
+
+	int m_messageSpeedTable[5];
+	int m_autoMessageSpeedTable[5];
+
+	void PrintSampleText(void);
+	int m_mojiTime;
+
 private:
 
 

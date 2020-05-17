@@ -30,7 +30,12 @@ public:
 	static char m_defaultFont3FileName[];
 	static char m_defaultCursorFileName[];
 
+	static char m_defaultPrefixOff[];
+	static char m_defaultPrefixOn[];
+
 protected:
+	LPSTR m_prefixOff;
+	LPSTR m_prefixOn;
 
 	int m_selectedNumber;
 	int m_maeSelectNumber;
@@ -65,8 +70,8 @@ protected:
 	CPicture** m_miniPic;
 	CSuuji* m_suuji;
 
-	void LoadBackCG(void);
-	int GetOnCG(int mouseX, int mouseY);
+	void LoadBackMovie(void);
+	int GetOnMovie(int mouseX, int mouseY);
 
 
 	int m_fontSizeX1;
@@ -129,12 +134,12 @@ protected:
 	int m_blockKosuuX;
 	int m_blockKosuuY;
 
-//	int m_selectColorR;
-//	int m_selectColorG;
-//	int m_selectColorB;
-//	int m_selectPercent;
-//	int m_selectPrintMode;
-//	int m_cursorPrintType;
+	int m_selectColorR;
+	int m_selectColorG;
+	int m_selectColorB;
+	int m_selectPercent;
+	int m_selectPrintMode;
+	int m_cursorPrintType;
 
 	int m_picMustPrintPercent;
 
@@ -172,6 +177,12 @@ protected:
 //	CCGDataControl* m_cgDataControl;
 
 
+	int m_useOpeningMovie;
+	int m_movieCount;
+
+	int m_percent;
+
+	int* m_getMovieFlag;
 };
 
 #endif
