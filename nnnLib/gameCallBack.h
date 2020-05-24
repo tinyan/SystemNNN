@@ -179,6 +179,7 @@ public:
 	virtual void PrintOverrap(int count);
 	virtual BOOL CheckDemoMode(void);
 	
+	virtual bool CheckPlayerVoice(int playerNumber);
 
 	virtual void AddBackLogMessage(LPSTR mes,int colR=255, int colG=255, int colB=255);
 	virtual BOOL CheckMessageHaveVoice(void) {return m_messageHaveVoiceFlag;}
@@ -363,6 +364,9 @@ public:
 	BOOL LoadSetupFile(LPSTR filenameonly, int varKosuu);
 	BOOL LoadSetupFile2(LPSTR filenameonly, int varKosuu);
 	BOOL LoadSetupFile3(LPSTR filenameonly, int varKosuu);
+
+	BOOL LoadSetupFileConfig(LPSTR filenameonly, int varKosuu);
+	BOOL GetInitConfigParam(int* lpVar, LPSTR name);
 
 	virtual void UserCommandCallBack(void) {}
 
@@ -864,6 +868,11 @@ public:
 	bool CheckGetMovie(int playerNumber,int n);
 
 	int GetMessageSpeedTable(int n, bool autoFlag);
+	int GetSelectSerialID(void);
+	void SetSelectSerialID(int serial, int n, bool flag = true);
+	bool CheckSelectSerialID(int serial, int n);
+
+	void PlayButtonVoice(int voice);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1183,6 +1192,7 @@ protected:
 	CNameList* m_setup;
 	CNameList* m_setup2;
 	CNameList* m_setup3;
+	CNameList* m_setupConfig;
 
 	LPSTR m_companyName;
 	LPSTR m_productName;
@@ -1852,7 +1862,10 @@ protected:
 
 	int m_useSystemVoice;
 	CNameList** m_systemVoiceList;
+	CNameList** m_buttonVoiceList;
 
+	int m_selectSerialID;
+	void PlayButtonVoiceByFilename(LPSTR filename);
 };
 
 #endif

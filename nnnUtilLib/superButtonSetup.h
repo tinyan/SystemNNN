@@ -41,7 +41,11 @@ public:
 	int GetCannotClickSound(void) {return m_cannotClickSound;}
 	int GetEnterSound(void){return m_enterSound;}
 	int GetExitSound(void) {return m_exitSound;}
-	
+	int GetClickVoice(void) { return m_clickVoice; }
+	int GetCannotClickVoice(void) { return m_cannotClickVoice; }
+	int GetEnterVoice(void) { return m_enterVoice; }
+	int GetExitVoice(void) { return m_exitVoice; }
+
 	int GetEnterWaitTime(void){return m_enterWaitTime;}
 	int GetExitWaitTime(void){return m_exitWaitTime;}
 
@@ -89,6 +93,10 @@ private:
 	int m_exitSound;
 	int m_enterWaitTime;
 	int m_exitWaitTime;
+	int m_clickVoice;
+	int m_cannotClickVoice;
+	int m_enterVoice;
+	int m_exitVoice;
 
 	int m_buttonPrintMode;
 	int m_cancelButtonFlag;

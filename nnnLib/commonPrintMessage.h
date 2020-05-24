@@ -477,6 +477,15 @@ private:
 	CPicture* m_lprintAddImagePic;
 	int m_lprintAddImageFlag;
 
+	bool	m_nowMessageIsReadMessage;
+
+	int m_readMessageColorR;
+	int m_readMessageColorG;
+	int m_readMessageColorB;
+	int m_readNameColorR;
+	int m_readNameColorG;
+	int m_readNameColorB;
+
 };
 
 #endif

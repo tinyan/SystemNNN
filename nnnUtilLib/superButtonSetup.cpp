@@ -49,6 +49,10 @@ CSuperButtonSetup::CSuperButtonSetup(CNameList* nameList,LPSTR buttonName,CSuper
 	m_cannotClickSound = 0;
 	m_enterSound = 0;
 	m_exitSound = 0;
+	m_clickVoice = 0;
+	m_cannotClickVoice = 0;
+	m_enterVoice = 0;
+	m_exitVoice = 0;
 	m_enterWaitTime = 0;
 	m_exitWaitTime = 0;
 	m_volumeType = 0;
@@ -283,6 +287,30 @@ CSuperButtonSetup::CSuperButtonSetup(CNameList* nameList,LPSTR buttonName,CSuper
 	wsprintf(name,"%sExitSound",buttonName);
 	m_setupList->GetInitGameParam(&m_exitSound,name);
 
+	wsprintf(name, "%sClickVoice", buttonName);
+	m_setupList->GetInitGameParam(&m_clickVoice, name);
+
+	wsprintf(name, "%sBadVoice", buttonName);
+	m_setupList->GetInitGameParam(&m_cannotClickVoice, name);
+
+	wsprintf(name, "%sEnterVoice", buttonName);
+	m_setupList->GetInitGameParam(&m_enterVoice, name);
+
+
+	if (m_enterVoice > 0)
+	{
+
+		char mes[256];
+		sprintf_s(mes, 256, "\nsuperbuttonsetup ButtonVoice = %d", m_enterVoice);
+		OutputDebugString(mes);
+
+	}
+
+
+	wsprintf(name, "%sExitVoice", buttonName);
+	m_setupList->GetInitGameParam(&m_exitVoice, name);
+
+
 	wsprintf(name,"%sVolumeType",buttonName);
 	m_setupList->GetInitGameParam(&m_volumeType,name);
 
@@ -429,6 +457,11 @@ void CSuperButtonSetup::SetupButtonStatus(CCommonButton* lpButton)
 	lpButton->SetEnterSoundWait(GetEnterWaitTime());
 	lpButton->SetExitSoundWait(GetExitWaitTime());
 	lpButton->SetVolumeType(GetVolumeType());
+
+	lpButton->SetClickVoice(GetClickVoice());
+	lpButton->SetCannotClickVoice(GetCannotClickVoice());
+	lpButton->SetEnterVoice(GetEnterVoice());
+	lpButton->SetExitVoice(GetExitVoice());
 }
 
 void CSuperButtonSetup::CopyParam(CSuperButtonSetup* lpSetup,int deltaX,int deltaY)
@@ -463,6 +496,11 @@ void CSuperButtonSetup::CopyParam(CSuperButtonSetup* lpSetup,int deltaX,int delt
 	m_cannotClickSound = lpSetup->GetCannotClickSound();
 	m_enterSound = lpSetup->GetEnterSound();
 	m_exitSound = lpSetup->GetExitSound();
+
+	m_clickVoice = lpSetup->GetClickVoice();
+	m_cannotClickVoice = lpSetup->GetCannotClickVoice();
+	m_enterVoice = lpSetup->GetEnterVoice();
+	m_exitVoice = lpSetup->GetExitVoice();
 
 	m_enterWaitTime = lpSetup->GetEnterWaitTime();
 	m_exitWaitTime = lpSetup->GetEnterWaitTime();

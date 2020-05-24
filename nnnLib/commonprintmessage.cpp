@@ -279,6 +279,19 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 		m_shadeColor = (shadeR << 16) | (shadeG << 8) | shadeB;
 	}
 
+	m_readMessageColorR = 255;
+	m_readMessageColorG = 0;
+	m_readMessageColorB = 0;
+	GetInitGameParam(&m_readMessageColorR, "readMessageColorR");
+	GetInitGameParam(&m_readMessageColorG, "readMessageColorG");
+	GetInitGameParam(&m_readMessageColorB, "readMessageColorB");
+	m_readNameColorR = m_readMessageColorR;
+	m_readNameColorG = m_readMessageColorG;
+	m_readNameColorB = m_readMessageColorB;
+	GetInitGameParam(&m_readNameColorR, "readNameColorR");
+	GetInitGameParam(&m_readNameColorG, "readNameColorG");
+	GetInitGameParam(&m_readNameColorB, "readNameColorB");
+
 
 
 	m_windowMessageKosuuMax = 4;
@@ -1750,6 +1763,10 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 				int colG = m_nameColorG;
 				int colB = m_nameColorB;
 
+
+
+
+
 				//change color?
 
 				if (m_nameColor != NULL)
@@ -1759,6 +1776,20 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 					colG = (nameColor >>  8) & 0xff;
 					colB = (nameColor      ) & 0xff;
 				}
+
+				bool rubiColorIsMessageColor = false;
+#if defined __SYSTEMNNN_VER2__
+				if (m_nowMessageIsReadMessage)
+				{
+					if (m_game->GetSystemParam(NNNPARAM_CHANGEREADMESSAGECOLORSWITCH))
+					{
+						colR = m_readNameColorR;
+						colG = m_readNameColorG;
+						colB = m_readNameColorB;
+						rubiColorIsMessageColor = true;
+					}
+				}
+#endif
 
 
 				//‚©‚°F•Ï‰»?
@@ -1775,7 +1806,7 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 
 							if ((m_namePicFlag == 0) || (m_nameNumber == -1))
 							{
-								m_message->PrintMessage(putX,putY,&m_messageData[0][0],m_nameFontSize,colR,colG,colB,sukima,m_nameFontSize,kageColor);
+								m_message->PrintMessage(putX,putY,&m_messageData[0][0],m_nameFontSize,colR,colG,colB,sukima,m_nameFontSize,kageColor,true,rubiColorIsMessageColor);
 							}
 							else
 							{
@@ -1903,6 +1934,22 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 			int colG = m_colorG;
 			int colB = m_colorB;
 
+			bool rubiColorIsMessageColor = false;
+#if defined __SYSTEMNNN_VER2__
+			if (m_nowMessageIsReadMessage)
+			{
+				if (m_game->GetSystemParam(NNNPARAM_CHANGEREADMESSAGECOLORSWITCH))
+				{
+					colR = m_readMessageColorR;
+					colG = m_readMessageColorG;
+					colB = m_readMessageColorB;
+					rubiColorIsMessageColor = true;
+				}
+			}
+#endif
+
+
+
 			int sukima = m_spaceX;
 
 			//F‚Ö‚ñ‚©?
@@ -1923,7 +1970,7 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 			//	OutputDebugString("o");
 				if (b)
 				{
-					m_message->PrintMessage(putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
+					m_message->PrintMessage(putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor,true, rubiColorIsMessageColor);
 //					m_message->PrintMessage(putX,putY+30*j,&m_messageData[j][0],m_fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
 				}
 				m_messagePrintedGyo = j;
@@ -1959,14 +2006,14 @@ int CCommonPrintMessage::PrintMessageMode(BOOL fromDraw)
 					if (m_messageEffect > 0)
 					{
 
-						amari = m_message->PrintEffectMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor,TRUE,m_messageEffect,m_mojiTimeAmari);
+						amari = m_message->PrintEffectMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor,TRUE,m_messageEffect,m_mojiTimeAmari, rubiColorIsMessageColor);
 					//	char mmm[256];
 					//	sprintf_s(mmm,256,"\x00d\x00a [%d] gyo=%d printed=%d kosuu=%d timeamari=%d amari=%d",m_messagePrintMojisuu,j,printed,kosuu,m_mojiTimeAmari,amari);
 					//	OutputDebugString(mmm);
 					}
 					else
 					{
-						amari = m_message->PrintMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor);
+						amari = m_message->PrintMessageParts(printed,kosuu,putX ,putY,&m_messageData[j][0],fontSize,colR,colG,colB,sukima,m_nextY,kageColor, true,rubiColorIsMessageColor);
 					}
 
 					m_messagePrintedGyo = j;
@@ -2471,6 +2518,11 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	{
 		m_messageSerialNumber = -1;
 	}
+
+	m_nowMessageIsReadMessage = CheckMessageRead();
+
+
+
 
 	m_messagePrintingFlag = TRUE;
 	m_namePrintedFlag = FALSE;

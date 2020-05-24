@@ -136,7 +136,7 @@ public:
 		int lastSelectID;
 		int selectMessageKosuu;
 		int selectMessageAddKosuu;
-		int pad3;
+		int selectSerialID;//’Ç‰Á2020-05-23
 
 
 		int bgmNumber;

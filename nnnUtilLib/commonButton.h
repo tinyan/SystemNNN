@@ -81,6 +81,10 @@ public:
 	void SetExitSound(int d){m_exitSound = d;}
 	void SetEnterSoundWait(int wait){m_enterSoundWait = wait;}
 	void SetExitSoundWait(int wait){m_exitSoundWait = wait;}
+	void SetClickVoice(int d) { m_clickVoice = d; }
+	void SetCannotClickVoice(int d) { m_cannotClickVoice = d; }
+	void SetEnterVoice(int d) { m_enterVoice = d; }
+	void SetExitVoice(int d) { m_exitVoice = d; }
 
 	int GetClickSound(void){return m_clickSound;}
 	int GetCannotClickSound(void){return m_cannotClickSound;}
@@ -88,6 +92,10 @@ public:
 	int GetExitSound(void){return m_exitSound;}
 	int GetEnterSoundWait(void){return m_enterSoundWait;}
 	int GetExitSoundWait(void){return m_exitSoundWait;}
+	int GetClickVoice(void) { return m_clickVoice; }
+	int GetCannotClickVoice(void) { return m_cannotClickVoice; }
+	int GetEnterVoice(void) { return m_enterVoice; }
+	int GetExitVoice(void) { return m_exitVoice; }
 
 	void SetAccelKey(int key,int n = 0){m_accelKey[n] = key;}
 	int GetAccelKey(int n = 0){return m_accelKey[n];}
@@ -99,11 +107,12 @@ public:
 	void SetClickTime(int tm){m_clickTime = tm;}
 	int GetClickTime(void){return m_clickTime;}
 
-	static int MakeButtonStatus(int status,int sound = -1,int mode=-1,int data=-1,int volumeType = -1);
+	static int MakeButtonStatus(int status,int sound = -1,int voice=-1,int data=-1,int volumeType = -1);
 	static int ChangeButtonData(int statusData,int data);
 
 	static int GetButtonStatus(int statusData);
-	static int GetButtonMode(int statusData);
+//	static int GetButtonMode(int statusData);
+	static int GetButtonVoice(int statusData);
 	static int GetButtonSound(int statusData);
 	static int GetButtonData(int statusData);
 	static int GetVolumeTypeData(int statusData);
@@ -190,6 +199,11 @@ protected:
 	int m_exitSound;
 	int m_enterSoundWait;
 	int m_exitSoundWait;
+
+	int m_clickVoice;
+	int m_cannotClickVoice;
+	int m_enterVoice;
+	int m_exitVoice;
 
 	int m_buttonPrintMode;
 

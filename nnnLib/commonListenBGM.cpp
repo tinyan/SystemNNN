@@ -1635,7 +1635,7 @@ void CCommonListenBGM::PrintMusicName(int n)
 		}
 	}
 
-	if (m_musicNameCenterFlag)
+	if (m_musicNameCenterFlag == 1)
 	{
 		if (codeByte != 1)
 		{
@@ -1644,6 +1644,17 @@ void CCommonListenBGM::PrintMusicName(int n)
 		else
 		{
 			putX += ((m_musicNameMax-ln)*(m_messageFontSize/2+1))/2;
+		}
+	}
+	else if (m_musicNameCenterFlag == 2)
+	{
+		if (codeByte != 1)
+		{
+			putX += (m_musicNameMax - ln)*m_messageFontSize;
+		}
+		else
+		{
+			putX += (m_musicNameMax - ln)*m_messageFontSize/2;
 		}
 	}
 

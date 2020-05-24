@@ -218,6 +218,12 @@ BOOL CCommonSystemFile::Load(BOOL errorPrintFlag)
 		fread(&m_systemFlag2.code, sizeof(char), m_systemFlag2.size - 4, file);
 	}
 
+	if (dataKosuu > 15)
+	{
+		fread(&m_selectMessageFlag.size, sizeof(m_selectMessageFlag.size), 1, file);
+		fread(&m_selectMessageFlag.code, sizeof(char), m_selectMessageFlag.size - 4, file);
+	}
+
 	fclose(file);
 
 	return TRUE;
@@ -242,11 +248,12 @@ void CCommonSystemFile::CreateInitData(void)
 	ZeroMemory(&m_term,sizeof(m_term));
 	ZeroMemory(&m_charaVoiceFlag,sizeof(m_charaVoiceFlag));
 	ZeroMemory(&m_systemFlag2, sizeof(m_systemFlag2));
+	ZeroMemory(&m_selectMessageFlag, sizeof(m_selectMessageFlag));
 
 	//Make Info
 	m_dataHeader.size = sizeof(m_dataHeader);
 	m_dataHeader.code = 0;	
-	m_dataHeader.dataKosuu = 14;
+	m_dataHeader.dataKosuu = 15;
 	CopyMemory(&m_dataHeader.message[0],"FILE INFO      ",16);
 
 
@@ -408,6 +415,10 @@ void CCommonSystemFile::CreateInitData(void)
 	m_systemFlag2.code = 17;
 	CopyMemory(m_systemFlag2.message, "SYSTEMFLAG2    ", 16);
 
+	m_selectMessageFlag.size = sizeof(m_selectMessageFlag);
+	m_selectMessageFlag.code = 18;
+	CopyMemory(m_selectMessageFlag.message, "SELECTMESSAGE  ", 16);
+
 }
 
 BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
@@ -417,7 +428,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 
 	m_dataHeader.dataKosuu = 14;
 #if defined __SYSTEMNNN_VER2__
-	m_dataHeader.dataKosuu = 15;
+	m_dataHeader.dataKosuu = 16;
 #endif
 
 	m_systemdata.year = st.wYear;
@@ -483,6 +494,7 @@ BOOL CCommonSystemFile::Save(BOOL errorPrintFlag)
 	fwrite(&m_charaVoiceFlag,sizeof(m_charaVoiceFlag),1,file);
 #if defined __SYSTEMNNN_VER2__
 	fwrite(&m_systemFlag2, sizeof(m_systemFlag2), 1, file);
+	fwrite(&m_selectMessageFlag, sizeof(m_selectMessageFlag), 1, file);
 #endif
 	fclose(file);
 
@@ -820,16 +832,16 @@ void CCommonSystemFile::SetAchievement(int n,int ps)
 
 int CCommonSystemFile::GetAchievement(int n)
 {
-	if ((n>=0) && (n<1024))
+	if ((n >= 0) && (n < 1024))
 	{
 		return m_achievement.achievement[n];
 	}
 	return 0;
 }
 
-void CCommonSystemFile::SetTerm(int n,BOOL flag)
+void CCommonSystemFile::SetTerm(int n, BOOL flag)
 {
-	if ((n>=0) && (n<1024))
+	if ((n >= 0) && (n < 1024))
 	{
 		int d = m_term.term[n];
 		if (flag)
@@ -846,16 +858,16 @@ void CCommonSystemFile::SetTerm(int n,BOOL flag)
 
 BOOL CCommonSystemFile::GetTerm(int n)
 {
-	if ((n>=0) && (n<1024))
+	if ((n >= 0) && (n < 1024))
 	{
 		if (m_term.term[n] & 1) return TRUE;
 	}
 	return FALSE;
 }
 
-void CCommonSystemFile::SetTermLook(int n,BOOL flag)
+void CCommonSystemFile::SetTermLook(int n, BOOL flag)
 {
-	if ((n>=0) && (n<1024))
+	if ((n >= 0) && (n < 1024))
 	{
 		int d = m_term.term[n];
 		if (flag)
@@ -872,16 +884,16 @@ void CCommonSystemFile::SetTermLook(int n,BOOL flag)
 
 BOOL CCommonSystemFile::GetTermLook(int n)
 {
-	if ((n>=0) && (n<1024))
+	if ((n >= 0) && (n < 1024))
 	{
 		if (m_term.term[n] & 2) return TRUE;
 	}
 	return FALSE;
 }
 
-void CCommonSystemFile::SetCharaVoiceFlag(int flagNumber,BOOL flag)
+void CCommonSystemFile::SetCharaVoiceFlag(int flagNumber, BOOL flag)
 {
-	if ((flagNumber >= 0) && (flagNumber < 65536*8))
+	if ((flagNumber >= 0) && (flagNumber < 65536 * 8))
 	{
 		int n = flagNumber / 32;
 		int bit = m_bitTable[flagNumber & 31];
@@ -898,7 +910,7 @@ void CCommonSystemFile::SetCharaVoiceFlag(int flagNumber,BOOL flag)
 
 BOOL CCommonSystemFile::CheckCharaVoiceFlag(int flagNumber)
 {
-	if ((flagNumber >= 0) && (flagNumber < 65536*8))
+	if ((flagNumber >= 0) && (flagNumber < 65536 * 8))
 	{
 		int n = flagNumber / 32;
 		int bit = m_bitTable[flagNumber & 31];
@@ -910,6 +922,36 @@ BOOL CCommonSystemFile::CheckCharaVoiceFlag(int flagNumber)
 
 	return FALSE;
 }
+
+
+void CCommonSystemFile::SetSelectMessageFlag(int select, int n, bool flag)
+{
+	if ((select >= 0) && (select < 1024))
+	{
+		int bit = m_bitTable[n & 31];
+		if (flag)
+		{
+			m_selectMessageFlag.flag[select] |= bit;
+		}
+		else
+		{
+			m_selectMessageFlag.flag[select] &= ~bit;
+
+		}
+
+	}
+}
+bool CCommonSystemFile::CheckSelectMessageFlag(int select, int n)
+{
+	if ((select >= 0) && (select < 1024))
+	{
+		int bit = m_bitTable[n & 31];
+		return (m_selectMessageFlag.flag[select] & bit) != 0;
+	}
+
+	return false;
+}
+
 
 void CCommonSystemFile::ClearAllCGFlag(void)
 {
@@ -996,6 +1038,15 @@ void CCommonSystemFile::ClearAllSystemFlag2(void)
 	ptr = &(m_systemFlag2.pad[0]);
 	sz = sizeof(m_systemFlag2.pad);
 	ZeroMemory(ptr, sz);
+}
+
+void CCommonSystemFile::ClearAllSelectMessageFlag(void)
+{
+	LPVOID ptr = &(m_selectMessageFlag.flag);
+	int sz = sizeof(m_selectMessageFlag.flag);
+	ZeroMemory(ptr, sz);
+
+
 }
 
 void CCommonSystemFile::SetCGCharaNinzu(int n)

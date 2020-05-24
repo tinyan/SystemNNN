@@ -421,10 +421,11 @@ int CCommonTitle::Calcu(void)
 
 		if (requestSoundFlag)
 		{
-			if (sound > 0)
-			{
-				m_game->PlaySystemSound(sound - 1);
-			}
+			ProcessButtonGroup(rt);
+//			if (sound > 0)
+//			{
+//				m_game->PlaySystemSound(sound - 1);
+//			}
 		}
 
 
@@ -464,11 +465,12 @@ int CCommonTitle::Calcu(void)
 //			int HTMLsound = 0;
 			if (HTMLrequestSoundFlag)
 			{
-				sound = CCommonButton::GetButtonSound(HTMLrt);
-				if (sound > 0)
-				{
-					m_game->PlaySystemSound(sound - 1);
-				}
+				ProcessCommonButton(HTMLrt);
+			//	sound = CCommonButton::GetButtonSound(HTMLrt);
+			//	if (sound > 0)
+			//	{
+			//		m_game->PlaySystemSound(sound - 1);
+			//	}
 			}
 			int HTMLexistDataFlag = CCommonButton::CheckExistData(HTMLrt);
 			int HTMLnm = -1;
@@ -501,11 +503,12 @@ int CCommonTitle::Calcu(void)
 //			int lastLoadsound = 0;
 			if (lastLoadrequestSoundFlag)
 			{
-				sound = CCommonButton::GetButtonSound(lastLoadrt);
-				if (sound > 0)
-				{
-					m_game->PlaySystemSound(sound - 1);
-				}
+				ProcessCommonButton(lastLoadrt);
+//				sound = CCommonButton::GetButtonSound(lastLoadrt);
+//				if (sound > 0)
+//				{
+//					m_game->PlaySystemSound(sound - 1);
+//				}
 			}
 			int lastLoadexistDataFlag = CCommonButton::CheckExistData(lastLoadrt);
 			int lastLoadnm = -1;

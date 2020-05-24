@@ -1341,6 +1341,9 @@ void CGameCallBack::GeneralCreate(void)
 		GetInitGameParam3(&m_miniGameCheckKosuu,"miniGameCheckNumber");
 	}
 
+	m_setupConfig = new CNameList();
+	LoadSetupFile3("config", 4096);
+
 	int omakeClassExistFlag = 0;
 	GetInitGameParam(&omakeClassExistFlag,"useExtClass");
 //	GetInitGameParam(&m_omakeClassExistFlag,"useExtClass");
@@ -2155,6 +2158,15 @@ else
 				m_systemVoiceList[i]->LoadFile(filename);
 			}
 		}
+	}
+
+	m_buttonVoiceList = new CNameList*[m_useSystemVoice + 1];
+	for (int i = 0; i < m_useSystemVoice + 1; i++)
+	{
+		m_buttonVoiceList[i] = new CNameList();
+		char filename[256];
+		sprintf_s(filename, 256, "nya\\buttonVoice%d.xtx", i);
+		m_buttonVoiceList[i]->LoadFile(filename);
 	}
 
 //	m_facePrintFlag = 0;
@@ -3714,6 +3726,15 @@ ENDDELETECLASS(m_waveData);	//dummy
 		}
 		DELETEARRAY(m_systemVoiceList);
 	}
+	if (m_buttonVoiceList != nullptr)
+	{
+		for (int i = 0; i < m_useSystemVoice+1; i++)
+		{
+			ENDDELETECLASS(m_buttonVoiceList[i]);
+		}
+		DELETEARRAY(m_buttonVoiceList);
+	}
+
 	ENDDELETECLASS(m_varInitData);
 	ENDDELETECLASS(m_saijitsuList);
 	ENDDELETECLASS(m_varList);
@@ -3805,6 +3826,7 @@ ENDDELETECLASS(m_waveData);	//dummy
 	DELETEARRAY(m_layerOffVar);
 	ENDDELETECLASS(m_dataFileSetup);
 
+	ENDDELETECLASS(m_setupConfig);
 	ENDDELETECLASS(m_setup3);
 	ENDDELETECLASS(m_setup);
 
@@ -5207,7 +5229,9 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 		}
 		break;
 #if defined __SYSTEMNNN_VER2__
+	case NNNPARAM_SCRIPTSESWITCH:
 		m_systemFile->m_systemFlag2.scriptSESwitch = dat;
+		break;
 #endif
 	case NNNPARAM_SKIPMODE:
 		m_systemFile->m_systemdata.skipMode = dat;
@@ -5228,9 +5252,25 @@ void CGameCallBack::SetSystemParam(int para, int dat)
 	case NNNPARAM_AUTOSPEEDSLIDER:
 		m_systemFile->m_systemdata.autoSpeedSlider = dat;
 		break;
-	case NNNPARAM_AUTOCONTINUESWITCH:
-		m_systemFile->m_systemdata.continueAuto = dat;
+
+
+#if defined __SYSTEMNNN_VER2__
+	case NNNPARAM_CONTINUEVOICESWITCH:
+		m_systemFile->m_systemFlag2.continueVoice = dat;
 		break;
+	case NNNPARAM_AUTOCONTINUESWITCH:
+		m_systemFile->m_systemFlag2.continueSkip = dat;
+		break;
+	case NNNPARAM_AUTOSKIPSWITCH:
+		m_systemFile->m_systemFlag2.autoSkip = dat;
+		break;
+	case NNNPARAM_CHANGEREADMESSAGECOLORSWITCH:
+		m_systemFile->m_systemFlag2.changeReadMessageColor = dat;
+		break;
+	case NNNPARAM_CHANGESELECTMESSAGECOLORSWITCH:
+		m_systemFile->m_systemFlag2.changeSelectMessageColor = dat;
+		break;
+#endif
 	}
 
 	if ((para >= NNNPARAM_EXPMODE) && (para < NNNPARAM_EXPMODE+m_expButtonKosuu))
@@ -5372,9 +5412,24 @@ int CGameCallBack::GetSystemParam(int para)
 	case NNNPARAM_AUTOSPEEDSLIDER:
 		return m_systemFile->m_systemdata.autoSpeedSlider;
 		break;
-	case NNNPARAM_AUTOCONTINUESWITCH:
-		return m_systemFile->m_systemdata.continueAuto;
+
+#if defined __SYSTEMNNN_VER2__
+	case NNNPARAM_CONTINUEVOICESWITCH:
+		return m_systemFile->m_systemFlag2.continueVoice;
 		break;
+	case NNNPARAM_AUTOCONTINUESWITCH:
+		return m_systemFile->m_systemFlag2.continueSkip;
+		break;
+	case NNNPARAM_AUTOSKIPSWITCH:
+		return m_systemFile->m_systemFlag2.autoSkip;
+		break;
+	case NNNPARAM_CHANGEREADMESSAGECOLORSWITCH:
+		return m_systemFile->m_systemFlag2.changeReadMessageColor;
+		break;
+	case NNNPARAM_CHANGESELECTMESSAGECOLORSWITCH:
+		return m_systemFile->m_systemFlag2.changeSelectMessageColor;
+		break;
+#endif
 	}
 
 	if ((para >= NNNPARAM_EXPMODE) && (para < NNNPARAM_EXPMODE+m_expButtonKosuu))
@@ -5638,6 +5693,8 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 	m_cannotSkip = lp->cannotSkip;
 
 	m_renameLayer = lp->renameLayer;
+
+	m_selectSerialID = lp->selectSerialID;
 
 	if (m_layerKosuuMax == 32)
 	{
@@ -6001,6 +6058,9 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	lp->scriptRunMode = m_taihiScriptRunMode;
 
 	lp->gameMode = m_saveMode;
+
+	lp->selectSerialID = m_selectSerialID;
+
 
 	if (m_saveMode == SELECTMESSAGE_MODE)
 	{
@@ -8412,6 +8472,11 @@ void CGameCallBack::PlaySystemWaveFilename(LPSTR filename,int deltaVolume)
 void CGameCallBack::PlaySystemVoiceByFileName(LPSTR filename, BOOL firstOffFlag,BOOL sameBufferFlag)
 {
 	if (CheckTotalVolumeOff()) return;
+
+	if (CheckVoiceOffByName(filename)) return;
+	
+
+
 	if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
 
 	char name[256];
@@ -8442,6 +8507,45 @@ void CGameCallBack::PlaySystemVoiceByFileName(LPSTR filename, BOOL firstOffFlag,
 	}
 }
 
+
+void CGameCallBack::PlayButtonVoiceByFilename(LPSTR filename)
+{
+	if (CheckTotalVolumeOff()) return;
+
+	if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
+
+	int vol = GetSystemParam(NNNPARAM_VOICEVOLUME);
+
+
+	int delta = GetVoiceVolumeByName(filename);
+	vol += delta;
+	if (vol <= 0) vol = 0;
+	if (vol > 100) vol = 100;
+
+
+	char name[256];
+	wsprintf(name, "sys\\%s", filename);
+
+	m_useSystemSoundNumber++;
+	m_useSystemSoundNumber %= 2;
+
+	m_systemSound[m_useSystemSoundNumber]->Stop();
+
+	if (m_waveData->LoadSystemWave("sys", filename))
+	{
+		int stereo = m_waveData->GetChannel();
+		int sampleRate = m_waveData->GetSampleRate();
+		int bitRate = m_waveData->GetBitRate();
+
+		char* realPtr = (char*)(m_waveData->GetRealDataPtr());
+		int realSize = m_waveData->GetRealDataSize();
+
+		m_systemSound[m_useSystemSoundNumber]->SetData(realPtr, realSize, stereo, sampleRate, bitRate);
+
+		m_systemSound[m_useSystemSoundNumber]->SetVolume(vol);
+		m_systemSound[m_useSystemSoundNumber]->Play();
+	}
+}
 
 //VOICE,‚É‚Ì‚Ý‘Î‰ž
 BOOL CGameCallBack::CheckResetVolume(int volumeType)
@@ -8529,6 +8633,19 @@ BOOL CGameCallBack::GetInitGameParam3(int* lpVar, LPSTR name)
 }
 
 
+BOOL CGameCallBack::GetInitConfigParam(int* lpVar, LPSTR name)
+{
+	if (m_setupConfig == NULL) return FALSE;
+
+	int rNum = m_setupConfig->SearchName2(name);
+	if (rNum == -1) return FALSE;
+
+	*lpVar = atoi(m_setupConfig->GetName(rNum + 1));
+
+	return TRUE;
+}
+
+
 BOOL CGameCallBack::LoadSetupFile(LPSTR filenameonly, int varKosuu)
 {
 	if (m_setup == NULL)
@@ -8580,6 +8697,19 @@ BOOL CGameCallBack::LoadSetupFile3(LPSTR filenameonly, int varKosuu)
 //	return m_setup3->LoadFile(filename3);
 }
 
+
+BOOL CGameCallBack::LoadSetupFileConfig(LPSTR filenameonly, int varKosuu)
+{
+	if (m_setupConfig == NULL)
+	{
+		m_setupConfig = new CNameList(varKosuu * 2);
+	}
+
+	if (m_setupConfig == NULL) return FALSE;
+
+	return m_setupConfig->LoadInit(filenameonly);
+
+}
 
 int CGameCallBack::ExecGameScript(int pc)
 {
@@ -9549,7 +9679,8 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 #if defined __SYSTEMNNN_VER2__
 				if (ch < 2)
 				{
-					if (m_systemFile->m_systemFlag2.continueVoice)
+					if (GetSystemParam(NNNPARAM_CONTINUEVOICESWITCH))
+//					if (m_systemFile->m_systemFlag2.continueVoice)
 					{
 						notOff = true;
 					}
@@ -10392,9 +10523,18 @@ void CGameCallBack::SystemCommandSelect(int para1,LPVOID para2)
 		selObj->SetMessageData(i,mes);
 	}
 
-	int timeLimit = *(strPtr+selKosuu+mesKosuu);
+	int timeLimit = *(strPtr+selKosuu+mesKosuu);//‹tH
 	int autoSelect = *(strPtr+selKosuu+mesKosuu+1);
 //	int specialFlag = *(strPtr+selKosuu+mesKosuu+2);
+
+	int selectSerial = *(strPtr + selKosuu + mesKosuu + 3);
+	{
+		char m[256];
+		sprintf_s(m, 256, "\n\nselectSerial = %d\n", selectSerial);
+		OutputDebugString(m);
+	}
+	m_selectSerialID = selectSerial;
+
 
 	if (autoSelect == 0)
 	{
@@ -16719,6 +16859,58 @@ int CGameCallBack::GetMessageSpeedTable(int n, bool autoFlag)
 		return printMessage->GetMessageSpeedTable(n, autoFlag);
 	}
 	return 20;
+}
+
+int CGameCallBack::GetSelectSerialID(void)
+{
+	return m_selectSerialID;
+}
+
+void CGameCallBack::SetSelectSerialID(int serial, int n, bool flag)
+{
+#if defined __SYSTEMNNN_VER2__
+	return m_systemFile->SetSelectMessageFlag(serial, n,flag);
+#endif
+}
+
+bool CGameCallBack::CheckSelectSerialID(int serial, int n)
+{
+#if defined __SYSTEMNNN_VER2__
+	return m_systemFile->CheckSelectMessageFlag(serial, n);
+#endif
+
+	return false;
+}
+
+bool CGameCallBack::CheckPlayerVoice(int playerNumber)
+{
+#if defined __SYSTEMNNN_VER2__
+	return m_systemFile->CheckVoice(playerNumber);
+#endif
+
+	return true;
+}
+
+void CGameCallBack::PlayButtonVoice(int voice)
+{
+#if defined __SYSTEMNNN_VER2__
+	int useSystemVoice = GetUseSystemVoice();
+	if (voice > 0)
+	{
+		if (m_buttonVoiceList[useSystemVoice] != nullptr)
+		{
+			int kosuu = m_buttonVoiceList[useSystemVoice]->GetNameKosuu();
+			if ((voice - 1) * 2 < kosuu)
+			{
+				LPSTR voiceFilename = m_buttonVoiceList[useSystemVoice]->GetName((voice - 1) * 2);
+
+
+				PlaySystemVoiceByFileName(voiceFilename);
+			}
+		}
+	}
+#endif
+
 }
 
 /*_*/

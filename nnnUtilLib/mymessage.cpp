@@ -242,10 +242,10 @@ void CMyMessage::End(void)
 }
 
 //startもじめからlengthもじ表示。戻り値はちょうどかいたら0、かけなかったらマイナス、あまったらプラス
-int CMyMessage::PrintMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag)
+int CMyMessage::PrintMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag, bool rubiColorIsMessageColor)
 {
 	m_myFont->BeginPrint(fontSize,bAntiAliasFlag);
-	int rt = MakeMessage(start,start+length,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag);
+	int rt = MakeMessage(start,start+length,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag, -1,1,rubiColorIsMessageColor);
 
 	m_myFont->EndPrint();
 
@@ -253,23 +253,23 @@ int CMyMessage::PrintMessageParts(int start, int length, int x, int y, LPSTR mes
 }
 
 //エフェクト付で作成
-int CMyMessage::PrintEffectMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag,int effectType,int effectCount1000)
+int CMyMessage::PrintEffectMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag,int effectType,int effectCount1000, bool rubiColorIsMessageColor)
 {
 	m_effectType = effectType;
 	m_effectCount1000 = effectCount1000;
 	m_myFont->BeginPrint(fontSize,bAntiAliasFlag);
-	int rt = MakeMessage(start,start+length,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag);
+	int rt = MakeMessage(start,start+length,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag,-1,1, rubiColorIsMessageColor);
 
 	m_myFont->EndPrint();
 	m_effectType = 0;
 	return rt;
 }
 
-void CMyMessage::PrintSelectMessage(int startY, int lengthY, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag)
+void CMyMessage::PrintSelectMessage(int startY, int lengthY, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag, bool rubiColorIsMessageColor)
 {
 	m_myFont->BeginPrint(fontSize,bAntiAliasFlag);
 
-	int rt = MakeMessage(0,1000,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag,startY,lengthY);
+	int rt = MakeMessage(0,1000,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag,startY,lengthY, rubiColorIsMessageColor);
 	m_myFont->EndPrint();
 }
 
@@ -566,7 +566,7 @@ int CMyMessage::GetOkikae(char* mes)
 
 
 //1行のみ対応に修正
-int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag,int startY,int lengthY)
+int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag,int startY,int lengthY,bool rubiColorIsMessageColor)
 {
 	int codeByte = CMyFont::m_codeByte;
 
@@ -1190,12 +1190,12 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 			if (bNewCol)
 			{
 //				rt = m_myFont->MakePic(message+top,m_messageWork,colR,colG,colB,sukima,kageColor,m_colorPtr);
-				rt = m_myFont->MakePic(orgMessage,m_messageWork,colR0,colG0,colB0,sukima,kageColor,m_colorPtr,rubiKosuu,nowLen,m_rubiParam,m_rubiMessage);
+				rt = m_myFont->MakePic(orgMessage,m_messageWork,colR0,colG0,colB0,sukima,kageColor,m_colorPtr,rubiKosuu,nowLen,m_rubiParam,m_rubiMessage, rubiColorIsMessageColor);
 			}
 			else
 			{
 //				rt = m_myFont->MakePic(message+top,m_messageWork,colR,colG,colB,sukima,kageColor);
-				rt = m_myFont->MakePic(orgMessage,m_messageWork,colR0,colG0,colB0,sukima,kageColor,NULL,rubiKosuu,nowLen,m_rubiParam,m_rubiMessage);
+				rt = m_myFont->MakePic(orgMessage,m_messageWork,colR0,colG0,colB0,sukima,kageColor,NULL,rubiKosuu,nowLen,m_rubiParam,m_rubiMessage, rubiColorIsMessageColor);
 			}
 
 			if (rt>0)
@@ -1454,22 +1454,22 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 
 
-void CMyMessage::PrintMessage(int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag)
+void CMyMessage::PrintMessage(int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag, bool rubiColorIsMessageColor)
 {
 	m_myFont->BeginPrint(fontSize,bAntiAliasFlag);
 
-	MakeMessage(0,1000,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag);
+	MakeMessage(0,1000,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag,-1,1, rubiColorIsMessageColor);
 
 	m_myFont->EndPrint();
 }
 
-void CMyMessage::GradPrintMessage(int startX,int endX,int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag)
+void CMyMessage::GradPrintMessage(int startX,int endX,int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag, bool rubiColorIsMessageColor)
 {
 	m_myFont->BeginPrint(fontSize,bAntiAliasFlag);
 	m_gradFlag = TRUE;
 	m_gradStartX = startX;
 	m_gradEndX = endX;
-	MakeMessage(0,1000,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag);
+	MakeMessage(0,1000,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag,-1,1, rubiColorIsMessageColor);
 	m_gradFlag = FALSE;
 
 	m_myFont->EndPrint();

@@ -134,6 +134,19 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 		GetInitGameParam(&m_timeLimitWindowSizeY,"timeLimitWindowSizeY");
 	}
 
+	m_messageColorR = 255;
+	m_messageColorG = 255;
+	m_messageColorB = 255;
+	m_selectedColorR = 255;
+	m_selectedColorG = 0;
+	m_selectedColorB = 0;
+	GetInitGameParam(&m_messageColorR, "messageColorR");
+	GetInitGameParam(&m_messageColorG, "messageColorG");
+	GetInitGameParam(&m_messageColorB, "messageColorB");
+	GetInitGameParam(&m_selectedColorR, "selectedColorR");
+	GetInitGameParam(&m_selectedColorG, "selectedColorG");
+	GetInitGameParam(&m_selectedColorB, "selectedColorB");
+
 
 
 	GetInitGameParam(&m_firstAppearType,"firstAppearType");
@@ -1799,10 +1812,28 @@ void CCommonSelectMessage::PrintMessageSub(int printN,int dataN,BOOL bAllFlag,BO
 	int mesNum = dataN;
 	if (addMessageFlag == FALSE) mesNum += m_addMessageKosuu;
 
+	int serial = m_game->GetSelectSerialID();
+	int colorR = m_messageColorR;
+	int colorG = m_messageColorG;
+	int colorB = m_messageColorB;
+	bool rubiColorIsMessageColor = true;
+	if (m_game->GetSystemParam(NNNPARAM_CHANGESELECTMESSAGECOLORSWITCH))
+	{
+		if (m_game->CheckSelectSerialID(serial, dataN))
+		{
+			colorR = m_selectedColorR;
+			colorG = m_selectedColorG;
+			colorB = m_selectedColorB;
+			//
+		}
+	}
+
+
 	//print message
 	if ((m_firstAppearCount >= m_firstAppearTime) || (m_firstAppearType == 0))
 	{
-		m_message->PrintMessage(putX,putY,&m_messageData[mesNum][0],fontSize,255,255,255,1,40,0,TRUE);
+		m_message->PrintMessage(putX,putY,&m_messageData[mesNum][0],fontSize,colorR,colorG,colorB,1,40,0,TRUE,rubiColorIsMessageColor);
+//		m_message->PrintMessage(putX, putY, &m_messageData[mesNum][0], fontSize, 255, 255, 255, 1, 40, 0, TRUE);
 	}
 	else
 	{
@@ -1836,7 +1867,9 @@ void CCommonSelectMessage::PrintMessageSub(int printN,int dataN,BOOL bAllFlag,BO
 			startY = fontSize - lengthY;
 		}
 
-		m_message->PrintSelectMessage(startY,lengthY,putX,putY,&m_messageData[mesNum][0],fontSize,255,255,255,1,40,0,TRUE);
+
+		m_message->PrintSelectMessage(startY,lengthY,putX,putY,&m_messageData[mesNum][0],fontSize,colorR,colorG,colorB,1,40,0,TRUE,rubiColorIsMessageColor);
+//		m_message->PrintSelectMessage(startY, lengthY, putX, putY, &m_messageData[mesNum][0], fontSize, 255, 255, 255, 1, 40, 0, TRUE);
 	}
 
 
@@ -2070,10 +2103,13 @@ void CCommonSelectMessage::FinalExitRoutine(void)
 {
 	if (m_exitModeFlag)
 	{
+		int serial = m_game->GetSelectSerialID();
+		m_game->SetSelectSerialID(serial,m_selected-1);
 		m_game->SearchCase(m_selected);
 		m_game->SetYoyaku();
 	}
 }
+
 
 int CCommonSelectMessage::EndMode(void)
 {
@@ -2240,6 +2276,11 @@ void CCommonSelectMessage::CheckAndAutoOff(void)
 	if (m_game->GetSystemParam(NNNPARAM_AUTOCONTINUESWITCH))
 	{
 		m_game->SetSystemParam(NNNPARAM_AUTOMODE,0);
+	}
+
+	if (m_game->GetSystemParam(NNNPARAM_AUTOSKIPSWITCH))
+	{
+		m_game->SetMessageSkipFlag(false);
 	}
 }
 

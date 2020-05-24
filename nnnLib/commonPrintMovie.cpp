@@ -98,6 +98,14 @@ CCommonPrintMovie::CCommonPrintMovie(CGameCallBack* lpGame) : CCommonGeneral(lpG
 
 	m_directMovieFlag = false;
 
+	int mustFlagOn = 0;
+	GetInitGameParam(&mustFlagOn, "mustOpeningMovieFlagOn");
+	if (mustFlagOn > 0)
+	{
+		m_game->SetGetMovie(0, mustFlagOn);
+	}
+
+
 	m_fillExitScreenFlag = 1;
 	GetInitGameParam(&m_fillExitScreenFlag,"fillExitScreenFlag");
 	GetInitGameParam(&m_exitFadeOutColorR,"exitFadeOutColorR");
@@ -124,6 +132,8 @@ void CCommonPrintMovie::End(void)
 int CCommonPrintMovie::Init(void)
 {
 	m_firstFrame = TRUE;
+
+
 
 	m_dontSaiseiFlag = FALSE;
 	m_autoDebugWait = m_game->GetAutoDebugWait();
@@ -165,7 +175,7 @@ int CCommonPrintMovie::Init(void)
 		{
 			if (m_directMovieNumber == 0)
 			{
-				wsprintf(filename, "movie\\%s", m_selectMovieFileName);
+				wsprintf(filename, "movie\\%s", m_movieFileName);
 			}
 			else
 			{

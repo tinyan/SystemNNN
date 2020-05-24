@@ -436,6 +436,7 @@ int CExecScript::Exec(int n)
 				int timeLimit = 0;
 				int autoSelect = 0;
 				int specialFlag = 0;
+				int selectSerial = 0;
 
 				if (m_data[m_pc] != (selKosuu+5))	//new version
 				{
@@ -453,6 +454,11 @@ int CExecScript::Exec(int n)
 					specialFlag = m_data[m_pc+m_data[m_pc]-4];
 				}
 
+				if (m_data[m_pc] > selKosuu + mesKosuu + 7)	//new 3 version
+				{
+					selectSerial = m_data[m_pc + m_data[m_pc] - 5];
+				}
+
 				int tmp[256];
 				tmp[0] = selKosuu;
 				tmp[1] = mesKosuu;
@@ -464,8 +470,9 @@ int CExecScript::Exec(int n)
 				tmp[2+selKosuu+mesKosuu] = timeLimit;
 				tmp[2+selKosuu+mesKosuu+1] = autoSelect;
 				tmp[3+selKosuu+mesKosuu+1] = specialFlag;
+				tmp[4 + selKosuu + mesKosuu + 1] = selectSerial;
 
-				m_callBack->ReceiveScriptCommand(code,selKosuu+mesKosuu+2+2,tmp);
+				m_callBack->ReceiveScriptCommand(code,selKosuu+mesKosuu+2+2+1+1,tmp);
 //				m_callBack->ReceiveScriptCommand(code,m_data[m_pc+3],(LPVOID)&m_data[m_pc+4]);
 				m_pc += m_data[m_pc];
 				return CODE_SYSTEMCOMMAND_SELECT;

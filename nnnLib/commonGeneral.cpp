@@ -1850,9 +1850,11 @@ int CCommonGeneral::ProcessUpDownBack(int rt)
 	int st = CCommonButton::GetButtonStatus(rt);
 	int requestSoundFlag = CCommonButton::CheckRequestSound(rt);
 	int sound = 0;
+	int voice = 0;
 	if (requestSoundFlag)
 	{
 		sound = CCommonButton::GetButtonSound(rt);
+		voice = CCommonButton::GetButtonVoice(rt);
 	}
 	int existDataFlag = CCommonButton::CheckExistData(rt);
 	int nm = -1;
@@ -1868,6 +1870,11 @@ int CCommonGeneral::ProcessUpDownBack(int rt)
 			int volumeType = CCommonButton::GetVolumeTypeData(rt);
 			m_game->PlaySystemSound(sound - 1,volumeType);
 		}
+		if (voice > 0)
+		{
+			m_game->PlayButtonVoice(voice);
+		}
+
 	}
 
 	if ((st == NNNBUTTON_NUMBER) && (existDataFlag))
@@ -1886,9 +1893,11 @@ int CCommonGeneral::ProcessButtonGroup(int rt)
 	int st = CCommonButton::GetButtonStatus(rt);
 	int requestSoundFlag = CCommonButton::CheckRequestSound(rt);
 	int sound = 0;
+	int voice = 0;
 	if (requestSoundFlag)
 	{
 		sound = CCommonButton::GetButtonSound(rt);
+		voice = CCommonButton::GetButtonVoice(rt);
 	}
 	int existDataFlag = CCommonButton::CheckExistData(rt);
 	int nm = -1;
@@ -1904,6 +1913,11 @@ int CCommonGeneral::ProcessButtonGroup(int rt)
 			int volumeType = CCommonButton::GetVolumeTypeData(rt);
 			m_game->PlaySystemSound(sound - 1,volumeType);
 		}
+		if (voice > 0)
+		{
+			m_game->PlayButtonVoice(voice);
+		}
+
 	}
 
 	if ((st == NNNBUTTON_NUMBER) && (existDataFlag))
@@ -1923,9 +1937,11 @@ int CCommonGeneral::ProcessCommonButton(int rt)
 	int st = CCommonButton::GetButtonStatus(rt);
 	int requestSoundFlag = CCommonButton::CheckRequestSound(rt);
 	int sound = 0;
+	int voice = 0;
 	if (requestSoundFlag)
 	{
 		sound = CCommonButton::GetButtonSound(rt);
+		voice = CCommonButton::GetButtonVoice(rt);
 	}
 	int existDataFlag = CCommonButton::CheckExistData(rt);
 	int nm = -1;
@@ -1940,6 +1956,11 @@ int CCommonGeneral::ProcessCommonButton(int rt)
 		{
 			int volumeType = CCommonButton::GetVolumeTypeData(rt);
 			m_game->PlaySystemSound(sound - 1,volumeType);
+		}
+
+		if (voice > 0)
+		{
+			m_game->PlayButtonVoice(voice);
 		}
 	}
 

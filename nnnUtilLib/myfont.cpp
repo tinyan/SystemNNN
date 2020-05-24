@@ -746,7 +746,7 @@ void CMyFont::EndRubiPrint(void)
 }
 
 
-int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int colB ,int sukima, int kageColor, COLORREF* colorPtr,int rubiKosuu,int kanjiMax,int* rubiParam,char** rubiMessage)
+int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int colB ,int sukima, int kageColor, COLORREF* colorPtr,int rubiKosuu,int kanjiMax,int* rubiParam,char** rubiMessage,bool rubiColorIsMessageColor)
 {
 //	OutputDebugString("\x00d\x00aMESSAGE=");
 //	OutputDebugString(message);
@@ -801,7 +801,15 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 	int rubiColorR = m_rubiColorR;
 	int rubiColorG = m_rubiColorG;
 	int rubiColorB = m_rubiColorB;
-	COLORREF rubiColor = COLORREF(m_rubiColorR | (m_rubiColorG << 8) | (m_rubiColorB<<16));
+	if (rubiColorIsMessageColor)
+	{
+		rubiColorR = colR;
+		rubiColorG = colG;
+		rubiColorB = colB;
+	}
+
+//	COLORREF rubiColor = COLORREF(m_rubiColorR | (m_rubiColorG << 8) | (m_rubiColorB<<16));
+	COLORREF rubiColor = COLORREF(rubiColorR | (rubiColorG << 8) | (rubiColorB << 16));
 
 
 	int cache = m_fontCache->SearchData(orgMessage,m_mainFontSize,colR,colG,colB,sukima,kageColor);

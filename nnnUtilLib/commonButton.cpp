@@ -70,6 +70,10 @@ CCommonButton::CCommonButton(CNameList* lpSetup,LPSTR buttonName, CPicture* lpBG
 		SetExitSound(0);
 		SetEnterSoundWait(0);
 		SetExitSoundWait(0);
+		SetClickVoice(0);
+		SetCannotClickVoice(0);
+		SetEnterVoice(0);
+		SetExitVoice(0);
 	}
 
 	for (i=0;i<3;i++)
@@ -151,6 +155,8 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 		return NNNBUTTON_NOTHING;
 	}
 
+	int voice = 0;
+
 	if (GetEnable() == FALSE)
 	{
 		m_mode = 3;
@@ -165,9 +171,11 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			}
 
 			int sound = GetCannotClickSound();
-			if (sound != 0)
+			int voice = GetCannotClickVoice();
+
+			if (sound != 0 || voice > 0)
 			{
-				return MakeButtonStatus(NNNBUTTON_REQUESTSOUND,sound,-1,-1,m_volumeType);
+				return MakeButtonStatus(NNNBUTTON_REQUESTSOUND,sound,voice,-1,m_volumeType);
 			}
 
 		}
@@ -196,13 +204,14 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 		StartClick();
 		ResetOtherAnimeCount();
 		int sound = GetClickSound();
+		voice = GetClickVoice();
 
 		if (m_count >= m_clickTime)
 		{
-			return MakeButtonStatus(NNNBUTTON_NUMBER,sound,-1,m_buttonCode,m_volumeType);
+			return MakeButtonStatus(NNNBUTTON_NUMBER,sound,voice,m_buttonCode,m_volumeType);
 		}
 
-		return MakeButtonStatus(NNNBUTTON_STARTCLICK,sound,-1,-1,m_volumeType);
+		return MakeButtonStatus(NNNBUTTON_STARTCLICK,sound,voice,-1,m_volumeType);
 	}
 
 	BOOL onButtonFlag = CheckOnButton(lpInput);
@@ -215,8 +224,13 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			StartEnter();
 			ResetOtherAnimeCount();
 			int sound = GetEnterSound();
-			if (GetEnterSoundWait() != 0) sound = 0;
-			return MakeButtonStatus(NNNBUTTON_ENTER,sound,-1,-1,m_volumeType);
+			voice = GetEnterVoice();
+			if (GetEnterSoundWait() != 0)
+			{
+				sound = 0;
+				voice = 0;
+			}
+			return MakeButtonStatus(NNNBUTTON_ENTER,sound,voice,-1,m_volumeType);
 		}
 
 		if (m_exitFlag)
@@ -224,9 +238,10 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			if (m_count == GetExitSoundWait())
 			{
 				int sound = GetExitSound();
-				if (sound > 0)
+				voice = GetExitVoice();
+				if (sound > 0 || voice > 0)
 				{
-					return MakeButtonStatus(NNNBUTTON_REQUESTSOUND,sound,-1,-1,m_volumeType);
+					return MakeButtonStatus(NNNBUTTON_REQUESTSOUND,sound,voice,-1,m_volumeType);
 				}
 			}
 		}
@@ -241,8 +256,13 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			StartExit();
 			ResetOtherAnimeCount();
 			int sound = GetExitSound();
-			if (GetExitSoundWait() != 0) sound = 0;
-			return MakeButtonStatus(NNNBUTTON_EXIT,sound,-1,-1,m_volumeType);
+			voice = GetExitVoice();
+			if (GetExitSoundWait() != 0)
+			{
+				sound = 0;
+				voice = 0;
+			}
+			return MakeButtonStatus(NNNBUTTON_EXIT,sound,voice,-1,m_volumeType);
 		}
 
 		if (m_enterFlag)
@@ -250,9 +270,10 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			if (m_count == GetEnterSoundWait())
 			{
 				int sound = GetEnterSound();
-				if (sound > 0)
+				voice = GetEnterVoice();
+				if (sound > 0 || voice > 0)
 				{
-					return MakeButtonStatus(NNNBUTTON_REQUESTSOUND,sound,-1,-1,m_volumeType);
+					return MakeButtonStatus(NNNBUTTON_REQUESTSOUND,sound,voice,-1,m_volumeType);
 				}
 			}
 		}
@@ -768,7 +789,7 @@ POINT CCommonButton::GetPicZahyo(int md,int pattern)
 	return ansPoint;
 }
 
-int CCommonButton::MakeButtonStatus(int status,int sound,int mode,int data,int volumeType)
+int CCommonButton::MakeButtonStatus(int status,int sound,int voice,int data,int volumeType)
 {
 	status &= NNNBUTTON_STATUSMASK;
 
@@ -783,7 +804,7 @@ int CCommonButton::MakeButtonStatus(int status,int sound,int mode,int data,int v
 		}
 		else
 		{
-			volumeType <<= 21;
+			volumeType <<= 22;
 			volumeType &= NNNBUTTON_VOLUMETYPEMASK;
 		}
 	}
@@ -793,9 +814,25 @@ int CCommonButton::MakeButtonStatus(int status,int sound,int mode,int data,int v
 		volumeType = 0;
 	}
 
+	if (voice > 0)
+	{
+		//‹¤’Ê
+		sound |= NNNBUTTON_REQUESTSOUNDMASK;
+		voice <<= 16;
+		voice &= NNNBUTTON_VOICEMASK;
+	}
+	else
+	{
+		voice = 0;
+	}
+
+
+	/*
 	if (mode == -1) mode = 0;//m_mode;
 	mode <<= 16;
 	mode &= NNNBUTTON_MODEMASK;
+	*/
+
 
 	if (data >= 0)
 	{
@@ -807,7 +844,7 @@ int CCommonButton::MakeButtonStatus(int status,int sound,int mode,int data,int v
 		data = 0;
 	}
 
-	int d = status | sound | mode | data | volumeType;
+	int d = status | sound | voice | data | volumeType;
 
 	return d;
 
@@ -833,6 +870,7 @@ int CCommonButton::GetButtonStatus(int statusData)
 	return statusData & NNNBUTTON_STATUSMASK;
 }
 
+/*
 int CCommonButton::GetButtonMode(int statusData)
 {
 	if (statusData == NNNBUTTON_NOTHING)
@@ -843,6 +881,19 @@ int CCommonButton::GetButtonMode(int statusData)
 	int mode = statusData & NNNBUTTON_MODEMASK;
 	mode >>= 16;
 	return mode;
+}
+*/
+
+int CCommonButton::GetButtonVoice(int statusData)
+{
+	if (statusData == NNNBUTTON_NOTHING)
+	{
+		return 0;
+	}
+
+	int voice = statusData & NNNBUTTON_VOICEMASK;
+	voice >>= 16;
+	return voice;
 }
 
 int CCommonButton::GetButtonSound(int statusData)
@@ -867,7 +918,7 @@ int CCommonButton::GetVolumeTypeData(int statusData)
 {
 	if (statusData == NNNBUTTON_NOTHING) return 0;//error!
 	int d = statusData & NNNBUTTON_VOLUMETYPEMASK;
-	d >>= 21;
+	d >>= 22;
 	return d;
 }
 

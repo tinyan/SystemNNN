@@ -52,6 +52,8 @@ public:
 	virtual void SetCharaVoiceFlag(int flagNumber,BOOL flag = TRUE);
 	virtual BOOL CheckCharaVoiceFlag(int flagNumber);
 
+	virtual void SetSelectMessageFlag(int select, int n,bool flag = true);
+	virtual bool CheckSelectMessageFlag(int select, int n);
 //	void SetScene(int paraKosuu, int* paraPtr);
 //	void SetScene(int sceneNumber);
 
@@ -313,17 +315,33 @@ public:
 
 		int lastSaveFileNumber;
 		int continueVoice;
-		int pad1[2];
+		int continueSkip;
+		int changeReadMessageColor;
 
 		int scriptSEVolume;
 		int scriptSESwitch;
 		int useSystemVoiceNumber;
-		int pad2[1];
+		int changeSelectMessageColor;
 
-		int pad[256 - 8];
+		int autoSkip;
+		int pad1[3];
+
+		int pad[256 - 12];
 
 	} SYSTEMFLAG2;
 
+
+	typedef struct tagSELECTMESSAGEFLAG
+	{
+		int size;
+		int code;
+		int dummy;
+		int dummy2;
+
+		char message[16];
+
+		int flag[1024];
+	} SELECTMESSAGEFLAG;
 
 	SYSTEMDATAINFO m_dataHeader;	
 	SYSTEMDATA m_systemdata;
@@ -342,6 +360,7 @@ public:
 	NNNTERM m_term;
 	CHARAVOICEFLAG m_charaVoiceFlag;
 	SYSTEMFLAG2 m_systemFlag2;
+	SELECTMESSAGEFLAG m_selectMessageFlag;
 
 
 //	int GetSceneSubKosuuMax(int sceneNumber);
@@ -395,6 +414,7 @@ public:
 	void ClearAllTerm(void);
 	void ClearAllCharaVoiceFlag(void);
 	void ClearAllSystemFlag2(void);
+	void ClearAllSelectMessageFlag(void);
 
 	int GetVarType(void);
 

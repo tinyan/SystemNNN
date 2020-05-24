@@ -19,7 +19,7 @@ public:
 	~CMyFont();
 	void End(void);
 
-	int MakePic(LPSTR orgMessage,LPSTR message, int colR=-1, int colG=-1, int colB=-1, int sukima = 1, int kageColor = -1,COLORREF* colorPtr = NULL,int rubiKosuu = 0,int kanjiMax = 0,int* rubiKanjiSize = NULL,char** rubiMessage = NULL);
+	int MakePic(LPSTR orgMessage,LPSTR message, int colR=-1, int colG=-1, int colB=-1, int sukima = 1, int kageColor = -1,COLORREF* colorPtr = NULL,int rubiKosuu = 0,int kanjiMax = 0,int* rubiKanjiSize = NULL,char** rubiMessage = NULL,bool rubiColorIsMessageColor = false);
 
 	int MakePicOnly(LPSTR message, int colR=-1, int colG=-1, int colB=-1, int sukima = 1, int kageColor = -1,COLORREF* colorPtr = NULL);
 	int MakeBuffer(LPSTR message, int colR=-1, int colG=-1, int colB=-1, int sukima = 1, int kageColor = -1,COLORREF* colorPtr = NULL);

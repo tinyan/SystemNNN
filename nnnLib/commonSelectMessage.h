@@ -314,6 +314,13 @@ protected:
 
 	void CheckAndAutoOff(void);
 
+	int m_messageColorR;
+	int m_messageColorG;
+	int m_messageColorB;
+	int m_selectedColorR;
+	int m_selectedColorG;
+	int m_selectedColorB;
+
 private:
 
 };

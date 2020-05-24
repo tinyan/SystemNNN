@@ -41,7 +41,7 @@ public:
 
 	static char m_volumeName[][16];
 	static char m_modeButtonName[][16];
-	static char m_checkButtonName[][16];
+	static char m_checkButtonName[][32];
 
 	static char m_defaultPageNumberVarName[];
 
@@ -433,22 +433,36 @@ protected:
 
 	LPSTR GetSoundName(int nm);
 
-	LPSTR m_sampleText;
+	LPSTR* m_sampleText;
 	int m_useSampleText;
 	int m_sampleTextPrintX;
 	int m_sampleTextPrintY;
+	int m_sampleTextNextY;
 	int m_sampleTextFontSize;
 	int m_sampleTextPrintPage;
 	int m_sampleTextCount;
 	int m_sampleTextColorR;
 	int m_sampleTextColorG;
 	int m_sampleTextColorB;
+	int m_sampleTextWait;
+	int m_sampleTextLoop;
 
 	int m_messageSpeedTable[5];
 	int m_autoMessageSpeedTable[5];
 
+	int m_samplePrintGyoCount;
+	int m_sampleNowPrintGyo;
+
 	void PrintSampleText(void);
 	int m_mojiTime;
+
+	bool CheckAppearCharaVoice(int n);
+	bool CheckEnableSystemCharaVoice(int n);
+
+	int* m_systemCharaVoiceCheckCharaNumber;
+	int* m_systemCharaVoiceCheckVar;
+
+	int* m_charaVoiceVolumeSE;
 
 private:
 

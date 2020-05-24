@@ -112,6 +112,7 @@ int CCommonConfig::m_n2VolumeSystemParamTable[]=
 	NNNPARAM_WINDOWPERCENT,
 	NNNPARAM_AUTOSPEEDSLIDER,
 	NNNPARAM_TOTALVOLUME,
+	NNNPARAM_SCRIPTSEVOLUME,
 };
 
 int CCommonConfig::m_n2VolumeSwitchSystemParamTable[]=
@@ -124,7 +125,7 @@ int CCommonConfig::m_n2VolumeSwitchSystemParamTable[]=
 	NNNPARAM_SOUNDVOICESWITCH,
 	0,
 	0,
-	NNNPARAM_TOTALSWITCH,
+	NNNPARAM_SCRIPTSESWITCH,
 };
 
 char CCommonConfig::m_volumeName[][16]=
@@ -141,6 +142,7 @@ char CCommonConfig::m_volumeName[][16]=
 	"autoSpeed",
 
 	"total",
+	"scriptse",
 };
 
 int CCommonConfig::m_defaultVolumeDevideTable[]=
@@ -174,9 +176,13 @@ char CCommonConfig::m_modeButtonName[][16]=
 	"auto",
 };
 
-char CCommonConfig::m_checkButtonName[][16]=
+char CCommonConfig::m_checkButtonName[][32]=
 {
 	"autoContinue",
+	"autoSkip",
+	"changeReadColor",
+	"changeSelectColor",
+	"continueVoice",
 };
 
 
@@ -363,7 +369,7 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	}
 
 	m_modeButtonKosuu = 3;
-	m_checkButtonKosuu = 1;
+	m_checkButtonKosuu = 5;
 
 	//if use movie volumekosuu++;
 
@@ -504,6 +510,8 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	}
 	m_charaVoiceVolumeFlag = 0;
 	GetInitGameParam(&m_charaVoiceVolumeFlag,"charaVoiceVolumeFlag");
+
+	m_charaVoiceVolumeSE = nullptr;
 
 	m_charaVoiceSliderMin = -15;
 	m_charaVoiceSliderMax = 15;
@@ -661,6 +669,16 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 			GetInitGameParam(&m_voiceAutoLineNextY,"voiceAutoLineNextY");
 			GetInitGameParam(&m_voiceAutoLineNumberX,"voiceAutoLineNumberX");
 			GetInitGameParam(&m_voiceAutoLineNumberY,"voiceAutoLineNumberY");
+		}
+
+		m_charaVoiceVolumeSE = new int[m_voiceCutNinzu];
+		for (i = 0; i < m_voiceCutNinzu; i++)
+		{
+			char name[256];
+			sprintf_s(name, 256, "charaVoiceVolumeSE%d", i + 1);
+			int se = 0;
+			GetInitGameParam(&se,name);
+			m_charaVoiceVolumeSE[i] = se;
 		}
 
 		CPicture* charaSliderPic = NULL;
@@ -877,19 +895,19 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	wsprintf(name,"%sButton",m_volumeName[i]);
 
 				CSuperButtonSetup* lpSuperSetup = NULL;
-				if (((i>1) && (i < 6)) || (i == 8))
+				if (((i>1) && (i < 6)) || (i >= 8))
 				{
 //					lpSuperSetup = m_ppVolumeButton[i-1]->GetSuperButtonSetup(1);
 					lpSuperSetup = m_ppVolumeButton[lastExistSetup]->GetSuperButtonSetup(1);
 				}
 
-				if (((i  > 0) && (i<6)) || (i==8))
+				if (((i  > 0) && (i<6)) || (i>=8))
 				{
 					lastExistSetup = i;
 				}
 
 				POINT* lpPoint = NULL;
-				if (((i>0) && (i < 6)) || (i==8))
+				if (((i>0) && (i < 6)) || (i>=8))
 //				if (m_volumeButtonExistTable[i])
 				{
 					m_ppVolumeButton[i] = new CCommonCheckButton(m_setup,lpBG,name,lpPoint,lpSuperSetup);
@@ -937,7 +955,7 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 				//ボタンデフォ座標設定
 				//IfCan
-				if (((i>0) && (i < 6)) || (i == 8))
+				if (((i>0) && (i < 6)) || (i >= 8))
 				{
 					SIZE buttonSize = m_ppVolumeButton[i]->GetSize();
 
@@ -975,16 +993,42 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_ppSystemVoiceButton = nullptr;
 	m_systemVoiceButtonKosuu = 0;
 	int systemVoiceCount = m_game->GetUseSystemVoiceCount();
+
+	m_systemCharaVoiceCheckCharaNumber = nullptr;
+	m_systemCharaVoiceCheckVar = nullptr;
+
 	if (systemVoiceCount > 0)
 	{
 		m_systemVoiceButtonKosuu = systemVoiceCount + 1;
 
 		m_ppSystemVoiceButton = new CCommonRadioButtonGroup(m_setup,"systemVoice" , lpBG, m_systemVoiceButtonKosuu, NULL);
 
+
+		m_systemCharaVoiceCheckCharaNumber = new int[m_systemVoiceButtonKosuu];
+		m_systemCharaVoiceCheckVar = new int[m_systemVoiceButtonKosuu];
+
 		for (int k = 0; k < m_systemVoiceButtonKosuu; k++)
 		{
 			CPicture* lpPic = GetUseOkPicture(m_systemVoiceButtonPrintPage);
 			m_ppSystemVoiceButton->SetPicture(lpPic, k, -1);
+
+			char name[256];
+			sprintf_s(name, 256, "systemVoice%dOn", k);
+			int target = 0;
+			GetInitGameParam(&target, name);
+			m_systemCharaVoiceCheckCharaNumber[k] = target;
+
+
+			m_systemCharaVoiceCheckVar[k] = -1;
+			sprintf_s(name, 256, "systemVoice%dOnVarName", k);
+			LPSTR varName = nullptr;
+			GetInitGameString(&varName, name);
+			if (varName != nullptr)
+			{
+				m_systemCharaVoiceCheckVar[k] = m_game->GetVarNumber(varName);
+			}
+
+
 		}
 
 	}
@@ -1020,7 +1064,8 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		if (cflag)
 		{
 			char buttonName[256];
-			wsprintf(buttonName,"%sCheckButton",m_checkButtonName[i]);
+//			wsprintf(buttonName,"%sCheckButton",m_checkButtonName[i]);
+			wsprintf(buttonName, "%sCheck", m_checkButtonName[i]);
 			m_ppCheckButton[i] = new CCommonCheckButton(m_setup,lpBG,buttonName);
 
 			CPicture* lpPic = GetUseOkPicture(m_checkButtonPrintPage[i]);
@@ -1348,7 +1393,7 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	
 	for (int i=1;i<=m_volumeKosuu;i++)
 	{
-		if ((i<6) || (i==8))
+		if ((i<6) || (i>=8))
 		{
 			char name[256];
 			wsprintf(name,"init%sVolume",m_volumeName[i]);
@@ -1372,7 +1417,7 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 //	GetInitGameParam(&m_initMovieVolume,"initMovieVolume");
 
 
-	m_sampleText = m_defaultSampleText;
+	m_sampleText = nullptr;
 	m_useSampleText = 0;
 	GetInitGameParam(&m_useSampleText, "useSampleText");
 
@@ -1384,6 +1429,17 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_sampleTextColorR = 255;
 	m_sampleTextColorG = 255;
 	m_sampleTextColorB = 255;
+	
+
+	m_sampleTextNextY = 28;
+	m_sampleTextWait = 0;
+	m_sampleTextLoop = 1;
+
+
+	m_samplePrintGyoCount = 1;
+	m_sampleNowPrintGyo = 0;
+
+
 	if (m_useSampleText != 0)
 	{
 		GetInitGameParam(&m_sampleTextPrintX, "sampleTextPrintX");
@@ -1393,7 +1449,22 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		GetInitGameParam(&m_sampleTextColorR, "sampleTextColorR");
 		GetInitGameParam(&m_sampleTextColorG, "sampleTextColorG");
 		GetInitGameParam(&m_sampleTextColorB, "sampleTextColorB");
-		GetInitGameString(&m_sampleText, "sampleText");
+
+		GetInitGameParam(&m_sampleTextNextY, "sampleTextNextY");
+		GetInitGameParam(&m_sampleTextWait, "sampleTextWait");
+		GetInitGameParam(&m_sampleTextLoop, "sampleTextLoop");
+
+		GetInitGameParam(&m_samplePrintGyoCount, "sampleTextGyo");
+		m_sampleText = new LPSTR[m_samplePrintGyoCount];
+
+		for (int i = 0; i < m_samplePrintGyoCount; i++)
+		{
+			LPSTR text = m_defaultSampleText;
+			char name[256];
+			sprintf_s(name, 256, "sampleText%d", i + 1);
+			GetInitGameString(&text, name);
+			m_sampleText[i] = text;
+		}
 	}
 
 	GetInitGameParam(&m_initAnimeSwitch,"initAnimeSwitch");
@@ -1448,6 +1519,7 @@ void CCommonConfig::End(void)
 	DELETEARRAY(m_useEffectPicKosuu);
 
 
+	DELETEARRAY(m_sampleText);
 
 
 	DELETEARRAY(m_windowPercentSe);
@@ -1516,6 +1588,8 @@ void CCommonConfig::End(void)
 	}
 
 	ENDDELETECLASS(m_ppSystemVoiceButton);
+	DELETEARRAY(m_systemCharaVoiceCheckCharaNumber);
+	DELETEARRAY(m_systemCharaVoiceCheckVar);
 
 
 	if (m_ppVolumeButton != NULL)
@@ -1530,6 +1604,8 @@ void CCommonConfig::End(void)
 	DELETEARRAY(m_voiceVoiceChangeVoice);
 	DELETEARRAY(m_voiceVoiceCheckChangeVar);
 	DELETEARRAY(m_voiceNameCheckChangeVar);
+
+	DELETEARRAY(m_charaVoiceVolumeSE);
 
 	if (m_ppVoiceButton != NULL)
 	{
@@ -1598,6 +1674,7 @@ int CCommonConfig::Init(void)
 	m_pageYoyaku = -1;
 	m_pageYoyakuFlag = FALSE;
 	m_sampleTextCount = 0;
+	m_sampleNowPrintGyo = 0;
 
 	ReLoadBackConfigBG();
 
@@ -1729,8 +1806,9 @@ int CCommonConfig::Init(void)
 		if (i == 4) md = m_game->GetSystemParam(NNNPARAM_MOVIESWITCH);
 		if (i == 5) md = m_game->GetSystemParam(NNNPARAM_SOUNDVOICESWITCH);
 		if (i == 8) md = m_game->GetSystemParam(NNNPARAM_TOTALSWITCH);
+		if (i == 9) md = m_game->GetSystemParam(NNNPARAM_SCRIPTSESWITCH);
 
-		if ((i<6) || (i == 8))
+		if ((i<6) || (i >= 8))
 		{
 			if (m_volumeExistFlag[i])
 			{
@@ -1766,6 +1844,15 @@ int CCommonConfig::Init(void)
 		{
 			
 			m_ppSlider[8]->Init(m_game->GetSystemParam(NNNPARAM_TOTALVOLUME));
+		}
+	}
+
+	if (m_volumeKosuu >= 10)
+	{
+		if (m_volumeExistFlag[9])
+		{
+
+			m_ppSlider[9]->Init(m_game->GetSystemParam(NNNPARAM_SCRIPTSEVOLUME));
 		}
 	}
 
@@ -1842,10 +1929,47 @@ int CCommonConfig::Init(void)
 			m_ppCheckButton[0]->SetState(md);
 			m_ppCheckButton[0]->Init();
 		}
+		if (m_ppCheckButton[1] != NULL)
+		{
+			int md = m_game->GetSystemParam(NNNPARAM_AUTOSKIPSWITCH);
+			m_ppCheckButton[1]->SetState(md);
+			m_ppCheckButton[1]->Init();
+		}
+		if (m_ppCheckButton[2] != NULL)
+		{
+			int md = m_game->GetSystemParam(NNNPARAM_CHANGEREADMESSAGECOLORSWITCH);
+			m_ppCheckButton[2]->SetState(md);
+			m_ppCheckButton[2]->Init();
+		}
+		if (m_ppCheckButton[3] != NULL)
+		{
+			int md = m_game->GetSystemParam(NNNPARAM_CHANGESELECTMESSAGECOLORSWITCH);
+			m_ppCheckButton[3]->SetState(md);
+			m_ppCheckButton[3]->Init();
+		}
+		if (m_ppCheckButton[4] != NULL)
+		{
+			int md = m_game->GetSystemParam(NNNPARAM_CONTINUEVOICESWITCH);
+			m_ppCheckButton[4]->SetState(md);
+			m_ppCheckButton[4]->Init();
+		}
 	}
 
 	if (m_ppSystemVoiceButton != nullptr)
 	{
+		for (int i = 1; i < m_systemVoiceButtonKosuu; i++)
+		{
+			if (CheckEnableSystemCharaVoice(i))
+			{
+				m_ppSystemVoiceButton->SetExist(i, true);
+			}
+			else
+			{
+				m_ppSystemVoiceButton->SetExist(i, false);
+			}
+		}
+
+
 		int md = m_game->GetUseSystemVoice();
 		m_ppSystemVoiceButton->SetRadio(md);
 		m_ppSystemVoiceButton->Init(md);
@@ -2146,7 +2270,12 @@ int CCommonConfig::Calcu(void)
 //				if (m_ppVoiceButton[i]->GetButton(0)->GetExist())
 				if (m_ppVoiceButton[i]->GetAllExist())
 				{
-					if (m_mode != -1)
+					bool off = false;
+					if (m_ppVoiceButton[i]->GetState() == 0) off = true;
+						
+					if (!CheckAppearCharaVoice(i)) off = true;
+
+					if ((m_mode != -1) || off)
 					{
 						m_ppCharaVoiceSlider[i]->Calcu(NULL);
 					}
@@ -2163,6 +2292,11 @@ int CCommonConfig::Calcu(void)
 								int st = m_ppVoiceButton[i]->GetState();
 								int snd = m_ppVoiceButton[i]->GetButton(1-st)->GetClickSound();
 
+								if (m_charaVoiceVolumeSE[i] != 0)
+								{
+									snd = m_charaVoiceVolumeSE[i];
+								}
+
 								if (snd > 0)
 								{
 									int volumeType = m_ppVoiceButton[i]->GetButton(st)->GetVolumeType();
@@ -2174,7 +2308,7 @@ int CCommonConfig::Calcu(void)
 				}
 			}
 
-			if (m_mode != -1)
+			if ((m_mode != -1) || !CheckAppearCharaVoice(i))
 			{
 				m_ppVoiceButton[i]->Calcu(NULL);
 			}
@@ -2301,6 +2435,26 @@ int CCommonConfig::Calcu(void)
 						if (i == 0)	//autoContinue
 						{
 							m_game->SetSystemParam(NNNPARAM_AUTOCONTINUESWITCH,1-nm);
+						}
+
+						if (i == 1)	//autoSkip
+						{
+							m_game->SetSystemParam(NNNPARAM_AUTOSKIPSWITCH, 1 - nm);
+						}
+
+						if (i == 2)	//changereadcolor
+						{
+							m_game->SetSystemParam(NNNPARAM_CHANGEREADMESSAGECOLORSWITCH, 1 - nm);
+						}
+
+						if (i == 3)	//changeselectcolor
+						{
+							m_game->SetSystemParam(NNNPARAM_CHANGESELECTMESSAGECOLORSWITCH, 1 - nm);
+						}
+
+						if (i == 4)	//continuevoice
+						{
+							m_game->SetSystemParam(NNNPARAM_CONTINUEVOICESWITCH, 1 - nm);
 						}
 
 						m_ppCheckButton[i]->SetState(1-nm);
@@ -2716,7 +2870,7 @@ int CCommonConfig::Calcu(void)
 			if (m_page == m_volumePrintPage[i]-1)
 			{
 				BOOL ok = TRUE;
-				if (((i>=1) && (i<=5)) || (i==8))
+				if (((i>=1) && (i<=5)) || (i>=8))
 				{
 					if (i == 1) ok = m_game->GetSystemParam(NNNPARAM_MUSICSWITCH);
 					if (i == 2) ok = m_game->GetSystemParam(NNNPARAM_SOUNDSWITCH);
@@ -2724,6 +2878,7 @@ int CCommonConfig::Calcu(void)
 					if (i == 4) ok = m_game->GetSystemParam(NNNPARAM_MOVIESWITCH);
 					if (i == 5) ok = m_game->GetSystemParam(NNNPARAM_SOUNDVOICESWITCH);
 					if (i == 8) ok = m_game->GetSystemParam(NNNPARAM_TOTALSWITCH);
+					if (i == 9) ok = m_game->GetSystemParam(NNNPARAM_SCRIPTSESWITCH);
 				}
 
 				if (ok)
@@ -2735,12 +2890,13 @@ int CCommonConfig::Calcu(void)
 						{
 							m_game->SetSystemParam(NNNPARAM_MESSAGESPEED, vol);
 							m_mojiTime = 0;
+							m_sampleNowPrintGyo = 0;
 						}
 						if (i == 6) m_game->SetSystemParam(NNNPARAM_WINDOWPERCENT,100 - vol);
 						if (i == 7) m_game->SetSystemParam(NNNPARAM_AUTOSPEEDSLIDER,vol);
 
 						int vol2 = vol;
-						if ((i>=1) && (i<=5))
+						if (((i>=1) && (i<=5)) || (i==9))
 						{
 							vol2 = m_realVolumeMinTable[i] + ((m_realVolumeMaxTable[i]-m_realVolumeMinTable[i])*vol)/m_volumeDevideTable[i];
 							if (vol2<m_realVolumeLimitMin) vol2 = m_realVolumeLimitMin;
@@ -2753,6 +2909,7 @@ int CCommonConfig::Calcu(void)
 						if (i == 4) m_game->SetSystemParam(NNNPARAM_MOVIEVOLUME,vol2);
 						if (i == 5) m_game->SetSystemParam(NNNPARAM_SOUNDVOICEVOLUME,vol2);
 						if (i == 8) m_game->SetSystemParam(NNNPARAM_TOTALVOLUME,vol2);
+						if (i == 9) m_game->SetSystemParam(NNNPARAM_SCRIPTSEVOLUME, vol2);
 
 						if (m_extSeFlag)
 						{
@@ -2845,7 +3002,7 @@ int CCommonConfig::Calcu(void)
 //	for (i=1;i<vm;i++)
 	for (i=1;i<m_volumeKosuu;i++)
 	{
-		if ((i>=6) && (i!= 8)) continue;
+		if ((i>=6) && (i< 8)) continue;
 
 		if (m_volumeExistFlag[i])
 		{
@@ -2868,6 +3025,10 @@ int CCommonConfig::Calcu(void)
 						if (i == 4) m_game->SetSystemParam(NNNPARAM_MOVIESWITCH,1-nm);
 						if (i == 5) m_game->SetSystemParam(NNNPARAM_SOUNDVOICESWITCH,1-nm);
 						if (i == 8) m_game->SetSystemParam(NNNPARAM_TOTALSWITCH,1-nm);
+						if (i == 9)
+						{
+							m_game->SetSystemParam(NNNPARAM_SCRIPTSESWITCH, 1 - nm);
+						}
 
 						m_ppVolumeButton[i]->SetState(1-nm);
 						ReLoadVolumeButtonPic(i);
@@ -3003,13 +3164,27 @@ int CCommonConfig::Print(void)
 		{
 			for (int i=0;i<m_voiceCutNinzu;i++)
 			{
-				m_ppVoiceButton[i]->Print(TRUE);
-				if (m_charaVoiceVolumeFlag)
+				//登場チェック
+
+
+				if (CheckAppearCharaVoice(i))
 				{
-//					if (m_ppVoiceButton[i]->GetButton(0)->GetExist())
-					if (m_ppVoiceButton[i]->GetAllExist())
+					m_ppVoiceButton[i]->Print(TRUE);
+					if (m_charaVoiceVolumeFlag)
 					{
-						m_ppCharaVoiceSlider[i]->Print(TRUE);
+						//					if (m_ppVoiceButton[i]->GetButton(0)->GetExist())
+						if (m_ppVoiceButton[i]->GetAllExist())
+						{
+							//badチェック
+							BOOL bad = FALSE;
+							if (m_ppVoiceButton[i]->GetState() == 0)
+							{
+								bad = TRUE;
+							}
+
+
+							m_ppCharaVoiceSlider[i]->Print(TRUE, bad);
+						}
 					}
 				}
 			}
@@ -3092,10 +3267,11 @@ int CCommonConfig::Print(void)
 				if (i == 4) if (m_game->GetSystemParam(NNNPARAM_MOVIESWITCH) == 0) bad = TRUE;
 				if (i == 5) if (m_game->GetSystemParam(NNNPARAM_SOUNDVOICESWITCH) == 0) bad = TRUE;
 				if (i == 8) if (m_game->GetSystemParam(NNNPARAM_TOTALSWITCH) == 0) bad = TRUE;
+				if (i == 9) if (m_game->GetSystemParam(NNNPARAM_SCRIPTSESWITCH) == 0) bad = TRUE;
 
 
 				m_ppSlider[i]->Print(TRUE,bad);
-				if (((i>=1) && (i<=5)) || (i==8)) m_ppVolumeButton[i]->Print(TRUE);
+				if (((i>=1) && (i<=5)) || (i>=8)) m_ppVolumeButton[i]->Print(TRUE);
 			}
 		}
 	}
@@ -3204,35 +3380,66 @@ void CCommonConfig::PrintSampleText(void)
 	int messageSpeed = m_game->GetSystemParam(NNNPARAM_MESSAGESPEED);
 	//	if (CheckAutoMessage())
 	//	if (CheckAuto())
+	int ml = 1;
 	if (m_game->GetSystemParam(NNNPARAM_AUTOMODE))
 	{
-		mojiTime = m_autoMessageSpeedTable[messageSpeed] * frameTime;
+		ml = m_autoMessageSpeedTable[messageSpeed];
+//		mojiTime = m_autoMessageSpeedTable[messageSpeed] * frameTime;
 	}
 	else
 	{
-		mojiTime = m_messageSpeedTable[messageSpeed] * frameTime;
+		ml = m_messageSpeedTable[messageSpeed];
+//		mojiTime = m_messageSpeedTable[messageSpeed] * frameTime;
 	}
+	mojiTime = ml * frameTime;
 
 	m_mojiTime += mojiTime;
 	int printMojisuu = m_mojiTime / 1000;
-	int textLen = strlen(m_sampleText) / 2;
+	int textLen = strlen(m_sampleText[m_sampleNowPrintGyo]) / 2;
 	if (printMojisuu > textLen)
 	{
-		m_mojiTime = 0;
 		printMojisuu = textLen;
+
+		if (m_sampleNowPrintGyo == m_samplePrintGyoCount-1)
+		{
+			if (m_mojiTime >= textLen * 1000 + m_sampleTextWait*ml)
+			{
+				if (m_sampleTextLoop != 0)
+				{
+					//top
+					printMojisuu = 0;
+					m_sampleNowPrintGyo = 0;
+					m_mojiTime = 0;
+				}
+			}
+		}
+		else if (m_sampleNowPrintGyo <= m_samplePrintGyoCount - 1)
+		{
+			//next
+			printMojisuu = 0;
+			m_mojiTime = 0;
+			m_sampleNowPrintGyo++;
+		}
 	}
 
-	if (printMojisuu > 0)
+	for (int i = 0; i <= m_sampleNowPrintGyo; i++)
 	{
-		char mes[256];
-		memcpy(mes, m_sampleText, printMojisuu * 2);
-		mes[printMojisuu * 2] = 0;
-		mes[printMojisuu * 2+1] = 0;
-		m_message->PrintMessageParts(0, printMojisuu, m_sampleTextPrintX, m_sampleTextPrintY, m_sampleText,m_sampleTextFontSize,
-			m_sampleTextColorR, m_sampleTextColorG, m_sampleTextColorB);
+		int putX = m_sampleTextPrintX;
+		int putY = m_sampleTextPrintY + m_sampleTextNextY * i;
 
+		if (i < m_sampleNowPrintGyo)
+		{
+			m_message->PrintMessage(putX,putY, m_sampleText[i], m_sampleTextFontSize,
+				m_sampleTextColorR, m_sampleTextColorG, m_sampleTextColorB);
+
+		}
+		else
+		{
+			m_message->PrintMessageParts(0, printMojisuu, putX,putY, m_sampleText[i], m_sampleTextFontSize,
+					m_sampleTextColorR, m_sampleTextColorG, m_sampleTextColorB);
+
+		}
 	}
-
 
 }
 
@@ -3751,7 +3958,7 @@ void CCommonConfig::ReLoadAllButtonPic(void)
 		{
 			if (m_page == m_volumePrintPage[n]-1)
 			{
-				if ((n<6) || (n==8))
+				if ((n<6) || (n>=8))
 				{
 					int md = m_ppVolumeButton[n]->GetState();
 
@@ -4222,6 +4429,7 @@ BOOL CCommonConfig::CheckVolumeExist(int n)
 	if (n == NNNPARAM_WINDOWPERCENT) k = 6;
 	if (n == NNNPARAM_AUTOSPEEDSLIDER) k = 7;
 	if (n == NNNPARAM_TOTALVOLUME) k = 8;
+	if (n == NNNPARAM_SCRIPTSEVOLUME) k = 9;
 
 
 	if ((k<0) || (k>=m_volumeKosuu)) return FALSE;
@@ -4252,7 +4460,7 @@ void CCommonConfig::InitAllConfig(void)
 //	for (int i=1;i<=5;i++)
 	{
 //		if ((i<6) || (i==8))
-		if (i<6)//total volumeは上で設定されている
+		if ((i<6) || (i>=9))//total volumeは上で設定されている
 		{
 			if (m_initVolume[i] >= 0)
 			{
@@ -4269,14 +4477,14 @@ void CCommonConfig::InitAllConfig(void)
 
 	for (int i=1;i<m_volumeKosuu;i++)
 	{
-		if ((i<6) || (i==8))
+		if ((i<6) || (i>=8))
 		{
 			if (m_initVolumeSwitch[i] >= 0)
 			{
 				int param = m_n2VolumeSwitchSystemParamTable[i];
 
 				BOOL ok = TRUE;
-				if ((i == 1) || (i == 8))
+				if ((i == 1) || (i >= 8))
 				{
 					int oldSwitch = m_game->GetSystemParam(param);
 					if (oldSwitch == m_initVolumeSwitch[i])
@@ -4462,6 +4670,46 @@ void CCommonConfig::CheckAndSetSlider(int n,int vol)
 
 }
 
+
+bool CCommonConfig::CheckAppearCharaVoice(int n)
+{
+	return true;
+}
+
+
+
+bool CCommonConfig::CheckEnableSystemCharaVoice(int n)
+{
+	bool f = false;
+
+	int cn = m_systemCharaVoiceCheckCharaNumber[n];
+	if (cn == 0)
+	{
+		f = true;
+	}
+
+	if (cn > 0)
+	{
+		//cn-1?
+		if (m_game->CheckPlayerVoice(cn))
+		{
+			f = true;
+		}
+
+	}
+
+
+	int varNumber = m_systemCharaVoiceCheckVar[n];
+	if (varNumber != -1)
+	{
+		if (m_game->GetVarData(varNumber) != 0)
+		{
+			f = true;
+		}
+	}
+
+	return f;
+}
 
 /*_*/
 
