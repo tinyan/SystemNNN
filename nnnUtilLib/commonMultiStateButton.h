@@ -24,6 +24,8 @@ public:
 	int Calcu(CInputStatus* lpInput);
 	void Print(BOOL flg = TRUE);
 
+	void AppearPrint(int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 });
+
 //	void SetButton(int n,CCommonButton* button);
 	void SetState(int n);
 	int GetState(void);

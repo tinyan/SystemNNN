@@ -34,6 +34,7 @@
 
 #include "commonMode.h"
 
+#include "commonGeneral.h"
 //#include "gamedatepic.h"
 #include "CommonDataFile.h"
 #include "..\nnnUtilLib\myMessage.h"
@@ -99,6 +100,7 @@ CCommonDataFile::CCommonDataFile(CGameCallBack* lpGame, int printX, int printY,C
 
 	m_omakeClassExistFlag = m_game->GetOmakeClassExistFlag();
 	m_cutinUseFlag = m_game->GetUseCutin();
+	m_logFlag = m_game->GetSaveLog();
 
 
 	m_printX = printX;
@@ -1051,6 +1053,460 @@ void CCommonDataFile::Print(int md,int clicking,int nm,int loadSave,int lastCoun
 	CAreaControl::AddArea(m_printX,m_printY,m_sizeX,m_sizeY);
 }
 
+void CCommonDataFile::AppearPrint(int appearCount, int appearCountMax, int appearType, int md, int clicking, int nm, int loadSave, int lastCount)
+{
+	//erase
+	if (m_bg != NULL)
+	{
+		m_bg->Blt(m_printX, m_printY, m_printX, m_printY, m_sizeX, m_sizeY, FALSE);
+	}
+
+	if ((appearCount == 0) && (appearCountMax > 0))
+	{
+		return;
+	}
+
+	int dv = appearCountMax;
+	if (dv < 1) dv = 1;
+
+	int percent = 100;
+	if (appearType & 1)
+	{
+		percent = (100 * appearCount) / dv;
+		if (percent < 0) percent = 0;
+		if (percent > 100) percent = 100;
+	}
+	int percent256 = (255 * percent) / 100;
+
+
+	//base
+	if (m_basePrintFlag)
+	{
+		if (loadSave == 0)
+		{
+			if (m_quickLoadEnable && (m_number == m_quickSlotNumber))
+			{
+				if (m_quickLoadBasePic != NULL)
+				{
+//					m_quickLoadBasePic->Put(m_printX, m_printY, TRUE);
+					m_quickLoadBasePic->TransLucentBlt3(m_printX, m_printY, 0, 0, m_sizeX, m_sizeY, percent);
+				}
+			}
+			else
+			{
+				if (m_loadBasePic != NULL)
+				{
+//					m_loadBasePic->Put(m_printX, m_printY, TRUE);
+					m_loadBasePic->TransLucentBlt3(m_printX, m_printY, 0, 0, m_sizeX, m_sizeY, percent);
+				}
+			}
+		}
+		else
+		{
+			if (m_quickSaveEnable && (m_number == m_quickSlotNumber))
+			{
+				if (m_quickSaveBasePic != NULL)
+				{
+//					m_quickSaveBasePic->Put(m_printX, m_printY, TRUE);
+					m_quickSaveBasePic->TransLucentBlt3(m_printX, m_printY, 0, 0, m_sizeX, m_sizeY, percent);
+				}
+			}
+			else
+			{
+				if (m_saveBasePic != NULL)
+				{
+//					m_saveBasePic->Put(m_printX, m_printY, TRUE);
+					m_saveBasePic->TransLucentBlt3(m_printX, m_printY, 0, 0, m_sizeX, m_sizeY, percent);
+				}
+			}
+		}
+	}
+
+	//pic
+	if (m_dataExistFlag)
+	{
+		//		if (m_pic != NULL) m_pic->Blt(m_printX + m_picPrintX,m_printY + m_picPrintY,0,0,m_picSizeX,m_picSizeY,FALSE);
+
+#if defined _TINYAN3DLIB_NOTUSED
+		CAllGeo::BoxFill(m_printX + m_picPrintX, m_printY + m_picPrintY, m_picSizeX, m_picSizeY, 14, 78, 93);
+		m_message->PrintMessage(m_printX + m_picPrintX, m_printY + m_picPrintY, "‚m‚n‚v", 10);
+		m_message->PrintMessage(m_printX + m_picPrintX, m_printY + m_picPrintY + 12, "‚o‚q‚h‚m‚s‚h‚m‚f", 10);
+#else
+		if (m_pic != NULL)
+		{
+			if (m_picPrintType == 0)	//normal
+			{
+//				m_pic->Blt(m_printX + m_picPrintX, m_printY + m_picPrintY, 0, 0, m_picSizeX, m_picSizeY, FALSE);
+				m_pic->TransLucentBlt0(m_printX + m_picPrintX, m_printY + m_picPrintY, 0, 0, m_picSizeX, m_picSizeY, percent);
+			}
+			else if (m_picPrintType == 1)	//color
+			{
+//				m_pic->YUVChangeBlt(m_printX + m_picPrintX, m_printY + m_picPrintY, 0, 0, m_picSizeX, m_picSizeY, FALSE, 255);
+				m_pic->YUVChangeBlt(m_printX + m_picPrintX, m_printY + m_picPrintY, 0, 0, m_picSizeX, m_picSizeY, FALSE, percent256);
+			}
+			else if (m_picPrintType == 2)	//multi
+			{
+				//				m_pic->BltMulti(m_printX + m_picPrintX,m_printY + m_picPrintY,0,0,m_picSizeX,m_picSizeY,FALSE,255);
+			}
+			else if (m_picPrintType == 3)	//add
+			{
+				//				m_pic->YUVChangeBlt(m_printX + m_picPrintX,m_printY + m_picPrintY,0,0,m_picSizeX,m_picSizeY,FALSE,255);
+			}
+		}
+#endif
+
+		//
+		if (m_numPrintFlag)
+		{
+			if (nm >= 0)
+			{
+//				m_numSuuji->Print(m_printX + m_numPrintX, m_printY + m_numPrintY, nm);
+				m_numSuuji->AppearPrint(appearCount,appearCountMax,appearType, m_printX + m_numPrintX, m_printY + m_numPrintY, nm);
+			}
+		}
+
+
+		if (m_serialNumberPrintFlag)
+		{
+//			m_serialSuuji->Print(m_printX + m_serialNumberPrintZahyo.x, m_printY + m_serialNumberPrintZahyo.y, m_number + 1);
+			m_serialSuuji->AppearPrint(appearCount, appearCountMax, appearType, m_printX + m_serialNumberPrintZahyo.x, m_printY + m_serialNumberPrintZahyo.y, m_number + 1);
+		}
+
+		if (m_kazariPrintFlag)
+		{
+			int putX = m_printX + m_kazariZahyo.x;
+			int putY = m_printY + m_kazariZahyo.y;
+			int sizeX = m_kazariSize.cx;
+			int sizeY = m_kazariSize.cy;
+
+			int srcX = 0;
+			int srcY = 0;
+
+//			m_kazariPic->Blt(putX, putY, srcX, srcY, sizeX, sizeY, TRUE);
+			m_kazariPic->TransLucentBlt3(putX, putY, srcX, srcY, sizeX, sizeY, percent);
+		}
+
+
+		//‚¨‚Ü‚¯
+		if (m_addPicPrintFlag)
+		{
+			if (m_addPic != NULL)
+			{
+				int putX = m_printX + m_addPicPrintZahyo.x;
+				int putY = m_printY + m_addPicPrintZahyo.y;
+				int sizeX = m_addPicSize.cx;
+				int sizeY = m_addPicSize.cy;
+
+				int srcX = 0;
+				int srcY = 0;
+
+
+				int dat = m_gameStatus.nokori;
+
+				if (m_addPicMultiFlag)
+				{
+					int dv = m_addPicMultiKosuuX;
+					if (dv < 1) dv = 1;
+					srcX = dat % dv;
+					srcY = dat / dv;
+					srcX *= sizeX;
+					srcY *= sizeY;
+				}
+
+				BOOL okflg = TRUE;
+				if (m_addPicWithSpecialFlag)
+				{
+					if (dat < m_specialNumberPrintLimit)
+					{
+						okflg = FALSE;
+					}
+				}
+
+				if (okflg)
+				{
+//					m_addPic->Blt(putX, putY, srcX, srcY, sizeX, sizeY, TRUE);
+					m_addPic->TransLucentBlt3(putX, putY, srcX, srcY, sizeX, sizeY, percent);
+				}
+			}
+		}
+
+		//special
+		if (m_specialNumberPrintFlag)
+		{
+			int putX = m_printX + m_specialNumberPrintZahyo.x;
+			int putY = m_printY + m_specialNumberPrintZahyo.y;
+
+			int dat = m_gameStatus.nokori;
+			if (dat >= m_specialNumberPrintLimit)
+			{
+//				m_specialNumberSuuji->Print(putX, putY, dat);
+				m_specialNumberSuuji->AppearPrint(appearCount, appearCountMax, appearType, putX, putY, dat);
+			}
+		}
+
+		//save date
+		if (m_saveTimePrintFlag)
+		{
+			int year = m_gameStatus.year;
+			int month = m_gameStatus.month;
+			int day = m_gameStatus.day;
+			int hour = m_gameStatus.hour;
+			int minute = m_gameStatus.minute;
+
+			int putX = m_printX + m_saveTimePrintX;
+			int putY = m_printY + m_saveTimePrintY;
+			int sizeX = m_saveTimeSizeX;
+			int sizeY = m_saveTimeSizeY;
+			int nextX = m_saveTimeNextX;
+
+			//year
+//			m_saveTimeSuuji4->Print(putX, putY, year);
+			m_saveTimeSuuji4->AppearPrint(appearCount, appearCountMax, appearType, putX, putY, year);
+			putX += nextX * 4;
+			// /
+//			m_saveDatePic->Blt(putX, putY, sizeX * 11, 0, sizeX, sizeY, TRUE);
+			m_saveDatePic->TransLucentBlt3(putX, putY, sizeX * 11, 0, sizeX, sizeY, percent);
+			putX += nextX;
+			//month
+//			m_saveTimeSuuji2->Print(putX, putY, month);
+			m_saveTimeSuuji2->AppearPrint(appearCount, appearCountMax, appearType, putX, putY, month);
+			putX += nextX * 2;
+			// /
+//			m_saveDatePic->Blt(putX, putY, sizeX * 11, 0, sizeX, sizeY, TRUE);
+			m_saveDatePic->TransLucentBlt3(putX, putY, sizeX * 11, 0, sizeX, sizeY, percent);
+			putX += nextX;
+			//day
+//			m_saveTimeSuuji2->Print(putX, putY, day);
+			m_saveTimeSuuji2->AppearPrint(appearCount, appearCountMax, appearType,putX, putY, day);
+			putX += nextX * 2;
+			// space
+			putX += nextX;
+			//hour
+//			m_saveTimeSuuji2->Print(putX, putY, hour);
+			m_saveTimeSuuji2->AppearPrint(appearCount, appearCountMax, appearType, putX, putY, hour);
+			putX += nextX * 2;
+			//:
+//			m_saveDatePic->Blt(putX, putY, sizeX * 10, 0, sizeX, sizeY, TRUE);
+			m_saveDatePic->TransLucentBlt3(putX, putY, sizeX * 10, 0, sizeX, sizeY, percent);
+			putX += nextX;
+			//minute
+//			m_saveTimeSuuji2->Print(putX, putY, minute);
+			m_saveTimeSuuji2->AppearPrint(appearCount, appearCountMax, appearType, putX, putY, minute);
+		}
+
+		if (m_gameTimePrintFlag)
+		{
+			POINT pt;
+			pt.x = m_printX;
+			pt.y = m_printY;
+			int year = m_lpGameVar->var[m_gameYearVarNumber];
+			int date = m_lpGameVar->var[m_gameDateVarNumber];
+			int month = date / 100;
+			int day = date % 100;
+
+		//	m_printGameDate->Print(pt, year, month, day);
+			m_printGameDate->AppearPrint(appearCount, appearCountMax, appearType, pt, year, month, day);
+		}
+
+
+		//comment
+		if (m_commentPrintFlag)
+		{
+			int putX = m_printX + m_commentPrintZahyo.x;
+			int putY = m_printY + m_commentPrintZahyo.y;
+			LPSTR message = m_gameStatus.minicomment;
+			if (m_message != NULL)
+			{
+				if (appearCount >= appearCountMax)
+				{
+					m_message->PrintMessage(putX, putY, message, m_commentFontSize, m_commentColorR, m_commentColorR, m_commentColorR, m_commentSukima, -1, m_commentColorShade);
+				}
+			}
+		}
+
+		//text
+		if (m_textPrintFlag)
+		{
+			for (int i = 0; i < m_textPrintGyo; i++)
+			{
+				int putX = m_printX + m_textPrintZahyo.x;
+				int putY = m_printY + m_textPrintZahyo.y + i * m_textNextY;
+
+				LPSTR mes = m_gameStatus.largeComment1;
+				if (i == 1) mes = m_gameStatus.largeComment2;
+				if (i == 2) mes = m_gameStatus.largeComment3;
+				if (i == 3) mes = m_gameStatus.largeComment4;
+
+				if ((*mes) != 0)
+				{
+					if (appearCount >= appearCountMax)
+					{
+						m_message->PrintMessage(putX, putY, mes, m_textFontSize, m_textColorR, m_textColorR, m_textColorR, m_textSukima, -1, m_textColorShade);
+					}
+				}
+			}
+		}
+
+		if (lastCount > 0)
+		{
+			if (m_printLastSelect != NULL)
+			{
+				POINT lastPoint;
+				lastPoint.x = m_printX;
+				lastPoint.y = m_printY;
+
+				if (appearCount >= appearCountMax)
+				{
+					m_printLastSelect->DeltaPrint(lastPoint);
+				}
+				else
+				{
+					m_printLastSelect->AppearPrint(lastPoint,appearCount, appearCountMax, appearType);
+				}
+			}
+		}
+
+		//bad message
+		int deltaVersion = GetVersionDeltaMode();
+
+		if (deltaVersion < 0)
+		{
+			if (m_errorVersionPic != NULL)
+			{
+//				m_errorVersionPic->Put(m_printX + m_errorPrintX, m_printY + m_errorPrintY, TRUE);
+				SIZE sz = m_errorVersionPic->GetPicSize();
+				m_errorVersionPic->TransLucentBlt3(m_printX + m_errorPrintX, m_printY + m_errorPrintY, 0,0,sz.cx,sz.cy,percent);
+			}
+			else
+			{
+				if (m_badVersionPic != NULL)
+				{
+//					m_badVersionPic->Put(m_printX + m_badPrintX, m_printY + m_badPrintY, TRUE);
+					SIZE sz = m_badVersionPic->GetPicSize();
+					m_badVersionPic->TransLucentBlt3(m_printX + m_badPrintX, m_printY + m_badPrintY, 0,0,sz.cx,sz.cy,percent);
+				}
+			}
+		}
+		else if (deltaVersion >= 2)
+		{
+			//version 1.0 BAD
+			if (m_badVersionPic != NULL)
+			{
+//				m_badVersionPic->Put(m_printX + m_badPrintX, m_printY + m_badPrintY, TRUE);
+				SIZE sz = m_badVersionPic->GetPicSize();
+				m_badVersionPic->TransLucentBlt3(m_printX + m_badPrintX, m_printY + m_badPrintY, 0,0,sz.cx,sz.cy,percent);
+			}
+		}
+		else if (deltaVersion == 1)
+		{
+			//version 1.0 OK
+			if (m_oldVersionPic != NULL)
+			{
+//				m_oldVersionPic->Put(m_printX + m_oldPrintX, m_printY + m_oldPrintY, TRUE);
+				SIZE sz = m_oldVersionPic->GetPicSize();
+				m_oldVersionPic->TransLucentBlt3(m_printX + m_oldPrintX, m_printY + m_oldPrintY, 0,0,sz.cx,sz.cy,percent);
+			}
+		}
+		else
+		{
+			//ok
+		}
+	}
+
+
+
+
+	if (md >= 1)
+	{
+		//‘I‘ð•\Ž¦‚ð‚Â‚¯‚é‚É‚á
+		if (m_selectPrintMode == 0)
+		{
+			if ((clicking & 1) == 0)
+			{
+				CAllGeo::TransBoxFill(m_printX + m_selectPrintX, m_printY + m_selectPrintY, m_selectSizeX, m_selectSizeY, m_selectColorR, m_selectColorG, m_selectColorB, (m_selectColorPercent * percent) / 100);
+			}
+		}
+		else if (m_selectPrintMode == 1)
+		{
+			if ((clicking & 1) == 0)
+			{
+//				m_selectPic->Put(m_printX + m_selectPrintX, m_printY + m_selectPrintY, TRUE);
+				SIZE sz = m_selectPic->GetPicSize();
+				m_selectPic->TransLucentBlt3(m_printX + m_selectPrintX, m_printY + m_selectPrintY, 0,0,sz.cx,sz.cy,percent);
+			}
+		}
+		else if (m_selectPrintMode == 2)
+		{
+			int md2 = md - 1;
+			if (clicking >= 1) md2 += 3;
+
+			GetNowCursorPic(md2);
+
+			int sizeX = m_selectSizeX;
+			int sizeY = m_selectSizeY;
+			CPicture* lpPic = m_cursorPic[md - 1];
+
+			int srcX = 0;
+			if (clicking >= 1) srcX = sizeX;
+
+			int srcY1 = sizeY * m_cursor1;
+			int srcY2 = sizeY * m_cursor2;
+
+			int putX = m_printX + m_selectPrintX;
+			int putY = m_printY + m_selectPrintY;
+
+
+			if (m_cursorPercent == 100)
+			{
+//				lpPic->Blt(putX, putY, srcX, srcY1, sizeX, sizeY, TRUE);
+				lpPic->TransLucentBlt3(putX, putY, srcX, srcY1, sizeX, sizeY, percent);
+			}
+			else if (m_cursorPercent == 0)
+			{
+//				lpPic->Blt(putX, putY, srcX, srcY2, sizeX, sizeY, TRUE);
+				lpPic->TransLucentBlt3(putX, putY, srcX, srcY2, sizeX, sizeY, percent);
+			}
+			else
+			{
+
+				int ps2 = 100 - m_cursorPercent;
+				int* lpBuffer2 = (int*)(lpPic->GetBuffer());
+				char* lpMask2 = (char*)(lpPic->GetMaskPic());
+
+				int deltaX = 0;
+				int deltaY = srcY2 - srcY1;
+
+				SIZE sz = lpPic->GetPicSize();
+
+				lpBuffer2 += deltaX;
+				lpBuffer2 += deltaY * sz.cx;
+
+				lpMask2 += deltaX;
+				lpMask2 += deltaY * sz.cx;
+
+
+				//				lpPic->ChangeTranslateBlt(putX,putY,srcX,srcY1,sizeX,sizeY,m_cursorPercent,ps2,lpBuffer2,lpMask2,lpPic);
+//				lpPic->ChangeTranslateBlt(putX, putY, srcX, srcY1, sizeX, sizeY, m_cursorPercent, ps2, lpPic, srcX, srcY2);
+				lpPic->ChangeTranslateBlt(putX, putY, srcX, srcY1, sizeX, sizeY, (m_cursorPercent*percent)/100, ps2, lpPic, srcX, srcY2);
+
+			}
+
+
+			//del
+//			if (m_selectPic != NULL)
+//			{
+//				m_selectPic->Put(m_printX+m_selectPrintX,m_printY+m_selectPrintY,TRUE);
+//			}
+
+
+			CalcuCursorAnime(md2);
+		}
+	}
+
+	CAreaControl::AddArea(m_printX, m_printY, m_sizeX, m_sizeY);
+}
+
+
 /*
 void CCommonDataFile::PrintSuuji0(int x, int y,int d, int keta)
 {
@@ -1137,6 +1593,11 @@ int CCommonDataFile::Load(int n)
 		LoadCutin();
 	}
 
+	if (m_gameInfo.log)
+	{
+		LoadLog();
+	}
+
 	for (int i=0;i<m_extDataBlockKosuu;i++)
 	{
 		LoadExtData(i);
@@ -1185,6 +1646,11 @@ int CCommonDataFile::Save(int n)
 	if (m_cutinUseFlag)
 	{
 		SaveCutin();
+	}
+
+	if (m_logFlag)
+	{
+		SaveLog();
 	}
 
 	for (int i=0;i<m_extDataBlockKosuu;i++)
@@ -1286,6 +1752,13 @@ BOOL CCommonDataFile::LoadCutin(void)
 	return TRUE;
 }
 
+BOOL CCommonDataFile::LoadLog(void)
+{
+	Load1Block();
+	m_game->SetLogByLoad(m_commonBuffer2);
+	return TRUE;
+}
+
 
 BOOL CCommonDataFile::LoadOmakeClassData(void)
 {
@@ -1349,6 +1822,11 @@ BOOL CCommonDataFile::SaveInfo(void)
 		header->cutin = 1;
 	}
 
+	header->log = 0;
+	if (m_logFlag)
+	{
+		header->log = 1;
+	}
 
 	header->dataKosuu = 8 + m_extDataBlockKosuu + header->cutin + header->omakeClass;
 
@@ -1501,6 +1979,20 @@ BOOL CCommonDataFile::SaveCutin(void)
 
 	return TRUE;
 }
+
+BOOL CCommonDataFile::SaveLog(void)
+{
+	int sz = sizeof(GAMELOG);
+
+	ZeroMemory(m_commonBuffer2, sz);
+	MakeHeader(m_commonBuffer2, sz, GAMEDATATYPE_LOG, "LOG");
+	m_game->GetLogForSave(m_commonBuffer2);
+	fwrite(m_commonBuffer2, sz, 1, m_file);
+
+	return TRUE;
+}
+
+
 
 BOOL CCommonDataFile::SaveOmakeClassData(void)
 {

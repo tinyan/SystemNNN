@@ -203,6 +203,17 @@ private:
 	int m_selectSound;
 	CCGDataControl* m_cgDataControl;
 
+	int m_menuStartCount;
+	int m_menuStartWaitTime;
+	int m_menuStartEffectTime;
+	int m_menuStartEffectType;
+
+	int m_appearCount;
+	int m_appearCountMax;
+
+	int GetStartWaitMode(void);
+	void EndStartWaitMode(void);
+
 };
 
 #endif

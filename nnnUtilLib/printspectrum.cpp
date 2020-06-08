@@ -166,6 +166,106 @@ void CPrintSpectrum::Print(int* data)
 
 }
 
+void CPrintSpectrum::AppearPrint(int* data, int count, int countMax, int type)
+{
+	if (count >= countMax)
+	{
+		Print(data);
+		return;
+	}
+
+	int dva = countMax;
+	if (dva < 1) dva = 1;
+
+	int appearPercent = 100;
+	if (type & 1)
+	{
+		appearPercent = (100 * count) / dva;
+		if (appearPercent < 0) appearPercent = 0;
+		if (appearPercent > 100) appearPercent = 100;
+	}
+
+
+
+
+	//set
+	for (int i = 0; i < m_printKosuu; i++)
+	{
+		//max
+		int d = *(data + i);
+		if (d > m_maxData[i])
+		{
+			m_maxData[i] = d;
+			m_maxWait[i] = m_maxWaitTime;
+			m_maxG[i] = 0;
+		}
+		m_data[i] = d;
+	}
+
+	//down
+	for (int i = 0; i < m_printKosuu; i++)
+	{
+		int maxCount = m_maxWait[i];
+		if (maxCount > 0)
+		{
+			maxCount--;
+			m_maxWait[i] = maxCount;
+		}
+		else
+		{
+			int maxData = m_maxData[i];
+			int nowData = m_data[i];
+			maxData -= m_maxG[i];
+			if (maxData < nowData)
+			{
+				maxData = nowData;
+				m_maxG[i] = 0;
+				m_maxData[i] = maxData;
+				m_maxWait[i] = m_maxWaitTime;
+			}
+			else
+			{
+				m_maxData[i] = maxData;
+				m_maxG[i] += m_maxGrav;
+			}
+		}
+	}
+
+	//print
+	if (m_printType >= 1)
+	{
+		for (int i = 0; i < m_printKosuu; i++)
+		{
+			int putX = m_printX + m_nextX * i;
+			int putY = m_printY;
+			int sizeX = m_sizeX;
+			int d = m_data[i];
+			if (d > 100) d = 100;
+			int sizeY = (m_sizeY * d) / 100;
+			putY -= sizeY;
+			CAllGeo::TransBoxFill(putX, putY, sizeX, sizeY, m_colorR, m_colorG, m_colorB, (m_percent * appearPercent)/100);
+		}
+	}
+
+	//max
+	if (m_printType >= 2)
+	{
+		for (int i = 0; i < m_printKosuu; i++)
+		{
+			int putX = m_printX + m_nextX * i;
+			int putY = m_printY;
+			int sizeX = m_sizeX;
+			int sizeY = m_maxSizeY;
+			int d = m_maxData[i];
+			if (d > 100) d = 100;
+			int deltaY = (m_sizeY * d) / 100;
+			putY -= deltaY;
+			putY -= sizeY;
+			CAllGeo::TransBoxFill(putX, putY, sizeX, sizeY, m_maxColorR, m_maxColorG, m_maxColorB, (m_maxPercent * appearPercent)/100);
+		}
+	}
+
+}
 
 
 BOOL CPrintSpectrum::GetInitGameParam(int* lpVar, LPSTR name,int initData)

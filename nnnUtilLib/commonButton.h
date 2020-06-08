@@ -53,6 +53,8 @@ public:
 	SIZE GetSize(void){return m_size;}
 
 
+	void SetEntered(bool bEnter = true);
+
 	void SetCancelButtonFlag(BOOL flg = TRUE){m_cancelButtonFlag = flg;}
 	BOOL GetCancelButtonFlag(void){return m_cancelButtonFlag;}
 	void SetUpButtonFlag(BOOL flg = TRUE,BOOL revFlag = FALSE){m_upButtonFlag = flg;m_updownRevFlag = revFlag;}
@@ -168,6 +170,9 @@ public:
 
 	void ClearAccelKey(void);
 
+	void AppearPrint(int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 });
+	void SpecialPrint(int count, int countMax, int type);
+
 protected:
 	BOOL m_existFlag;
 	BOOL m_enableFlag;
@@ -244,6 +249,7 @@ protected:
 	CSuperButtonSetup* m_superButtonSetup;
 
 	int m_ignoreCount;
+	bool m_entered;
 };
 
 

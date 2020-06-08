@@ -294,13 +294,13 @@ SKIP1:
 			jnz LOOP1
 
 
+			emms
 			pop edi
 			pop esi
 			pop edx
 			pop ecx
 			pop ebx
 			pop eax
-			emms
 		}
 	}
 

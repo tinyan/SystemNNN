@@ -35,6 +35,8 @@
 
 #include "..\nnnUtilLib\pagePrint.h"
 
+#include "commonGeneral.h"
+
 #include "commonDataFile.h"
 
 #include "commonSystemSoundName.h"
@@ -56,7 +58,6 @@
 
 #include "..\\nnnUtilLib\commonAnimeParts.h"
 
-#include "commonGeneral.h"
 #include "CommonLoadSave.h"
 
 #include "gameCallBack.h"
@@ -188,6 +189,15 @@ CCommonLoadSave::CCommonLoadSave(CGameCallBack* lpGame,LPSTR modename) : CCommon
 	m_dialogButton2 = NULL;
 
 
+	m_menuStartWaitTime = 0;
+	m_menuStartEffectTime = 0;
+	m_menuStartEffectType = 0;
+
+	GetInitGameParam(&m_menuStartWaitTime, "menuStartWaitTime");
+	GetInitGameParam(&m_menuStartEffectTime, "menuStartEffectTime");
+	GetInitGameParam(&m_menuStartEffectType, "menuStartEffectType");
+
+
 	CreateBackButton();
 	if (m_pageMode == 1)
 	{
@@ -226,6 +236,9 @@ CCommonLoadSave::CCommonLoadSave(CGameCallBack* lpGame,LPSTR modename) : CCommon
 	GetFadeInOutSetup();
 	GetEnterExitVoiceFileName();
 	GetDialogVoiceFileName();
+
+	m_initStartWait = false;
+
 }
 
 
@@ -261,6 +274,13 @@ int CCommonLoadSave::Init(void)
 		m_printLastSelect->Init();
 	}
 
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+	if (!m_initStartWait)
+	{
+		m_menuStartCount = 0;
+	}
 
 	if (!m_notInitPage)
 	{
@@ -380,6 +400,26 @@ int CCommonLoadSave::Init(void)
 
 int CCommonLoadSave::Calcu(void)
 {
+
+	int startMode = GetStartWaitMode();
+	if (startMode != 0)
+	{
+		m_menuStartCount++;
+		if (m_menuStartCount >= m_menuStartWaitTime + m_menuStartEffectTime)
+		{
+			EndStartWaitMode();
+		}
+		else
+		{
+			if (m_mouseStatus->CheckClick()) EndStartWaitMode();
+			if (m_mouseStatus->CheckClick(1)) EndStartWaitMode();
+		}
+
+		return -1;
+	}
+
+
+
 	if (m_warningFlag == 1)
 	{
 		CAreaControl::SetNextAllPrint();
@@ -753,6 +793,11 @@ int CCommonLoadSave::Print(void)
 
 	int lastSaveSlot = m_game->GetLastSaveSlot();
 
+
+	int startMode = GetStartWaitMode();
+
+
+
 	BOOL b = CAreaControl::CheckAllPrintMode();
 
 	if (b)
@@ -864,7 +909,11 @@ int CCommonLoadSave::Print(void)
 
 			if (f)
 			{
-				m_ppDataFile[i]->Print(col,clicking,nm,loadsave,lastCount);
+//				m_ppDataFile[i]->Print(col,clicking,nm,loadsave,lastCount);
+
+				m_ppDataFile[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType,col, clicking, nm, loadsave, lastCount);
+
+				//AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 			}
 		}
 	}
@@ -878,16 +927,21 @@ int CCommonLoadSave::Print(void)
 	{
 		if (m_pageMode == 0)
 		{
-			m_back->Print(TRUE);
+//			m_back->Print(TRUE);
+			m_back->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
+
 		}
 		else if (m_pageMode == 1)
 		{
-			m_updownBack->Print(TRUE);
+//			m_updownBack->Print(TRUE);
+			m_updownBack->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 		}
 		else if (m_pageMode == 2)
 		{
-			m_back->Print(TRUE);
-			m_tabButton->Print(TRUE);
+//			m_back->Print(TRUE);
+//			m_tabButton->Print(TRUE);
+			m_back->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
+			m_tabButton->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 		}
 //		m_updownBack->Print(TRUE);
 	}
@@ -962,7 +1016,8 @@ int CCommonLoadSave::Print(void)
 	}
 
 
-	m_pagePrint->Print(m_page+1,m_pageMax);
+//	m_pagePrint->Print(m_page+1,m_pageMax);
+	m_pagePrint->AppearPrint(m_appearCount,m_appearCountMax,m_menuStartEffectType, m_page + 1, m_pageMax);
 
 /*
 	if (m_classNumber == LOAD_MODE)
@@ -1009,7 +1064,9 @@ void CCommonLoadSave::ChangePage(int page)
 
 	CAreaControl::SetNextAllPrint();
 	m_notInitPage = true;
+	m_initStartWait = true;
 	Init();
+	m_initStartWait = false;
 	m_notInitPage = false;
 }
 
@@ -1059,6 +1116,35 @@ void CCommonLoadSave::ChangeExtDataSize(int extNumber,int dataSize)
 		m_ppDataFile[i]->ChangeExtDataSize(extNumber,dataSize);
 	}
 
+}
+
+
+int CCommonLoadSave::GetStartWaitMode(void)
+{
+	if (m_menuStartCount < m_menuStartWaitTime)
+	{
+		m_appearCount = 0;
+		m_appearCountMax = 1;
+		return 1;
+	}
+
+	if (m_menuStartCount < m_menuStartWaitTime + m_menuStartEffectTime)
+	{
+		m_appearCount = m_menuStartCount - m_menuStartWaitTime;
+		m_appearCountMax = m_menuStartEffectTime;
+		return 2;
+	}
+
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+	return 0;
+}
+
+void CCommonLoadSave::EndStartWaitMode(void)
+{
+	m_menuStartCount = m_menuStartWaitTime + m_menuStartEffectTime;
+	//m_game->InitMiniGameButton(OMAKE_MODE);
 }
 
 /*_*/

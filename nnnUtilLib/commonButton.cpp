@@ -3,6 +3,7 @@
 //
 
 #include <windows.h>
+#include <math.h>
 
 #include "..\nyanlib\include\commonMacro.h"
 #include "..\nyanlib\include\picture.h"
@@ -123,6 +124,8 @@ void CCommonButton::Init(void)
 	m_exitCount = 0;
 	m_enterFlag = FALSE;
 	m_exitFlag = FALSE;
+	m_entered = false;
+
 	for (int i=0;i<4;i++)
 	{
 		m_animeCount[i] = 0;
@@ -225,6 +228,11 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			ResetOtherAnimeCount();
 			int sound = GetEnterSound();
 			voice = GetEnterVoice();
+			if (m_entered)
+			{
+				voice = 0;
+				sound = 0;
+			}
 			if (GetEnterSoundWait() != 0)
 			{
 				sound = 0;
@@ -232,6 +240,8 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			}
 			return MakeButtonStatus(NNNBUTTON_ENTER,sound,voice,-1,m_volumeType);
 		}
+
+		m_entered = false;
 
 		if (m_exitFlag)
 		{
@@ -253,6 +263,7 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 	{
 		if (onButtonFlag == FALSE)
 		{
+			m_entered = false;
 			StartExit();
 			ResetOtherAnimeCount();
 			int sound = GetExitSound();
@@ -271,6 +282,12 @@ int CCommonButton::Calcu(CInputStatus* lpInput,int clickFlag)
 			{
 				int sound = GetEnterSound();
 				voice = GetEnterVoice();
+				if (m_entered)
+				{
+					voice = 0;
+					sound = 0;
+				}
+
 				if (sound > 0 || voice > 0)
 				{
 					return MakeButtonStatus(NNNBUTTON_REQUESTSOUND,sound,voice,-1,m_volumeType);
@@ -1252,6 +1269,178 @@ void CCommonButton::ClearAccelKey(void)
 		SetAccelKey(-1, i);
 	}
 }
+
+
+void CCommonButton::SetEntered(bool bEnter)
+{
+	m_entered = bEnter;
+}
+
+
+
+void CCommonButton::AppearPrint(int count, int countMax, int type, POINT deltaPoint)
+{
+	//type bit0:îºìßñæèàóù
+
+	if (count >= countMax)
+	{
+		Print(true);
+		return;
+	}
+
+
+//	int n = m_buttonKosuu * m_extMode;
+	int n = 0;
+
+	int dv = countMax;
+	if (dv < 1) dv = 1;
+
+	int percent = 100;
+	if (type & 1)
+	{
+		percent = (100 * count) / dv;
+		if (percent < 0) percent = 0;
+		if (percent > 100) percent = 100;
+	}
+
+	POINT delta;
+	int dx = (deltaPoint.x * (dv - count)) / dv;
+	int dy = (deltaPoint.y * (dv - count)) / dv;
+	delta.x = dx;
+	delta.y = dy;
+
+	int type2 = type / 2;
+
+	if (type2 == 0)
+	{
+		if (GetExist())
+		{
+			if (percent > 0)
+			{
+				Put(delta, percent);
+			}
+		}
+	}
+
+
+	//2:Ç†Ç¬Ç‹Ç¡ÇƒÇ≠ÇÈ 4:Ç‹ÇÌÇËÇ»Ç™ÇÁÇ†Ç¬Ç‹Ç¡ÇƒÇ≠ÇÈ
+	if ((type2 == 1) || (type2 == 2))
+	{
+		double dth = 0.0;
+		if (type2 == 2)
+		{
+			dth = (double)count;
+			dth /= (double)dv;
+			dth *= 3.14159 * 2;
+		}
+
+		if (GetExist())
+		{
+			if (percent > 0)
+			{
+				double th = (double)0;
+//				th /= (double)m_buttonKosuu;
+				th *= 3.14159 * 2;
+				th += dth;
+
+				double cosTH = cos(th);
+				double sinTH = sin(th);
+
+				double dx2 = (double)dx;
+				double dy2 = (double)dy;
+
+				int dx3 = (int)(dx2 * cosTH - dy2 * sinTH + 0.5);
+				int dy3 = (int)(dx2 * sinTH + dy2 * cosTH + 0.5);
+
+				delta.x = dx3;
+				delta.y = dy3;
+
+				Put(delta, percent);
+			}
+		}
+	}
+
+	//6 8 10 ägëÂÇµÇ»Ç™ÇÁ ÇΩÇƒÇÊÇ±ÅAÇΩÇƒÅAÇÊÇ± 
+	if ((type2 == 3) || (type2 == 4) || (type2 == 5))
+	{
+		delta.x = 0;
+		delta.y = 0;
+
+		int multi = (count * 100) / dv;
+		if (multi <= 0) return;
+		if (multi >= 100) multi = 100;
+
+		int multiX = multi;
+		int multiY = multi;
+
+		if (type2 == 4) multiX = 100;
+		if (type2 == 5) multiY = 100;
+
+		if (GetExist())
+		{
+			if (percent > 0)
+			{
+				StretchPut(multiX, multiY, delta, percent);
+			}
+		}
+	}
+
+	if ((type2 >= 6) && (type2 <= 11))
+	{
+		SpecialPrint(count, countMax, type2 - 6);
+	}
+
+}
+
+void CCommonButton::SpecialPrint(int count, int countMax, int type)
+{
+//	int n = m_buttonKosuu * m_extMode;
+	int n = 0;
+
+	int ps100 = (count * 10000) / countMax;
+	if (ps100 < 0) ps100 = 0;
+	if (ps100 > 10000) ps100 = 10000;
+
+	if (GetExist())
+	{
+
+		int delay = 10000 / (1 * 2 + 1);
+
+		int  k = ps100 - 0 * delay;
+		if (k >= 0)
+		{
+			int dv = 10000 - 1 * delay;
+			if (dv < 1) dv = 1;
+
+			int ps = (k * 100) / dv;
+			if (ps > 100) ps = 100;
+
+
+			switch (type)
+			{
+			case 0:
+				PutInFromUp(ps);
+				break;
+			case 1:
+				PutInFromDown(ps);
+				break;
+			case 2:
+				PutInFromLeft(ps);
+				break;
+			case 3:
+				PutInFromRight(ps);
+				break;
+			case 4:
+				PutInFromCenterUpDown(ps);
+				break;
+			case 5:
+				PutInFromCenterLeftRight(ps);
+				break;
+			}
+		}
+	}
+}
+
 /*_*/
 
 

@@ -121,6 +121,14 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		m_addPic->LoadDWQ(filename);
 	}
 
+	m_menuStartWaitTime = 0;
+	m_menuStartEffectTime = 0;
+	m_menuStartEffectType = 0;
+
+	GetInitGameParam(&m_menuStartWaitTime, "menuStartWaitTime");
+	GetInitGameParam(&m_menuStartEffectTime, "menuStartEffectTime");
+	GetInitGameParam(&m_menuStartEffectType, "menuStartEffectType");
+
 
 	m_miniPic = new CPicture*[m_blockKosuuX*m_blockKosuuY];
 	int i = 0;
@@ -450,6 +458,15 @@ void CCommonSelectCG::End(void)
 
 int CCommonSelectCG::Init(void)
 {
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+	//	if (!m_initStartWait)
+	{
+		m_menuStartCount = 0;
+	}
+
+
 	m_cgCharaNumber = 0;
 	m_cgNumber = 0;
 
@@ -586,6 +603,25 @@ int CCommonSelectCG::Init(void)
 
 int CCommonSelectCG::Calcu(void)
 {
+
+	int startMode = GetStartWaitMode();
+	if (startMode != 0)
+	{
+		m_menuStartCount++;
+		if (m_menuStartCount >= m_menuStartWaitTime + m_menuStartEffectTime)
+		{
+			EndStartWaitMode();
+		}
+		else
+		{
+			if (m_mouseStatus->CheckClick()) EndStartWaitMode();
+			if (m_mouseStatus->CheckClick(1)) EndStartWaitMode();
+		}
+
+		return -1;
+	}
+
+
 	POINT pt = m_mouseStatus->GetZahyo();
 	int mouseX = pt.x;
 	int mouseY = pt.y;
@@ -722,20 +758,39 @@ int CCommonSelectCG::Print(void)
 {
 	PrintBackScriptOrBG();
 
+
 	BOOL b = CAreaControl::CheckAllPrintMode();
+
+	int startMode = GetStartWaitMode();
+
+	int dva = m_appearCountMax;
+	if (dva < 1) dva = 1;
+
+	int appearPercent = 100;
+	if (m_menuStartEffectType & 1)
+	{
+		appearPercent = (100 * m_appearCount) / dva;
+		if (appearPercent < 0) appearPercent = 0;
+		if (appearPercent > 100) appearPercent = 100;
+	}
+
+
+
 
 	if (m_backScriptFlag)
 	{
 		PrintAllMiniPic();
 
 		if (m_addPicFlag) PrintAddPic();
-		m_pagePrint->Print(m_page+1,m_pageMax);
-//		if (m_pagePrintFlag) PrintPage();
+		//m_pagePrint->Print(m_page+1,m_pageMax);
+		m_pagePrint->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType,m_page + 1, m_pageMax);
+		//		if (m_pagePrintFlag) PrintPage();
 		if (m_totalPercentPrintFlag) PrintTotalPercent();
 	}
 
 
-	m_updownBack->Print(TRUE);
+//	m_updownBack->Print(TRUE);
+	m_updownBack->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 //	m_back->Print(TRUE);
 //	m_updown->Print(TRUE);
 
@@ -781,21 +836,26 @@ int CCommonSelectCG::Print(void)
 
 							if (m_selectPrintMode == 1)
 							{
-								CAllGeo::TransBoxFill(putX1,putY1,sizeX1,sizeY1,m_selectColorR,m_selectColorG,m_selectColorB,m_selectPercent);
+//								CAllGeo::TransBoxFill(putX1,putY1,sizeX1,sizeY1,m_selectColorR,m_selectColorG,m_selectColorB,m_selectPercent);
+								CAllGeo::TransBoxFill(putX1, putY1, sizeX1, sizeY1, m_selectColorR, m_selectColorG, m_selectColorB, (m_selectPercent*appearPercent)/100);
 							}
 							else if (m_selectPrintMode == 2)
 							{
 								if (m_cursorPrintType == 0)
 								{
-									m_cursorPic->Blt(putX1,putY1,0,0,sizeX1,sizeY1,TRUE);
+//									m_cursorPic->Blt(putX1,putY1,0,0,sizeX1,sizeY1,TRUE);
+									m_cursorPic->TransLucentBlt0(putX1, putY1, 0, 0, sizeX1, sizeY1, appearPercent);
 								}
 								else if (m_cursorPrintType == 1)
 								{
-									m_cursorPic->TransLucentBlt3(putX1,putY1,0,0,sizeX1,sizeY1,m_selectPercent);
+									m_cursorPic->TransLucentBlt3(putX1,putY1,0,0,sizeX1,sizeY1,(m_selectPercent*appearPercent)/100);
 								}
 								else if (m_cursorPrintType == 2)
 								{
-									m_cursorPic->AddBlt(putX1,putY1,0,0,sizeX1,sizeY1);
+									if (m_appearCount >= m_appearCountMax)
+									{
+										m_cursorPic->AddBlt(putX1, putY1, 0, 0, sizeX1, sizeY1);
+									}
 								}
 //								m_cursorPic->Blt(putX,putY,0,0,sizeX,sizeY,TRUE);
 							}
@@ -986,13 +1046,26 @@ void CCommonSelectCG::PrintPage(void)
 
 void CCommonSelectCG::PrintTotalPercent(void)
 {
-	m_suuji->Print(m_totalPercentPrintX,m_totalPercentPrintY,m_percent);
-	m_suuji->Put(m_totalPercentPrintX+m_fontNextX1*3,m_totalPercentPrintY,12,0);
+//	m_suuji->Print(m_totalPercentPrintX,m_totalPercentPrintY,m_percent);
+//	m_suuji->Put(m_totalPercentPrintX+m_fontNextX1*3,m_totalPercentPrintY,12,0);
+	m_suuji->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType, m_totalPercentPrintX, m_totalPercentPrintY, m_percent);
+	m_suuji->AppearPut(m_appearCount, m_appearCountMax, m_menuStartEffectType, m_totalPercentPrintX + m_fontNextX1 * 3, m_totalPercentPrintY, 12, 0);
 }
 
 
 void CCommonSelectCG::PrintAddPic(void)
 {
+	int dva = m_appearCountMax;
+	if (dva < 1) dva = 1;
+
+	int appearPercent = 100;
+	if (m_menuStartEffectType & 1)
+	{
+		appearPercent = (100 * m_appearCount) / dva;
+		if (appearPercent < 0) appearPercent = 0;
+		if (appearPercent > 100) appearPercent = 100;
+	}
+
 	char filename[256];
 	wsprintf(filename,"sys\\%s",m_filenameAdd);
 	m_commonParts->LoadDWQ(filename);
@@ -1002,21 +1075,37 @@ void CCommonSelectCG::PrintAddPic(void)
 
 	if (m_addPicPrintPercent == 0)
 	{
-		m_addPic->Blt(m_addPicPrintX,m_addPicPrintY,srcX,srcY,m_addPicSizeX,m_addPicSizeY,FALSE);
+//		m_addPic->Blt(m_addPicPrintX,m_addPicPrintY,srcX,srcY,m_addPicSizeX,m_addPicSizeY,FALSE);
+		m_addPic->TransLucentBlt0(m_addPicPrintX, m_addPicPrintY, srcX, srcY, m_addPicSizeX, m_addPicSizeY, appearPercent);
 	}
 	else if (m_addPicPrintPercent == 100)
 	{
-		m_addPic->Blt(m_addPicPrintX,m_addPicPrintY,srcX,srcY,m_addPicSizeX,m_addPicSizeY,TRUE);
+//		m_addPic->Blt(m_addPicPrintX,m_addPicPrintY,srcX,srcY,m_addPicSizeX,m_addPicSizeY,TRUE);
+		m_addPic->TransLucentBlt3(m_addPicPrintX, m_addPicPrintY, srcX, srcY, m_addPicSizeX, m_addPicSizeY, appearPercent);
 	}
 	else
 	{
-		m_addPic->TransLucentBlt3(m_addPicPrintX,m_addPicPrintY,srcX,srcY,m_addPicSizeX,m_addPicSizeY,m_addPicPrintPercent);
+		m_addPic->TransLucentBlt3(m_addPicPrintX,m_addPicPrintY,srcX,srcY,m_addPicSizeX,m_addPicSizeY,(m_addPicPrintPercent*appearPercent)/100);
 	}
 }
 
 
 void CCommonSelectCG::PrintAllMiniPic(void)
 {
+
+	int dva = m_appearCountMax;
+	if (dva < 1) dva = 1;
+
+	int appearPercent = 100;
+	if (m_menuStartEffectType & 1)
+	{
+		appearPercent = (100 * m_appearCount) / dva;
+		if (appearPercent < 0) appearPercent = 0;
+		if (appearPercent > 100) appearPercent = 100;
+	}
+
+
+
 	for (int j=0;j<m_blockKosuuY;j++)
 	{
 		for (int i=0;i<m_blockKosuuX;i++)
@@ -1035,7 +1124,16 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 
 					BOOL msk = TRUE;
 					if (m_futaPrintFlag == 2) msk = FALSE;
-					m_futaPic->Put(putX,putY,msk);
+					SIZE sz = m_futaPic->GetPicSize();
+					if (msk)
+					{
+						m_futaPic->TransLucentBlt3(putX, putY, 0,0,sz.cx, sz.cy, appearPercent);
+					}
+					else
+					{
+						m_futaPic->TransLucentBlt0(putX, putY, 0, 0, sz.cx, sz.cy, appearPercent);
+					}
+					//m_futaPic->Put(putX,putY,msk);
 				}
 
 				int from = m_blockSabunStart[m_cgCharaNumber][block];
@@ -1051,37 +1149,44 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 
 						if (m_picMustPrintPercent < 0)
 						{
-							if (m_miniPicTransFlag)
+							if (m_appearCount >= m_appearCountMax)
 							{
-								m_miniPic[n0]->GreyBlt(putX+m_picPrintX,putY+m_picPrintY,0,0,sizeX,sizeY,TRUE);
-							}
-							else
-							{
-								m_miniPic[n0]->GreyBlt(putX+m_picPrintX,putY+m_picPrintY,0,0,sizeX,sizeY,FALSE);
+								if (m_miniPicTransFlag)
+								{
+									m_miniPic[n0]->GreyBlt(putX + m_picPrintX, putY + m_picPrintY, 0, 0, sizeX, sizeY, TRUE);
+								}
+								else
+								{
+									m_miniPic[n0]->GreyBlt(putX + m_picPrintX, putY + m_picPrintY, 0, 0, sizeX, sizeY, FALSE);
+								}
 							}
 						}
 						else
 						{
 							if (m_miniPicTransFlag)
 							{
-								m_miniPic[n0]->TransLucentBlt3(putX+m_picPrintX,putY+m_picPrintY,0,0,sizeX,sizeY,m_picMustPrintPercent);
+								m_miniPic[n0]->TransLucentBlt3(putX+m_picPrintX,putY+m_picPrintY,0,0,sizeX,sizeY,(m_picMustPrintPercent*appearPercent)/100);
 							}
 							else
 							{
-								m_miniPic[n0]->TransLucentBlt(putX+m_picPrintX,putY+m_picPrintY,0,0,sizeX,sizeY,m_picMustPrintPercent);
+								m_miniPic[n0]->TransLucentBlt(putX+m_picPrintX,putY+m_picPrintY,0,0,sizeX,sizeY,(m_picMustPrintPercent*appearPercent)/100);
 							}
 						}
 					}
 				}
 				else if (m_miniPicState[n0] == 2)
 				{
+					SIZE sz = m_miniPic[n0]->GetPicSize();
+
 					if (m_miniPicTransFlag)
 					{
-						m_miniPic[n0]->Put(putX+m_picPrintX,putY+m_picPrintY,TRUE);
+//						m_miniPic[n0]->Put(putX+m_picPrintX,putY+m_picPrintY,TRUE);
+						m_miniPic[n0]->TransLucentBlt3(putX + m_picPrintX, putY + m_picPrintY, 0,0,sz.cx,sz.cy,appearPercent);
 					}
 					else
 					{
-						m_miniPic[n0]->Put(putX+m_picPrintX,putY+m_picPrintY,FALSE);
+//						m_miniPic[n0]->Put(putX+m_picPrintX,putY+m_picPrintY,FALSE);
+						m_miniPic[n0]->TransLucentBlt0(putX + m_picPrintX, putY + m_picPrintY, 0, 0, sz.cx, sz.cy, appearPercent);
 					}
 				}
 
@@ -1091,7 +1196,9 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 					{
 						if (m_animeFlag[n0])
 						{
-							m_animePic->Put(putX+m_picPrintX,putY+m_picPrintY,TRUE);
+//							m_animePic->Put(putX+m_picPrintX,putY+m_picPrintY,TRUE);
+							SIZE sz = m_animePic->GetPicSize();
+							m_animePic->TransLucentBlt3(putX + m_picPrintX, putY + m_picPrintY, 0,0,sz.cx,sz.cy,appearPercent);
 						}
 					}
 				}
@@ -1133,9 +1240,12 @@ void CCommonSelectCG::PrintAllMiniPic(void)
 
 					if (ff)
 					{
-						m_suuji2->Print(putX4,putY2,total,-1,col);
-						m_suuji2->Put(putX3,putY2,11,col);
-						m_suuji2->Print(putX2,putY2,getKosuu,-1,col);
+//						m_suuji2->Print(putX4,putY2,total,-1,col);
+//						m_suuji2->Put(putX3,putY2,11,col);
+//						m_suuji2->Print(putX2,putY2,getKosuu,-1,col);
+						m_suuji2->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType, putX4, putY2, total, -1, col);
+						m_suuji2->AppearPut(m_appearCount, m_appearCountMax, m_menuStartEffectType, putX3, putY2, 11, col);
+						m_suuji2->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType, putX2, putY2, getKosuu, -1, col);
 					}
 				}
 			}
@@ -1166,4 +1276,34 @@ int CCommonSelectCG::GetCGBlockNumber(int cgCharaNumber,int cgNumber)
 	}
 
 	return block;
+}
+
+
+
+int CCommonSelectCG::GetStartWaitMode(void)
+{
+	if (m_menuStartCount < m_menuStartWaitTime)
+	{
+		m_appearCount = 0;
+		m_appearCountMax = 1;
+		return 1;
+	}
+
+	if (m_menuStartCount < m_menuStartWaitTime + m_menuStartEffectTime)
+	{
+		m_appearCount = m_menuStartCount - m_menuStartWaitTime;
+		m_appearCountMax = m_menuStartEffectTime;
+		return 2;
+	}
+
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+	return 0;
+}
+
+void CCommonSelectCG::EndStartWaitMode(void)
+{
+	m_menuStartCount = m_menuStartWaitTime + m_menuStartEffectTime;
+	//m_game->InitMiniGameButton(OMAKE_MODE);
 }

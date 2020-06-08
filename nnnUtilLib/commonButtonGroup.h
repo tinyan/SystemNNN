@@ -35,6 +35,7 @@ public:
 	virtual int Calcu(CInputStatus* lpInput);
 	virtual int CalcuSuper(CInputStatus* lpInput);
 	virtual void Print(BOOL mustPrintFlag = FALSE);
+	void AppearPrint(int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 });
 
 	CCommonButton* GetButton(int n){return m_ppButton[n];}
 

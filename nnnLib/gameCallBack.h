@@ -216,6 +216,7 @@ public:
 	virtual void GetMessageForSave(LPVOID ptr);
 	virtual void GetOmakeClassDataForSave(LPVOID ptr);
 	virtual void GetCutinForSave(LPVOID pt);
+	virtual void GetLogForSave(LPVOID pt);
 
 	virtual void SetByLoad(int cd, LPVOID ptr);
 
@@ -227,6 +228,7 @@ public:
 	virtual void SetMessageByLoad(LPVOID ptr);
 	virtual void SetOmakeClassDataByLoad(LPVOID ptr);
 	virtual void SetCutinByLoad(LPVOID ptr);
+	virtual void SetLogByLoad(LPVOID ptr);
 
 
 	virtual int GetWeek(int dayMonth);
@@ -873,6 +875,7 @@ public:
 	bool CheckSelectSerialID(int serial, int n);
 
 	void PlayButtonVoice(int voice);
+	int GetSaveLog(void);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1437,7 +1440,8 @@ protected:
 	LPSTR m_preReceiveFileName;
 
 	CMyDirectSoundBuffer* m_systemSound[2];
-//	CMyDirectSoundBuffer* m_scriptVoice[4];
+	CMyDirectSoundBuffer* m_buttonVoice[2];
+	//	CMyDirectSoundBuffer* m_scriptVoice[4];
 //	CMyDirectSoundBuffer* m_scriptSound[8];
 
 	BOOL m_fuqueAllEffectYoyaku;
@@ -1445,6 +1449,7 @@ protected:
 	CMusicControl* m_musicControl;
 
 	int m_useSystemSoundNumber;
+	int m_useButtonVoiceNumber;
 
 	CSceneVoice* m_sceneVoice;
 
@@ -1848,6 +1853,8 @@ protected:
 	int m_useDirect2D;
 	int m_useXAudio2;
 
+	int m_buttonVoiceNumber;
+
 //private:
 	//dummy
 	int m_nowFrameCount;
@@ -1866,6 +1873,10 @@ protected:
 
 	int m_selectSerialID;
 	void PlayButtonVoiceByFilename(LPSTR filename);
+
+	int m_saveLog;
+
+	char m_buttonPlayingFilename[2][256];
 };
 
 #endif

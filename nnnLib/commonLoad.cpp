@@ -20,6 +20,8 @@
 #include "..\nnnUtilLib\commonButton.h"
 #include "..\nnnUtilLib\commonButtonGroup.h"
 
+#include "commonGeneral.h"
+
 #include "commonDataFile.h"
 
 #include "commonSystemSoundName.h"
@@ -34,7 +36,6 @@
 #include "..\nnnUtilLib\myMessage.h"
 
 
-#include "commonGeneral.h"
 #include "commonLoadSave.h"
 #include "commonLoad.h"
 

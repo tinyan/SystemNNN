@@ -213,6 +213,15 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetBackExecSetup();
 	GetAllPrintSetup();
 
+	m_menuStartWaitTime = 0;
+	m_menuStartEffectTime = 0;
+	m_menuStartEffectType = 0;
+
+	GetInitGameParam(&m_menuStartWaitTime, "menuStartWaitTime");
+	GetInitGameParam(&m_menuStartEffectTime, "menuStartEffectTime");
+	GetInitGameParam(&m_menuStartEffectType, "menuStartEffectType");
+
+
 	m_page = 0;
 	m_pageMax = 1;
 	GetInitGameParam(&m_pageMax,"modePageMax");
@@ -1656,6 +1665,11 @@ int CCommonConfig::Init(void)
 {
 //	char filename[256];
 
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+	m_menuStartCount = 0;
+
 	if (m_inSetVar != -1)
 	{
 		m_game->SetVarData(m_inSetVar, m_inSetVarData);
@@ -2100,6 +2114,25 @@ int CCommonConfig::Calcu(void)
 			m_game->ResetLaunch();
 		}
 	}
+
+
+	int startMode = GetStartWaitMode();
+	if (startMode != 0)
+	{
+		m_menuStartCount++;
+		if (m_menuStartCount >= m_menuStartWaitTime + m_menuStartEffectTime)
+		{
+			EndStartWaitMode();
+		}
+		else
+		{
+			if (m_mouseStatus->CheckClick()) EndStartWaitMode();
+			if (m_mouseStatus->CheckClick(1)) EndStartWaitMode();
+		}
+
+		return -1;
+	}
+
 
 
 	if (m_mode != -1)
@@ -3158,6 +3191,13 @@ int CCommonConfig::Print(void)
 //	m_voiceSlider->Print(b);
 //	m_messageSlider->Print(b);
 
+	int startMode = GetStartWaitMode();
+	if (startMode != 0)
+	{
+	//	return -1;
+	}
+
+
 	if (m_page == m_voicePrintPage - 1)
 	{
 		if (m_voiceCutButtonFlag)
@@ -3169,7 +3209,8 @@ int CCommonConfig::Print(void)
 
 				if (CheckAppearCharaVoice(i))
 				{
-					m_ppVoiceButton[i]->Print(TRUE);
+//					m_ppVoiceButton[i]->Print(TRUE);
+					m_ppVoiceButton[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 					if (m_charaVoiceVolumeFlag)
 					{
 						//					if (m_ppVoiceButton[i]->GetButton(0)->GetExist())
@@ -3183,7 +3224,8 @@ int CCommonConfig::Print(void)
 							}
 
 
-							m_ppCharaVoiceSlider[i]->Print(TRUE, bad);
+//							m_ppCharaVoiceSlider[i]->Print(TRUE, bad);
+							m_ppCharaVoiceSlider[i]->AppearPrint(bad,m_appearCount,m_appearCountMax,m_menuStartEffectType);
 						}
 					}
 				}
@@ -3198,7 +3240,8 @@ int CCommonConfig::Print(void)
 		{
 			if (m_page == m_modeButtonPrintPage[i]-1)
 			{
-				m_ppModeButton[i]->Print(TRUE);
+	//			m_ppModeButton[i]->Print(TRUE);
+				m_ppModeButton[i]->AppearPrint(m_appearCount,m_appearCountMax,m_menuStartEffectType);
 			}
 		}
 	}
@@ -3209,7 +3252,8 @@ int CCommonConfig::Print(void)
 		{
 			if (m_ppCheckButton[i] != NULL)
 			{
-				m_ppCheckButton[i]->Print(TRUE);
+//				m_ppCheckButton[i]->Print(TRUE);
+				m_ppCheckButton[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 			}
 		}
 	}
@@ -3220,7 +3264,8 @@ int CCommonConfig::Print(void)
 		{
 			if (m_ppClickButton[i] != NULL)
 			{
-				m_ppClickButton[i]->Print(TRUE);
+//				m_ppClickButton[i]->Print(TRUE);
+				m_ppClickButton[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 			}
 		}
 	}
@@ -3229,7 +3274,8 @@ int CCommonConfig::Print(void)
 	{
 		if (m_page == m_systemVoiceButtonPrintPage - 1)
 		{
-			m_ppSystemVoiceButton->Print(true);
+//			m_ppSystemVoiceButton->Print(true);
+			m_ppSystemVoiceButton->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 		}
 	}
 
@@ -3240,7 +3286,8 @@ int CCommonConfig::Print(void)
 		{
 			if (m_ppExpModeButton[i] != NULL)
 			{
-				m_ppExpModeButton[i]->Print(TRUE);
+//				m_ppExpModeButton[i]->Print(TRUE);
+				m_ppExpModeButton[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 			}
 		}
 	}
@@ -3249,7 +3296,8 @@ int CCommonConfig::Print(void)
 	{
 		if (m_page == m_expCheckButtonPrintPage[i]-1)
 		{
-			m_ppExpCheckButton[i]->Print(TRUE);
+//			m_ppExpCheckButton[i]->Print(TRUE);
+			m_ppExpCheckButton[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 		}
 	}
 
@@ -3270,39 +3318,47 @@ int CCommonConfig::Print(void)
 				if (i == 9) if (m_game->GetSystemParam(NNNPARAM_SCRIPTSESWITCH) == 0) bad = TRUE;
 
 
-				m_ppSlider[i]->Print(TRUE,bad);
-				if (((i>=1) && (i<=5)) || (i>=8)) m_ppVolumeButton[i]->Print(TRUE);
+//				m_ppSlider[i]->Print(TRUE,bad);
+				m_ppSlider[i]->AppearPrint(bad, m_appearCount, m_appearCountMax, m_menuStartEffectType);
+				if (((i >= 1) && (i <= 5)) || (i >= 8))
+				{
+//					m_ppVolumeButton[i]->Print(TRUE);
+					m_ppVolumeButton[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
+				}
 			}
 		}
 	}
 
 //	if (m_windowKosuu > 1)
-	if (m_windowPrintFlag)
+	if (startMode == 0)
 	{
-		if (m_page == (m_windowPrintPage - 1))
+		if (m_windowPrintFlag)
 		{
-			if (b)
+			if (m_page == (m_windowPrintPage - 1))
 			{
-				m_game->PrintMessageWindowDirect(b,TRUE,&m_windowPrint);
-				//message
-				for (int i=0;i<m_windowMessageKosuu;i++)
+				if (b)
 				{
-					LPSTR mes = m_windowMessage[i];
-					if (mes != NULL)
+					m_game->PrintMessageWindowDirect(b, TRUE, &m_windowPrint);
+					//message
+					for (int i = 0; i < m_windowMessageKosuu; i++)
 					{
-						if ((*mes) != '@')
+						LPSTR mes = m_windowMessage[i];
+						if (mes != NULL)
 						{
-							int putX = m_windowPrint.x + m_messagePrintX + m_messageNextX * i;
-							int putY = m_windowPrint.y + m_messagePrintY + m_messageNextY * i;
+							if ((*mes) != '@')
+							{
+								int putX = m_windowPrint.x + m_messagePrintX + m_messageNextX * i;
+								int putY = m_windowPrint.y + m_messagePrintY + m_messageNextY * i;
 
-							m_message->PrintMessage(putX,putY,mes,m_messageFontSize,m_messageColorR,m_messageColorG,m_messageColorB);
+								m_message->PrintMessage(putX, putY, mes, m_messageFontSize, m_messageColorR, m_messageColorG, m_messageColorB);
+							}
 						}
 					}
-				}
-				//name
-				if (m_nameMessage != NULL)
-				{
-					m_message->PrintMessage(m_windowPrint.x + m_namePrintX,m_windowPrint.y + m_namePrintY,m_nameMessage,m_nameFontSize,m_nameColorR,m_nameColorG,m_nameColorB);
+					//name
+					if (m_nameMessage != NULL)
+					{
+						m_message->PrintMessage(m_windowPrint.x + m_namePrintX, m_windowPrint.y + m_namePrintY, m_nameMessage, m_nameFontSize, m_nameColorR, m_nameColorG, m_nameColorB);
+					}
 				}
 			}
 		}
@@ -3310,16 +3366,20 @@ int CCommonConfig::Print(void)
 
 	if (m_pageMode == 0)
 	{
-		m_back->Print(TRUE);
+//		m_back->Print(TRUE);
+		m_back->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 	}
 	else if (m_pageMode == 1)
 	{
-		m_updownBack->Print(TRUE);
+//		m_updownBack->Print(TRUE);
+		m_updownBack->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 	}
 	else if (m_pageMode == 2)
 	{
-		m_back->Print(TRUE);
-		m_tabButton->Print(TRUE);
+//		m_back->Print(TRUE);
+		m_back->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
+//		m_tabButton->Print(TRUE);
+		m_tabButton->	AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 	}
 
 /*
@@ -3351,11 +3411,14 @@ int CCommonConfig::Print(void)
 	}
 */
 
-	if (m_useSampleText != 0)
+	if (startMode == 0)
 	{
-		if ((m_sampleTextPrintPage-1) == m_page)
+		if (m_useSampleText != 0)
 		{
-			PrintSampleText();
+			if ((m_sampleTextPrintPage - 1) == m_page)
+			{
+				PrintSampleText();
+			}
 		}
 	}
 
@@ -3365,6 +3428,7 @@ int CCommonConfig::Print(void)
 		m_pageYoyakuFlag = FALSE;
 		ChangePage();
 	}
+
 	return -1;
 }
 
@@ -4709,6 +4773,35 @@ bool CCommonConfig::CheckEnableSystemCharaVoice(int n)
 	}
 
 	return f;
+}
+
+
+int CCommonConfig::GetStartWaitMode(void)
+{
+	if (m_menuStartCount < m_menuStartWaitTime)
+	{
+		m_appearCount = 0;
+		m_appearCountMax = 1;
+		return 1;
+	}
+
+	if (m_menuStartCount < m_menuStartWaitTime + m_menuStartEffectTime)
+	{
+		m_appearCount = m_menuStartCount - m_menuStartWaitTime;
+		m_appearCountMax = m_menuStartEffectTime;
+		return 2;
+	}
+
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+	return 0;
+}
+
+void CCommonConfig::EndStartWaitMode(void)
+{
+	m_menuStartCount = m_menuStartWaitTime + m_menuStartEffectTime;
+	//m_game->InitMiniGameButton(OMAKE_MODE);
 }
 
 /*_*/

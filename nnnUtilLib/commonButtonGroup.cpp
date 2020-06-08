@@ -170,6 +170,7 @@ void CCommonButtonGroup::Init(void)
 		if (button != NULL)
 		{
 			button->Init();
+			button->SetEntered();
 		}
 	}
 }
@@ -224,6 +225,7 @@ int CCommonButtonGroup::CalcuSuper(CInputStatus* lpInput)
 	}
 
 	int returnCode = NNNBUTTON_NOTHING;
+	int returnLevel = NNNBUTTON_NOTHING;
 
 	for (int i=0;i<m_buttonKosuu;i++)
 	{
@@ -243,16 +245,33 @@ int CCommonButtonGroup::CalcuSuper(CInputStatus* lpInput)
 						m_status = 1;
 						m_buttonNumber = i;
 						returnCode = CCommonButton::ChangeButtonData(rt,m_buttonNumber);
+						returnLevel = st;
 					}
 					else if (st == NNNBUTTON_NUMBER)
 					{
 						m_status = 1;
 						m_buttonNumber = i;
 						returnCode = CCommonButton::ChangeButtonData(rt,m_buttonNumber);
+						returnLevel = st;
 					}
 					else
 					{
-						returnCode = rt;//sound etc
+						if (st == NNNBUTTON_EXIT)
+						{
+							if ((returnLevel != NNNBUTTON_ENTER) && (returnLevel != NNNBUTTON_STARTCLICK) && (returnLevel != NNNBUTTON_NUMBER))
+							{
+								returnCode = rt;
+								returnLevel = st;
+							}
+						}
+						else
+						{
+							if ((returnLevel != NNNBUTTON_STARTCLICK) && (returnLevel != NNNBUTTON_NUMBER))
+							{
+								returnCode = rt;//sound etc
+								returnLevel = st;
+							}
+						}
 					}
 
 					if ((st == NNNBUTTON_ENTER) || (st == NNNBUTTON_EXIT))
@@ -299,6 +318,21 @@ void CCommonButtonGroup::Print(BOOL mustPrintFlag)
 	}
 }
 
+void CCommonButtonGroup::AppearPrint(int count, int countMax, int type , POINT deltaPoint )
+{
+	for (int i = 0; i < m_buttonKosuu; i++)
+	{
+		CCommonButton* button = m_ppButton[i];
+		if (button != NULL)
+		{
+			if (button->GetExist())
+			{
+				button->AppearPrint(count, countMax, type, deltaPoint);
+			}
+		}
+	}
+
+}
 
 
 POINT CCommonButtonGroup::GetZahyo(int n)

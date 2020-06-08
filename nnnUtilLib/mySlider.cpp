@@ -183,6 +183,103 @@ void CMySlider::Print(BOOL mustPrintFlag,BOOL badFlag)
 }
 
 
+void CMySlider::AppearPrint(bool badFlag, int count, int countMax, int type, POINT deltaPoint)
+{
+	BOOL b = CAreaControl::CheckAllPrintMode();
+	BOOL b2 = FALSE;
+	if (m_oldGaze != m_gaze) b2 = TRUE;
+
+	bool mustPrintFlag = true;
+
+	if ((count == 0) && (countMax > 0)) return;
+
+
+	int percent = 100;
+	int dv = countMax;
+	if (dv < 1) dv = 1;
+	percent = (100 * count) / dv;
+	if (percent < 0) percent = 0;
+	if (percent > 100) percent = 100;
+
+
+
+	//erase
+	if (m_bgPic != NULL)
+	{
+		if (b || b2 || mustPrintFlag)
+		{
+			Erase(m_printX, m_printY, m_sizeX, m_sizeY);
+		}
+
+		if (m_cursorFlag)
+		{
+			if (b || b2 || mustPrintFlag)
+			{
+				if (m_oldGaze != -1)
+				{
+					int putX = m_printX + m_deltaX + (m_sizeX * m_oldGaze) / m_devide;
+					int putY = m_printY + m_deltaY;
+					Erase(putX, putY, m_cursorSizeX, m_cursorSizeY);
+				}
+
+				if (m_gaze != -1)
+				{
+					int putX = m_printX + m_deltaX + (m_sizeX * m_gaze) / m_devide;
+					int putY = m_printY + m_deltaY;
+					Erase(putX, putY, m_cursorSizeX, m_cursorSizeY);
+				}
+			}
+		}
+	}
+
+	//print
+	if (b || b2 || mustPrintFlag)
+	{
+		if (m_pic != NULL)
+		{
+			int sizeX = (m_sizeX * m_gaze) / m_devide;
+			if (m_digitalFlag)
+			{
+				sizeX = (m_sizeX * (m_gaze + 1)) / (m_devide + 1);
+			}
+			int sizeY = m_sizeY;
+			if (sizeX > 0)
+			{
+				if (badFlag == FALSE)
+				{
+//					m_pic->Blt(m_printX, m_printY, m_srcX, m_srcY, sizeX, sizeY, m_transFlag);
+					m_pic->TransLucentBlt3(m_printX, m_printY, m_srcX, m_srcY, sizeX, sizeY, percent);
+				}
+				else
+				{
+					if (m_transFlag)
+					{
+						m_pic->TransLucentBlt3(m_printX, m_printY, m_srcX, m_srcY, sizeX, sizeY, percent/2);
+					}
+					else
+					{
+						m_pic->TransLucentBlt0(m_printX, m_printY, m_srcX, m_srcY, sizeX, sizeY, percent/2);
+					}
+				}
+			}
+		}
+
+		if (m_cursorFlag)
+		{
+			if (m_cursorPic != NULL)
+			{
+				int putX = m_printX + m_deltaX + (m_sizeX * m_gaze) / m_devide;
+				int putY = m_printY + m_deltaY;
+//				m_cursorPic->Blt(putX, putY, 0, 0, m_cursorSizeX, m_cursorSizeY, TRUE);
+				m_cursorPic->TransLucentBlt3(putX,putY,0,0,m_cursorSizeX, m_cursorSizeY, percent);
+			}
+		}
+	}
+
+}
+
+
+
 void CMySlider::Erase(int printX,int printY,int sizeX,int sizeY)
 {
 	if (m_bgPic != NULL)

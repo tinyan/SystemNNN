@@ -613,6 +613,10 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 	COLORREF col = COLORREF(colR | (colG << 8) | (colB<<16));
 
+	if (message == nullptr)
+	{
+		return 0;
+	}
 	int ln = (int)strlen(message);
 	int k = 0;
 	

@@ -264,6 +264,118 @@ void CCommonAnimeParts::Print(POINT pt)
 }
 
 
+void CCommonAnimeParts::AppearPrint(POINT pt,int appearCount, int appearCountMax, int appearType)
+{
+//	POINT pt = m_animePrintZahyo;
+
+
+	int dva = appearCountMax;
+	if (dva < 1) dva = 1;
+
+	int appearPercent = 100;
+	if (appearType & 1)
+	{
+		appearPercent = (100 * appearCount) / dva;
+		if (appearPercent < 0) appearPercent = 0;
+		if (appearPercent > 100) appearPercent = 100;
+	}
+
+	int putX = pt.x;
+	int putY = pt.y;
+	int sizeX = m_animePicSize.cx;
+	int sizeY = m_animePicSize.cy;
+
+	CAreaControl::AddArea(putX, putY, sizeX, sizeY);
+
+
+	int type = m_animeType;
+	int speed = m_animeSpeed;
+	int count = m_animeCount;
+	int pattern = m_animePattern;
+
+	int revFlag = 0;
+	int dv = pattern;
+
+	if (speed < 1) speed = 1;
+
+	if ((type == 3) || (type == 4) || (type == 7) || (type == 8))
+	{
+		dv = (pattern - 1) * 2;
+		if (dv < 1) dv = 1;
+		revFlag = 1;
+	}
+
+
+	int pic1 = count / speed;
+	int pic2 = pic1 + 1;
+
+	if (m_limitFlag)
+	{
+		int limData = dv - 1;
+		if (revFlag) limData = dv;
+
+		if (pic1 >= dv) pic1 = limData;
+		if (pic2 >= dv) pic2 = limData;
+	}
+
+	pic2 %= dv;
+
+	int percent = 100;
+
+	if (revFlag)
+	{
+		if (pic1 >= pattern) pic1 = (pattern - 1) * 2 - pic1;
+		if (pic2 >= pattern) pic2 = (pattern - 1) * 2 - pic2;
+	}
+
+	if (type >= 5)
+	{
+		percent = 100 * (speed - (count - ((count / speed) * speed)));
+		percent /= speed;
+	}
+
+
+	//print
+	POINT pt1 = GetPicSrc(pic1);
+	POINT pt2 = GetPicSrc(pic2);
+
+
+
+	if (percent == 100)
+	{
+//		m_pic->Blt(putX, putY, pt1.x, pt1.y, sizeX, sizeY, TRUE);
+		m_pic->TransLucentBlt3(putX, putY, pt1.x, pt1.y, sizeX, sizeY, appearPercent);
+	}
+	else if (percent == 0)
+	{
+//		m_pic->Blt(putX, putY, pt2.x, pt2.y, sizeX, sizeY, TRUE);
+		m_pic->TransLucentBlt3(putX, putY, pt2.x, pt2.y, sizeX, sizeY, appearPercent);
+	}
+	else
+	{
+		int ps2 = 100 - percent;
+		int* lpBuffer2 = (int*)(m_pic->GetBuffer());
+		char* lpMask2 = (char*)(m_pic->GetMaskPic());
+
+		int deltaX = pt2.x - pt1.x;
+		int deltaY = pt2.y - pt1.y;
+
+		SIZE sz = m_pic->GetPicSize();
+
+		lpBuffer2 += deltaX;
+		lpBuffer2 += deltaY * sz.cx;
+
+		lpMask2 += deltaX;
+		lpMask2 += deltaY * sz.cx;
+
+		int srcX = pt1.x;
+		int srcY = pt1.y;
+
+//		m_pic->ChangeTranslateBlt(putX, putY, srcX, srcY, sizeX, sizeY, percent, ps2, m_pic, pt2.x, pt2.y);
+		m_pic->ChangeTranslateBlt(putX, putY, srcX, srcY, sizeX, sizeY, (percent*appearPercent)/100, (ps2*appearPercent)/100, m_pic, pt2.x, pt2.y);
+	}
+
+}
 
 
 POINT CCommonAnimeParts::GetPicSrc(int n)

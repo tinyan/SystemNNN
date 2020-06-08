@@ -311,6 +311,25 @@ void CCommonUpDownButtonGroup::Print(BOOL mustPrintFlag)
 	}
 }
 
+void CCommonUpDownButtonGroup::AppearPrint(int count, int countMax, int type , POINT deltaPoint )
+{
+	CalcuAppear();
+
+	for (int i = 0; i < m_buttonKosuu; i++)
+	{
+		CCommonButton* button = m_button[i];
+		if (button != NULL)
+		{
+			if (button->GetExist())
+			{
+				if (m_appearFlag[i])
+				{
+					button->AppearPrint(count, countMax, type, deltaPoint);
+				}
+			}
+		}
+	}
+}
 
 
 void CCommonUpDownButtonGroup::SetUpDownZahyo(int upPrintX, int upPrintY, int downPrintX, int downPrintY)

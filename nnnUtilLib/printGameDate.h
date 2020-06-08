@@ -16,6 +16,8 @@ public:
 	void Print(POINT pt,int month,int day);
 	void Print(POINT pt,int year,int month,int day);
 
+	void AppearPrint(int count,int countMax,int type,POINT pt, int year, int month, int day);
+
 	void Print(int date);
 	void Print(int month,int day);
 	void Print(int year,int month,int day);

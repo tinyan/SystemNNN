@@ -455,6 +455,181 @@ void CPrintGameDate::Print(POINT pt,int year,int month,int day)
 	}
 }
 
+void CPrintGameDate::AppearPrint(int count, int countMax, int type, POINT pt, int year, int month, int day)
+{
+	//dummy
+	if (count >= countMax)
+	{
+		Print(pt, year, month, day);
+		return;
+	}
+
+	int dv = countMax;
+	if (dv < 1) dv = 1;
+
+	int percent = 100;
+	if (type & 1)
+	{
+		percent = (100 * count) / dv;
+		if (percent < 0) percent = 0;
+		if (percent > 100) percent = 100;
+	}
+
+
+	int printX = pt.x;
+	int printY = pt.y;
+
+	if (m_bgPrintFlag)
+	{
+		if (m_yearPrintFlag)
+		{
+			int putX = printX + m_yearZahyo.x;
+			int putY = printY + m_yearZahyo.y;
+			int sizeY = m_timeFontSize.cy;
+			int nextX = m_timeFontNextX;
+
+			int sizeX = nextX * 3 + m_timeFontSize.cx;
+
+			if (m_yearSlashPrintFlag)
+			{
+				sizeX += nextX;
+			}
+			Erase(putX, putY, sizeX, sizeY);
+		}
+
+		if (m_monthPrintFlag)
+		{
+			int putX = printX + m_monthZahyo.x;
+			int putY = printY + m_monthZahyo.y;
+			int sizeY = m_timeFontSize.cy;
+			int nextX = m_timeFontNextX;
+
+			int sizeX = nextX * 1 + m_timeFontSize.cx;
+			if (m_monthSlashPrintFlag)
+			{
+				sizeX += nextX;
+			}
+
+			Erase(putX, putY, sizeX, sizeY);
+		}
+
+		if (m_dayPrintFlag)
+		{
+			int putX = printX + m_dayZahyo.x;
+			int putY = printY + m_dayZahyo.y;
+			int sizeY = m_timeFontSize.cy;
+			int nextX = m_timeFontNextX;
+
+			int sizeX = nextX * 1 + m_timeFontSize.cx;
+			if (m_daySlashPrintFlag)
+			{
+				sizeX += nextX;
+			}
+
+			Erase(putX, putY, sizeX, sizeY);
+		}
+
+		if (m_weekPrintFlag)
+		{
+			int putX = printX + m_weekZahyo.x;
+			int putY = printY + m_weekZahyo.y;
+			int sizeY = m_weekFontSize.cy;
+			int nextX = m_weekFontNextX;
+
+			int sizeX = nextX * 2 + m_weekFontSize.cx;
+			Erase(putX, putY, sizeX, sizeY);
+		}
+	}
+
+
+
+	if (m_yearPrintFlag)
+	{
+		int putX = printX + m_yearZahyo.x;
+		int putY = printY + m_yearZahyo.y;
+		int sizeX = m_timeFontSize.cx;
+		int sizeY = m_timeFontSize.cy;
+		int nextX = m_timeFontNextX;
+
+//		m_yearSuuji->Print(putX, putY, year);
+		m_yearSuuji->AppearPrint(count,countMax,type,putX, putY, year);
+
+		putX += nextX * 4;
+		if (m_yearSlashPrintFlag)
+		{
+//			m_yearSuuji->Put(putX, putY, m_yearSlashPrintFlag - 1 + 10);
+			m_yearSuuji->AppearPut(count,countMax,type,putX, putY, m_yearSlashPrintFlag - 1 + 10);
+		}
+	}
+
+	if (m_monthPrintFlag)
+	{
+		int putX = printX + m_monthZahyo.x;
+		int putY = printY + m_monthZahyo.y;
+		int sizeX = m_timeFontSize.cx;
+		int sizeY = m_timeFontSize.cy;
+		int nextX = m_timeFontNextX;
+
+//		m_monthSuuji->Print(putX, putY, month);
+		m_monthSuuji->AppearPrint(count, countMax, type,putX, putY, month);
+
+		putX += nextX * 2;
+		if (m_monthSlashPrintFlag)
+		{
+//			m_monthSuuji->Put(putX, putY, m_monthSlashPrintFlag - 1 + 10);
+			m_monthSuuji->AppearPut(count, countMax, type, putX, putY, m_monthSlashPrintFlag - 1 + 10);
+		}
+	}
+
+	if (m_dayPrintFlag)
+	{
+		int putX = printX + m_dayZahyo.x;
+		int putY = printY + m_dayZahyo.y;
+		int sizeX = m_timeFontSize.cx;
+		int sizeY = m_timeFontSize.cy;
+		int nextX = m_timeFontNextX;
+
+//		m_daySuuji->Print(putX, putY, day);
+		m_daySuuji->AppearPrint(count, countMax, type, putX, putY, day);
+
+		putX += nextX * 2;
+		if (m_daySlashPrintFlag)
+		{
+//			m_daySuuji->Put(putX, putY, m_daySlashPrintFlag - 1 + 10);
+			m_daySuuji->AppearPut(count, countMax, type, putX, putY, m_daySlashPrintFlag - 1 + 10);
+		}
+	}
+
+	if (m_weekPrintFlag)
+	{
+		int putX = printX + m_weekZahyo.x;
+		int putY = printY + m_weekZahyo.y;
+		int sizeX = m_weekFontSize.cx;
+		int sizeY = m_weekFontSize.cy;
+		int nextX = m_weekFontNextX;
+
+		int week = CCalcuWeek::CalcuWeek(year, month, day);
+//		m_weekSuuji->Print(putX, putY, week);
+		m_weekSuuji->AppearPrint(count, countMax, type, putX, putY, week);
+
+		putX += nextX;
+		if (m_weekYouPrintFlag)
+		{
+//			m_weekSuuji->Put(putX, putY, m_weekYouPrintFlag - 1 + 10);
+			m_weekSuuji->AppearPut(count, countMax, type, putX, putY, m_weekYouPrintFlag - 1 + 10);
+		}
+
+		putX += nextX;
+		if (m_weekBiPrintFlag)
+		{
+//			m_weekSuuji->Put(putX, putY, m_weekBiPrintFlag - 1 + 10);
+			m_weekSuuji->AppearPut(count, countMax, type, putX, putY, m_weekBiPrintFlag - 1 + 10);
+		}
+
+	}
+
+}
+
 void CPrintGameDate::Erase(int putX,int putY,int sizeX,int sizeY)
 {
 	if (m_commonBG == NULL) return;

@@ -134,6 +134,12 @@ void CCommonUpdownBack::Print(BOOL flg)
 	m_back->Print(flg);
 }
 
+void CCommonUpdownBack::AppearPrint(int count, int countMax, int type , POINT deltaPoint )
+{
+	m_updown->AppearPrint(count,countMax,type,deltaPoint);
+	m_back->AppearPrint(count, countMax, type, deltaPoint);
+}
+
 
 void CCommonUpdownBack::SetPageMax(int pageMax)
 {

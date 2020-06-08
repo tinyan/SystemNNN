@@ -145,6 +145,56 @@ void CPagePrint::Print(int page,int pageMax)
 }
 
 
+void CPagePrint::AppearPrint(int appearCount, int appearCountMax, int appearType, int page, int pageMax)
+{
+	int dv = appearCountMax;
+	if (dv < 1) dv = 1;
+
+	int percent = 100;
+	if (appearType & 1)
+	{
+		percent = (100 * appearCount) / dv;
+		if (percent < 0) percent = 0;
+		if (percent > 100) percent = 100;
+	}
+
+
+	if (m_pagePrintFlag)
+	{
+		if (m_bg != NULL)
+		{
+			m_bg->Blt(m_pagePrintX, m_pagePrintY, m_pagePrintX, m_pagePrintY, m_fontNextX*m_keta, m_fontSizeY, FALSE);
+		}
+
+	//	m_suuji->Print(m_pagePrintX, m_pagePrintY, page);
+		m_suuji->AppearPrint(appearCount,appearCountMax,appearType,m_pagePrintX, m_pagePrintY, page);
+
+
+		if (m_pageMaxPrintFlag)
+		{
+			if (m_bg != NULL)
+			{
+				m_bg->Blt(m_pageMaxPrintX, m_pageMaxPrintY, m_pageMaxPrintX, m_pageMaxPrintY, m_fontNextX*m_keta, m_fontSizeY, FALSE);
+			}
+
+//			m_suujiMax->Print(m_pageMaxPrintX, m_pageMaxPrintY, pageMax);
+			m_suujiMax->AppearPrint(appearCount, appearCountMax, appearType, m_pageMaxPrintX, m_pageMaxPrintY, pageMax);
+
+			if (m_slashPrintFlag)
+			{
+				if (m_bg != NULL)
+				{
+					m_bg->Blt(m_slashPrintX, m_slashPrintY, m_slashPrintX, m_slashPrintY, m_fontSizeX, m_fontSizeY, FALSE);
+				}
+
+//				m_suuji->Put(m_slashPrintX, m_slashPrintY, 11);
+				m_suuji->AppearPut(appearCount, appearCountMax, appearType, m_slashPrintX, m_slashPrintY, 11);
+			}
+		}
+	}
+}
+
+
 BOOL CPagePrint::GetInitGameParam(int* lpVar, LPSTR name)
 {
 	int rNum = m_setup->SearchName2(name);

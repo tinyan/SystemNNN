@@ -70,6 +70,10 @@ public:
 
 	void AddSeparator(void);
 
+	void SetLogByLoad(void* ptr);
+	void GetLogForSave(void* ptr);
+
+
 protected:
 	BOOL UpScroll(int n = 1);
 	BOOL DownScroll(int n = 1);
@@ -221,6 +225,7 @@ protected:
 
 	int m_firstMessagePrintFlag;
 	int m_firstBarPrintFlag;
+
 
 	char* m_separatorMessage;
 	static char m_separatorData[][16];

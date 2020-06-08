@@ -31,6 +31,8 @@ public:
 	int Calcu(CInputStatus* lpInput);
 	int CalcuSuper(CInputStatus* lpInput);
 	void Print(BOOL mustPrintFlag = FALSE);
+	void AppearPrint(int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 });
+
 
 	void SetPage(int page);
 	void SetPageMax(int pageMax);

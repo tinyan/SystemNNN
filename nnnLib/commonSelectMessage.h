@@ -54,6 +54,12 @@ public:
 	static char m_defaultBacklogMessage[];
 	static char m_defaultBacklogMessage_1byte[];
 
+	static char m_defaultSelectedMessage[];
+	static char m_defaultSelectedMessage_1byte[];
+
+	static char m_defaultTimeupMessage[];
+	static char m_defaultTimeupMessage_1Byte[];
+
 	virtual void SetBackLogMessage(void);
 	BOOL CheckWindowOn(void);
 
@@ -320,6 +326,18 @@ protected:
 	int m_selectedColorR;
 	int m_selectedColorG;
 	int m_selectedColorB;
+
+	LPSTR m_timeupMessage;
+	int m_selectedDotNumber;
+
+	LPSTR* m_selectedDotMessage;
+
+	int m_dotColorR;
+	int m_dotColorG;
+	int m_dotColorB;
+	int m_timeupColorR;
+	int m_timeupColorG;
+	int m_timeupColorB;
 
 private:
 

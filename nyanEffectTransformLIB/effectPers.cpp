@@ -491,6 +491,10 @@ mm2=1.0;
 		push esi
 		push edi
 
+		xor eax,eax
+		movd mm0,eax
+		punpcklwd mm0,mm0
+
 		mov eax,clipY1
 		mov edx,lPitch
 		mul edx
@@ -523,16 +527,29 @@ LOOP1:
 		push ecx
 		push edi
 
-		mov eax,[ebx]
-		add eax,addY
-		cmp eax,sy
+		mov eax, [ebx]
+		add eax, addY
+		cmp eax, sy
 		jnb SKIP2
 
-		mov edx,sx
-		shl edx,2
+		mov edx, sx
+		shl edx, 2
 		mul edx
-		add eax,src
-		mov esi,eax
+		add eax, src
+		mov esi, eax
+
+		//mask
+		mov eax, [ebx]
+		add eax, addY
+
+		mov edx, sx
+//		shl edx, 2
+		mul edx
+		add eax, mask
+		mov ecx, eax
+
+
+
 
 		mov eax,[ebx+4]
 		movd mm2,eax
@@ -544,17 +561,53 @@ LOOP1:
 		sub edx,eax
 		movd mm1,edx
 
+		mov ebx,ecx
+
 		mov ecx,loopX
 LOOP2:
 		movq mm7,mm1
 		psrad mm7,16
-		movd ebx,mm7
+		movd edx,mm7
 
-		cmp ebx,sx
+		cmp edx,sx
 		jnb SKIP1
 //•\Ž¦?
-		shl ebx,2
-		mov eax,[ebx+esi]
+		mov eax,transFlag
+		cmp eax,2
+		jb NORMAL
+
+
+		xor eax,eax
+		mov al,[edx+ebx]
+		movd mm3,eax
+		punpcklwd mm3, mm3
+		punpckldq mm3, mm3
+		xor al,0xff
+		movd mm4, eax
+		punpcklwd mm4, mm4
+		punpckldq mm4, mm4
+
+		shl edx, 2
+		mov eax, [edx + esi]
+		movd mm5,eax
+		punpcklbw mm5,mm0
+		pmullw mm3,mm5
+
+		mov eax, [edi]
+		movd mm5, eax
+		punpcklbw mm5, mm0
+		pmullw mm4, mm5
+
+		paddw mm4,mm3
+		psrlw mm4,8
+		packuswb mm4,mm4
+		movd eax,mm4
+		mov[edi], eax
+
+		jmp SKIP1
+NORMAL:
+		shl edx,2
+		mov eax,[edx+esi]
 		mov [edi],eax
 
 SKIP1:

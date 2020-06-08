@@ -163,6 +163,14 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 		m_button[i]->SetPicture(CSuperButtonPicture::GetPicture(3+i*2+1),1);
 	}
 
+	m_menuStartWaitTime = 0;
+	m_menuStartEffectTime = 0;
+	m_menuStartEffectType = 0;
+
+	GetInitGameParam(&m_menuStartWaitTime, "menuStartWaitTime");
+	GetInitGameParam(&m_menuStartEffectTime, "menuStartEffectTime");
+	GetInitGameParam(&m_menuStartEffectType, "menuStartEffectType");
+
 
 	m_filenameBG = m_defaultBGFileName;
 	GetInitGameString(&m_filenameBG,"fileNameBG");
@@ -878,6 +886,16 @@ void CCommonListenBGM::End(void)
 
 int CCommonListenBGM::Init(void)
 {
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+//	if (!m_initStartWait)
+	{
+		m_menuStartCount = 0;
+	}
+
+	m_musicPlayMode = MUSIC_STOP_MODE;
+
 	if (m_spectrumPrintFlag)
 	{
 		m_musicControl->StartSpectrum();
@@ -1007,6 +1025,25 @@ int CCommonListenBGM::Init(void)
 
 int CCommonListenBGM::Calcu(void)
 {
+	int startMode = GetStartWaitMode();
+	if (startMode != 0)
+	{
+		m_menuStartCount++;
+		if (m_menuStartCount >= m_menuStartWaitTime + m_menuStartEffectTime)
+		{
+			EndStartWaitMode();
+		}
+		else
+		{
+			if (m_mouseStatus->CheckClick()) EndStartWaitMode();
+			if (m_mouseStatus->CheckClick(1)) EndStartWaitMode();
+		}
+
+		return -1;
+	}
+
+
+
 
 
 	m_timeCount++;
@@ -1040,6 +1077,17 @@ int CCommonListenBGM::Calcu(void)
 
 		if (nm == 0)
 		{
+
+			if ((m_musicPlayMode == MUSIC_PLAY_MODE) || (m_musicPlayMode == MUSIC_PAUSE_MODE))
+			{
+				StopButton();
+				m_updownBack->Init();
+				CAreaControl::SetNextAllPrint();
+				return -1;
+			}
+
+			StopButton();
+
 			m_game->SetSystemParam(NNNPARAM_MUSICVOLUME,m_backVolume);
 			m_musicControl->StopMusic();
 			
@@ -1259,11 +1307,18 @@ int CCommonListenBGM::Print(void)
 
 	BOOL b = CAreaControl::CheckAllPrintMode();
 
-	m_button[0]->Print();
-	m_button[1]->Print();
-	m_button[2]->Print();
-	m_button[3]->Print();
-	m_button[4]->Print();
+	int startMode = GetStartWaitMode();
+
+
+//	m_button[0]->Print();
+//	m_button[1]->Print();
+//	m_button[2]->Print();
+//	m_button[3]->Print();
+//	m_button[4]->Print();
+	for (int i = 0; i < 5; i++)
+	{
+		m_button[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
+	}
 
 //	CursorPicAnime();
 	GetCursorAnimePic();
@@ -1358,7 +1413,8 @@ int CCommonListenBGM::Print(void)
 //	m_suuji->PrintSuuji(m_minutePrintX,m_minutePrintY,m_12,0,2);
 //	m_suuji->PrintSuuji(m_secondPrintX,m_secondPrintY,34,0,2);
 
-	m_back->Print(TRUE);
+//	m_back->Print(TRUE);
+	m_back->AppearPrint(m_appearCount,m_appearCountMax,m_menuStartEffectType);
 
 //@@@	m_button->Print(TRUE);
 	if (m_musicPlayMode == MUSIC_PAUSE_MODE)
@@ -1369,9 +1425,11 @@ int CCommonListenBGM::Print(void)
 		}
 	}	
 
-	m_updown->Print(TRUE);
+//	m_updown->Print(TRUE);
+	m_updown->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 
-	m_volumeSlider->Print(TRUE);
+//	m_volumeSlider->Print(TRUE);
+	m_volumeSlider->AppearPrint(false, m_appearCount, m_appearCountMax, m_menuStartEffectType);
 
 	if (m_musicTitleAnimeControl != NULL)
 	{
@@ -1581,9 +1639,24 @@ void CCommonListenBGM::PrintMusicName(int n)
 {
 	int codeByte = CMyFont::m_codeByte;
 
+
+
 	//erase
 	int y = n - m_scrollY;
 	if ((y<0) || (y>(m_musicPrintKosuu-1))) return;
+
+
+	int appearPercent = 100;
+	int dva = m_appearCountMax;
+	if (dva < 1) dva = 1;
+
+	if (m_menuStartEffectType & 1)
+	{
+		appearPercent = (100 * m_appearCount) / dva;
+		if (appearPercent < 0) appearPercent = 0;
+		if (appearPercent > 100) appearPercent = 100;
+	}
+
 
 	//erase
 	int putX = m_cursorPrintX + y * m_cursorNextX;
@@ -1661,7 +1734,10 @@ void CCommonListenBGM::PrintMusicName(int n)
 
 	if (m_useMusicTitleGraphics == 0)
 	{
-		m_message->PrintMessage(putX,putY,musicName,m_messageFontSize,colR,colG,colB,2,24,0);
+		if (m_appearCount >= m_appearCountMax)
+		{
+			m_message->PrintMessage(putX, putY, musicName, m_messageFontSize, colR, colG, colB, 2, 24, 0);
+		}
 	}
 	else
 	{
@@ -1680,11 +1756,13 @@ void CCommonListenBGM::PrintMusicName(int n)
 
 		if ((pic1 == pic2) || (ps == 100))
 		{
-			m_musicTitlePic->Blt(putXX,putYY,srcX1,srcY1,m_musicTitleSizeX,m_musicTitleSizeY,TRUE);
+//			m_musicTitlePic->Blt(putXX,putYY,srcX1,srcY1,m_musicTitleSizeX,m_musicTitleSizeY,TRUE);
+			m_musicTitlePic->TransLucentBlt3(putXX, putYY, srcX1, srcY1, m_musicTitleSizeX, m_musicTitleSizeY, appearPercent);
 		}
 		else
 		{
-			m_musicTitlePic->ChangeTranslateBlt(putXX,putYY,srcX1,srcY1,m_musicTitleSizeX,m_musicTitleSizeY,ps,100-ps,m_musicTitlePic,srcX2,srcY2);
+//			m_musicTitlePic->ChangeTranslateBlt(putXX,putYY,srcX1,srcY1,m_musicTitleSizeX,m_musicTitleSizeY,ps,100-ps,m_musicTitlePic,srcX2,srcY2);
+			m_musicTitlePic->ChangeTranslateBlt(putXX, putYY, srcX1, srcY1, m_musicTitleSizeX, m_musicTitleSizeY, (ps*appearPercent)/100, ((100 - ps)*appearPercent)/100, m_musicTitlePic, srcX2, srcY2);
 		}
 	}
 
@@ -1713,6 +1791,21 @@ void CCommonListenBGM::PrintCursor(int y)
 	int srcY = sizeY * m_cursorPattern1;
 	int srcY2 = sizeY * m_cursorPattern2;
 
+
+	int appearPercent = 100;
+	int dva = m_appearCountMax;
+	if (dva < 1) dva = 1;
+
+	if (m_menuStartEffectType & 1)
+	{
+		appearPercent = (100 * m_appearCount) / dva;
+		if (appearPercent < 0) appearPercent = 0;
+		if (appearPercent > 100) appearPercent = 100;
+	}
+
+
+
+
 	if (m_cursorAnimeFlag == 0)
 	{
 		srcX = 0;
@@ -1724,11 +1817,13 @@ void CCommonListenBGM::PrintCursor(int y)
 
 	if (m_cursorPercent == 100)
 	{
-		lpPic->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
+//		lpPic->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
+		lpPic->TransLucentBlt3(putX, putY, srcX, srcY, sizeX, sizeY, appearPercent);
 	}
 	else if (m_cursorPercent == 0)
 	{
-		lpPic->Blt(putX,putY,srcX,srcY2,sizeX,sizeY,TRUE);
+//		lpPic->Blt(putX,putY,srcX,srcY2,sizeX,sizeY,TRUE);
+		lpPic->TransLucentBlt3(putX, putY, srcX, srcY2, sizeX, sizeY, appearPercent);
 	}
 	else
 	{
@@ -1749,7 +1844,8 @@ void CCommonListenBGM::PrintCursor(int y)
 
 
 //		lpPic->ChangeTranslateBlt(putX,putY,srcX,srcY,sizeX,sizeY,m_cursorPercent,ps2,lpBuffer2,lpMask2,lpPic);
-		lpPic->ChangeTranslateBlt(putX,putY,srcX,srcY,sizeX,sizeY,m_cursorPercent,ps2,lpPic,srcX,srcY2);
+//		lpPic->ChangeTranslateBlt(putX,putY,srcX,srcY,sizeX,sizeY,m_cursorPercent,ps2,lpPic,srcX,srcY2);
+		lpPic->ChangeTranslateBlt(putX, putY, srcX, srcY, sizeX, sizeY, (m_cursorPercent*appearPercent)/100, (ps2*appearPercent)/100, lpPic, srcX, srcY2);
 
 	}
 }
@@ -2037,10 +2133,39 @@ void CCommonListenBGM::PrintSpectrum(void)
 	}
 
 	//print
-	m_printSpectrum->Print(m_spectrumData);
+//	m_printSpectrum->Print(m_spectrumData);
+	m_printSpectrum->AppearPrint(m_spectrumData,m_appearCount,m_appearCountMax,m_menuStartEffectType);
+
 }
 
 
+int CCommonListenBGM::GetStartWaitMode(void)
+{
+	if (m_menuStartCount < m_menuStartWaitTime)
+	{
+		m_appearCount = 0;
+		m_appearCountMax = 1;
+		return 1;
+	}
+
+	if (m_menuStartCount < m_menuStartWaitTime + m_menuStartEffectTime)
+	{
+		m_appearCount = m_menuStartCount - m_menuStartWaitTime;
+		m_appearCountMax = m_menuStartEffectTime;
+		return 2;
+	}
+
+	m_appearCount = 1;
+	m_appearCountMax = 1;
+
+	return 0;
+}
+
+void CCommonListenBGM::EndStartWaitMode(void)
+{
+	m_menuStartCount = m_menuStartWaitTime + m_menuStartEffectTime;
+	//m_game->InitMiniGameButton(OMAKE_MODE);
+}
 
 /*_*/
 

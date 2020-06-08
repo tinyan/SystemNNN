@@ -52,6 +52,13 @@ char CCommonSelectMessage::m_defaultWindowFileName[] = "ta_win_select";
 char CCommonSelectMessage::m_defaultBacklogMessage[] = "#足選択肢";
 char CCommonSelectMessage::m_defaultBacklogMessage_1byte[] = "#fselect";
 
+char CCommonSelectMessage::m_defaultSelectedMessage[] = "　　　　　　　　　　　　・";
+char CCommonSelectMessage::m_defaultSelectedMessage_1byte[] = "                        .";
+
+char CCommonSelectMessage::m_defaultTimeupMessage[] = "制限時間オーバー";
+char CCommonSelectMessage::m_defaultTimeupMessage_1Byte[] = "Time out";
+
+
 
 CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 {
@@ -237,14 +244,65 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 	GetInitGameParam(&m_messagePrintGyo,"messagePrintGyo");
 
 
+	m_selectedDotNumber = 3;
+	GetInitGameParam(&m_selectedDotNumber,"selectedDotNumber");
+	m_selectedDotMessage = new LPSTR[m_selectedDotNumber];
+
+	for (int i = 0; i < m_selectedDotNumber; i++)
+	{
+		if (codeByte == 2)
+		{
+			m_selectedDotMessage[i] = m_defaultSelectedMessage;
+		}
+		else
+		{
+			m_selectedDotMessage[i] = m_defaultSelectedMessage_1byte;
+		}
+
+		char name[256];
+		sprintf_s(name, 256,"selectedDotMessage%d", i + 1);
+		LPSTR mes = nullptr;
+		GetInitGameString(&mes, name);
+		if (mes != nullptr)
+		{
+			m_selectedDotMessage[i] = mes;
+		}
+	}
+
+
+
+
+
+
+
 	if (codeByte == 2)
 	{
 		m_backlogMessage = m_defaultBacklogMessage;
+		m_timeupMessage = m_defaultTimeupMessage;
 	}
 	else
 	{
 		m_backlogMessage = m_defaultBacklogMessage_1byte;
+		m_timeupMessage = m_defaultTimeupMessage_1Byte;
 	}
+
+	GetInitGameString(&m_timeupMessage, "timeupMessage");
+
+
+	m_dotColorR = 128;
+	m_dotColorG = 128;
+	m_dotColorB = 128;
+	m_timeupColorR = 256;
+	m_timeupColorG = 64;
+	m_timeupColorB = 128;
+
+	GetInitGameParam(&m_dotColorR, "dotColorR");
+	GetInitGameParam(&m_dotColorG, "dotColorG");
+	GetInitGameParam(&m_dotColorB, "dotColorB");
+	GetInitGameParam(&m_timeupColorR, "timeupColorR");
+	GetInitGameParam(&m_timeupColorG, "timeupColorG");
+	GetInitGameParam(&m_timeupColorB, "timeupColorB");
+
 
 	GetInitGameString(&m_backlogMessage,"backlogMessage");
 
@@ -574,6 +632,8 @@ CCommonSelectMessage::~CCommonSelectMessage()
 void CCommonSelectMessage::End(void)
 {
 //	ENDDELETECLASS(m_specialSelectPic);
+
+	DELETEARRAY(m_selectedDotMessage);
 
 	DELETEARRAY(m_specialCheckVar);
 	DELETEARRAY(m_specialWindowPrintY);
@@ -1074,6 +1134,12 @@ int CCommonSelectMessage::Calcu(void)
 				}
 
 				m_game->ChangePreColor(m_messageKosuu-m_nowSelect-page,m_backlogSelectColorR,m_backlogSelectColorG,m_backlogSelectColorB);
+
+				for (int i = 0; i < m_selectedDotNumber; i++)
+				{
+					m_game->AddBackLogMessage(m_selectedDotMessage[i], m_dotColorR, m_dotColorG, m_dotColorB);
+				}
+				/*
 				if (codeByte == 2)
 				{
 					m_game->AddBackLogMessage("　　　　　　　　　　　　・",128,128,128);
@@ -1086,6 +1152,7 @@ int CCommonSelectMessage::Calcu(void)
 					m_game->AddBackLogMessage("                        .",128,128,128);
 					m_game->AddBackLogMessage("                        .",128,128,128);
 				}
+				*/
 
 				m_selected = m_nowSelect+1+page;
 
@@ -1214,6 +1281,14 @@ int CCommonSelectMessage::Calcu(void)
 				m_game->ChangePreColor(m_messageKosuu-(m_autoSelect-1),m_backlogSelectColorR,m_backlogSelectColorG,m_backlogSelectColorB);
 			}
 
+
+			m_game->AddBackLogMessage(m_timeupMessage, m_timeupColorR, m_timeupColorG, m_timeupColorB);
+			for (int i = 0; i < m_selectedDotNumber; i++)
+			{
+				m_game->AddBackLogMessage(m_selectedDotMessage[i], m_dotColorR, m_dotColorG, m_dotColorB);
+			}
+
+			/*
 			if (codeByte == 2)
 			{
 				m_game->AddBackLogMessage("制限時間オーバー",255,64,128);
@@ -1228,6 +1303,8 @@ int CCommonSelectMessage::Calcu(void)
 				m_game->AddBackLogMessage("                        .",128,128,128);
 				m_game->AddBackLogMessage("                        .",128,128,128);
 			}
+			*/
+
 
 			m_exitModeFlag = TRUE;
 			m_selected = m_autoSelect;

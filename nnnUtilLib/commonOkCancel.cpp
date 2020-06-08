@@ -134,6 +134,12 @@ void CCommonOkCancel::Print(BOOL flg)
 	m_back->Print(flg);
 }
 
+void CCommonOkCancel::AppearPrint(int count, int countMax, int type , POINT deltaPoint )
+{
+	m_ok->AppearPrint(count,countMax,type,deltaPoint);
+	m_back->AppearPrint(count, countMax, type, deltaPoint);
+}
+
 
 
 void CCommonOkCancel::ResetAnimeCount(void)

@@ -32,6 +32,7 @@
 #include "..\nnnUtilLib\commonRadioButton.h"
 #include "..\nnnUtilLib\commonRadioButtonGroup.h"
 
+#include "commonGeneral.h"
 #include "commonDataFile.h"
 
 #include "commonSystemSoundName.h"
@@ -47,7 +48,6 @@
 
 #include "..\nnnUtilLib\myTextInputBox.h"
 
-#include "commonGeneral.h"
 #include "commonLoadSave.h"
 #include "commonSave.h"
 
@@ -364,8 +364,10 @@ CCommonSave::CCommonSave(CGameCallBack* lpGame) : CCommonLoadSave(lpGame,"save")
 
 	m_saveSound = 1;
 	m_warningSound = -1;
+	m_commentSound = -1;
 	GetInitGameParam(&m_saveSound,"saveSound");
 	GetInitGameParam(&m_warningSound,"warningSound");
+	GetInitGameParam(&m_commentSound, "commentSound");
 
 
 	m_saveVoiceKosuu = 0;
@@ -802,6 +804,11 @@ void CCommonSave::StartNameInput(int n)
 	m_warningFlag = 2;
 	m_dialogButton2->Init();
 	
+	if (m_commentSound != -1)
+	{
+		m_game->PlaySystemSound(m_commentSound - 1);
+	}
+
 	//common textbox setup
 	m_textInputBox->ChangeParameterNumber(2);
 

@@ -29,6 +29,8 @@ public:
 	int Calcu(CInputStatus* lpInput);
 	void Print(BOOL flg = TRUE);
 
+	void AppearPrint(int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 });
+
 	void SetEnable(int n,BOOL flg = TRUE);
 	void SetExist(int n,BOOL flg = TRUE);
 	BOOL CheckEnable(int n);

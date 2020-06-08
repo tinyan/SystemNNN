@@ -566,7 +566,7 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 		push edx
 		push esi
 		push edi
-	//	push ebp
+
 
 		mov eax,ps1
 		movd mm5,eax
@@ -582,221 +582,232 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 		mov esi,vectorTable
 		mov edi,dst
 		mov ecx,0
+
 LOOP1:
 		push ecx
 		push esi
 		push edi
 
-		mov tmpY,ecx
+			mov tmpY,ecx
 
-		mov ecx,0
+			mov ecx,0
 LOOP2:
-		push ecx
+			push ecx
 
-		test ecx,2
-		jnz SKIP1
-		movq mm1,[esi]
-		mov ebx,[esi+16]
-		jmp SKIP2
+			
+				test ecx,2
+				jnz SKIP1
+				movq mm1,[esi]
+				mov ebx,[esi+16]
+				jmp SKIP2
 SKIP1:
-		movq mm1,[esi+8]
-		mov ebx,[esi+20]
-		add esi,24
+				movq mm1,[esi+8]
+				mov ebx,[esi+20]
+				add esi,24
 SKIP2:
-		mov edx,ebx
-		mov ecx,table
+				mov edx,ebx
+				mov ecx,table
 		
-		and ebx,0ffffh
-		shr edx,16
+				and ebx,0ffffh
+				shr edx,16
+		
 
 
-		mov eax,[ebx+ecx]
-		movd mm2,eax
-		mov eax,[edx+ecx]
-		movd mm3,eax
-		psllq mm3,32
-		por mm2,mm3
+				mov eax,[ebx+ecx]
+				movd mm2,eax
+				mov eax,[edx+ecx]
+				movd mm3,eax
+				psllq mm3,32
+				por mm2,mm3
 
 
 
 
-		pmulhw mm1,mm2
+				pmulhw mm1,mm2
 
-		pop ecx
-		push ecx
+			pop ecx
 
-		push esi
+			push ecx
+			push esi
 
-		pxor mm3,mm3
-		pxor mm4,mm4
+				pxor mm3,mm3
+				pxor mm4,mm4
 
 
-		movq mm7,mm1
-		psllq mm7,16
-		psrad mm7,16
-		movd eax,mm7
-		add eax,ecx
-		add eax,deltaX1
-		cmp eax,picSizeX1
-		jnb SKIP3
-		shl eax,2
-		mov esi,eax
+				movq mm7,mm1
+				psllq mm7,16
+				psrad mm7,16
+				movd eax,mm7
+				add eax,ecx
+				add eax,deltaX1
+				cmp eax,picSizeX1
+				jnb SKIP3
+				shl eax,2
+				mov esi,eax
 
-		movq mm7,mm1
-		psrad mm7,16
-		movd eax,mm7
-		add eax,tmpY
-		add eax,deltaY1
-		cmp eax,picSizeY1
-		jnb SKIP3
+				movq mm7,mm1
+				psrad mm7,16
+				movd eax,mm7
+				add eax,tmpY
+				add eax,deltaY1
+				cmp eax,picSizeY1
+				jnb SKIP3
 
-		mov edx,srcPitch1
-		mul edx
-		add esi,eax
+				mov edx,srcPitch1
+				mul edx
+				add esi,eax
 
-		add esi,src1
-		mov eax,[esi]
-		movd mm3,eax
+				add esi,src1
+				mov eax,[esi]
+				movd mm3,eax
+
 SKIP3:
 
+		
+				movq mm7,mm1
+				psllq mm7,16
+				psrad mm7,16
+		//		psrlq mm7,32
+				movd eax,mm7
+				add eax,ecx
+				add eax,deltaX2
+				cmp eax,picSizeX2
+				jnb SKIP4
+				shl eax,2
+				mov esi,eax
 
-		movq mm7,mm1
-		psllq mm7,16
-		psrad mm7,16
-//		psrlq mm7,32
-		movd eax,mm7
-		add eax,ecx
-		add eax,deltaX2
-		cmp eax,picSizeX2
-		jnb SKIP4
-		shl eax,2
-		mov esi,eax
+				movq mm7,mm1
+				psrad mm7,16
+		//		psrlq mm7,32
+				movd eax,mm7
+				add eax,tmpY
+				add eax,deltaY2
+				cmp eax,picSizeY2
+				jnb SKIP4
 
-		movq mm7,mm1
-		psrad mm7,16
-//		psrlq mm7,32
-		movd eax,mm7
-		add eax,tmpY
-		add eax,deltaY2
-		cmp eax,picSizeY2
-		jnb SKIP4
+				mov edx,srcPitch2
+				mul edx
+				add esi,eax
 
-		mov edx,srcPitch2
-		mul edx
-		add esi,eax
-
-		add esi,src2
-		mov eax,[esi]
-		movd mm4,eax
+				add esi,src2
+				mov eax,[esi]
+				movd mm4,eax
 SKIP4:
 
-		pxor mm0,mm0
-
-		punpcklbw mm3,mm0
-		pmullw mm3,mm5
-
-		punpcklbw mm4,mm0
-		pmullw mm4,mm6
-
-		paddw mm3,mm4
-		psrlw mm3,8
-		packuswb mm3,mm0
-		movd eax,mm3
-		mov [edi],eax
 
 
 
-		pxor mm3,mm3
-		pxor mm4,mm4
+				pxor mm0,mm0
+
+				punpcklbw mm3,mm0
+				pmullw mm3,mm5
+
+				punpcklbw mm4,mm0
+				pmullw mm4,mm6
+
+				paddw mm3,mm4
+				psrlw mm3,8
+				packuswb mm3,mm0
+				movd eax,mm3
+				mov [edi],eax
 
 
-		movq mm7,mm1
-		psllq mm7,16
-		psrad mm7,16
-		psrlq mm7,32
-		movd eax,mm7
-		add eax,ecx
-		inc eax
-		add eax,deltaX1
-		cmp eax,picSizeX1
-		jnb SKIP5
-		shl eax,2
-		mov esi,eax
 
-		movq mm7,mm1
-		psrad mm7,16
-		psrlq mm7,32
-		movd eax,mm7
-		add eax,tmpY
-		add eax,deltaY1
-		cmp eax,picSizeY1
-		jnb SKIP5
+				pxor mm3,mm3
+				pxor mm4,mm4
 
-		mov edx,srcPitch1
-		mul edx
-		add esi,eax
 
-		add esi,src1
-		mov eax,[esi]
-		movd mm3,eax
+				movq mm7,mm1
+				psllq mm7,16
+				psrad mm7,16
+				psrlq mm7,32
+				movd eax,mm7
+				add eax,ecx
+				inc eax
+				add eax,deltaX1
+				cmp eax,picSizeX1
+				jnb SKIP5
+				shl eax,2
+				mov esi,eax
+
+				movq mm7,mm1
+				psrad mm7,16
+				psrlq mm7,32
+				movd eax,mm7
+				add eax,tmpY
+				add eax,deltaY1
+				cmp eax,picSizeY1
+				jnb SKIP5
+
+				mov edx,srcPitch1
+				mul edx
+				add esi,eax
+
+				add esi,src1
+				mov eax,[esi]
+				movd mm3,eax
 SKIP5:
 
 
-		movq mm7,mm1
-		psllq mm7,16
-		psrad mm7,16
-		psrlq mm7,32
-		movd eax,mm7
-		add eax,ecx
-		inc eax
-		add eax,deltaX2
-		cmp eax,picSizeX2
-		jnb SKIP6
-		shl eax,2
-		mov esi,eax
 
-		movq mm7,mm1
-		psrad mm7,16
-		psrlq mm7,32
-		movd eax,mm7
-		add eax,tmpY
-		add eax,deltaY2
-		cmp eax,picSizeY2
-		jnb SKIP6
+				movq mm7,mm1
+				psllq mm7,16
+				psrad mm7,16
+				psrlq mm7,32
+				movd eax,mm7
+				add eax,ecx
+				inc eax
+				add eax,deltaX2
+				cmp eax,picSizeX2
+				jnb SKIP6
+				shl eax,2
+				mov esi,eax
 
-		mov edx,srcPitch2
-		mul edx
-		add esi,eax
+				movq mm7,mm1
+				psrad mm7,16
+				psrlq mm7,32
+				movd eax,mm7
+				add eax,tmpY
+				add eax,deltaY2
+				cmp eax,picSizeY2
+				jnb SKIP6
 
-		add esi,src2
-		mov eax,[esi]
-		movd mm4,eax
+				mov edx,srcPitch2
+				mul edx
+				add esi,eax
+
+				add esi,src2
+				mov eax,[esi]
+				movd mm4,eax
 SKIP6:
 
-		pxor mm0,mm0
+				pxor mm0,mm0
 
-		punpcklbw mm3,mm0
-		pmullw mm3,mm5
+				punpcklbw mm3,mm0
+				pmullw mm3,mm5
 
-		punpcklbw mm4,mm0
-		pmullw mm4,mm6
+				punpcklbw mm4,mm0
+				pmullw mm4,mm6
 
-		paddw mm3,mm4
-		psrlw mm3,8
-		packuswb mm3,mm0
-		movd eax,mm3
-		mov [edi+4],eax
+				paddw mm3,mm4
+				psrlw mm3,8
+				packuswb mm3,mm0
+				movd eax,mm3
+				mov [edi+4],eax
 
-		pop esi
-		pop ecx
-		add edi,8
-		add ecx,2
-		cmp ecx,screenSizeX
-		jb LOOP2
+			pop esi
+			pop ecx
+		
+			add edi,8
+			add ecx,2
+			cmp ecx,screenSizeX
+			jb LOOP2
+
 
 		pop edi
 		pop esi
 		pop ecx
+
 		add esi,tablePitch
 		add edi,lPitch
 		inc ecx
@@ -805,7 +816,6 @@ SKIP6:
 
 		emms
 
-//		pop ebp
 		pop edi
 		pop esi
 		pop edx

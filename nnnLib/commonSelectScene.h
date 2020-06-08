@@ -199,6 +199,19 @@ protected:
 
 	int m_overWriteLayerOff;
 	int m_overwriteLayerOffVar;
+
+
+	int m_menuStartCount;
+	int m_menuStartWaitTime;
+	int m_menuStartEffectTime;
+	int m_menuStartEffectType;
+
+	int m_appearCount;
+	int m_appearCountMax;
+
+	int GetStartWaitMode(void);
+	void EndStartWaitMode(void);
+
 };
 
 

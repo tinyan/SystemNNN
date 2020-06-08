@@ -13,6 +13,8 @@ public:
 	void End(void);
 
 	void Print(int page,int pageMax);
+	void AppearPrint(int appearCount, int appearCountMax, int appearType, int page, int pageMax);
+
 private:
 	CNameList* m_setup;
 

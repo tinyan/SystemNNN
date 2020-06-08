@@ -306,6 +306,14 @@ void CCommonRadioButtonGroup::ResetAnimeCount(void)
 }
 
 
+void CCommonRadioButtonGroup::AppearPrint(int count, int countMax, int type, POINT deltaPoint)
+{
+	for (int i = 0; i < m_buttonKosuu; i++)
+	{
+		m_ppButton[i]->AppearPrint(count,countMax,type,deltaPoint);
+	}
+}
+
 /*_*/
 
 

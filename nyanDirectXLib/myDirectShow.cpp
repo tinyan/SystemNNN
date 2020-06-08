@@ -164,7 +164,7 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 			int dstSizeX = m_aspectFitSize.cx;
 			int dstSizeY = m_aspectFitSize.cy;
 
-			OutputDebugString("[a-1]");
+			OutputDebugString("\n\n[a-1]");
 			char mes2[256];
 			sprintf_s(mes2,256,"%d %d %d %d %d %d %d %d ",srcSizeX,srcSizeY,dstSizeX,dstSizeY,m_windowSize.cx,m_windowSize.cy,m_aspectFitSize.cx,m_aspectFitSize.cy);
 			OutputDebugString(mes2);

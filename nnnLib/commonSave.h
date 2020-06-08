@@ -69,6 +69,7 @@ protected:
 
 	int m_saveSound;
 	int m_warningSound;
+	int m_commentSound;
 //	CCommonButtonGroup* m_dialogButton;
 //	int m_commentInputFlag;
 

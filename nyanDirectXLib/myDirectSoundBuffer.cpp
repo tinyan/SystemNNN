@@ -89,7 +89,7 @@ void CMyDirectSoundBuffer::Play(BOOL loopFlag)
 	if (m_directSoundBuffer8 == NULL) return;
 //MessageBox(NULL,"play-3","soundbuf",MB_OK);
 
-	OutputDebugString("\nCMyDirectSoundBuffer::Play");
+//	OutputDebugString("\nCMyDirectSoundBuffer::Play");
 
 	Set3DPosition(m_startXYZ[0],m_startXYZ[1],m_startXYZ[2]);
 //MessageBox(NULL,"play-4","soundbuf",MB_OK);
@@ -111,7 +111,7 @@ void CMyDirectSoundBuffer::Play(BOOL loopFlag)
 void CMyDirectSoundBuffer::Stop(BOOL waitFlag,bool releaseFlag)
 {
 //MessageBox(NULL,"stop-1","soundbuf",MB_OK);
-	OutputDebugString("CMyDirectSoundBuffer::Stop\n");
+//	OutputDebugString("CMyDirectSoundBuffer::Stop\n");
 
 	if (m_dataExistFlag == FALSE) return;
 //MessageBox(NULL,"stop-2","soundbuf",MB_OK);

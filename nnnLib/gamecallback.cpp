@@ -527,6 +527,9 @@ void CGameCallBack::GeneralCreate(void)
 	int i;
 
 
+	m_buttonPlayingFilename[0][0] = 0;
+	m_buttonPlayingFilename[1][0] = 0;
+
 	m_taihiStack = new int[256];
 	m_taihiStack2 = new int[256];
 	m_taihiStack3 = new int[256];
@@ -799,8 +802,15 @@ void CGameCallBack::GeneralCreate(void)
 
 	AddDebugLog("CGame::GeneralCreate15");
 
+
 	//	CPicture::FillScreen();
 
+
+	m_saveLog = 0;
+#if defined __SYSTEMNNN_VER2__
+	m_saveLog = 1;
+#endif
+	GetInitGameParam(&m_saveLog, "saveLog");
 
 
 
@@ -1129,6 +1139,9 @@ void CGameCallBack::GeneralCreate(void)
 	m_frameTime = 50;
 	GetInitGameParam(&m_frameTime, "frameTime");
 	m_defaultFrameTime = m_frameTime;
+
+	m_buttonVoiceNumber = 2;
+	GetInitGameParam(&m_buttonVoiceNumber, "buttonVoiceNumber");
 
 
 
@@ -2486,20 +2499,26 @@ else
 	{
 		m_systemSound[0] = new CMyXAudio2Buffer(m_directSound->GetDirectSound(), FALSE);
 		m_systemSound[1] = new CMyXAudio2Buffer(m_directSound->GetDirectSound(), FALSE);
+		m_buttonVoice[0] = new CMyXAudio2Buffer(m_directSound->GetDirectSound(), FALSE);
+		m_buttonVoice[1] = new CMyXAudio2Buffer(m_directSound->GetDirectSound(), FALSE);
 	}
 	else
 	{
 		m_systemSound[0] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
 		m_systemSound[1] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+		m_buttonVoice[0] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+		m_buttonVoice[1] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
 	}
 #else
 	m_systemSound[0] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
 	m_systemSound[1] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+	m_buttonVoice[0] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
+	m_buttonVoice[1] = new CMyDirectSoundBuffer(m_directSound->GetDirectSound(), FALSE);
 #endif
 
 
-
 	m_useSystemSoundNumber = 0;
+	m_useButtonVoiceNumber = 0;
 
 	m_systemSoundMulti = 0;
 	GetInitGameParam(&m_systemSoundMulti,"systemSoundMulti");
@@ -3540,6 +3559,8 @@ void CGameCallBack::End(void)
 
 	ENDDELETECLASS(m_systemSound[0]);
 	ENDDELETECLASS(m_systemSound[1]);
+	ENDDELETECLASS(m_buttonVoice[0]);
+	ENDDELETECLASS(m_buttonVoice[1]);
 
 
 	ENDDELETECLASS(m_musicControl);
@@ -5550,6 +5571,9 @@ void CGameCallBack::SetByLoad(int cd, LPVOID ptr)
 	case GAMEDATATYPE_CUTIN:
 		SetCutinByLoad(ptr);
 		break;
+	case GAMEDATATYPE_LOG:
+		SetLogByLoad(ptr);
+		break;
 	}
 }
 
@@ -5586,6 +5610,9 @@ void CGameCallBack::GetForSave(int cd, LPVOID ptr)
 		break;
 	case GAMEDATATYPE_CUTIN:
 		GetCutinForSave(ptr);
+		break;
+	case GAMEDATATYPE_LOG:
+		GetLogForSave(ptr);
 		break;
 	}
 }
@@ -6036,6 +6063,23 @@ void CGameCallBack::GetCutinForSave(LPVOID ptr)
 	lp->cutinData[64*4-1] = m_cutinFlag;
 }
 
+void CGameCallBack::SetLogByLoad(LPVOID ptr)
+{
+	CCommonDataFile::GAMELOG* lp = (CCommonDataFile::GAMELOG*)ptr;
+
+	CCommonBackLog* pDoc = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	pDoc->SetLogByLoad(lp);
+}
+
+
+
+void CGameCallBack::GetLogForSave(LPVOID ptr)
+{
+	CCommonDataFile::GAMELOG* lp = (CCommonDataFile::GAMELOG*)ptr;
+
+	CCommonBackLog* pDoc = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	pDoc->GetLogForSave(lp);
+}
 
 
 
@@ -8510,12 +8554,36 @@ void CGameCallBack::PlaySystemVoiceByFileName(LPSTR filename, BOOL firstOffFlag,
 
 void CGameCallBack::PlayButtonVoiceByFilename(LPSTR filename)
 {
+	char mes[256];
+	sprintf_s(mes, 256, "\nPlayButtonVoiceByFilename : %s", filename);
+	OutputDebugString(mes);
+
+	if (filename == nullptr) return;
+
 	if (CheckTotalVolumeOff()) return;
 
 	if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
 
-	int vol = GetSystemParam(NNNPARAM_VOICEVOLUME);
+	if (CheckVoiceOffByName(filename)) return;
 
+
+	int vol = GetSystemParam(NNNPARAM_VOICEVOLUME);
+	
+
+	for (int i = 0; i < 2; i++)
+	{
+		if (m_buttonVoice[i]->IsPlaying())
+		{
+			//same?
+			if (strcmp(filename, &m_buttonPlayingFilename[i][0]) == 0)
+			{
+				return;
+			}
+		}
+	}
+
+	sprintf_s(mes, 256, "\nPlayButtonVoiceByFilename PlayOK");
+	OutputDebugString(mes);
 
 	int delta = GetVoiceVolumeByName(filename);
 	vol += delta;
@@ -8526,10 +8594,16 @@ void CGameCallBack::PlayButtonVoiceByFilename(LPSTR filename)
 	char name[256];
 	wsprintf(name, "sys\\%s", filename);
 
-	m_useSystemSoundNumber++;
-	m_useSystemSoundNumber %= 2;
+	if (m_buttonVoiceNumber == 2)
+	{
+		m_useButtonVoiceNumber++;
+	}
+	m_useButtonVoiceNumber %= 2;
 
-	m_systemSound[m_useSystemSoundNumber]->Stop();
+	memcpy(&m_buttonPlayingFilename[m_useButtonVoiceNumber][0], filename, strlen(filename)+1);
+
+	m_buttonVoice[m_useButtonVoiceNumber]->Stop();
+
 
 	if (m_waveData->LoadSystemWave("sys", filename))
 	{
@@ -8540,10 +8614,10 @@ void CGameCallBack::PlayButtonVoiceByFilename(LPSTR filename)
 		char* realPtr = (char*)(m_waveData->GetRealDataPtr());
 		int realSize = m_waveData->GetRealDataSize();
 
-		m_systemSound[m_useSystemSoundNumber]->SetData(realPtr, realSize, stereo, sampleRate, bitRate);
+		m_buttonVoice[m_useButtonVoiceNumber]->SetData(realPtr, realSize, stereo, sampleRate, bitRate);
 
-		m_systemSound[m_useSystemSoundNumber]->SetVolume(vol);
-		m_systemSound[m_useSystemSoundNumber]->Play();
+		m_buttonVoice[m_useButtonVoiceNumber]->SetVolume(vol);
+		m_buttonVoice[m_useButtonVoiceNumber]->Play();
 	}
 }
 
@@ -16905,12 +16979,17 @@ void CGameCallBack::PlayButtonVoice(int voice)
 				LPSTR voiceFilename = m_buttonVoiceList[useSystemVoice]->GetName((voice - 1) * 2);
 
 
-				PlaySystemVoiceByFileName(voiceFilename);
+				PlayButtonVoiceByFilename(voiceFilename);
 			}
 		}
 	}
 #endif
 
+}
+
+int CGameCallBack::GetSaveLog(void)
+{
+	return m_saveLog;
 }
 
 /*_*/

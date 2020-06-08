@@ -147,6 +147,7 @@ void CCommonMultiStateButton::Init(void)
 				}
 				button->SetEnable(flg);
 				button->Init();
+				button->SetEntered();
 			}
 		}
 	}
@@ -300,6 +301,21 @@ void CCommonMultiStateButton::ResetAnimeCount(void)
 	}
 }
 
+
+void CCommonMultiStateButton::AppearPrint(int count, int countMax, int type, POINT deltaPoint)
+{
+	if (m_allExistFlag)
+	{
+		if (m_existFlag[m_state])
+		{
+			CCommonButton* button = m_button[m_state];
+			if (button != NULL)
+			{
+				button->AppearPrint(count, countMax, type, deltaPoint);
+			}
+		}
+	}
+}
 
 
 //void CCommonMultiStateButton::SetButton(int n,CCommonButton* button)

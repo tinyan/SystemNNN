@@ -18,6 +18,9 @@ public:
 	void Print(int printX, int printY, int dat,int keta = -1,int col = 0);
 	void Put(int printX, int printY, int ch,int col = 0);
 
+	void AppearPrint(int count,int countMax,int type,int printX, int printY, int dat, int keta = -1, int col = 0);
+	void AppearPut(int count ,int countMax,int type,int printX, int printY, int ch, int col = 0);
+
 	int GetSizeX(void){return m_sizeX;}
 	int GetNextX(void){return m_nextX;}
 

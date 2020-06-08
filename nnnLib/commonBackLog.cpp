@@ -29,6 +29,7 @@
 #include "commonGeneral.h"
 #include "commonBackLog.h"
 
+#include "commonDataFile.h"
 
 
 #include "commonKeyList.h"
@@ -1543,6 +1544,29 @@ void CCommonBackLog::ReplaceMessage(LPSTR message,LPSTR replace)
 		}
 	}
 }
+
+
+void CCommonBackLog::SetLogByLoad(void* ptr)
+{
+	CCommonDataFile::GAMELOG* logData = (CCommonDataFile::GAMELOG*)ptr;
+	m_nowPointer = logData->nowPointer;
+	m_messageKosuu = logData->messageKosuu;
+	memcpy(m_logMessage, logData->logMessage, BACKLOG_KOSUU * BACKLOG_LENGTH);
+	memcpy(m_logColor, logData->logColor, BACKLOG_KOSUU * sizeof(int));
+	memcpy(m_voiceFile, logData->voiceFile, BACKLOG_KOSUU * VOICEFILE_LENGTH);
+}
+
+
+void CCommonBackLog::GetLogForSave(void* ptr)
+{
+	CCommonDataFile::GAMELOG* logData = (CCommonDataFile::GAMELOG*)ptr;
+	logData->nowPointer = m_nowPointer;
+	logData->messageKosuu = m_messageKosuu;
+	memcpy(logData->logMessage, m_logMessage, BACKLOG_KOSUU * BACKLOG_LENGTH);
+	memcpy(logData->logColor, m_logColor, BACKLOG_KOSUU * sizeof(int));
+	memcpy(logData->voiceFile, m_voiceFile, BACKLOG_KOSUU * VOICEFILE_LENGTH);
+}
+
 
 
 /*_*/

@@ -17,11 +17,15 @@
 #define GAMEDATATYPE_OMAKECLASS (8)
 
 #define GAMEDATATYPE_CUTIN (9)
+#define GAMEDATATYPE_LOG (10)
+
 
 #define GAMEDATATYPE_EXT (100)
 
 
 #include "..\..\systemNNN\nyanEffectLib\allEffect.h"
+#include "commonBackLog.h"
+
 //#include "datatype.h"
 //#include "..\nyanEffectLib\effectstruct.h"
 //#include <stdio.h>
@@ -38,6 +42,9 @@ class CPrintGameDate;
 class CDataFileSetup;
 
 class CCommonAnimeParts;
+
+class CCommonGeneral;
+
 
 class CCommonDataFile
 {
@@ -61,6 +68,8 @@ public:
 
 
 	void Print(int md = 0,int clicking = 0,int nm = -1,int loadsave = 0,int lastCount = 0);
+	void AppearPrint(int appearCount,int appearCountMax,int appearType, int md = 0, int clicking = 0, int nm = -1, int loadsave = 0, int lastCount = 0);
+
 
 	void SetLoadSave(BOOL loadsave){m_loadSave = loadsave;}
 
@@ -104,7 +113,8 @@ public:
 		int extDataKosuu;
 		int omakeClass;
 		int cutin;
-		int pad[16-13];
+		int log;
+		int pad[16-14];
 	} GAMEINFO;
 
 
@@ -281,6 +291,21 @@ public:
 		int omake[3200];
 	} GAMEOMAKECLASSDATA;
 
+
+	typedef struct _tagGAMELOG
+	{
+		GAMEGENERALDATA general;
+		int nowPointer;
+		int messageKosuu;
+		int pad[6];
+		
+		int logColor[BACKLOG_KOSUU];
+		char logMessage[BACKLOG_KOSUU * BACKLOG_LENGTH];
+		char voiceFile[BACKLOG_KOSUU * VOICEFILE_LENGTH];
+
+	} GAMELOG;
+
+
 protected:
 
 	CGameCallBack* m_game;
@@ -336,6 +361,7 @@ protected:
 	BOOL SaveExtData(int n);
 	BOOL SaveOmakeClassData(void);
 	BOOL SaveCutin(void);
+	BOOL SaveLog(void);
 
 	BOOL LoadHeader(void);
 	BOOL LoadInfo(void);
@@ -348,6 +374,7 @@ protected:
 	BOOL LoadExtData(int n);
 	BOOL LoadOmakeClassData(void);
 	BOOL LoadCutin(void);
+	BOOL LoadLog(void);
 
 
 	BOOL Load1Block(void);
@@ -495,6 +522,7 @@ protected:
 
 	int m_omakeClassExistFlag;
 	int m_cutinUseFlag;
+	int m_logFlag;
 
 	int m_basePrintFlag;
 	CPicture* m_loadBasePic;

@@ -13,6 +13,7 @@ public:
 
 	void Init(void);
 	void Print(int* data);
+	void AppearPrint(int* data,int count,int countMax,int type);
 
 private:
 	CNameList* m_setup;

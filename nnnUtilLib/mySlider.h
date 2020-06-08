@@ -20,6 +20,8 @@ public:
 	void Init(int gaze);
 	int Calcu(CMyMouseStatus* lpMouse);
 	void Print(BOOL mustPrintFlag = FALSE,BOOL badFlag = FALSE);
+	void AppearPrint(bool badFlag,int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 });
+
 
 	BOOL GetCaptureFlag(void);
 	void SetDigitalFlag(BOOL flg = TRUE){m_digitalFlag = flg;}

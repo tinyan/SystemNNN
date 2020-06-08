@@ -190,6 +190,107 @@ void CSuuji::Put(int printX, int printY, int ch,int col)
 	m_pic->Blt(printX,printY,srcX,srcY,m_sizeX,m_sizeY,m_transFlag);
 }
 
+void CSuuji::AppearPrint(int count, int countMax, int type, int printX, int printY, int dat, int keta, int col)
+{
+	int dv = countMax;
+	if (dv < 1) dv = 1;
+
+	int percent = 100;
+	if (type & 1)
+	{
+		percent = (100 * count) / dv;
+		if (percent < 0) percent = 0;
+		if (percent > 100) percent = 100;
+	}
+
+	if (m_pic == NULL) return;
+	if (keta == -1) keta = m_keta;
+
+	if (m_leftFlag)
+	{
+		if (dat < 0) return;	//not support
+
+		int putX = printX;
+		int putY = printY;
+
+		int dv = 1;
+		int i = 1;
+		for (i = 1; i < keta; i++)
+		{
+			dv *= 10;
+		}
+
+		BOOL b = FALSE;
+
+		for (i = 0; i < keta; i++)
+		{
+			int d = dat / dv;
+
+			if ((d != 0) || (i == (keta - 1)) || (b) || m_upZeroFlag)
+			{
+				b = TRUE;
+//				Put(putX, putY, d, col);
+				AppearPut(count,countMax,type,putX, putY, d, col);
+				putX += m_nextX;
+				putY += m_nextY;
+			}
+
+			dat -= d * dv;
+			dv /= 10;
+
+			//			if ((dat == 0) && (m_upZeroFlag == FALSE))return;
+		}
+	}
+	else
+	{
+		if (dat < 0) return;	//not support
+
+		int putX = printX + (keta - 1) * m_nextX;
+		int putY = printY + (keta - 1) * m_nextY;
+
+		for (int i = 0; i < keta; i++)
+		{
+			int d = dat % 10;
+			if ((d != 0) || (i == 0) || (dat > 0) || m_upZeroFlag)
+			{
+//				Put(putX, putY, d, col);
+				AppearPut(count,countMax,type,putX, putY, d, col);
+			}
+
+			putX -= m_nextX;
+			putY -= m_nextY;
+
+			dat /= 10;
+
+			if ((dat == 0) && (m_upZeroFlag == FALSE))return;
+		}
+	}
+
+}
+
+
+void CSuuji::AppearPut(int count, int countMax, int type, int printX, int printY, int ch, int col)
+{
+	if (m_pic == NULL) return;
+
+	int dv = countMax;
+	if (dv < 1) dv = 1;
+
+	int percent = 100;
+	if (type & 1)
+	{
+		percent = (100 * count) / dv;
+		if (percent < 0) percent = 0;
+		if (percent > 100) percent = 100;
+	}
+
+
+	int srcX = ch * m_sizeX;
+	int srcY = col * m_sizeY;
+//	m_pic->Blt(printX, printY, srcX, srcY, m_sizeX, m_sizeY, m_transFlag);
+	m_pic->TransLucentBlt3(printX, printY, srcX, srcY, m_sizeX, m_sizeY, percent);
+}
+
 
 
 BOOL CSuuji::GetInitGameParam(int* lpVar, LPSTR name,int initData)
