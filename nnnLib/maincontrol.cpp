@@ -1993,6 +1993,12 @@ int CMainControl::GetClientOffsetY(void)
 	return m_clientOffsetY;
 }
 
+void CMainControl::SetClientOffset(int x, int y)
+{
+	m_clientOffsetX = x;
+	m_clientOffsetY = y;
+}
+
 
 
 

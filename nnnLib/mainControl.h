@@ -61,6 +61,8 @@ public:
 	static MSG m_msg;
 	CMyFile* m_myFile;
 
+	static void SetClientOffset(int x,int y);
+
 	static int GetClientOffsetX(void);
 	static int GetClientOffsetY(void);
 

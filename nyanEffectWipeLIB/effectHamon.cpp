@@ -547,6 +547,9 @@ void CEffectHamon::Print(LPVOID lpEffect,int layer)
 		ps2 = (((cc * 100) / dv2) * 256) / 100;
 	}
 
+	if (m_vectorAdjusted == nullptr) return;
+
+
 	int* vectorTable = m_vectorAdjusted;
 
 	int asx = (screenSizeX + 3) & ~3;

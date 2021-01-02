@@ -303,6 +303,7 @@ protected:
 
 	virtual int ProcessUpDownBack(int rt);
 	virtual int ProcessButtonGroup(int rt);
+	virtual int ProcessButtonGroupGetNumberOnly(int rt);
 	virtual int ProcessCommonButton(int rt);
 
 	int m_mustAllPrintFlag;

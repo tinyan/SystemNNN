@@ -401,6 +401,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 	
 	m_preReceiveFileName = NULL;
 
+	m_skipVoiceOffCheck = false;
 
 	m_taihiStack = NULL;
 	m_taihiStack2 = NULL;
@@ -1122,6 +1123,9 @@ void CGameCallBack::GeneralCreate(void)
 	m_totalVolumeUseFlag = 0;
 	GetInitGameParam(&m_totalVolumeUseFlag, "totalVolumeUseFlag");
 
+
+	m_playLoadVoiceFlag = 0;
+	GetInitGameParam(&m_playLoadVoiceFlag, "playLoadVoiceFlag");
 
 	//reset mute?
 
@@ -5637,6 +5641,7 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 	int sptSubSubFileNumber = lp->scriptSubSubNumber;
 
 	m_scriptRunMode = lp->scriptRunMode;
+	m_messageSerial = lp->messageSerial;
 
 	SetLastSelectHeroinNumber(lp->lastselectheroinnumber);
 
@@ -5702,6 +5707,13 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 //	{
 		memcpy(m_loopVoiceFileName,lp->loopVoiceFileName,8*64);
 //	}
+
+
+	m_voiceExistCount[0] = lp->voiceExistCount & 0xff;
+	m_voiceExistCount[1] = (lp->voiceExistCount>>8) & 0xff;
+	m_voiceExistCount[2] = 0;
+	m_voiceExistCount[3] = 0;
+
 
 	m_configMask = lp->configMask;
 	
@@ -6127,6 +6139,8 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	lp->messageKosuu = pDoc2->GetMessageKosuu();
 	lp->messageSubMode = pDoc2->GetPrintModeForSave();
 
+	lp->messageSerial = pDoc2->GetMessageSerial();
+
 	lp->messageWindowPrintFlag = m_taihiMessageWindowPrintFlag;
 	lp->messageFontSizeType = m_messageFontSizeType;
 
@@ -6138,6 +6152,8 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	lp->cannotClick = m_cannotClick;
 	lp->cannotSkip = m_cannotSkip;
 	lp->renameLayer = m_renameLayer;
+
+	lp->voiceExistCount = (m_voiceExistCount[0] & 0xff) | ((m_voiceExistCount[1] << 8) & 0xff00);
 
 	if (m_layerKosuuMax == 32)
 	{
@@ -6880,6 +6896,11 @@ int CGameCallBack::InitNewGame(int uraMode, BOOL demoFlag,int setVar,int setData
 //		{
 //			m_wave->PlayWave();
 //		}
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		m_voiceExistCount[i] = 0;
 	}
 
 	//ResetAllShakin();
@@ -8088,6 +8109,27 @@ void CGameCallBack::InitLoadGame(void)
 
 
 	general->InitByLoad();
+	if (m_playLoadVoiceFlag != 0)
+	{
+		if (m_gameMode[0] == PRINTMESSAGE_MODE)
+		{
+			for (int ch = 0; ch < 2; ch++)
+			{
+				if ((m_playLoadVoiceFlag & (ch + 1)) != 0)
+				{
+					if (m_voiceExistCount[ch] > 0)
+					{
+						if (m_loopVoiceFileName[ch * 64] != 0)
+						{
+							LPSTR voicefilename = &m_loopVoiceFileName[ch * 64];
+							OutputDebugString("\nLoad : PlayVoice");
+							PlayScriptVoice(ch);
+						}
+					}
+				}
+			}
+		}
+	}
 
 //	pDoc->GetLoadData(m_kumiawaseVar);	//2Ç©Ç¢ÇﬂÇÃèâä˙âªÇ™Ç–Ç¬ÇÊÇ§Ç…Ç·
 //sprintf(mes,"Ç±ÇÃÇ∂ÇƒÇÒÇ≈ÇÃdate=%d",m_var[0]);
@@ -8562,10 +8604,14 @@ void CGameCallBack::PlayButtonVoiceByFilename(LPSTR filename)
 
 	if (CheckTotalVolumeOff()) return;
 
-	if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
-
-	if (CheckVoiceOffByName(filename)) return;
-
+	if (!m_skipVoiceOffCheck)
+	{
+		if (GetSystemParam(NNNPARAM_VOICESWITCH) == 0) return;
+	}
+	if (!m_skipVoiceOffCharaCheck)
+	{
+		if (CheckVoiceOffByName(filename)) return;
+	}
 
 	int vol = GetSystemParam(NNNPARAM_VOICEVOLUME);
 	
@@ -9878,6 +9924,8 @@ OutputDebugString(mes998);
 					memcpy(&m_loopVoiceFileName[ch * 64], name, fln);
 					m_loopVoiceFileName[ch * 64 + fln] = 0;
 					m_loopVoiceFileName[ch * 64 + fln + 1] = 0;
+
+					m_voiceExistCount[ch] = 2;
 				}
 
 				bool voicePool = false;
@@ -10424,6 +10472,14 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 	m_messageWindowPrintFlag = TRUE;
 	ChangeMessageWindowModeByNext();
 
+	for (int i = 0; i < 4; i++)
+	{
+		if (m_voiceExistCount[i] > 0)
+		{
+			m_voiceExistCount[i]--;
+		}
+	}
+
 	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
 
 	LPSTR mes = (LPSTR)para2;
@@ -10452,6 +10508,14 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 	m_messageWindowPrintFlag = FALSE;
 //	m_messageWindowPrintFlag = TRUE;
 	ChangeMessageWindowModeByNext();
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (m_voiceExistCount[i] > 0)
+		{
+			m_voiceExistCount[i]--;
+		}
+	}
 
 
 	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
@@ -10484,6 +10548,13 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 //	m_messageWindowPrintFlag = FALSE;
 	ChangeMessageWindowModeByNext();
 
+	for (int i = 0; i < 4; i++)
+	{
+		if (m_voiceExistCount[i] > 0)
+		{
+			m_voiceExistCount[i]--;
+		}
+	}
 
 	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
 
@@ -16990,6 +17061,12 @@ void CGameCallBack::PlayButtonVoice(int voice)
 int CGameCallBack::GetSaveLog(void)
 {
 	return m_saveLog;
+}
+
+void CGameCallBack::SetSkipVoiceOffCheck(bool bSkip,bool bSkipChara)
+{
+	m_skipVoiceOffCheck = bSkip;
+	m_skipVoiceOffCharaCheck = bSkipChara;
 }
 
 /*_*/

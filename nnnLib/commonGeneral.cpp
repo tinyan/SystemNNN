@@ -1885,6 +1885,30 @@ int CCommonGeneral::ProcessUpDownBack(int rt)
 	return -1;
 }
 
+int CCommonGeneral::ProcessButtonGroupGetNumberOnly(int rt)
+{
+	if (rt == NNNBUTTON_NOTHING) return -1;
+
+	int st = CCommonButton::GetButtonStatus(rt);
+	int requestSoundFlag = CCommonButton::CheckRequestSound(rt);
+
+	int existDataFlag = CCommonButton::CheckExistData(rt);
+	int nm = -1;
+	if (existDataFlag)
+	{
+		nm = CCommonButton::GetButtonData(rt);
+	}
+
+
+	if ((st == NNNBUTTON_NUMBER) && (existDataFlag))
+	{
+		return nm;
+	}
+
+	return -1;
+
+}
+
 //‚à‚µ‚©‚µ‚Ä‚¨‚ñ‚È‚¶??
 int CCommonGeneral::ProcessButtonGroup(int rt)
 {

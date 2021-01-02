@@ -170,8 +170,8 @@ public:
 
 	void ClearAccelKey(void);
 
-	void AppearPrint(int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 });
-	void SpecialPrint(int count, int countMax, int type);
+	void AppearPrint(int count, int countMax, int type = 1, POINT deltaPoint = POINT{ 0,0 },int buttonNumber = 0,int buttonmax = 1);
+	void SpecialPrint(int count, int countMax, int type,int buttonNumber = 0,int buttonmax = 1);
 
 protected:
 	BOOL m_existFlag;

@@ -152,7 +152,7 @@ public:
 		int bgmNumber;
 		int bgmKaisuu;
 		int bgmVolume;
-		int pad4;
+		int voiceExistCount;
 		int bgmParam[4];
 
 		int messageWindowPrintFlag;
@@ -162,7 +162,7 @@ public:
 		int layerOff;
 		int messageFontSizeType;
 		int renameLayer;
-		int pad5;
+		int messageSerial;
 
 		int loopSound[8*16];
 

@@ -166,6 +166,10 @@ CCommonTitle::CCommonTitle(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	}
 
 
+	m_htmlButtonWithMenu = 0;
+	GetInitGameParam(&m_htmlButtonWithMenu,"htmlButtonWithMenu");
+	m_lastLoadButtonWithMenu = 0;
+	GetInitGameParam(&m_lastLoadButtonWithMenu, "lastLoadButtonWithMenu");
 
 
 	m_autoRestartTime = 0;
@@ -695,12 +699,35 @@ int CCommonTitle::Print(void)
 
 		if (m_htmlButtonEnable > 0)
 		{
-			m_htmlButton->Put(delta, ps);
+			if (m_htmlButtonWithMenu == 0)
+			{
+				m_htmlButton->Put(delta, ps);
+			}
+			else
+			{
+				int mx = m_basicButtonKosuu + m_extButtonKosuu + 1;
+				if (m_lastLoadButtonEnable > 0) mx++;
+				m_htmlButton->AppearPrint(count, countMax, type,delta,0+ m_basicButtonKosuu + m_extButtonKosuu, mx);
+			}
 		}
 
 		if (m_lastLoadButtonEnable > 0)
 		{
-			m_lastLoadButton->Put(delta, ps);
+			if (m_lastLoadButtonWithMenu == 0)
+			{
+				m_lastLoadButton->Put(delta, ps);
+			}
+			else
+			{
+				int mx = m_basicButtonKosuu + m_extButtonKosuu + 2;
+				int st = 1;
+				if (m_lastLoadButtonEnable == 0)
+				{
+					mx--;
+					st--;
+				}
+				m_lastLoadButton->AppearPrint(count, countMax, type, delta, 0 + m_basicButtonKosuu + m_extButtonKosuu, mx);
+			}
 		}
 	}
 

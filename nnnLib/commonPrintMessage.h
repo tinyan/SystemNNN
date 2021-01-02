@@ -54,6 +54,7 @@ public:
 
 	void SetMessageRead(void);
 
+	int GetMessageSerial(void) { return m_messageSerialNumber; }
 
 //	typedef struct _tagJINBUTSUNAMECOLOR
 //	{

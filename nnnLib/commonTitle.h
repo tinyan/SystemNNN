@@ -128,6 +128,8 @@ protected:
 	void SetLastLoadButtonMode(void);
 
 	bool m_lastLoadFlag;
+	int m_htmlButtonWithMenu;
+	int m_lastLoadButtonWithMenu;
 
 };
 

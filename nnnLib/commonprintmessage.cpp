@@ -3105,12 +3105,16 @@ void CCommonPrintMessage::SetMessageKosuu(int n)
 
 void CCommonPrintMessage::InitByLoad(void)
 {
-	m_messagePrintedGyo = 1;
+	m_messagePrintedGyo = 0;
 	for (int i=0;i<MESSAGEKOSUU_MAX;i++)
 	{
 		m_messageLength[i] = -1;
 		m_messagePrinted[i] = 0;
 	}
+	m_messageSerialNumber = m_game->GetMessageSerial();
+
+	m_nowMessageIsReadMessage = CheckMessageRead();
+
 }
 
 

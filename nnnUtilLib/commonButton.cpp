@@ -1278,7 +1278,7 @@ void CCommonButton::SetEntered(bool bEnter)
 
 
 
-void CCommonButton::AppearPrint(int count, int countMax, int type, POINT deltaPoint)
+void CCommonButton::AppearPrint(int count, int countMax, int type, POINT deltaPoint,int buttonNumber,int buttonMax)
 {
 	//type bit0:”¼“§–¾ˆ—
 
@@ -1338,8 +1338,8 @@ void CCommonButton::AppearPrint(int count, int countMax, int type, POINT deltaPo
 		{
 			if (percent > 0)
 			{
-				double th = (double)0;
-//				th /= (double)m_buttonKosuu;
+				double th = (double)buttonNumber;
+				th /= (double)buttonMax;
 				th *= 3.14159 * 2;
 				th += dth;
 
@@ -1387,12 +1387,12 @@ void CCommonButton::AppearPrint(int count, int countMax, int type, POINT deltaPo
 
 	if ((type2 >= 6) && (type2 <= 11))
 	{
-		SpecialPrint(count, countMax, type2 - 6);
+		SpecialPrint(count, countMax, type2 - 6,buttonNumber,buttonMax);
 	}
 
 }
 
-void CCommonButton::SpecialPrint(int count, int countMax, int type)
+void CCommonButton::SpecialPrint(int count, int countMax, int type,int buttonNumber,int buttonMax)
 {
 //	int n = m_buttonKosuu * m_extMode;
 	int n = 0;
@@ -1404,12 +1404,12 @@ void CCommonButton::SpecialPrint(int count, int countMax, int type)
 	if (GetExist())
 	{
 
-		int delay = 10000 / (1 * 2 + 1);
+		int delay = 10000 / (buttonMax * 2 + 1);
 
-		int  k = ps100 - 0 * delay;
+		int  k = ps100 - buttonNumber * delay;
 		if (k >= 0)
 		{
-			int dv = 10000 - 1 * delay;
+			int dv = 10000 - buttonMax * delay;
 			if (dv < 1) dv = 1;
 
 			int ps = (k * 100) / dv;

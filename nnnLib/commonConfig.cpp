@@ -1481,6 +1481,14 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_voiceSameBufferFlag = 0;
 	GetInitGameParam(&m_voiceSameBufferFlag,"voiceSameBufferFlag");
 
+
+	m_playOffToOnSound = 0;
+	GetInitGameParam(&m_playOffToOnSound, "playOffToOnSoundFlag");
+
+	m_barVoiceIsSystemVoice = 0;
+	GetInitGameParam(&m_barVoiceIsSystemVoice, "barVoiceIsSystemVoice");
+
+
 	CreateBackButton();
 
 	if (m_pageMode == 1)
@@ -2353,7 +2361,9 @@ int CCommonConfig::Calcu(void)
 			if (rt != NNNBUTTON_NOTHING)
 			{
 				//いろいろ
+				if (m_playOffToOnSound) m_game->SetSkipVoiceOffCheck(false, true);
 				int nm = ProcessButtonGroup(rt);
+				if (m_playOffToOnSound) m_game->SetSkipVoiceOffCheck(false, false);
 
 				if (nm >= 0)
 				{
@@ -2593,10 +2603,20 @@ int CCommonConfig::Calcu(void)
 
 			if (rt != NNNBUTTON_NOTHING)
 			{
+				//先にシステムボイスボタン切り替える
+				int nm0 = ProcessButtonGroupGetNumberOnly(rt);
+				if (nm0 >= 0)
+				{
+					m_game->SetUseSystemVoice(nm0);
+				}
+
+				if (m_playOffToOnSound) m_game->SetSkipVoiceOffCheck(false,true);
 				int nm = ProcessButtonGroup(rt);
+				if (m_playOffToOnSound) m_game->SetSkipVoiceOffCheck(false,false);
+
 				if (nm >= 0)
 				{
-					m_game->SetUseSystemVoice(nm);
+//					m_game->SetUseSystemVoice(nm);
 					m_game->ReLoadSystemSound();
 
 					m_ppSystemVoiceButton->SetRadio(nm);
@@ -2632,7 +2652,9 @@ int CCommonConfig::Calcu(void)
 			if (rt != NNNBUTTON_NOTHING)
 			{
 				//いろいろ
+				if (m_playOffToOnSound) m_game->SetSkipVoiceOffCheck(true,true);
 				int nm = ProcessButtonGroup(rt);
+				if (m_playOffToOnSound) m_game->SetSkipVoiceOffCheck(false,false);
 
 				if (nm >= 0)
 				{
@@ -3044,7 +3066,10 @@ int CCommonConfig::Calcu(void)
 				int rt = m_ppVolumeButton[i]->Calcu(m_inputStatus);
 				if (rt != NNNBUTTON_NOTHING)
 				{
+					if (m_playOffToOnSound && (i == 3)) m_game->SetSkipVoiceOffCheck(true,false);
 					int nm = ProcessCommonButton(rt);
+					if (m_playOffToOnSound && (i == 3)) m_game->SetSkipVoiceOffCheck(false,false);
+
 					if (nm >= 0)
 					{
 						if (i == 1)
@@ -3787,25 +3812,32 @@ void CCommonConfig::PlayExtSe2(int md,int vol)
 
 	if (nm != -1)
 	{
-		if (nm < m_seListKosuu)
+		if ((m_barVoiceIsSystemVoice != 0) && (voiceFlag != 0))
 		{
-			//LPSTR soundName = m_seList->GetName(nm * 2);
-			LPSTR soundName = GetSoundName(nm);
-
-			if (voiceFlag == FALSE)
+			m_game->PlayButtonVoice(nm);
+		}
+		else
+		{
+			if (nm < m_seListKosuu)
 			{
-				int deltaVol = 0;
+				//LPSTR soundName = m_seList->GetName(nm * 2);
+				LPSTR soundName = GetSoundName(nm);
 
-				if (md == EXT_SE_MOVIE)
+				if (voiceFlag == FALSE)
 				{
-					deltaVol = m_game->GetSystemParam(NNNPARAM_MOVIEVOLUME) - m_game->GetSystemParam(NNNPARAM_SOUNDVOLUME);
-				}
+					int deltaVol = 0;
 
-				m_game->PlaySystemWaveFilename(soundName,deltaVol);
-			}
-			else
-			{
-				m_game->PlaySystemVoiceByFileName(soundName,TRUE,m_voiceSameBufferFlag);
+					if (md == EXT_SE_MOVIE)
+					{
+						deltaVol = m_game->GetSystemParam(NNNPARAM_MOVIEVOLUME) - m_game->GetSystemParam(NNNPARAM_SOUNDVOLUME);
+					}
+
+					m_game->PlaySystemWaveFilename(soundName, deltaVol);
+				}
+				else
+				{
+					m_game->PlaySystemVoiceByFileName(soundName, TRUE, m_voiceSameBufferFlag);
+				}
 			}
 		}
 	}

@@ -394,6 +394,9 @@ protected:
 	int m_charaVolumeSizeY;
 
 
+	int m_playOffToOnSound;
+	int m_barVoiceIsSystemVoice;
+
 	void InitAllConfig(void);
 
 

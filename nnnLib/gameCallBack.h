@@ -876,7 +876,10 @@ public:
 
 	void PlayButtonVoice(int voice);
 	int GetSaveLog(void);
+	int GetMessageSerial(void) { return m_messageSerial; }
 
+	void PlayButtonVoiceByFilename(LPSTR filename);
+	void SetSkipVoiceOffCheck(bool bSkip = true,bool bSkipChara = true);
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -1872,11 +1875,17 @@ protected:
 	CNameList** m_buttonVoiceList;
 
 	int m_selectSerialID;
-	void PlayButtonVoiceByFilename(LPSTR filename);
 
 	int m_saveLog;
 
+	int m_messageSerial;
+
 	char m_buttonPlayingFilename[2][256];
+	int m_voiceExistCount[4];
+	int m_playLoadVoiceFlag;
+
+	bool m_skipVoiceOffCheck;
+	bool m_skipVoiceOffCharaCheck;
 };
 
 #endif
