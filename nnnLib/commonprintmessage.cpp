@@ -2433,8 +2433,8 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	{
 		m_messageEffect = m_messageEffectYoyaku;
 #if defined _DEBUG
-		char debugmes[256];
-		sprintf_s(debugmes,256,"[messageEffect = %d]\x00d\x00a",m_messageEffect);
+		char debugmes[1024];
+		sprintf_s(debugmes,1024,"[messageEffect = %d]\x00d\x00a",m_messageEffect);
 		OutputDebugString(debugmes);
 #endif
 	}
@@ -2558,7 +2558,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	//append‚Åæ“ª‚ªl–¼‚¾‚Á‚½‚ç”ò‚Î‚·
 	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
 	{
-		char check[256];
+		char check[2048];
 		int ln = (int)strlen(mes);
 		check[0] = 0;
 		int skps = 0;
@@ -2769,7 +2769,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		if (ln1 != -1)
 		{
 			BOOL setok = TRUE;
-			char cutinName[256];
+			char cutinName[2048];
 
 			if (cutin != 0)
 			{
