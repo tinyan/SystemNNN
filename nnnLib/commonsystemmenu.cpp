@@ -412,6 +412,8 @@ void CCommonSystemMenu::BeforeInit(void)
 
 int CCommonSystemMenu::Init(void)
 {
+	
+
 	int i;
 	m_returnToGameFlag = FALSE;
 
@@ -709,6 +711,8 @@ OutputDebugString("[SystemMenu::sceneMode]");
 
 int CCommonSystemMenu::Calcu(void)
 {
+
+
 	if (m_warningFlag)
 	{
 		int rt = m_dialogButton->Calcu(m_inputStatus);
@@ -960,6 +964,8 @@ BOOL CCommonSystemMenu::CheckAllOptionPrint(void)
 
 int CCommonSystemMenu::Print(void)
 {
+
+
 	if (!m_warningFlag)
 	{
 		if (m_optionPrintMode == 0)

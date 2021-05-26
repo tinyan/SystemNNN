@@ -1878,15 +1878,18 @@ int CCommonConfig::Init(void)
 		}
 	}
 
-	int vol0[5];
+	int vol0[10];
 	vol0[0] = m_game->GetSystemParam(NNNPARAM_MUSICVOLUME);
 	vol0[1] = m_game->GetSystemParam(NNNPARAM_SOUNDVOLUME);
 	vol0[2] = m_game->GetSystemParam(NNNPARAM_VOICEVOLUME);
 	vol0[3] = m_game->GetSystemParam(NNNPARAM_MOVIEVOLUME);
 	vol0[4] = m_game->GetSystemParam(NNNPARAM_SOUNDVOICEVOLUME);
+	vol0[8] = m_game->GetSystemParam(NNNPARAM_SCRIPTSEVOLUME);
 
-	for (i=0;i<5;i++)
+	for (i=0;i<9;i++)
 	{
+		if ((i >= 5) && (i <= 7)) continue;
+
 		//adjust
 		int v = vol0[i];
 		if (v<m_realVolumeMinTable[i+1]) v = m_realVolumeMinTable[i+1];

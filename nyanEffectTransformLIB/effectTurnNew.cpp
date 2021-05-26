@@ -160,6 +160,7 @@ void CEffectTurnNew::Calcu(LPVOID lpEffect, int layer)
 void CEffectTurnNew::Print(LPVOID lpEffect, int layer)
 {
 
+
 	int* screenBuffer = CMyGraphics::GetScreenBuffer();
 
 	EFFECT* lp = (EFFECT*)lpEffect;

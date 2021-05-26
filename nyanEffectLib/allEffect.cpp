@@ -704,6 +704,7 @@ void CAllEffect::Calcu(int cnt)
 
 void CAllEffect::CalcuOnly(void)
 {
+
 //	m_rememberCount++;
 //	if (m_rememberCount>100000000) m_rememberCount = 0;
 

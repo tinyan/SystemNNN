@@ -615,6 +615,9 @@ OutputDebugString(mes);
 				fclose(m_filePointer);
 				m_filePointer = NULL;
 			}
+
+//			m_oggStreamDecoder->EndDecode();
+
 //			if (m_fileHandle != INVALID_HANDLE_VALUE)
 //			{
 //				CloseHandle(m_fileHandle);
@@ -838,6 +841,7 @@ void CWaveMusic::OnWaveTime(void)
 				LPDIRECTSOUNDBUFFER8 directSoundBuffer = (LPDIRECTSOUNDBUFFER8)(m_directSoundBuffer8);
 
 				directSoundBuffer->Stop();
+			//	m_oggStreamDecoder->EndDecode();
 
 //				if (m_fileHandle != INVALID_HANDLE_VALUE)
 //				{
@@ -1115,8 +1119,10 @@ void CWaveMusic::SetNormalVolume(void)
 	m_nowVolume = m_volume;
 
 	vol -= 10000;
-	directSoundBuffer->SetVolume(vol);
-
+	if (directSoundBuffer != nullptr)
+	{
+		directSoundBuffer->SetVolume(vol);
+	}
 	//char mes[256];
 	//sprintf(mes,"[ch=%d VOL=%d]",m_bufferNumber,m_volume);
 	//OutputDebugString(mes);
@@ -1143,14 +1149,16 @@ void CWaveMusic::SetFadeVolume(void)
 	if (vol > 10000) vol = 10000;
 
 	vol -= 10000;
-	directSoundBuffer->SetVolume(vol);
+	if (directSoundBuffer != nullptr)
+	{
+		directSoundBuffer->SetVolume(vol);
+	}
 }
 
 
 void CWaveMusic::SetFadeInVolume(void)
 {
 	LPDIRECTSOUNDBUFFER8 directSoundBuffer = (LPDIRECTSOUNDBUFFER8)(m_directSoundBuffer8);
-
 
 
 	int dv = m_fadeInTime;
@@ -1174,7 +1182,10 @@ void CWaveMusic::SetFadeInVolume(void)
 //OutputDebugString(mes);
 
 	vol -= 10000;
-	directSoundBuffer->SetVolume(vol);
+	if (directSoundBuffer != nullptr)
+	{
+		directSoundBuffer->SetVolume(vol);
+	}
 }
 
 
@@ -1199,7 +1210,10 @@ void CWaveMusic::SetFadeOutVolume(void)
 //OutputDebugString(mes);
 
 	vol -= 10000;
-	directSoundBuffer->SetVolume(vol);
+	if (directSoundBuffer != nullptr)
+	{
+		directSoundBuffer->SetVolume(vol);
+	}
 }
 
 

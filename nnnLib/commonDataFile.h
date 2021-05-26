@@ -267,7 +267,7 @@ public:
 	typedef struct _tagGAMEMESSAGE
 	{
 		GAMEGENERALDATA general;
-		char messageData[64][256];
+		char messageData[64][1024];
 	} GAMEMESSAGE;
 
 

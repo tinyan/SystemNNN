@@ -68,7 +68,7 @@ CMyFontCache::CMyFontCache(int sizeY,int rubiFlag)
 	m_dataKosuuMax = m_cacheSizeY / 16;
 
 	m_table = new int[m_dataKosuuMax * 16];
-	m_messageTable = new char[m_dataKosuuMax * 256];
+	m_messageTable = new char[m_dataKosuuMax * 1024];
 
 	m_dataKosuu = 0;
 	m_useStart = 0;
@@ -211,7 +211,7 @@ int CMyFontCache::SearchData(LPSTR message,int fontSize,int colR,int colG,int co
 		if (ln != m_table[n*16+0]) continue;
 		if (fontSize != m_table[n*16+1]) continue;
 
-		if (strcmp(message,&m_messageTable[n*128]) != 0) continue;
+		if (strcmp(message,&m_messageTable[n*512]) != 0) continue;
 
 		if (colR != m_table[n*16+2]) continue;
 		if (colG != m_table[n*16+3]) continue;
@@ -308,9 +308,9 @@ int CMyFontCache::SetDataSub(int ln,int fontSize,LPSTR message,int colR,int colG
 	}
 
 
-	memcpy(m_messageTable+128*n,message,ln);
-	m_messageTable[128*n+ln] = 0;
-	m_messageTable[128*n+ln+1] = 0;
+	memcpy(m_messageTable+512*n,message,ln);
+	m_messageTable[512*n+ln] = 0;
+	m_messageTable[512*n+ln+1] = 0;
 
 	m_bufferStartY += sizeY2;
 	m_bufferSizeY -= sizeY2;

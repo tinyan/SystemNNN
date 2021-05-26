@@ -125,9 +125,9 @@ protected:
 	int m_lastOnButton;
 	int m_autoCannotOk;
 	int m_autoPicLoad;
-	int m_autoPicLayer[16];
+	int m_autoPicLayer[32];
 	int m_lastAutoPic;
-	LPSTR m_autoPicTag[16];
+	LPSTR m_autoPicTag[32];
 	int m_autoPicRestartBackScript;
 	void LoadAutoPic(int place,BOOL checkRestartFlag = TRUE);
 

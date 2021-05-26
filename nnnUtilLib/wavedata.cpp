@@ -43,7 +43,7 @@ CWaveData::CWaveData(int initBufferSize)
 		if (m_commonBuffer == NULL)
 		{
 			m_commonBufferCreateFlag = TRUE;
-			m_commonBufferSize = 1024*1600;	//dummy
+			m_commonBufferSize = 1024*3200;	//dummy
 			m_commonBuffer = new char[m_commonBufferSize];
 		}
 
@@ -285,7 +285,7 @@ BOOL CWaveData::LoadWaveRoutine(FILE* file,int loadSize)
 		//‚Í‚¸‚·
 //		int readSize0 = m_game->GetCDVAWSize(filename);
 
-		if (loadSize <= 0) loadSize = 1024*1600;
+		if (loadSize <= 0) loadSize = 1024*3200;
 		int readSize = (int)fread(m_commonBuffer,sizeof(char),loadSize,file);
 
 //		m_huffMan->HuffManDecode(m_commonBuffer,m_data+20+headerSize,readSize);
@@ -296,7 +296,7 @@ fread(waveHeader+20+headerSize,sizeof(char),8,file);
 makedDataSize -= 8;
 //		int readSize0 = m_game->GetCDVAWSize(filename);
 
-		if (loadSize <= 0) loadSize = 1024*1600;
+		if (loadSize <= 0) loadSize = 1024*3200;
 	
 		ReCreateCommonBuffer(loadSize);
 

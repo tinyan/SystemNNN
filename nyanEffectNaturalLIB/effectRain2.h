@@ -29,14 +29,14 @@ public:
 	void InitParameter(LPVOID lpEffect, int layer = -1);
 
 private:
-	int m_x[16][4];
-	int m_y[16][4];
-	int m_speedX[16][4];
-	int m_speedY[16][4];
-	int m_randomX[16][4];
-	int m_randomY[16][4];
+	int m_x[32][4];
+	int m_y[32][4];
+	int m_speedX[32][4];
+	int m_speedY[32][4];
+	int m_randomX[32][4];
+	int m_randomY[32][4];
 
-	int m_initRnd[16];
+	int m_initRnd[32];
 
 };
 

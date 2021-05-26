@@ -626,6 +626,8 @@ void CGameCallBack::GeneralCreate(void)
 	m_notPlaySameMusic = 0;
 	GetInitGameParam(&m_notPlaySameMusic, "notPlaySameMusic");
 
+	m_checkSameCharaMustChannel1 = 0;
+	GetInitGameParam(&m_checkSameCharaMustChannel1, "checkSameCharaMustChannel1");
 
 	GetInitGameParam(&m_layerKosuuMax, "layerExpand");
 	m_pictureKosuuMax = m_layerKosuuMax;//ìØÇ∂Ç≈Ç†ÇÈïKóvÇ™Ç†ÇÈ
@@ -5982,10 +5984,14 @@ void CGameCallBack::SetEffectByLoad(LPVOID ptr)
 {
 	CCommonDataFile::GAMEEFFECT* lp = (CCommonDataFile::GAMEEFFECT*)ptr;
 
-	for (int layer = 0;layer<m_layerKosuuMax;layer++)
+//	for (int layer = 0;layer<18;layer++)
+	for (int layer = 0; layer < m_layerKosuuMax; layer++)
 	{
-		EFFECT* lpEffect = (EFFECT*)(m_effect->GetEffectDataPointer(layer));
-		*lpEffect = lp->effect[layer];
+		//if (layer != 18)
+		{
+			EFFECT* lpEffect = (EFFECT*)(m_effect->GetEffectDataPointer(layer));
+			*lpEffect = lp->effect[layer];
+		}
 	}
 }
 
@@ -6028,14 +6034,14 @@ void CGameCallBack::SetMessageByLoad(LPVOID ptr)
 	{
 		LPSTR src = &(lp->messageData[i][0]);
 		LPSTR dst = pDoc->GetMessagePointer(i);
-		memcpy(dst,src,256);
+		memcpy(dst,src,1024);
 	}
 
 	for (i=0;i<64;i++)
 	{
 		LPSTR src = &(lp->messageData[i][0]);
 		LPSTR dst2 = pDoc2->GetMessagePointer(i);
-		memcpy(dst2,src,256);
+		memcpy(dst2,src,1024);
 	}
 }
 
@@ -6451,7 +6457,7 @@ void CGameCallBack::GetMessageForSave(LPVOID ptr)
 		{
 			LPSTR src = pDoc->GetMessagePointer(i);
 			int ln = (int)strlen(src);
-			if (ln>254) ln = 254;
+			if (ln>1024-2) ln = 1024-2;
 			memcpy(&(lp->messageData[i][0]),src,ln);
 			lp->messageData[i][ln] = 0;
 			lp->messageData[i][ln+1] = 0;
@@ -6466,7 +6472,7 @@ void CGameCallBack::GetMessageForSave(LPVOID ptr)
 		{
 			LPSTR src = pDoc->GetMessagePointer(i);
 			int ln = (int)strlen(src);
-			if (ln>254) ln = 254;
+			if (ln>1024-2) ln = 1024-2;
 			memcpy(&(lp->messageData[i][0]),src,ln);
 			lp->messageData[i][ln] = 0;
 			lp->messageData[i][ln+1] = 0;
@@ -6570,7 +6576,7 @@ void CGameCallBack::MakeMiniCG(void)
 			checkName[1] = *(name+1);
 			checkName[2] = '\\';
 
-			for (int layer = 0;layer<16;layer++)
+			for (int layer = 0;layer<m_layerKosuuMax;layer++)
 			{
 				//if exist pic
 				LPSTR effectFilename = m_effect->GetExistEffectFileName(layer);
@@ -9678,6 +9684,15 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 		koukaonOnOkFlag = m_koukaonOnseiDontStopFlag;
 	}
 
+	int noWaitSameChara = 0;
+	if (paraKosuu >= 13)
+	{
+		noWaitSameChara = *(pData + 2 + 10);
+	}
+	m_noWaitSameChara[ch] = noWaitSameChara;
+
+
+
 
 	if (m_skipNextCommandFlag || CheckMessageSkipFlag())
 	{
@@ -9704,9 +9719,73 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 						{
 							if (m_scriptVoiceControl->GetLoopWork(ch,1) != -1)
 							{
+								//@@@@@@@@@@@@@@@@@@@@Ç±Ç±Ç…pauseÇ¬Ç¢Ç©Ç∑ÇÈÅH
+
+								if (noWaitSameChara == 0)
+								{
+									int preChannel = -2;
+									if (m_checkSameCharaMustChannel1)
+									{
+										if (ch == 3)
+										{
+											preChannel = -3;
+										}
+									}
+
+									/*
+									char oldFilename[64];
+									oldFilename[0] = 0;
+
+									if (ch >= 0)
+									{
+										memcpy(oldFilename, &m_loopVoiceFileName[ch * 64], 64);
+										oldFilename[62] = 0;
+										oldFilename[63] = 0;
+//										memcpy(&m_loopVoiceFileName[ch * 64], name, fln);/
+//										m_loopVoiceFileName[ch * 64 + fln] = 0;
+//										m_loopVoiceFileName[ch * 64 + fln + 1] = 0;
+
+//										m_voiceExistCount[ch] = 2;
+									}
+									*/
+
+									char check1[4];
+									memcpy(check1, &m_loopVoiceFileName[(ch + preChannel) * 64], 2);
+									check1[2] = 0;
+									check1[3] = 0;
+									char check2[4];
+									memcpy(check2, &m_loopVoiceFileName[(ch) * 64], 2);
+									check2[2] = 0;
+									check2[3] = 0;
+
+									if (_stricmp(check1, check2) == 0)
+									{
+										//is playing?
+//										if (m_scriptVoiceControl->IsPlaying(ch + preChannel))
+										{
+											//											char check3[4];/
+											//											memcpy(check3, oldFilename, 2);
+											//											check3[2] = 0;
+																						//check3[3] = 0;
+											//											if (_stricmp(check2, check3) == 0)
+											{
+												//												m_scriptVoiceControl->Stop(ch);
+											}
+
+
+								//			SetPoolVoiceFlag(ch, true);
+											//											voicePool = true;
+										}
+									}
+
+								}
+
 								m_scriptVoiceControl->Stop(ch,FALSE,m_nextFadeVoice);
 								m_scriptVoiceControl->SetLoopWork(ch,1,-1);
 								m_scriptVoiceControl->SetLoopFlag(ch,FALSE);
+
+								SetPoolVoiceFlag(ch, true);
+
 							}
 						}
 					}
@@ -9719,12 +9798,6 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 	}
 
 
-	int noWaitSameChara = 0;
-	if (paraKosuu >= 13)
-	{
-		noWaitSameChara = *(pData + 2+10);
-	}
-	m_noWaitSameChara[ch] = noWaitSameChara;
 
 //	if ((m_skipNextCommandFlag == FALSE)  && (m_demoFlag == FALSE))
 	if (m_skipNextCommandFlag == FALSE)
@@ -9934,6 +10007,44 @@ OutputDebugString(mes998);
 				//í èÌâπê∫ì¡éÍèàóù
 				if (ch < 2)
 				{
+					int st = ch + 2;
+					int ed = ch + 2;
+					if (m_checkSameCharaMustChannel1)
+					{
+						if (ch == 0)
+						{
+							st = 2;
+							ed = 3;
+						}
+					}
+
+					for (int i = st; i <= ed; i++)
+					{
+						if (m_noWaitSameChara[i] == 0)
+						{
+							if (m_scriptVoiceControl->IsPlaying(i))
+							{
+								//same chara
+								char check1[4];
+								memcpy(check1, &m_loopVoiceFileName[(i) * 64], 2);
+								check1[2] = 0;
+								check1[3] = 0;
+								char check2[4];
+								memcpy(check2, &m_loopVoiceFileName[(ch) * 64], 2);
+								check2[2] = 0;
+								check2[3] = 0;
+
+								if (_stricmp(check1, check2) == 0)
+								{
+									m_scriptVoiceControl->Stop(i);
+									SetPoolVoiceFlag(i, true);
+								}
+
+							}
+						}
+					}
+
+					/*
 					if (m_noWaitSameChara[ch + 2] == 0)
 					{
 						if (m_scriptVoiceControl->IsPlaying(ch + 2))
@@ -9956,6 +10067,7 @@ OutputDebugString(mes998);
 
 						}
 					}
+					*/
 				}
 
 
@@ -9966,8 +10078,19 @@ OutputDebugString(mes998);
 					{
 						//check
 //						memcpy(&m_loopVoiceFileName[ch * 64], name, fln);
+
+						int preChannel = -2;
+						if (m_checkSameCharaMustChannel1)
+						{
+							if (ch == 3)
+							{
+								preChannel = -3;
+							}
+						}
+
+
 						char check1[4];
-						memcpy(check1, &m_loopVoiceFileName[(ch - 2) * 64], 2);
+						memcpy(check1, &m_loopVoiceFileName[(ch + preChannel) * 64], 2);
 						check1[2] = 0;
 						check1[3] = 0;
 						char check2[4];
@@ -9978,7 +10101,7 @@ OutputDebugString(mes998);
 						if (_stricmp(check1, check2) == 0)
 						{
 							//is playing?
-							if (m_scriptVoiceControl->IsPlaying(ch-2))
+							if (m_scriptVoiceControl->IsPlaying(ch + preChannel))
 							{
 								char check3[4];
 								memcpy(check3, oldFilename, 2);
@@ -10241,7 +10364,15 @@ void CGameCallBack::SystemFunctionMusic(int para1,LPVOID para2)
 		{
 			if (paraKosuu>=2) fadeOut = *(pData+1);
 			
-			StopMusic(fadeOut);
+			if (GetSystemParam(NNNPARAM_MUSICSWITCH))
+			{
+				StopMusic(fadeOut);
+			}
+			else
+			{
+				m_musicNumber = -1;
+				m_lastMusicNumber = -1;
+			}
 		}
 		else if (musicNumber == -2)
 		{
@@ -16872,8 +17003,16 @@ void CGameCallBack::CheckAndPlayPoolVoice(void)
 		if (CheckPoolVoiceFlag(ch))
 		{
 			bool b = false;
+			int preChannel = -2;
+			if (m_checkSameCharaMustChannel1 != 0)
+			{
+				if (ch == 3)
+				{
+					preChannel = -3;
+				}
+			}
 
-			if (!m_scriptVoiceControl->IsPlaying(ch - 2))
+			if (!m_scriptVoiceControl->IsPlaying(ch + preChannel))
 			{
 				b = true;
 			}
@@ -16881,7 +17020,7 @@ void CGameCallBack::CheckAndPlayPoolVoice(void)
 			{
 				//check filename
 				char check1[4];
-				memcpy(check1, &m_loopVoiceFileName[(ch - 2) * 64], 2);
+				memcpy(check1, &m_loopVoiceFileName[(ch +preChannel) * 64], 2);
 				check1[2] = 0;
 				check1[3] = 0;
 				char check2[4];

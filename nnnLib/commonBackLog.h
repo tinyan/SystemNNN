@@ -14,7 +14,7 @@ class CPicture;
 class CMyMessage;
 
 #define BACKLOG_KOSUU 256
-#define BACKLOG_LENGTH 256
+#define BACKLOG_LENGTH 1024
 #define VOICEFILE_LENGTH 16
 
 

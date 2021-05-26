@@ -93,7 +93,7 @@ protected:
 
 	int m_messageKosuu;
 	int m_addMessageKosuu;
-	char m_messageData[64][256];
+	char m_messageData[64][1024];
 	int m_messageNumber[64];
 
 	int m_windowOffMouseButton;

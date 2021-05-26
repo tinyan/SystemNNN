@@ -10,7 +10,7 @@
 
 #define MESSAGEKOSUU_MAX 64
 //#define MESSAGEPRINT_MAX 32
-#define MESSAGEBYTE_MAX 256
+#define MESSAGEBYTE_MAX 1024
 
 class CPicture;
 class CGameCallBack;

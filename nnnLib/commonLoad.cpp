@@ -462,7 +462,10 @@ bool CCommonLoad::CheckExistSaveDataOne(int n)
 	m_ppDataFile[0]->LoadHeaderAndPic(n);
 	if (m_ppDataFile[0]->CheckDataExist())
 	{
-		return true;
+		if (m_ppDataFile[0]->CheckLoadOkVersion())
+		{
+			return true;
+		}
 	}
 	return false;
 }

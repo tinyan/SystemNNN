@@ -251,6 +251,7 @@ CCommonSelectMovie::~CCommonSelectMovie()
 
 void CCommonSelectMovie::End(void)
 {
+	ENDDELETECLASS(m_suuji);
 	ENDDELETECLASS(m_pagePrint);
 
 	if (m_miniPic != NULL)

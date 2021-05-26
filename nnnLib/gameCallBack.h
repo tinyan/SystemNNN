@@ -1870,6 +1870,8 @@ protected:
 	bool m_poolVoiceFlag[4];
 	int m_noWaitSameChara[4];
 
+	int m_checkSameCharaMustChannel1;
+
 	int m_useSystemVoice;
 	CNameList** m_systemVoiceList;
 	CNameList** m_buttonVoiceList;

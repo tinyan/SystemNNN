@@ -343,7 +343,7 @@ CCommonSelectPlace::CCommonSelectPlace(CGameCallBack* lpGame,int extMode) : CCom
 	m_placeButtonGroup = NULL;
 	m_useEffectPicKosuu = 3;
 	m_useSuperPicKosuu = 0;
-	if (m_backScriptFlag) m_useEffectPicKosuu = 16;
+	if (m_backScriptFlag) m_useEffectPicKosuu = 32;
 
 	if (m_buttonMode)
 	{
@@ -368,7 +368,7 @@ CCommonSelectPlace::CCommonSelectPlace(CGameCallBack* lpGame,int extMode) : CCom
 		m_autoCannotOk = 0;
 		GetInitGameParam(&m_autoCannotOk,"autoPicCannotOk");
 		GetInitGameParam(&m_autoPicRestartBackScript,"autoPicRestartBackScript");
-		for (int i=0;i<16;i++)
+		for (int i=0;i<32;i++)
 		{
 			m_autoPicLayer[i] = 0;
 			m_autoPicTag[i] = NULL;
@@ -448,7 +448,7 @@ int CCommonSelectPlace::Init(void)
 	m_lastOnButton = -1;
 	if (m_autoPicLoad)
 	{
-		for (int i=0;i<16;i++)
+		for (int i=0;i<32;i++)
 		{
 			if (m_autoPicLayer[i])
 			{
@@ -951,7 +951,7 @@ void CCommonSelectPlace::ParentFinalExitRoutine(void)
 {
 	if (m_autoPicLoad)
 	{
-		for (int i=0;i<16;i++)
+		for (int i=0;i<32;i++)
 		{
 			if (m_autoPicLayer[i])
 			{
@@ -994,7 +994,7 @@ int CCommonSelectPlace::EndMode(void)
 CPicture* CCommonSelectPlace::GetUseOkPicture(void)
 {
 	CPicture* lpPic = NULL;
-	if (m_useEffectPicKosuu < 16)
+	if (m_useEffectPicKosuu < 32)
 	{
 		lpPic = m_game->GetEffectPicture(m_useEffectPicKosuu);
 		m_useEffectPicKosuu++;
@@ -1252,7 +1252,7 @@ void CCommonSelectPlace::LoadAutoPic(int place,BOOL checkRestartFlag)
 	if (m_autoPicLoad == 0) return;
 	if (place == m_lastAutoPic) return;
 
-	for (int i=0;i<16;i++)
+	for (int i=0;i<32;i++)
 	{
 		if (m_autoPicLayer[i])
 		{

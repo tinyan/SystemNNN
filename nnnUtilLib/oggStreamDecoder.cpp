@@ -72,7 +72,7 @@ void COggStreamDecoder::End(void)
 {
 	if (m_decodeStartFlag)
 	{
-		EndDecode();
+	//	EndDecode();
 		m_decodeStartFlag = FALSE;
 	}
 }
@@ -94,7 +94,7 @@ BOOL COggStreamDecoder::StartDecode2(LPVOID file)
 
 	if (m_decodeStartFlag)
 	{
-		EndDecode();
+	//	EndDecode();
 	}
 	m_decodeStartFlag = TRUE;
 	

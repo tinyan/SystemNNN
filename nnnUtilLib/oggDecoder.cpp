@@ -71,7 +71,7 @@ void COggDecoder::End(void)
 {
 	if (m_decodeStartFlag)
 	{
-		EndDecode();
+	//	EndDecode();
 		m_decodeStartFlag = FALSE;
 	}
 }
@@ -112,7 +112,7 @@ int COggDecoder::StartDecode(char* srcData,int dataSize, short* decodedBuffer)
 
 	if (m_decodeStartFlag)
 	{
-		EndDecode();
+	//	EndDecode();
 	}
 	m_decodeStartFlag = TRUE;
 	

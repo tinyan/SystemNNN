@@ -28,7 +28,7 @@ public:
 	void InitParameter(LPVOID lpEffect, int layer = -1);
 
 private:
-	int m_dist[16];
+	int m_dist[32];
 };
 
 #endif

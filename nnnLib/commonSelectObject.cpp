@@ -223,7 +223,7 @@ CCommonSelectObject::CCommonSelectObject(CGameCallBack* lpGame,int extMode) : CC
 		m_autoCannotOk = 0;
 		GetInitGameParam(&m_autoCannotOk,"autoPicCannotOk");
 		GetInitGameParam(&m_autoPicRestartBackScript,"autoPicRestartBackScript");
-		for (int i=0;i<16;i++)
+		for (int i=0;i<32;i++)
 		{
 			m_autoPicLayer[i] = 0;
 			m_autoPicTag[i] = NULL;
@@ -505,7 +505,7 @@ int CCommonSelectObject::Init(void)
 	m_lastOnButton = -1;
 	if (m_autoPicLoad)
 	{
-		for (int i=0;i<16;i++)
+		for (int i=0;i<32;i++)
 		{
 			if (m_autoPicLayer[i])
 			{
@@ -960,7 +960,7 @@ void CCommonSelectObject::ParentFinalExitRoutine(void)
 {
 	if (m_autoPicLoad)
 	{
-		for (int i=0;i<16;i++)
+		for (int i=0;i<32;i++)
 		{
 			if (m_autoPicLayer[i])
 			{
@@ -1081,7 +1081,7 @@ void CCommonSelectObject::LoadAutoPic(int place,BOOL checkRestartFlag)
 	if (m_autoPicLoad == 0) return;
 	if (place == m_lastAutoPic) return;
 
-	for (int i=0;i<16;i++)
+	for (int i=0;i<32;i++)
 	{
 		if (m_autoPicLayer[i])
 		{

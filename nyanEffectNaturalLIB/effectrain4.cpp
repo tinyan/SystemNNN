@@ -109,7 +109,7 @@ void CEffectRain4::Init(LPVOID para,int layer)
 {
 	if (layer == -1)
 	{
-		for (int i=0;i<16;i++)
+		for (int i=0;i<32;i++)
 		{
 			m_dist[i] = 0;
 		}
