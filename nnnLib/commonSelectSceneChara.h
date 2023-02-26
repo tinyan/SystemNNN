@@ -112,10 +112,22 @@ private:
 
 	CSuuji* m_totalPercentSuuji;
 	CSuuji* m_percentSuuji;
+	CSuuji* m_percentSuuji0;
+	CSuuji* m_percentSuuji100;
+
+	int m_changePercentPicFlag;
 
 //	POINT GetButtonZahyo(int n);
 	BOOL CheckOnButton(int n, int mouseX, int mouseY);
 	int GetOnButton(int mouseX,int mouseY);
+
+	int m_kazariPrintFlag;
+	CPicture* m_kazariPic;
+	int m_kazariSizeX;
+	int m_kazariSizeY;
+	int m_kazariPrintX;
+	int m_kazariPrintY;
+	void PrintKazari(int n);
 
 //	int m_buttonSizeX;
 //	int m_buttonSizeY;
@@ -149,6 +161,7 @@ private:
 	POINT GetPicSrcZahyo(int n,BOOL eraseFlag = FALSE);
 
 	int m_checkOnByPicFlag;
+	int m_selectCommonSceneCharaSound;
 
 	void PrintCharaHeart(int n);
 

@@ -880,6 +880,13 @@ public:
 
 	void PlayButtonVoiceByFilename(LPSTR filename);
 	void SetSkipVoiceOffCheck(bool bSkip = true,bool bSkipChara = true);
+
+	virtual void OnDelayEnterSE(int seNumber);
+	virtual void OnDelayExitSE(int seNumber);
+
+	virtual void CalcuDelayEnterExistSE(void);
+
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -1608,6 +1615,9 @@ protected:
 	void SystemFunctionFace(int para1,LPVOID para2);
 	void SystemFunctionMustFace(int para1,LPVOID para2);
 
+	int AdjustDate(int daymonth);
+
+	static int m_daysOfMonth[13];
 
 	int m_configMask;
 
@@ -1888,6 +1898,15 @@ protected:
 
 	bool m_skipVoiceOffCheck;
 	bool m_skipVoiceOffCharaCheck;
+
+	int m_delayEnterSECount;
+	int m_delayExitSECount;
+	int m_delayEnterSENumber;
+	int m_delayExitSENumber;
+	int m_delayEnterSEWait;
+	int m_delayExitSEWait;
+
+
 };
 
 #endif

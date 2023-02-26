@@ -125,6 +125,7 @@ int CCommonConfig::m_n2VolumeSwitchSystemParamTable[]=
 	NNNPARAM_SOUNDVOICESWITCH,
 	0,
 	0,
+	NNNPARAM_TOTALSWITCH,//patch 20221217
 	NNNPARAM_SCRIPTSESWITCH,
 };
 

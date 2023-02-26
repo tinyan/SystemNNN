@@ -236,6 +236,9 @@ CCommonGeneral::CCommonGeneral(CGameCallBack* lpGame)
 
 	m_systemModeList = m_game->GetSystemModeList();
 
+	m_enterSENumber = -1;
+	m_exitSENumber = -1;
+
 //	m_wheel = 0;
 //	m_trig1Mae = TRUE;
 //	m_trig2Mae = TRUE;
@@ -350,6 +353,10 @@ int CCommonGeneral::GeneralInit(void)
 
 	PlayCommonBGM();
 
+	if (m_enterSENumber != -1)
+	{
+		m_game->OnDelayEnterSE(m_enterSENumber);
+	}
 	return rt;
 }
 
@@ -649,11 +656,20 @@ int CCommonGeneral::OmakeGeneralPrint(BOOL mustFlag)
 
 int CCommonGeneral::GeneralEndMode(void)
 {
+	if (m_exitSENumber != -1)
+	{
+		m_game->OnDelayExitSE(m_exitSENumber);
+	}
+
 	return EndMode();
 }
 
 int CCommonGeneral::OmakeGeneralEndMode(void)
 {
+	if (m_exitSENumber != -1)
+	{
+		m_game->OnDelayExitSE(m_exitSENumber);
+	}
 	return EndMode();
 }
 
@@ -838,6 +854,13 @@ void CCommonGeneral::GetEnterExitVoiceFileName(void)
 {
 	if (m_setup == NULL) return;
 
+	//‚±‚±‚ÅEnterExitSEŠÖ˜A‚àˆø‚ÁŠ|‚¯‚é
+	m_enterSENumber = -1;
+	GetInitGameParam(&m_enterSENumber, "enterSENumber");
+	m_exitSENumber = -1;
+	GetInitGameParam(&m_exitSENumber, "exitSENumber");
+
+
 	GetInitGameParam(&m_enterExitVoiceFlag,"enterExitVoiceFlag");
 	if (m_enterExitVoiceFlag == 0) return;
 
@@ -849,6 +872,8 @@ void CCommonGeneral::GetEnterExitVoiceFileName(void)
 
 	m_exitVoiceWaitTime = 5;
 	GetInitGameParam(&m_exitVoiceWaitTime,"exitVoiceWaitTime");
+
+
 }
 
 

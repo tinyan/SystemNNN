@@ -113,6 +113,24 @@ CCommonSelectSceneChara::CCommonSelectSceneChara(CGameCallBack* lpGame) : CCommo
 		GetInitGameParam(&m_cursorColorB,"cursorColorB");
 	}
 
+	m_kazariPrintFlag = 0;
+	GetInitGameParam(&m_kazariPrintFlag, "kazariPrintFlag");
+	m_kazariPic = nullptr;
+	m_kazariSizeX = 29;
+	m_kazariSizeY = 31;
+	m_kazariPrintX = 3;
+	m_kazariPrintY = 5;
+
+	if (m_kazariPrintFlag)
+	{
+		LPSTR kazariFileName = "ta_sigunaru1";
+		GetInitGameString(&kazariFileName, "kazariFilename");
+		m_kazariPic = m_game->GetSystemPicture(kazariFileName);
+		GetInitGameParam(&m_kazariSizeX,"kazariSizeX");
+		GetInitGameParam(&m_kazariSizeY, "kazariSizeY");
+		GetInitGameParam(&m_kazariPrintX, "kazariPrintX");
+		GetInitGameParam(&m_kazariPrintY, "kazariPrintY");
+	}
 
 	m_cursorPrintType = 1;
 	m_cursorPic = NULL;
@@ -277,6 +295,11 @@ CCommonSelectSceneChara::CCommonSelectSceneChara(CGameCallBack* lpGame) : CCommo
 		m_totalPercentSuuji = new CSuuji(pic,m_totalPercentFontSizeX,m_totalPercentFontSizeY,3,m_totalPercentFontNextX);
 	}
 
+	m_percentSuuji0 = nullptr;
+	m_percentSuuji100 = nullptr;
+	m_changePercentPicFlag = 0;
+	GetInitGameParam(&m_changePercentPicFlag, "changePercentPicFlag");
+
 	if (m_charaPercentPrintFlag)
 	{
 		GetInitGameParam(&m_charaPercentPercentFlag,"percentPercentFlag");
@@ -290,6 +313,22 @@ CCommonSelectSceneChara::CCommonSelectSceneChara(CGameCallBack* lpGame) : CCommo
 		GetInitGameParam(&m_percentFontSizeY,"percentSizeY");
 		GetInitGameParam(&m_percentFontNextX,"percentNextX");
 		m_percentSuuji = new CSuuji(pic,m_percentFontSizeX,m_percentFontSizeY,3,m_percentFontNextX);
+
+
+		if (m_changePercentPicFlag)
+		{
+			name = m_defaultFontFileName;
+			GetInitGameString(&name, "fileNamePercentPic0");
+			pic = m_game->GetSystemPicture(name);
+			m_percentSuuji0 = new CSuuji(pic, m_percentFontSizeX, m_percentFontSizeY, 3, m_percentFontNextX);
+
+			name = m_defaultFontFileName;
+			GetInitGameString(&name, "fileNamePercentPic100");
+			pic = m_game->GetSystemPicture(name);
+			m_percentSuuji100 = new CSuuji(pic, m_percentFontSizeX, m_percentFontSizeY, 3, m_percentFontNextX);
+		}
+
+
 	}
 
 	//Šg’£—p
@@ -343,6 +382,9 @@ CCommonSelectSceneChara::CCommonSelectSceneChara(CGameCallBack* lpGame) : CCommo
 		m_heartPic = new CPicture(filename);
 	}
 
+	m_selectCommonSceneCharaSound = -1;
+	GetInitGameParam(&m_selectCommonSceneCharaSound,"selectSound");
+
 //	m_back = m_game->GetBackButton();
 	
 	m_startupWait = 2;
@@ -364,12 +406,15 @@ CCommonSelectSceneChara::~CCommonSelectSceneChara()
 
 void CCommonSelectSceneChara::End(void)
 {
+//	ENDDELETECLASS(m_kazariPic);
 	ENDDELETECLASS(m_cursorPic);
 	ENDDELETECLASS(m_heartPic);
 	DELETEARRAY(m_sceneHMode);
 	DELETEARRAY(m_zahyo);
 	ENDDELETECLASS(m_totalPercentSuuji);
 	ENDDELETECLASS(m_percentSuuji);
+	ENDDELETECLASS(m_percentSuuji0);
+	ENDDELETECLASS(m_percentSuuji100);
 	DELETEARRAY(m_charaVoiceFileName);
 }
 
@@ -486,6 +531,10 @@ int CCommonSelectSceneChara::Init(void)
 		{
 			if ((m_pictureMode == 0) || (m_pictureMode == 1))
 			{
+				if (m_kazariPrintFlag)
+				{
+					PrintKazari(i);
+				}
 				if (m_charaPercentPrintFlag)
 				{
 					PrintCharaPercent(i);
@@ -601,7 +650,14 @@ int CCommonSelectSceneChara::Calcu(void)
 		{
 			m_selectedNumber = m_nowSelectNumber;
 			m_count = m_length;
-			m_game->PlayCommonSystemSound(COMMON_SYSTEMSOUND_OK2);
+			if (m_selectCommonSceneCharaSound != -1)
+			{
+				m_game->PlayCommonSystemSound(m_selectCommonSceneCharaSound-1);
+			}
+			else
+			{
+				m_game->PlayCommonSystemSound(COMMON_SYSTEMSOUND_OK2);
+			}
 			return -1;
 		}
 	}
@@ -769,6 +825,11 @@ void CCommonSelectSceneChara::EraseChara(int n)
 		m_commonParts->Blt(pt.x,pt.y,srcX,srcY,m_sizeX,m_sizeY,TRUE);
 	}
 
+	if (m_kazariPrintFlag)
+	{
+		PrintKazari(n);
+	}
+
 	if (m_charaPercentPrintFlag)
 	{
 		PrintCharaPercent(n);
@@ -808,14 +869,23 @@ void CCommonSelectSceneChara::PrintChara(int n)
 //		srcY = (n / m_picNumberX) * (m_sizeY * 2) + m_sizeY;
 //	}
 
+
+
+
 	if ((m_pictureMode == 1) || (m_pictureMode == 2) || (m_pictureMode == 3))
 	{
 		m_commonParts->Blt(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
+
+		if (m_kazariPrintFlag)
+		{
+			PrintKazari(n);
+		}
 		if (m_charaPercentPrintFlag)
 		{
 			PrintCharaPercent(n);
 		}
 	}
+	
 
 	if ((m_pictureMode == 2) || (m_pictureMode == 3))
 	{
@@ -861,8 +931,37 @@ void CCommonSelectSceneChara::PrintChara(int n)
 	//return m_buttonZahyo[n];
 //}
 
+void CCommonSelectSceneChara::PrintKazari(int n)
+{
+	if (m_kazariPrintFlag)
+	{
+		int ps = 0;
+		if (m_sceneDataControl != NULL)
+		{
+			ps = m_sceneDataControl->GetScenePercent(n);
+		}
 
+		int picNumber = 0;
 
+		if (ps == 0)
+		{
+			picNumber = 1;
+		}
+		else if (ps < 100)
+		{
+			picNumber = 2;
+		}
+		else
+		{
+			picNumber = 3;
+		}
+
+		POINT pt = GetZahyo(n);
+
+		m_kazariPic->Blt(pt.x+m_kazariPrintX,pt.y+m_kazariPrintY, m_kazariSizeX * picNumber, 0, m_kazariSizeX, m_kazariSizeY, TRUE);
+	}
+
+}
 
 
 void CCommonSelectSceneChara::PrintCharaHeart(int n)
@@ -910,10 +1009,29 @@ void CCommonSelectSceneChara::PrintCharaPercent(int n)
 	int x = pt.x + m_percentPrintX;
 	int y = pt.y + m_percentPrintY;
 
-	m_percentSuuji->Print(x,y,ps);
+	CSuuji* suuji = m_percentSuuji;
+	if (m_changePercentPicFlag)
+	{
+		if (ps == 0)
+		{
+			if (m_percentSuuji0 != nullptr)
+			{
+				suuji = m_percentSuuji0;
+			}
+		}
+		else if (ps == 100)
+		{
+			if (m_percentSuuji100 != nullptr)
+			{
+				suuji = m_percentSuuji100;
+			}
+		}
+	}
+
+	suuji->Print(x,y,ps);
 	if (m_charaPercentPercentFlag)
 	{
-		m_percentSuuji->Put(x+m_percentFontNextX*3,y,12,0);
+		suuji->Put(x+m_percentFontNextX*3,y,12,0);
 	}
 }
 

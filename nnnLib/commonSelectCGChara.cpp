@@ -97,7 +97,7 @@ CCommonSelectCGChara::CCommonSelectCGChara(CGameCallBack* lpGame) : CCommonGener
 		m_cgCharaKosuu = m_cgDataControl->GetCGCharaKosuu();
 	}
 
-	LoadSetupFile("selectcgchara",32);
+	LoadSetupFile("selectcgchara",8192);
 
 	GetBackExecSetup();
 
@@ -244,6 +244,14 @@ CCommonSelectCGChara::CCommonSelectCGChara(CGameCallBack* lpGame) : CCommonGener
 	}
 
 
+	m_percentSuuji0 = nullptr;
+	m_percentSuuji100 = nullptr;
+	m_percentPrintDelta = nullptr;
+	m_useCharaPercentPrintDeltaFlag = 0;
+	GetInitGameParam(&m_useCharaPercentPrintDeltaFlag, "useCharaPercentPrintDeltaFlag");
+
+	m_changePercentPicFlag = 0;
+	GetInitGameParam(&m_changePercentPicFlag, "changePercentPicFlag");
 
 	if (m_charaPercentPrintFlag)
 	{
@@ -259,6 +267,38 @@ CCommonSelectCGChara::CCommonSelectCGChara(CGameCallBack* lpGame) : CCommonGener
 		GetInitGameParam(&m_percentFontSizeY,"percentSizeY");
 		GetInitGameParam(&m_percentFontNextX,"percentNextX");
 		m_percentSuuji = new CSuuji(pic,m_percentFontSizeX,m_percentFontSizeY,3,m_percentFontNextX);
+
+		if (m_changePercentPicFlag)
+		{
+			name = m_defaultPercentFileName;
+			GetInitGameString(&name, "fileNamePercentPic0");
+			pic = m_game->GetSystemPicture(name);
+			m_percentSuuji0 = new CSuuji(pic, m_percentFontSizeX, m_percentFontSizeY, 3, m_percentFontNextX);
+
+			name = m_defaultPercentFileName;
+			GetInitGameString(&name, "fileNamePercentPic100");
+			pic = m_game->GetSystemPicture(name);
+			m_percentSuuji100 = new CSuuji(pic, m_percentFontSizeX, m_percentFontSizeY, 3, m_percentFontNextX);
+		}
+
+		if (m_useCharaPercentPrintDeltaFlag)
+		{
+			m_percentPrintDelta = new int[m_cgCharaKosuu*2];
+			for (int i = 0; i < m_cgCharaKosuu; i++)
+			{
+				char namex[256];
+				char namey[256];
+				wsprintf(namex, "charaPercentDeltaX%d", i + 1);
+				wsprintf(namey, "charaPercentDeltaY%d", i + 1);
+				int x = m_percentPrintX;
+				int y = m_percentPrintY;
+				GetInitGameParam(&x, namex);
+				GetInitGameParam(&y, namey);
+				m_percentPrintDelta[i * 2 + 0] = x;
+				m_percentPrintDelta[i * 2 + 1] = y;
+			}
+
+		}
 	}
 
 
@@ -309,6 +349,8 @@ CCommonSelectCGChara::CCommonSelectCGChara(CGameCallBack* lpGame) : CCommonGener
 		}
 	}
 
+	m_selectCommonCGCharaSound = -1;
+	GetInitGameParam(&m_selectCommonCGCharaSound, "selectSound");
 
 
 	m_length = 8;
@@ -347,9 +389,13 @@ void CCommonSelectCGChara::End(void)
 	DELETEARRAY(m_zahyo);
 	ENDDELETECLASS(m_totalPercentSuuji);
 	ENDDELETECLASS(m_percentSuuji);
+	ENDDELETECLASS(m_percentSuuji0);
+	ENDDELETECLASS(m_percentSuuji100);
 
 //	ENDDELETECLASS(m_suuji);
 	DELETEARRAY(m_charaVoiceFileName);
+	DELETEARRAY(m_percentPrintDelta);
+
 //	ENDDELETECLASS(m_menu);
 }
 
@@ -547,7 +593,14 @@ int CCommonSelectCGChara::Calcu(void)
 		{
 			m_selectedNumber = m_nowSelectNumber;
 			m_count = m_length;
-			m_game->PlayCommonSystemSound(COMMON_SYSTEMSOUND_OK2);
+			if (m_selectCommonCGCharaSound != -1)
+			{
+				m_game->PlayCommonSystemSound(m_selectCommonCGCharaSound-1);
+			}
+			else
+			{
+				m_game->PlayCommonSystemSound(COMMON_SYSTEMSOUND_OK2);
+			}
 			return -1;
 		}
 	}
@@ -832,10 +885,35 @@ void CCommonSelectCGChara::PrintCharaPercent(int n)
 	int x = pt.x + m_percentPrintX;
 	int y = pt.y + m_percentPrintY;
 
-	m_percentSuuji->Print(x,y,ps);
+	if (m_useCharaPercentPrintDeltaFlag)
+	{
+		x = pt.x + m_percentPrintDelta[n*2+0];
+		y = pt.y + m_percentPrintDelta[n*2+1];
+	}
+
+	CSuuji* suuji = m_percentSuuji;
+	if (m_changePercentPicFlag)
+	{
+		if (ps == 0)
+		{
+			if (m_percentSuuji0 != nullptr)
+			{
+				suuji = m_percentSuuji0;
+			}
+		}
+		else if (ps == 100)
+		{
+			if (m_percentSuuji100 != nullptr)
+			{
+				suuji = m_percentSuuji100;
+			}
+		}
+	}
+
+	suuji->Print(x,y,ps);
 	if (m_charaPercentPercentFlag)
 	{
-		m_percentSuuji->Put(x+m_percentFontNextX*3,y,12,0);
+		suuji->Put(x+m_percentFontNextX*3,y,12,0);
 	}
 }
 

@@ -93,7 +93,14 @@ protected:
 	int m_percentFontSizeY;
 	int m_percentFontNextX;
 
-//	CMyButtonGroup* m_menu;
+	int* specialPercentPrintX;
+	int* specialPercentPrintY;
+	//	CMyButtonGroup* m_menu;
+
+	int m_changePercentPicFlag;
+	int* m_percentPrintDelta;
+	int m_useCharaPercentPrintDeltaFlag;
+
 
 	char** m_charaVoiceFileName;
 
@@ -102,6 +109,8 @@ protected:
 
 	CSuuji* m_totalPercentSuuji;
 	CSuuji* m_percentSuuji;
+	CSuuji* m_percentSuuji0;
+	CSuuji* m_percentSuuji100;
 
 //	POINT GetButtonZahyo(int n);
 	BOOL CheckOnButton(int n, int mouseX, int mouseY);
@@ -140,8 +149,11 @@ protected:
 	int* m_charaExistCheckPercent;
 	int* m_charaExistCheckVar;
 
+	int m_selectCommonCGCharaSound;
 
 	CCGDataControl* m_cgDataControl;
+
+
 private:
 };
 

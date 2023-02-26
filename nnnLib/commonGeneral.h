@@ -364,6 +364,9 @@ protected:
 	int m_dokuritsuPrintFlag;
 	int* m_dokuristuPrintModeTable;
 
+	int m_enterSENumber;
+	int m_exitSENumber;
+
 
 private:
 	void GeneralEnd(void);

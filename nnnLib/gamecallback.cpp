@@ -309,6 +309,10 @@ char CGameCallBack::m_defaultOoptionOffVarName[] = "オプションオフ";
 char CGameCallBack::m_defaultStartMessage[] = "Initializing..";
 
 
+int CGameCallBack::m_daysOfMonth[13] =
+{
+	0,	31,29,31,30,31,30,31,31,30,31,30,31,
+};
 
 
 char CGameCallBack::m_errorName[] = "エラー名";
@@ -440,6 +444,13 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 	m_specialVoiceName = NULL;
 
+	m_delayEnterSECount = 0;
+	m_delayExitSECount = 0;
+	m_delayEnterSEWait = 20;
+	m_delayExitSEWait = 5;
+	m_delayEnterSENumber = -1;
+	m_delayExitSENumber = -1;
+
 
 	for (int i=0;i<LAYER_KOSUU_MAX;i++)
 	{
@@ -516,6 +527,16 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 	m_nextFadeSe = 0;
 	m_nextFadeVoice = 0;
+
+
+	m_lastFilmName[0] = 0;
+	m_lastStoryName[0] = 0;
+
+	for (int i = 0; i < 8; i++)
+	{
+		m_loopVoiceFileName[i * 64] = 0;
+	}
+
 }
 
 
@@ -990,6 +1011,8 @@ void CGameCallBack::GeneralCreate(void)
 
 
 
+	GetInitGameParam(&m_delayEnterSEWait, "delayEnterSEWait");
+	GetInitGameParam(&m_delayExitSEWait, "delayExitSEWait");
 
 
 	m_clearAutoAfterLoad = 0;
@@ -3948,6 +3971,16 @@ void CGameCallBack::ReceiveUserFunction0(int cmd, int paraKosuu, int* paraPtr)
 {
 	BOOL proceed = FALSE;
 
+	if (m_userFunction == m_adjustDateFunction)
+	{
+		int d = GetVarData(m_dayMonthVar);
+		d = AdjustDate(d);
+		SetVarData(m_dayMonthVar, d);
+
+		//OutputDebugString("adjustdate");
+	}
+
+
 	if (cmd == m_stopF5Function)
 	{
 		m_skipF4Mode = FALSE;
@@ -5944,7 +5977,7 @@ void CGameCallBack::SetVarByLoad(LPVOID ptr)
 	CCommonDataFile::GAMEVAR* lp = (CCommonDataFile::GAMEVAR*)ptr;
 
 	int varType = GetVarType();
-	if (varType == 0)
+	//if (varType == 0)
 	for (int i=0;i<100;i++)
 	{
 		m_var[i] = lp->var[i];
@@ -12516,6 +12549,8 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 
 	SetReturnCode(-1);
 
+	CalcuDelayEnterExistSE();
+
 	BeforeCalcu();
 	CCommonGeneral* general = m_general[GetGameMode()];
 	if (general != NULL) SetReturnCode(general->GeneralCalcu());
@@ -17206,6 +17241,63 @@ void CGameCallBack::SetSkipVoiceOffCheck(bool bSkip,bool bSkipChara)
 {
 	m_skipVoiceOffCheck = bSkip;
 	m_skipVoiceOffCharaCheck = bSkipChara;
+}
+
+
+int CGameCallBack::AdjustDate(int daymonth)
+{
+	int month = daymonth / 100;
+	int day = daymonth % 100;
+
+	if (day > m_daysOfMonth[month])
+	{
+		day -= m_daysOfMonth[month];
+		month++;
+	}
+
+	return month * 100 + day;
+}
+
+void CGameCallBack::OnDelayEnterSE(int seNumber)
+{
+	m_delayEnterSENumber = seNumber;
+	m_delayEnterSECount = m_delayEnterSEWait;
+
+}
+void CGameCallBack::OnDelayExitSE(int seNumber)
+{
+	m_delayExitSENumber = seNumber;
+	m_delayExitSECount = m_delayExitSEWait;
+}
+
+void CGameCallBack::CalcuDelayEnterExistSE(void)
+{
+	if (m_delayEnterSENumber != -1)
+	{
+		if (m_delayEnterSECount > 0)
+		{
+			m_delayEnterSECount--;
+			if (m_delayEnterSECount <= 0)
+			{
+				PlaySystemSound(m_delayEnterSENumber-1);
+				m_delayEnterSENumber = -1;
+			}
+		}
+	}
+
+	if (m_delayExitSENumber != -1)
+	{
+		if (m_delayExitSECount > 0)
+		{
+			m_delayExitSECount--;
+			if (m_delayExitSECount <= 0)
+			{
+				PlaySystemSound(m_delayExitSENumber-1);
+				m_delayExitSENumber = -1;
+			}
+		}
+	}
+
 }
 
 /*_*/
