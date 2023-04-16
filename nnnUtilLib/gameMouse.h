@@ -40,6 +40,7 @@ public:
 	void SetZanzouKosuuMax(int mx);
 	POINT GetMouseHotPoint(void);
 
+	void SetHadohouType(int type);
 protected:
 	int m_hotPointX;
 	int m_hotPointY;
@@ -84,6 +85,29 @@ protected:
 
 	POINT m_kira[30][10];
 	POINT m_kiraSpeed[30][10];
+
+	int m_hadohouType;
+	int m_hadohouKosuu;
+	int* m_hadohouX;
+	int* m_hadohouY;
+	int* m_hadohouCount;
+	int* m_hadohouSpeed;
+
+	int m_hadohouColorR1;
+	int m_hadohouColorG1;
+	int m_hadohouColorB1;
+	int m_hadohouColorR2;
+	int m_hadohouColorG2;
+	int m_hadohouColorB2;
+	int m_hadohouSizeMin;
+	int m_hadohouSizeMax;
+	int m_hadohouTime;
+
+	void InitHadohou(void);
+	void CalcuMouseHadohou(void);
+	void PrintMouseHadohou(int mouseX, int mouseY);
+	void SetHadohou(int n);
+
 private:
 
 };

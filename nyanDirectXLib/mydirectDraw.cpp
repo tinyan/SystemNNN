@@ -1302,8 +1302,8 @@ BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
 	m_printX = x;
 	m_printY = y;
 
-	m_printX = rc.left;
-	m_printY = rc.top;
+	m_printX = rc.left;// +m_edgeX;
+	m_printY = rc.top;// +m_edgeY;// +m_menuBarY;
 
 
 

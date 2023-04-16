@@ -40,7 +40,7 @@ public:
 
 	int GetCGBlockNumber(int cgCharaNumber,int cgNumber);
 
-private:
+protected:
 //	LPSTR m_filenameBG;
 	LPSTR m_filenameAdd;
 	int m_addPicFlag;

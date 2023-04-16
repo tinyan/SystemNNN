@@ -348,6 +348,7 @@ int CCommonLoadSave::Init(void)
 	{
 		LoadUpDownButtonPic();
 		m_updownBack->Init();
+		m_updownBack->SetPage(m_page);
 	}
 	else if (m_pageMode == 2)
 	{

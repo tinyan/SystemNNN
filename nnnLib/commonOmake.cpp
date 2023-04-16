@@ -572,9 +572,13 @@ int CCommonOmake::Calcu(void)
 		int st = CCommonButton::GetButtonStatus(rt);
 		int requestSoundFlag = CCommonButton::CheckRequestSound(rt);
 		int sound = 0;
+		int voice = 0;
+
 		if (requestSoundFlag)
 		{
 			sound = CCommonButton::GetButtonSound(rt);
+			voice = CCommonButton::GetButtonVoice(rt);
+
 		}
 		int rt2 = NNNBUTTON_NOTHING;
 		if (m_allOnButtonFlag)
@@ -584,6 +588,7 @@ int CCommonOmake::Calcu(void)
 			{
 				requestSoundFlag = 1;
 				sound = CCommonButton::GetButtonSound(rt2);
+				voice = CCommonButton::GetButtonVoice(rt);
 			}
 		}
 
@@ -600,6 +605,10 @@ int CCommonOmake::Calcu(void)
 			if (sound > 0)
 			{
 				m_game->PlaySystemSound(sound - 1);
+			}
+			if (voice > 0)
+			{
+				m_game->PlayButtonVoice(voice);
 			}
 		}
 
@@ -715,6 +724,7 @@ int CCommonOmake::Calcu(void)
 				}
 				else
 				{
+					CreateExitScreen();
 					m_game->InitNewGame(FALSE,FALSE,varNumber,nm - m_basicButtonKosuu + 1);
 					m_game->SetYoyaku();
 					return -1;

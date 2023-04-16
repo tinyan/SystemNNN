@@ -295,6 +295,7 @@ int CCommonGeneral::GeneralInit(void)
 	ClearKeyMove();
 
 	m_mouseStatus->Init();
+	m_game->SetSpecialMouseType(0);
 
 	m_enterVoiceCount = m_enterVoiceWaitTime;
 	m_exitVoiceCount = 0;
@@ -393,7 +394,7 @@ int CCommonGeneral::GeneralCalcu(void)
 			}
 		}
 
-
+		/*
 		if (m_exitVoiceCount > 0)
 		{
 			m_exitVoiceCount--;
@@ -405,6 +406,7 @@ int CCommonGeneral::GeneralCalcu(void)
 				}
 			}
 		}
+		*/
 	}
 
 
@@ -661,6 +663,16 @@ int CCommonGeneral::GeneralEndMode(void)
 		m_game->OnDelayExitSE(m_exitSENumber);
 	}
 
+	if (m_enterExitVoiceFlag)
+	{
+		if (m_exitVoiceWaitTime > 0)
+		{
+			if (m_exitVoiceFileName != nullptr)
+			{
+				m_game->OnDelayExitVoice(m_exitVoiceFileName, m_exitVoiceWaitTime);
+			}
+		}
+	}
 	return EndMode();
 }
 

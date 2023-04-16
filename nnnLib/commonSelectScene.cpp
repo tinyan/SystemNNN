@@ -216,6 +216,17 @@ CCommonSelectScene::CCommonSelectScene(CGameCallBack* lpGame) : CCommonGeneral(l
 	m_pagePrint = new CPagePrint(m_setup,lpBG);
 
 
+	m_addMessagePrintX = 2;
+	m_addMessagePrintY = 2;
+	m_addMessageFontSize = 16;
+	GetInitGameParam(&m_addMessagePrintX, "addMessagePrintX");
+	GetInitGameParam(&m_addMessagePrintY, "addMessagePrintY");
+	GetInitGameParam(&m_addMessageFontSize, "addMessageFontSize");
+
+
+
+
+
 //	m_pagePrintFlag = 0;
 //	m_pageMaxPrintFlag = 0;
 //	m_slashPrintFlag = 0;
@@ -1153,7 +1164,9 @@ void CCommonSelectScene::PrintAllMiniPic(void)
 								{
 									if (m_appearCount >= m_appearCountMax)
 									{
-										m_message->PrintMessage(putX + 2, putY + 2 + 16 * k, mes, 16, 255, 255, 255, 1, 16, 0);
+									//	m_message->PrintMessage(putX + 2, putY + 2 + 16 * k, mes, 16, 255, 255, 255, 1, 16, 0);
+										m_message->PrintMessage(putX + m_addMessagePrintX, putY + m_addMessagePrintY + m_addMessageFontSize * k, mes, m_addMessageFontSize, 255, 255, 255, 1, m_addMessageFontSize, 0);
+
 									}
 								}
 							}

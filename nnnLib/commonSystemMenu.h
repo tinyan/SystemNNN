@@ -228,6 +228,11 @@ protected:
 
 	int m_noSaveDataToMaskMenu;
 
+	int m_changeSkipModeMenu;
+	int m_changeSkipSrcNX;
+	int m_changeSkipSrcNY;
+	int m_noChangeSkipSrcNX;
+	int m_noChangeSkipSrcNY;
 private:
 };
 

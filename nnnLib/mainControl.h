@@ -66,6 +66,8 @@ public:
 	static int GetClientOffsetX(void);
 	static int GetClientOffsetY(void);
 
+	void ReCalcuClientOffset();
+
 protected:
 	HANDLE m_eventHandle[16];
 	HANDLE m_threadHandle[16];

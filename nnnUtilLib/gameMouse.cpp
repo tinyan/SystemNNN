@@ -3,6 +3,7 @@
 //
 
 #include <windows.h>
+#include <math.h>
 
 #include "..\nyanLib\include\commonMacro.h"
 #include "..\nyanLib\include\myGraphics.h"
@@ -49,6 +50,46 @@ CGameMouse::CGameMouse(CTaihi* lpTaihi, int taihiLayer) : CFloatingLayer(lpTaihi
 	int specialMode = 0;
 	GetInitGameParam(&specialMode,"specialMode");
 	SetSpecialMode(specialMode);
+
+
+	m_hadohouType = 0;
+	m_hadohouKosuu = 16;
+	m_hadohouX = nullptr;
+	m_hadohouY = nullptr;
+	m_hadohouCount = nullptr;
+	m_hadohouSpeed = nullptr;
+	
+	m_hadohouColorR1 = 55;
+	m_hadohouColorG1 = 104;
+	m_hadohouColorB1 = 123;
+	m_hadohouColorR2 = 122;
+	m_hadohouColorG2 = 77;
+	m_hadohouColorB2 = 96;
+	m_hadohouSizeMax = 14;
+	m_hadohouSizeMin = 2;
+	m_hadohouTime = 100;
+
+	if (m_specialMode == 3)
+	{
+		GetInitGameParam(&m_hadohouKosuu,"hadohouKosuu");
+		m_hadohouX = new int[m_hadohouKosuu];
+		m_hadohouY = new int[m_hadohouKosuu];
+		m_hadohouCount = new int[m_hadohouKosuu];
+		m_hadohouSpeed = new int[m_hadohouKosuu];
+
+		GetInitGameParam(&m_hadohouColorR1, "hadohouColorR1");
+		GetInitGameParam(&m_hadohouColorG1, "hadohouColorG1");
+		GetInitGameParam(&m_hadohouColorB1, "hadohouColorB1");
+		GetInitGameParam(&m_hadohouColorR1, "hadohouColorR2");
+		GetInitGameParam(&m_hadohouColorG1, "hadohouColorG2");
+		GetInitGameParam(&m_hadohouColorB1, "hadohouColorB2");
+		GetInitGameParam(&m_hadohouSizeMax, "hadohouSizeMax");
+		GetInitGameParam(&m_hadohouSizeMin, "hadohouSizeMin");
+		GetInitGameParam(&m_hadohouTime, "hadohouTime");
+
+		InitHadohou();
+	}
+
 
 
 	m_hotPointX = 0;
@@ -146,6 +187,12 @@ void CGameMouse::End(void)
 	ENDDELETECLASS(m_mousePic);
 	ENDDELETECLASS(m_animeControl);
 	DELETEARRAY(m_ppMouseFileName);
+
+	DELETEARRAY(m_hadohouX);
+	DELETEARRAY(m_hadohouY);
+	DELETEARRAY(m_hadohouCount);
+	DELETEARRAY(m_hadohouSpeed);
+
 }
 
 void CGameMouse::CalcuMouseAnime(int count)
@@ -318,6 +365,11 @@ void CGameMouse::PrintSpecialMode(int putX,int putY, int type,int pat1,int pat2,
 		}
 	}
 
+	//‹ŒåKåN-
+	if (m_specialMode == 3)
+	{
+		CalcuMouseHadohou();
+	}
 
 	if (m_specialMode == 1)	//Žc‘œ
 	{
@@ -408,6 +460,12 @@ void CGameMouse::PrintSpecialMode(int putX,int putY, int type,int pat1,int pat2,
 			}
 		}
 	}
+
+	if (m_specialMode == 3)
+	{
+		PrintMouseHadohou(putX,putY);
+	}
+
 }
 
 
@@ -423,4 +481,129 @@ POINT CGameMouse::GetMouseHotPoint(void)
 	pt.x = m_hotPointX;
 	pt.y = m_hotPointY;
 	return pt;
+}
+
+
+void CGameMouse::SetHadohouType(int type)
+{
+	m_hadohouType = type;
+}
+
+
+void CGameMouse::InitHadohou(void)
+{
+	for (int i = 0; i < m_hadohouKosuu; i++)
+	{
+		SetHadohou(i);
+		m_hadohouCount[i] *= (rand() % 100);
+		m_hadohouCount[i] /= 100;
+		m_hadohouCount[i] += 3;
+		if (m_hadohouCount[i] > m_hadohouTime) m_hadohouCount[i] = m_hadohouTime;
+	}
+}
+
+void CGameMouse::CalcuMouseHadohou(void)
+{
+	for (int i = 0; i < m_hadohouKosuu; i++)
+	{
+		int c = m_hadohouCount[i];
+		c -= m_hadohouSpeed[i];
+		m_hadohouCount[i] = c;
+		if (c <= 0) SetHadohou(i);
+	}
+}
+
+void CGameMouse::PrintMouseHadohou(int mouseX, int mouseY)
+{
+	int* screen = CMyGraphics::GetScreenBuffer();
+	int screenSizeX = CMyGraphics::GetScreenSizeX();
+	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+	int r1 = m_hadohouColorR1;
+	int g1 = m_hadohouColorG1;
+	int b1 = m_hadohouColorB1;
+
+	int r2 = m_hadohouColorR2;
+	int g2 = m_hadohouColorG2;
+	int b2 = m_hadohouColorB2;
+
+
+	BOOL revFlag = FALSE;
+	if (m_hadohouType != 0)
+	{
+		revFlag = 1;
+	}
+
+
+	if (revFlag)
+	{
+		r2 = rand() & 0xff;
+		g2 = rand() & 0xff;
+		b2 = rand() & 0xff;
+	}
+
+	for (int i = 0; i < m_hadohouKosuu; i++)
+	{
+		int c = m_hadohouCount[i];
+		int x = m_hadohouX[i];
+		int y = m_hadohouY[i];
+
+		if (revFlag) c = m_hadohouTime - c;
+
+		x *= c;
+		x /= m_hadohouTime * 100;
+
+		y *= c;
+		y /= m_hadohouTime * 100;
+
+		int putX = mouseX + x;
+		int putY = mouseY + y;
+
+		if ((putX >= 0) && (putX < screenSizeX) && (putY >= 0) && (putY < screenSizeY))
+		{
+			int* dst = screen + screenSizeX * putY + putX;
+			int org = *dst;
+
+			int r = r1 + ((r2 - r1) * c) / m_hadohouTime;
+			int g = g1 + ((g2 - g1) * c) / m_hadohouTime;
+			int b = b1 + ((b2 - b1) * c) / m_hadohouTime;
+
+			int r0 = (org >> 16) & 0xff;
+			int g0 = (org >> 8) & 0xff;
+			int b0 = (org) & 0xff;
+
+			r += r0;
+			g += g0;
+			b += b0;
+			if (r > 255) r = 255;
+			if (g > 255) g = 255;
+			if (b > 255) b = 255;
+
+
+
+			int col = (r << 16) | (g << 8) | b;
+
+
+			*dst = col;
+		}
+	}
+}
+
+
+void CGameMouse::SetHadohou(int n)
+{
+	double th = (double)(rand() % 360);
+	th *= 3.14159 * 2;
+	th /= 360.0;
+
+	int r = (rand() % (m_hadohouSizeMin * 100)) + (m_hadohouSizeMax-m_hadohouSizeMin) * 100;
+	double c = cos(th) * r;
+	double s = sin(th) * r;
+
+	m_hadohouX[n] = (int)(c + 0.5);
+	m_hadohouY[n] = (int)(s + 0.5);
+
+	int tm2 = (m_hadohouTime * 2) / 10;
+	m_hadohouCount[n] = (m_hadohouTime - tm2) + (rand() % (tm2-1));
+	m_hadohouSpeed[n] = 6 + (rand() % 6);
 }

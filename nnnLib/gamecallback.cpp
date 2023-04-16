@@ -1014,6 +1014,9 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&m_delayEnterSEWait, "delayEnterSEWait");
 	GetInitGameParam(&m_delayExitSEWait, "delayExitSEWait");
 
+	m_delayExitVoiceFilename = nullptr;
+	m_delayExitVoiceCount = 0;
+
 
 	m_clearAutoAfterLoad = 0;
 	GetInitGameParam(&m_clearAutoAfterLoad, "clearAutoAfterLoad");
@@ -1581,9 +1584,10 @@ void CGameCallBack::GeneralCreate(void)
 	m_windowX = m_systemFile->m_systemdata.windowX;
 	m_windowY = m_systemFile->m_systemdata.windowY;
 
+	
 	int windowAdjustFlag = 1;
 	GetInitGameParam(&windowAdjustFlag,"windowAdjustFlag");
-	if (windowAdjustFlag)
+	if ((windowAdjustFlag) && (m_systemFile->m_systemdata.fullScreenFlag == 0))
 	{
 		int	desktopWindowSizeX = GetSystemMetrics(SM_CXVIRTUALSCREEN);
 		int desktopWindowSizeY = GetSystemMetrics(SM_CYVIRTUALSCREEN);
@@ -2047,6 +2051,8 @@ else
 	m_holidayVar = -1;
 	m_weekVar = -1;
 
+	m_notUseYearVar = 0;
+	GetInitGameParam(&m_notUseYearVar,"notUseYearVar");
 	m_varNumber = new CVarNumber(m_varList);
 	if (m_noScriptFlag == 0)
 	{
@@ -3971,7 +3977,7 @@ void CGameCallBack::ReceiveUserFunction0(int cmd, int paraKosuu, int* paraPtr)
 {
 	BOOL proceed = FALSE;
 
-	if (m_userFunction == m_adjustDateFunction)
+	if (cmd == m_adjustDateFunction)
 	{
 		int d = GetVarData(m_dayMonthVar);
 		d = AdjustDate(d);
@@ -4625,6 +4631,8 @@ LogMessage("ToWindowScreen Mid 3");
 //	int wy = 
 
 
+	m_mainControl->ReCalcuClientOffset();
+
 RECT rc;
 rc.top = 0;
 rc.left = 0;
@@ -4641,7 +4649,7 @@ DWORD style = ((WS_OVERLAPPED |
 	WS_MAXIMIZEBOX |
 	WS_MINIMIZEBOX
 	)&nonFullFlag) |
-	WS_POPUP |
+	//WS_POPUP |
 	WS_VISIBLE
 	;
 DWORD exStyle = 0;
@@ -8249,7 +8257,10 @@ void CGameCallBack::SetSystemVarNumber(void)
 {
 	m_rndVar = m_varNumber->GetVarNumber("rnd");
 	m_dayMonthVar = m_varNumber->GetVarNumber("date");
-	m_yearVar = m_varNumber->GetVarNumber("year");
+	if (m_notUseYearVar == 0)
+	{
+		m_yearVar = m_varNumber->GetVarNumber("year");
+	}
 	m_holidayVar = m_varNumber->GetVarNumber("holiday");
 	m_weekVar = m_varNumber->GetVarNumber("week");
 }
@@ -12550,6 +12561,7 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	SetReturnCode(-1);
 
 	CalcuDelayEnterExistSE();
+	CalcuDelayEnterExistVoice();
 
 	BeforeCalcu();
 	CCommonGeneral* general = m_general[GetGameMode()];
@@ -17298,6 +17310,36 @@ void CGameCallBack::CalcuDelayEnterExistSE(void)
 		}
 	}
 
+}
+
+void CGameCallBack::OnDelayExitVoice(LPSTR filename, int delayCount)
+{
+	m_delayExitVoiceFilename = filename;
+	m_delayExitVoiceCount = delayCount;
+
+}
+
+void CGameCallBack::CalcuDelayEnterExistVoice(void)
+{
+	if (m_delayExitVoiceCount > 0)
+	{
+		m_delayExitVoiceCount--;
+		if (m_delayExitVoiceCount <= 0)
+		{
+			if (m_delayExitVoiceFilename != nullptr)
+			{
+				PlaySystemVoiceByFileName(m_delayExitVoiceFilename);
+			}
+		}
+	}
+}
+
+void CGameCallBack::SetSpecialMouseType(int type)
+{
+	if (m_gameMouse != nullptr)
+	{
+		m_gameMouse->SetHadohouType(type);
+	}
 }
 
 /*_*/

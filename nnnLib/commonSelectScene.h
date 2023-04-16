@@ -212,6 +212,10 @@ protected:
 	int GetStartWaitMode(void);
 	void EndStartWaitMode(void);
 
+	int m_addMessagePrintX;
+	int m_addMessagePrintY;
+	int m_addMessageFontSize;
+
 };
 
 

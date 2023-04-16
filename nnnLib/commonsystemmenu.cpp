@@ -279,8 +279,17 @@ CCommonSystemMenu::CCommonSystemMenu(CGameCallBack* lpGame) : CCommonGeneral(lpG
 
 
 
+	m_changeSkipModeMenu = 0;
+	GetInitGameParam(&m_changeSkipModeMenu, "changeSkipModeMenu");
+	m_changeSkipSrcNX = 0;
+	m_changeSkipSrcNY = 9;
+	GetInitGameParam(&m_changeSkipSrcNX, "changeSkipSrcX");
+	GetInitGameParam(&m_changeSkipSrcNY, "changeSkipSrcY");
 
-
+	m_noChangeSkipSrcNX = 0;
+	m_noChangeSkipSrcNY = 6;
+	GetInitGameParam(&m_noChangeSkipSrcNX, "noChangeSkipSrcX");
+	GetInitGameParam(&m_noChangeSkipSrcNY, "noChangeSkipSrcY");
 
 	m_menu->SetCancelButton(m_cancelButtonNumber);
 
@@ -571,6 +580,29 @@ OutputDebugString("[SystemMenu::sceneMode]");
 		m_menu->SetEnable(i);
 	}
 
+	if (m_changeSkipModeMenu)
+	{
+		SIZE size = m_menu->GetButton(m_messageSkipButtonNumber)->GetSize();
+		POINT pt;
+
+		if (m_game->GetSystemParam(NNNPARAM_SKIPMODE))
+		{
+			pt.x = m_changeSkipSrcNX;
+			pt.y = m_changeSkipSrcNY;
+//			m_menu->SetButtonSrc(m_messageSkipButtonNumber, 0, 9 * m_menuSizeY);
+		}
+		else
+		{
+			pt.x = m_noChangeSkipSrcNX;
+			pt.y = m_noChangeSkipSrcNY;
+//			m_menu->SetButtonSrc(m_messageSkipButtonNumber, 0, 4 * 33);
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			m_menu->GetButton(m_messageSkipButtonNumber)->SetSrcPicZahyo(pt,i);
+			pt.x += size.cx;
+		}
+	}
 
 
 //	if (m_game->GetSystemParam(SYSTEMPARAM_SKIPMODE) == 0)

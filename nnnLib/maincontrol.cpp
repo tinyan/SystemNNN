@@ -588,7 +588,7 @@ HWND CMainControl::CreateWindowRoutine(HINSTANCE hInstance,HICON icon, WNDPROC l
 	sizeY = rc.bottom - rc.top;
 
 	m_clientOffsetX = (sizeX - realWindowSizeX) / 2;
-	m_clientOffsetY = (sizeY - GetSystemMetrics(SM_CYCAPTION) - realWindowSizeY) / 2;
+	m_clientOffsetY = (sizeY - realWindowSizeY - GetSystemMetrics(SM_CYCAPTION)) / 2;
 
 
 //	int sizeX = realWindowSizeX + 2 * (GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER));
@@ -2001,8 +2001,59 @@ void CMainControl::SetClientOffset(int x, int y)
 
 
 
+void CMainControl::ReCalcuClientOffset()
+{
+	int windowX = m_systemFile->m_systemdata.windowX;
+	int windowY = m_systemFile->m_systemdata.windowY;
+
+	//	if (lpWindowZahyo != NULL)
+	//	{
+	//		windowX = lpWindowZahyo->x;
+	//		windowY = lpWindowZahyo->y;
+	//	}
+
+	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
+	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
+
+	int nonFullFlag = 0xffffffff;
+	if (m_systemFile->m_systemdata.fullScreenFlag) nonFullFlag = 0;
+
+	int sizeX = realWindowSizeX + 2 * GetSystemMetrics(SM_CXFIXEDFRAME);
+	int sizeY = realWindowSizeY + 2 * GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
 
 
+	RECT rc;
+	rc.top = 0;
+	rc.left = 0;
+	rc.right = realWindowSizeX;
+	rc.bottom = realWindowSizeY;
+
+	//暫定修正Win10からおかしい。必要な数値がGetSystemMetricsでとってこれない
+	sizeX += 10;
+	sizeY += 10;
+
+
+	DWORD style = ((WS_OVERLAPPED |
+		WS_CAPTION |
+		WS_SYSMENU |
+		//								WS_THICKFRAME |
+		WS_MAXIMIZEBOX |
+		WS_MINIMIZEBOX |
+		WS_BORDER
+		)&nonFullFlag) |
+		WS_POPUP |
+		WS_VISIBLE
+		;
+	DWORD exStyle = 0;
+	AdjustWindowRectEx(&rc, style, false, exStyle);
+
+	sizeX = rc.right - rc.left;
+	sizeY = rc.bottom - rc.top;
+
+	m_clientOffsetX = (sizeX - realWindowSizeX) / 2;
+	m_clientOffsetY = (sizeY - realWindowSizeY - GetSystemMetrics(SM_CYCAPTION)) / 2;
+
+}
 
 
 

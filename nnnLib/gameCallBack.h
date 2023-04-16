@@ -884,8 +884,12 @@ public:
 	virtual void OnDelayEnterSE(int seNumber);
 	virtual void OnDelayExitSE(int seNumber);
 
-	virtual void CalcuDelayEnterExistSE(void);
+	virtual void OnDelayExitVoice(LPSTR filename, int delayCount);
 
+	virtual void CalcuDelayEnterExistSE(void);
+	virtual void CalcuDelayEnterExistVoice(void);
+
+	virtual void SetSpecialMouseType(int type);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1907,6 +1911,10 @@ protected:
 	int m_delayExitSEWait;
 
 
+	LPSTR m_delayExitVoiceFilename;
+	int m_delayExitVoiceCount;
+
+	int m_notUseYearVar;
 };
 
 #endif
