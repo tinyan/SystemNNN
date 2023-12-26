@@ -487,6 +487,7 @@ private:
 	int m_readNameColorG;
 	int m_readNameColorB;
 
+	int m_addLPrintImageOffWithWindow;
 };
 
 #endif

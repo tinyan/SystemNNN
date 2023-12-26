@@ -291,6 +291,7 @@ private:
 
 	CCommonAnimeParts* m_printLastSelect;
 
+	int m_appearAdjust;
 
 };
 

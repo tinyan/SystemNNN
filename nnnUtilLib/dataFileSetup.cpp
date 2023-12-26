@@ -834,11 +834,14 @@ CDataFileSetup::CDataFileSetup()
 			{
 				if ((*lastSelectAnimeName) != 0)
 				{
-					m_printLastSelect = new CCommonAnimeParts("lastSave",m_setup->GetNameList(),TRUE);
+					m_printLastSelect = new CCommonAnimeParts("lastSave",m_setup->GetNameList());
 				}
 			}
 		}
 	}
+
+	m_appearAdjust = 0;
+	GetInitGameParam(&m_appearAdjust, "appearAdjust");
 }
 
 

@@ -166,6 +166,11 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 		m_lprintAddImagePic = m_game->GetSystemPicture(imagename);
 	}
 
+
+	m_addLPrintImageOffWithWindow = 0;
+	GetInitGameParam(&m_addLPrintImageOffWithWindow, "addLPrintImageOffWithWindow");
+
+
 	GetInitGameParam(&m_LPrintX,"LPrintX");
 	GetInitGameParam(&m_LPrintY,"LPrintY");
 	GetInitGameParam(&m_LNextX,"LNextX");
@@ -1541,7 +1546,10 @@ int CCommonPrintMessage::Print(void)
 		{
 			if ((m_printMode == CODE_SYSTEMCOMMAND_LPRINT) || (m_printMode == CODE_SYSTEMCOMMAND_APPEND))
 			{
-				m_lprintAddImagePic->Put(0, 0, TRUE);
+				if ((m_addLPrintImageOffWithWindow == 0) || !CheckWindowOff())
+				{
+					m_lprintAddImagePic->Put(0, 0, TRUE);
+				}
 
 			}
 		}

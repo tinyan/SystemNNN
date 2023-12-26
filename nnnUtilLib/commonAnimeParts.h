@@ -20,7 +20,7 @@ public:
 	void Print(POINT pt);
 	void DeltaPrint(POINT pt);
 
-	void AppearPrint(POINT pt,int appearCount,int appearCountMax,int appearType);
+	void AppearPrint(POINT pt,int appearCount,int appearCountMax,int appearType, bool bPointIsDelta = false);
 
 	SIZE GetSize(void){return m_animePicSize;}
 	POINT GetZahyo(void){return m_animePrintZahyo;}
@@ -54,6 +54,7 @@ private:
 	POINT GetPicSrc(int n);
 
 	int m_createFlag;
+
 	static char m_defaultPicFileName[];
 };
 

@@ -1361,7 +1361,7 @@ void CCommonDataFile::AppearPrint(int appearCount, int appearCountMax, int appea
 				}
 				else
 				{
-					m_printLastSelect->AppearPrint(lastPoint,appearCount, appearCountMax, appearType);
+					m_printLastSelect->AppearPrint(lastPoint,appearCount, appearCountMax, appearType,true);
 				}
 			}
 		}

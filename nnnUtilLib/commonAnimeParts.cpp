@@ -264,7 +264,7 @@ void CCommonAnimeParts::Print(POINT pt)
 }
 
 
-void CCommonAnimeParts::AppearPrint(POINT pt,int appearCount, int appearCountMax, int appearType)
+void CCommonAnimeParts::AppearPrint(POINT pt,int appearCount, int appearCountMax, int appearType,bool bPointIsDelta)
 {
 //	POINT pt = m_animePrintZahyo;
 
@@ -282,6 +282,12 @@ void CCommonAnimeParts::AppearPrint(POINT pt,int appearCount, int appearCountMax
 
 	int putX = pt.x;
 	int putY = pt.y;
+	if (bPointIsDelta)
+	{
+		putX += m_animePrintZahyo.x;
+		putY += m_animePrintZahyo.y;
+	}
+
 	int sizeX = m_animePicSize.cx;
 	int sizeY = m_animePicSize.cy;
 
