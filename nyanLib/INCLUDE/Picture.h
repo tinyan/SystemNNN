@@ -30,6 +30,9 @@ public:
 //	BOOL LoadPicture(LPSTR filename, BOOL b256Flag = FALSE,BOOL bAntiAliasFlag = FALSE,LPSTR antiAliasFilename = NULL);
 
 	void Flush(void);
+	void Shrink();
+	int GetBufferSize();
+
 
 
 //	void Put(void);
@@ -179,8 +182,10 @@ public:
 
 	BOOL ReSize(int x, int y);
 
-	static void InitStaticData(int tmpMegaBytes = 3);
+	static void InitStaticData(int tmpMegaBytes = 20);
 	static void ReleaseStaticData(void);
+	void CheckTmpBuffer(int checkSize);
+	static int TmpBufferMeageByte;
 
 
 //	static COverrap* m_overrap;
@@ -212,9 +217,9 @@ public:
 	static void SetModeNumberForDebug(int md);
 	static int m_modeNumber;
 
-	static char m_old[8192];
-	static char m_tmp[8192];
-	static char m_unpack[8192];
+	static char m_old[];
+	static char m_tmp[];
+	static char m_unpack[];
 
 protected:
 //	int m_bmpSizeX;			//n byte

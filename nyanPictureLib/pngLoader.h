@@ -5,7 +5,7 @@
 class CPngLoader
 {
 public:
-	CPngLoader(int bufferSizeMegaByte = 4);
+	CPngLoader(int bufferSizeMegaByte = 20);
 	~CPngLoader();
 	void End(void);
 

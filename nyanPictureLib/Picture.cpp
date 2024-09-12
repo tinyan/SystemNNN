@@ -24,6 +24,7 @@ char CPicture::m_extName[] = "dwq";
 char CPicture::m_dirName[16] = "dwq";
 
 SSIZE_T CPicture::m_dataPackLevel = 0;
+int CPicture::TmpBufferMeageByte = 0;
 
 //not used!
 //BOOL CPicture::m_notAntiAliasFlag = FALSE;
@@ -45,9 +46,9 @@ char CPicture::m_packTagName[10][8]=
 };
 
 
-char CPicture::m_old[8192] = { 0 };
-char CPicture::m_tmp[8192] = { 0 };
-char CPicture::m_unpack[8192] = { 0 };
+char CPicture::m_old[8192*4] = { 0 };
+char CPicture::m_tmp[8192*4] = { 0 };
+char CPicture::m_unpack[8192*4] = { 0 };
 
 #if !defined _DEBUG
 BOOL CPicture::m_errorPrintFlag = FALSE;
@@ -90,9 +91,9 @@ BOOL CPicture::CreateMaskBuffer(int sz)
 	m_maskPic = NULL;
 
 #if defined _WIN64
-	char* ptr = new char[(long long)sz + 64];
+	char* ptr = new char[(long long)sz + 128];
 #else
-	char* ptr = new char[sz + 64];
+	char* ptr = new char[sz + 128];
 #endif
 
 	if (ptr != NULL)
@@ -103,7 +104,7 @@ BOOL CPicture::CreateMaskBuffer(int sz)
 #else
 		int p2 = (int)ptr;
 #endif
-p2 += 63;
+		p2 += 63;
 		p2 &= (~63);
 		m_maskPic = (char*)p2;
 		m_maskSize = sz;
@@ -248,7 +249,7 @@ int CPicture::LoadBitmapHeaderAndPalette(FILE* file,int* rgbTable,BOOL b256Flag)
 				{
 					if (m_palette0 == NULL)
 					{
-						m_palette0 = new char[1024+64];
+						m_palette0 = new char[1024+128];
 					}
 
 					if (m_palette0 != NULL)
@@ -379,7 +380,7 @@ BOOL CPicture::MakeDataBuffer(SSIZE_T sz)
 #endif
 			p += 63;
 			p &= (~63);
-			p += 128;
+		//	p += 128;
 			m_pic = (LPVOID)p;
 		}
 		else
@@ -458,7 +459,7 @@ BOOL CPicture::LoadDWQData(FILE* file, int* rgbTable, BOOL b256Flag)
 	int sizeY = m_pictureSizeY;
 	int readSize = m_readX;
 
-	char tmp[8192];
+	char tmp[8192*4];
 
 	int colors = m_bmi.biBitCount;
 
@@ -467,6 +468,8 @@ BOOL CPicture::LoadDWQData(FILE* file, int* rgbTable, BOOL b256Flag)
 	{
 		int readBlockMax = 1024*1024*3 / readSize;
 		if (readBlockMax > sizeY) readBlockMax = sizeY;
+
+		CheckTmpBuffer(readSize * readBlockMax);
 
 		int readY = 0;
 
@@ -563,6 +566,8 @@ BOOL CPicture::LoadPackedDWQData(FILE* file,int* rgbTable, BOOL b256Flag)
 	int p = m_bmi.biClrUsed;
 	if (p == 0) p = 256;
 	minus += p* 4;
+
+	CheckTmpBuffer((SSIZE_T)m_dwqSize - minus);
 
 	int readLength = (int)fread(m_tmpBuffer,sizeof(char),(SSIZE_T)m_dwqSize - minus,file);
 	m_restReadSize -= readLength;
@@ -698,10 +703,11 @@ BOOL CPicture::LoadMask(FILE* file)
 	
 	if (m_packFileFlag == FALSE)
 	{
-		readLength = (int)fread(m_tmpBuffer,sizeof(char),1024*1024*3,file);
+		readLength = (int)fread(m_tmpBuffer,sizeof(char),1024*1024*16,file);
 	}
 	else
 	{
+		CheckTmpBuffer(m_restReadSize);
 		readLength = (int)fread(m_tmpBuffer,sizeof(char),m_restReadSize,file);
 	}
 	
@@ -979,6 +985,7 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 		if (m_jpegFlag)
 		{
 			//buffer‚É‚æ‚Ý‚±‚Þ
+			CheckTmpBuffer(m_dwqSize);
 			fread(m_tmpBuffer,sizeof(char),m_dwqSize,file);	//?????????????size ok???
 			m_restReadSize -= m_dwqSize;
 
@@ -1003,7 +1010,7 @@ BOOL CPicture::LoadDWQ(LPSTR filename,BOOL b256Flag,LPSTR dirName)
 
 				if (m_palette0 == NULL)
 				{
-					m_palette0 = new char[1024+64];
+					m_palette0 = new char[1024+128];
 				}
 
 				if (m_palette0 != NULL)
@@ -3547,7 +3554,7 @@ BOOL CPicture::ReSize(int x, int y)
 
 		if (sz>m_maskSize)
 		{
-			char* ptr = new char[(SSIZE_T)sz+64];
+			char* ptr = new char[(SSIZE_T)sz+128];
 			if (ptr != NULL)
 			{
 				DELETEARRAY(m_maskPic0);
@@ -3609,10 +3616,64 @@ int CPicture::GetFileMode(void)
 //////////////////////////////////////////////////////////////////////////////////
 
 
+void CPicture::Shrink()
+{
+	int screenSizeX = CMyGraphics::GetScreenSizeX();
+	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+	if ((m_pictureSizeX < screenSizeX) || (m_pictureSizeY < screenSizeY))
+	{
+	//	return;
+	}
+
+	SSIZE_T sz = (SSIZE_T)m_pictureSizeX * m_pictureSizeY * sizeof(int);
+	//if (b256Flag)
+	//{
+	//	sz = (SSIZE_T)sizeX * sizeY;
+	//}
+
+	LPVOID lp0 = new char[sz + 128];
+	if (lp0 != NULL)
+	{
+#if defined _WIN64
+		long long p = (long long)m_pic0;
+#else
+		int p = (int)lp0;
+#endif
+		p += 63;
+		p &= (~63);
+	//	p += 128;
+		LPVOID lp = (LPVOID)p;
+
+		//copy
+		memcpy(lp, m_pic, sz);
+	//	DELETEARRAY(m_pic);
+		DELETEARRAY(m_pic0);
+		m_pic = lp;
+		m_pic0 = lp0;
+		m_picBufferSize = sz;
+	}
+}
+
+void CPicture::CheckTmpBuffer(int checkSize)
+{
+	if (checkSize + 54 + 1024 > 1024 * 1024 * (SSIZE_T)TmpBufferMeageByte)
+	{
+		while (checkSize + 54 + 1024 > 1024 * 1024 * (SSIZE_T)TmpBufferMeageByte)
+		{
+			TmpBufferMeageByte++;
+		}
+
+		DELETEARRAY(m_tmpBuffer);
+		m_tmpBuffer = new char[54 + 1024 + 1024 * 1024 * (SSIZE_T)TmpBufferMeageByte];
+	}
+}
 
 void CPicture::InitStaticData(int tmpMegaBytes)
 {
 //	if (m_lpScreenBuffer == NULL) m_lpScreenBuffer = new int[m_screenSizeX*m_screenSizeY+m_screenSizeX*2];
+	TmpBufferMeageByte = tmpMegaBytes;
+
 	if (m_tmpBuffer == NULL) m_tmpBuffer = new char[54+1024+1024*1024*(SSIZE_T)tmpMegaBytes];
 	
 
@@ -3774,6 +3835,18 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 //		ff = TRUE;
 //		MessageBox(NULL,"ta_dummy","opendwq",MB_OK);
 //	}
+//	OutputDebugString("\n");
+//	OutputDebugString(filename);
+
+	/*
+	if (strcmp(filename,"ta\\ta_ef_evex060d1") == 0)
+	{
+		static int aaa = 0;
+		aaa++;
+	//	return NULL;
+	}
+	*/
+
 
 
 	m_restReadSize = 1024*1024*3;	//dummy
@@ -3794,8 +3867,8 @@ FILE* CPicture::OpenDWQFile(LPSTR fullFileName,LPSTR filename)
 	LPSTR foundTagName = NULL;
 	int tagNumber = -1;
 
-	char check1[16];
-	char check2[16];
+	char check1[256];
+	char check2[256];
 
 	//get tagName
 	for (int i=0;i<10;i++)
@@ -4099,6 +4172,10 @@ void CPicture::SetModeNumberForDebug(int md)
 	m_modeNumber = md;
 }
 
+int CPicture::GetBufferSize()
+{
+	return m_picBufferSize;
+}
 
 /*_*/
 

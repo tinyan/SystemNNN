@@ -253,6 +253,7 @@ BOOL CPngLoader::LoadFile(FILE* file)
 BOOL CPngLoader::LoadFile(FILE* file){return FALSE;}
 #endif
 
+
 BOOL CPngLoader::LoadFile(LPSTR filename)
 {
 	FILE* file = CMyFile::Open(filename,"rb");
@@ -263,6 +264,8 @@ BOOL CPngLoader::LoadFile(LPSTR filename)
 	fclose(file);
 	return rt;
 }
+
+
 
 void CPngLoader::GetPic8AndPalette(char* lpPic8,int* lpPalette)
 {

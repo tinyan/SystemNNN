@@ -27,7 +27,7 @@ BOOL CEffectBuffer::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int la
 
 	int para[3];
 	int k = paraKosuu;
-	if (k>1) k = 1;
+	if (k>2) k = 2;
 	
 
 	for (int i=0;i<k;i++)
@@ -36,12 +36,28 @@ BOOL CEffectBuffer::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int la
 	}
 
 	if (paraKosuu<1) para[0] = 20;
+	if (paraKosuu < 2) para[1] = 0;
+//	para[2] = 0;
 
 	lp->flag = TRUE;
 
 	lp->count = 0;
 	lp->countMax = para[0];
 	lp->command = EFFECT_BUFFER;
+
+	for (int i = 0; i < 3; i++)
+	{
+		lp->para[i] = para[i];
+	}
+
+	if (lp->para[1] != 0)
+	{
+		CPicture* lpPic = m_allEffect->GetPicture(layer);
+		if (lpPic != nullptr)
+		{
+			lpPic->Shrink();
+		}
+	}
 
 	return TRUE;
 }
@@ -50,6 +66,8 @@ BOOL CEffectBuffer::SetParam(LPVOID lpEffect, int paraKosuu, int* paraPtr,int la
 
 BOOL CEffectBuffer::CountIsMax(LPVOID lpEffect,int layer)
 {
+	EFFECT* lp = (EFFECT*)lpEffect;
+
 	return FALSE;
 }
 
@@ -73,7 +91,6 @@ void CEffectBuffer::Print(LPVOID lpEffect,int layer)
 	int* dst = CMyGraphics::GetScreenBuffer();
 
 	EFFECT* lp = (EFFECT*)lpEffect;
-
 	return;
 
 

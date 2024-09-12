@@ -10909,6 +10909,37 @@ void CGameCallBack::SystemFunctionLoadDWQ(int para1,LPVOID para2)
 		wsprintf(filename,"__\\%s",mes);
 		filename[0] = c1;
 		filename[1] = c2;
+#if _DEBUG
+//		if (strcmp(filename, "ta\\ta_ef_evex060d1") == 0)
+		{
+			int total = 0;
+			for (int i = 0; i < 32; i++)
+			{
+				CPicture* pic00 = m_effect->GetPicture(i);
+				if (pic00 != nullptr)
+				{
+//					SIZE sz = pic00->GetPicSize();
+					int bufferSize = pic00->GetBufferSize();
+
+//					char str0[256];
+					//sprintf_s(str0, "layer = %d size = %d\n", i,bufferSize / 1024);
+//					OutputDebugString(str0);
+					total += bufferSize;
+				}
+			}
+			static int staticLimit = 100;
+			if (total > 1024 * 1024 * staticLimit)
+			{
+				char str[256];
+				sprintf_s(str, "over %d MB", staticLimit);
+				MessageBox(m_hWnd, str, "Warning", MB_OK);
+
+				staticLimit += 50;
+			}
+
+		}
+#endif
+
 
 		char filename2[256+64];
 
