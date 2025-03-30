@@ -67,6 +67,97 @@ void CColorAddBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picDa
 
 	int transPercent256 = (ps * 256) / 100;
 
+#if defined _WIN64
+#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	INT32 maskPicSizeX = 0;
+	INT32 maskPitch = 0;
+
+	if (mask != NULL)
+	{
+		maskPicSizeX = srcSize.cx;
+
+		mask += srcPoint.x;
+		mask += (SSIZE_T)srcPoint.y * maskPicSizeX;
+		maskPitch = srcSize.cx;
+	}
+
+	INT32* src64Org = (INT32*)src;
+	INT32* dst64Org = (INT32*)dst;
+	char* mask64Org = (char*)mask;
+
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			INT32 transPercent = 255;
+			if (transFlag && (mask != NULL))
+			{
+				transPercent = ((INT32)(*mask64)) & 0xff;
+			}
+
+			if (transPercent != 0)
+			{
+				INT32 srcData = *src64;
+				INT32 dstData = *dst64;
+				INT32 srcR = (srcData >> 16) & 0xff;
+				INT32 srcG = (srcData >> 8) & 0xff;
+				INT32 srcB = (srcData ) & 0xff;
+				INT32 dstR = (dstData >> 16) & 0xff;
+				INT32 dstG = (dstData >> 8) & 0xff;
+				INT32 dstB = (dstData) & 0xff;
+				srcR += addR;
+				srcR -= subR;
+				if (srcR < 0) srcR = 0;
+				if (srcR > 255) srcR = 255;
+				srcG += addG;
+				srcG -= subG;
+				if (srcG < 0) srcG = 0;
+				if (srcG > 255) srcG = 255;
+				srcB += addB;
+				srcB -= subB;
+				if (srcB < 0) srcB = 0;
+				if (srcB > 255) srcB = 255;
+
+				if (transPercent == 255)
+				{
+					*dst64 = (srcR << 16) | (srcG << 8) | srcB;
+				}
+				else
+				{
+					INT32 r = srcR * transPercent + dstR * (255 - transPercent);
+					r /= 255;
+					INT32 g = srcG * transPercent + dstG * (255 - transPercent);
+					g /= 255;
+					INT32 b = srcB * transPercent + dstB * (255 - transPercent);
+					b /= 255;
+					*dst64 = (r << 16) | (g << 8) | b;
+				}
+			}
+
+			src64++;
+			dst64++;
+			if (mask != NULL)
+			{
+				mask64++;
+			}
+		}
+
+		dst64Org += dstPitch / 4;
+		src64Org += srcPitch / 4;
+		if (mask != NULL)
+		{
+			mask64Org += maskPitch;
+		}
+	}
+
+	return;
+#else
+
+
 	if (transFlag && (mask != NULL))
 	{
 		int maskPicSizeX = srcSize.cx;
@@ -76,7 +167,6 @@ void CColorAddBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picDa
 		int maskPitch = srcSize.cx;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
 
 #else
 
@@ -198,7 +288,6 @@ SKIPD1:
 		if (transFlag)
 		{
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
 
 #else
 
@@ -296,7 +385,6 @@ SKIPB1:
 		else
 		{
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
 
 #else
 
@@ -389,6 +477,8 @@ NOTMUL3:
 
 		}
 	}
+#endif
+
 }
 
 

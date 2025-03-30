@@ -93,9 +93,8 @@ void CTransCircleFill::Print(int x, int y, int rx, int ry, int r, int g, int b,i
 	}
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
-	int* edi = dst;
-	int* ebx = table;
+	INT32* edi = dst;
+	INT32* ebx = table;
 
 	int alpha = percent256;
 	int oneMinusAlpha = percent256Neg;
@@ -109,7 +108,7 @@ void CTransCircleFill::Print(int x, int y, int rx, int ry, int r, int g, int b,i
 		int* pushedi = edi;
 
 
-		int ecx = *ebx;
+		INT32 ecx = *ebx;
 		if (ecx > 0)
 		{
 			edi += *(ebx + 1);

@@ -564,7 +564,7 @@ int CALLBACK EnumFontFamExProc(
 )
 {
 	LPSTR name = lpelfe->elfLogFont.lfFaceName;
-	int ln = strlen(name);
+	int ln = (int)strlen(name);
 
 	if (strlen(name) >= 254) return FALSE;
 

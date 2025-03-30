@@ -136,13 +136,12 @@ void CEffectGet::GetScreen(void)
 //	}
 //	if (m_effectGetBuffer == NULL) return;	//error
 
-	int* src = CMyGraphics::GetScreenBuffer();
-	int* dst = m_effectGetBuffer;
+	INT32* src = CMyGraphics::GetScreenBuffer();
+	INT32* dst = m_effectGetBuffer;
 //	int* dst = (int*)(m_effectGetBufferPicture->GetBuffer());
 	int sz = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 	for (int i = 0; i < sz; i++)
 	{
 		*dst = *src;

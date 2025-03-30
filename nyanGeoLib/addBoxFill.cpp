@@ -80,11 +80,10 @@ void CAddBoxFill::Print(int x, int y, int sizeX, int sizeY, int r, int g, int b,
 	int lPitch = screenSizeX * sizeof(int);
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
-	int* edi = dst;
+	INT32* edi = dst;
 	for (int j = 0; j < loopY;j++)
 	{
-		int* pushedi = edi;
+		INT32* pushedi = edi;
 		for (int i = 0; i < loopX;i++)
 		{
 			int d = *edi;

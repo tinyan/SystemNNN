@@ -76,9 +76,7 @@ BOOL CMMX::CheckMMX(void)
 	int mmxflag = 0;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ 実装したにゃ" __FILE__)
 	return TRUE;
-
 #else
 
 	__asm
@@ -282,7 +280,40 @@ void CMMX::MMX32to16(int startX,int startY,int sizeX,int sizeY)
 
 	//とりあえず 5:6:5に対応 ただし青は1bitおとす
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+	INT32* src64 = (INT32*)m_lpScreenBuffer;
+	INT16* dst64Org = (INT16*)m_lpSurface;
+
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT16* dst64 = dst64Org;
+		for (int i = 0; i < sizeX; i++)
+		{
+			INT32 data = *src64;
+
+			INT16 r = (INT16)((data >> 16) & 0xff);
+			INT16 g = (INT16)((data >> 8) & 0xff);
+			INT16 b = (INT16)((data) & 0xff);
+
+			if (m_565Mode)
+			{
+				r <<= 11;
+				g <<= 5;
+			}
+			else
+			{
+				r <<= 10;
+				g <<= 5;
+			}
+
+			INT16 color = r | g | b;
+
+			*dst64 = color;
+			dst64++;
+			src64++;
+		}
+		dst64Org += lPitch / 2;
+	}
 
 #else
 
@@ -645,7 +676,31 @@ void CMMX::MMX32to24(int startX,int startY,int sizeX,int sizeY)
 	if ((loopX<=0) || (loopY<=0)) return;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	INT32* src64Org = (INT32*)src;
+	char* dst64Org = (char*)dst;
+
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		char* dst64 = dst64Org;
+		for (int i = 0; i < sizeX; i++)
+		{
+			INT32 data = *src64;
+			char r = (data >> 16) & 0xff;
+			char g = (data >> 8) & 0xff;
+			char b = data & 0xff;
+			*dst64 = r;
+			dst64++;
+			*dst64 = g;
+			dst64++;
+			*dst64 = b;
+			dst64++;
+
+			src64++;
+		}
+		src64Org += screenPitch / 4;
+		dst64Org += lPitch;
+	}
 
 #else
 
@@ -792,7 +847,31 @@ void CMMX::MMX32to24BGR(int startX,int startY,int sizeX,int sizeY)
 	if ((loopX<=0) || (loopY<=0)) return;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	INT32* src64Org = (INT32*)src;
+	char* dst64Org = (char*)dst;
+
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		char* dst64 = dst64Org;
+		for (int i = 0; i < sizeX; i++)
+		{
+			INT32 data = *src64;
+			char r = (data >> 16) & 0xff;
+			char g = (data >> 8) & 0xff;
+			char b = data & 0xff;
+			*dst64 = b;
+			dst64++;
+			*dst64 = g;
+			dst64++;
+			*dst64 = r;
+			dst64++;
+
+			src64++;
+		}
+		src64Org += screenPitch / 4;
+		dst64Org += lPitch;
+	}
 
 #else
 
@@ -1014,7 +1093,45 @@ void CMMX::MMX32to32(int startX,int startY,int sizeX,int sizeY)
 	if ((loopX<=0) || (loopY<=0)) return;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+//	INT32* src0 = src;
+//	INT32* dst0 = dst;
+	//とりあえず32bit実装
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64 = src;
+		INT32* dst64 = dst;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			*dst64 = *src64;
+			dst64++;
+			src64++;
+		}
+		src += screenPitch / 4;
+		dst += lPitch / 4;
+	}
+
+	/*
+	INT64* src64Org = (INT64*)m_lpScreenBuffer;
+	INT64* dst64Org = (INT64*)m_lpSurface;
+	INT64 lPitch64 = (INT64)m_lPitch;
+
+	for (int j = 0; j < loopY; j++)
+	{
+		INT64* src64 = src64Org;
+		INT64* dst64 = dst64Org;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			*dst64 = *src64;
+			dst64++;
+			src64++;
+		}
+		src64Org += loopX1;
+		dst64Org += lPitch64 / 8;
+	}
+	*/
 
 #else
 
@@ -1106,7 +1223,29 @@ void CMMX::MMX32to32BGR(int startX,int startY,int sizeX,int sizeY)
 	if (loopY<=0) return;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+	INT32* src64Org = (INT32*)src;
+	INT32* dst64Org = (INT32*)dst;
+
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		for (int i = 0; i < sizeX; i++)
+		{
+			INT32 data = *src64;
+			INT32 r = (data>> 16) & 0xff;
+			INT32 g = ((data >> 8) & 0xff) << 8;;
+			INT32 b = (data & 0xff) << 16;;
+			INT32 color = r | g | b;
+			*dst64 = color;
+			src64++;
+			dst64++;
+		}
+		src64Org += screenPitch / 4;
+		dst64Org += lPitch / 4;
+	}
+
 
 #else
 
@@ -1196,7 +1335,40 @@ void CMMX::_MMX32to16(void)
 	//とりあえず 5:6:5に対応 ただし青は1bitおとす
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+	INT32* src64 = (INT32*)m_lpScreenBuffer;
+	INT16* dst64Org = (INT16*)m_lpSurface;
+
+	for (int j = 0; j < screenSizeY; j++)
+	{
+		INT16* dst64 = dst64Org;
+		for (int i = 0; i < screenSizeX; i++)
+		{
+			INT32 data = *src64;
+
+			INT16 r = (INT16)((data >> 16) & 0xff);
+			INT16 g = (INT16)((data >> 8) & 0xff);
+			INT16 b = (INT16)((data) & 0xff);
+
+			if (m_565Mode)
+			{
+				r <<= 11;
+				g <<= 5;
+			}
+			else
+			{
+				r <<= 10;
+				g <<= 5;
+			}
+
+			INT16 color = r | g | b;
+
+			*dst64 = color;
+			dst64++;
+			src64++;
+		}
+		dst64Org += lPitch/2;
+	}
 
 #else
 
@@ -1514,7 +1686,30 @@ void CMMX::_MMX32to24(void)
 
 	int loopX1 = screenSizeX / 8;
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+	INT32* src64 = (INT32*)m_lpScreenBuffer;
+	char* dst64Org = (char*)m_lpSurface;
+
+	for (int j = 0; j < screenSizeY; j++)
+	{
+		char* dst64 = dst64Org;
+		for (int i = 0; i < screenSizeX; i++)
+		{
+			INT32 data = *src64;
+			char r = (char)((data >> 16) & 0xff);
+			char g = (char)((data >> 8) & 0xff);
+			char b = (char)((data ) & 0xff);
+			*dst64 = b;
+			dst64++;
+			*dst64 = g;
+			dst64++;
+			*dst64 = r;
+			dst64++;
+
+			src64++;
+		}
+		dst64Org += lPitch;
+	}
 
 #else
 
@@ -1636,7 +1831,22 @@ void CMMX::_MMX32to32(void)
 	int loopX = screenSizeX / (32/4);
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	INT32 lPitch64 = (INT32)m_lPitch;
+	INT32* src64 = (INT32*)m_lpScreenBuffer;
+	INT32* dst64Org = (INT32*)m_lpSurface;
+
+	for (int j = 0; j < screenSizeY; j++)
+	{
+		INT32* dst64 = dst64Org;
+
+		for (int i = 0; i < screenSizeX; i++)
+		{
+			*dst64 = *src64;
+			src64++;
+			dst64++;
+		}
+		dst64Org += lPitch / 4;
+	}
 
 #else
 

@@ -77,7 +77,7 @@ void CEffectGeoPolygon::Calcu(LPVOID lpEffect,int layer)
 
 void CEffectGeoPolygon::Print(LPVOID lpEffect,int layer)
 {
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
@@ -93,7 +93,6 @@ void CEffectGeoPolygon::Print(LPVOID lpEffect,int layer)
 	int loopSize = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 	for (int i = 0; i < loopSize; i++)
 	{

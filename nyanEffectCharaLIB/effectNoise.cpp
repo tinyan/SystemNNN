@@ -425,17 +425,17 @@ yStart += putY;
 
 
 #else
-	int* ras = rasterWork;
-	int* screen = CMyGraphics::GetScreenBuffer();
+	INT32* ras = rasterWork;
+	INT32* screen = CMyGraphics::GetScreenBuffer();
 	int srcPitch = picSizeX * sizeof(int);
 	int lPitch = screenSizeX * sizeof(int);
 	int maskPitch = picSizeX;
 
 	ras += putY;
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 	dst += putY * screenSizeX;
 
-	int* src = lpPic->GetPictureBuffer();
+	INT32* src = lpPic->GetPictureBuffer();
 	src += srcY * picSizeX;
 
 	char* mask = lpPic->GetMaskPic();
@@ -443,8 +443,86 @@ yStart += putY;
 	mask += srcY * picSizeX;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	char* mask64Org = mask;
 
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+
+		INT32 delta = ras[j];
+		INT32 x = putX + delta;
+		INT32 putSizeX = sizeX;
+		if ((x+putSizeX >= 0) && (x < screenSizeX))
+		{
+
+			if (x < 0)
+			{
+				src64 += x;
+//				dst64 += x;
+				mask64 += x;
+				putSizeX += x;
+				x = 0;
+			}
+
+			if (putSizeX > 0)
+			{
+				if (x + putSizeX > screenSizeX)
+				{
+					putSizeX = screenSizeX - x;
+				}
+			}
+
+			if (putSizeX > 0)
+			{
+				dst64 += x;
+
+				for (int i = 0; i < putSizeX; i++)
+				{
+					INT32 srcData = *src64;
+					INT32 dstData = *dst64;
+					INT32 maskData = ((INT32)(*mask64)) & 0xff;
+					INT32 tr = transPercent * maskData / 256;
+					if (tr > 0)
+					{
+						if (tr >= 255)
+						{
+							*dst64 = *src64;
+						}
+						else
+						{
+							INT32 srcR = (srcData >> 16) & 0xff;
+							INT32 srcG = (srcData >> 8) & 0xff;
+							INT32 srcB = (srcData) & 0xff;
+							INT32 dstR = (dstData >> 16) & 0xff;
+							INT32 dstG = (dstData >> 8) & 0xff;
+							INT32 dstB = (dstData) & 0xff;
+							INT32 r = srcR * tr + dstR * (256 - tr);
+							r >>= 8;
+							INT32 g = srcG * tr + dstG * (256 - tr);
+							g >>= 8;
+							INT32 b = srcB * tr + dstB * (256 - tr);
+							b >>= 8;
+							INT32 color = (r << 16) | (g << 8) | b;
+							*dst64 = color;
+						}
+					}
+					src64++;
+					dst64++;
+					mask64++;
+				}
+			}
+
+		}
+		src64Org += srcPitch / 4;
+		dst64Org += lPitch / 4;
+		mask64Org += maskPitch;
+
+
+	}
 #else
 
 	__asm

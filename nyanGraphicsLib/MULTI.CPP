@@ -176,8 +176,11 @@ void CMulti::PrintClip(int startX,int startY,int sizeX,int sizeY,int percentR,in
 
 	if ((startX == 0) && (startY == 0) && (sizeX == screenSizeX) && (sizeY == screenSizeY))
 	{
+#if !defined _WIN64
+
 		Print(percentR,percentG,percentB);
 		return;
+#endif
 	}
 
 
@@ -191,7 +194,7 @@ void CMulti::PrintClip(int startX,int startY,int sizeX,int sizeY,int percentR,in
 	if (percentB<0) percentB = 0;
 	if (percentB>100) percentB = 100;
 
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 
 	dst += startX;
 	int delta = startY * screenSizeX;
@@ -207,14 +210,13 @@ void CMulti::PrintClip(int startX,int startY,int sizeX,int sizeY,int percentR,in
 	int mulB= (percentB * 256)/100;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 	int* edi = dst;
 	for (int j = 0; j < loopY; j++)
 	{
-		int* pushedi = edi;
+		INT32* pushedi = edi;
 		for (int i = 0; i < loopX; i++)
 		{
-			int d = *edi;
+			INT32 d = *edi;
 			int r = (d >> 16) & 0xff;
 			int g = (d >>  8) & 0xff;
 			int b = (d     ) & 0xff;
@@ -227,7 +229,7 @@ void CMulti::PrintClip(int startX,int startY,int sizeX,int sizeY,int percentR,in
 			g >>= 8;
 			b >>= 8;
 
-			int col = (r << 16) | (g << 8) | b;
+			INT32 col = (r << 16) | (g << 8) | b;
 			*edi = col;
 
 			edi++;

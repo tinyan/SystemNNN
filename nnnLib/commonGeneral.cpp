@@ -1320,10 +1320,9 @@ void CCommonGeneral::FillPicture(CPicture* lpPic, int colR, int colG, int colB)
 
 //#if defined _WIN64
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 
-	int* edi = dst;
+	INT32* edi = (INT32*)dst;
 	for (int i = 0; i < sz; i++)
 	{
 		*edi = col;

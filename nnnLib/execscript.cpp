@@ -968,15 +968,10 @@ BOOL CExecScript::LoadScript(LPSTR filename)
 		int* pt = &m_data[0];
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á ŽÀ‘•‚µ‚½‚É‚á" __FILE__)
-
-
-
-//#if defined _WIN64
 
 		
 		int edi = 0;
-		int* esi = pt;
+		INT32* esi = (INT32*)pt;
 		int ebx = xorCode;
 		int edx = addXorCode;
 

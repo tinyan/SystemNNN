@@ -145,13 +145,12 @@ void CTransGradationBoxV::Print(POINT leftTop,SIZE size,int r1, int g1, int b1, 
 	}
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
-	int* edi = dst;
-	int* ebx = delta;
+	INT32* edi = dst;
+	INT32* ebx = delta;
 	for (int j = 0; j < loopY; j++)
 	{
-		int* pushedi = edi;
+		INT32* pushedi = edi;
 
 		int addB = *(ebx) & 0xffff;
 		int addG = (*(ebx)>>16) & 0xffff;

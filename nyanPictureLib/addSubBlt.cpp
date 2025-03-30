@@ -56,8 +56,65 @@ void CAddSubBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData
 	}
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	char* mask64Org = mask;
 
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+		for (int i = 0; i < loopX; i++)
+		{
+			INT32 maskData = (INT32)(*mask64);
+			maskData &= 0xff;
+
+			if (maskData != 0)
+			{
+				INT32 srcData = *src64;
+				INT32 srcR = (srcData >> 16) & 0xff;
+				INT32 srcG = (srcData >> 8) & 0xff;
+				INT32 srcB = (srcData) & 0xff;
+
+
+				INT32 dstData = *dst64;
+				INT32 dstR = (dstData >> 16) & 0xff;
+				INT32 dstG = (dstData >> 8) & 0xff;
+				INT32 dstB = (dstData) & 0xff;
+
+				INT32 r = dstR + (srcR * percent) / 256;
+				INT32 g = dstG + (srcG * percent) / 256;
+				INT32 b = dstB + (srcB * percent) / 256;
+
+				if (r < 0) r = 0;
+				if (r > 255) r = 255;
+				if (g < 0) g = 0;
+				if (g > 255) g = 255;
+				if (b < 0) b = 0;
+				if (b > 255) b = 255;
+
+
+				INT32 colorR = r * maskData + dstR * (255 - maskData);
+				INT32 colorG = g * maskData + dstG * (255 - maskData);
+				INT32 colorB = b * maskData + dstB * (255 - maskData);
+				colorR /= 255;
+				colorG /= 255;
+				colorB /= 255;
+
+				INT32 color = (colorR << 16) | (colorG << 8) | colorB;
+				*dst64 = color;
+			}
+
+			src64++;
+			dst64++;
+			mask64++;
+		}
+
+		src64Org += srcPitch / 4;
+		dst64Org += dstPitch / 4;
+		mask64Org += maskPitch;
+	}
 #else
 
 	__asm

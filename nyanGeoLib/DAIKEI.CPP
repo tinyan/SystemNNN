@@ -101,14 +101,13 @@ void CDaikei::Print(POINT leftUpperPoint, int sizeUpperX, POINT leftBottomPoint,
 
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 	int eax = col;
-	int* edi = dst;
-	int* ebx = dxtable;
+	INT32* edi = dst;
+	INT32* ebx = dxtable;
 	for (int j = 0; j < loopY;j++)
 	{
 //		int* pushebx = ebx;
-		int* pushedi = edi;
+		INT32* pushedi = edi;
 		int ecx = *ebx;
 		if (ecx > 0)
 		{

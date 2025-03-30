@@ -294,8 +294,58 @@ void CEffectDualMask::Print(LPVOID lpEffect,int layer)
 	dst += putX1;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org = (INT32*)src;
+	INT32* dst64Org = (INT32*)dst;
+	char* mask64Org = (char*)mask1;
+	char* mask64Org2 = (char*)mask2;
 
+	for (int j = 0; j < loopSizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+		char* mask64_2 = mask64Org2;
+
+
+		for (int i = 0; i < loopSizeX; i++)
+		{
+			INT32 mask1Data = ((INT32)(*mask64) & 0xff);
+			INT32 mask2Data = ((INT32)(*mask64_2) & 0xff);
+			INT32 maskData = (mask1Data * mask2Data) / 256;
+
+			if (maskData != 0)
+			{
+				INT32 srcData = *src64;
+				INT32 dstData = *dst64;
+
+				INT32 srcR = (srcData >> 16) & 0xff;
+				INT32 srcG = (srcData >> 8) & 0xff;
+				INT32 srcB = (srcData) & 0xff;
+				INT32 dstR = (dstData >> 16) & 0xff;
+				INT32 dstG = (dstData >> 8) & 0xff;
+				INT32 dstB = (dstData) & 0xff;
+
+				INT32 r = srcR * maskData + dstR * (255 - maskData);
+				r /= 255;
+				INT32 g = srcG * maskData + dstG * (255 - maskData);
+				g /= 255;
+				INT32 b = srcB * maskData + dstB * (255 - maskData);
+				b /= 255;
+				INT32 color = (r << 16) | (g << 8) | b;
+				*dst64 = color;
+			}
+
+			src64++;
+			dst64++;
+			mask64++;
+			mask64_2++;
+		}
+		
+		src64Org += srcPitch / 4;
+		dst64Org += dstPitch / 4;
+		mask64Org += srcMaskPitch;
+		mask64Org2 += maskMaskPitch;
+	}
 #else
 
 

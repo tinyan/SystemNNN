@@ -149,12 +149,14 @@ void CGrey::PrintClip(int startX,int startY,int sizeX,int sizeY)
 
 	if ((startX == 0) && (startY == 0) && (sizeX == screenSizeX) && (sizeY == screenSizeY))
 	{
+#if defined _WIN64
 		Print();
 		return;
+#endif
 	}
 
 
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 
 	int loopX = sizeX;
 	int loopY = sizeY;
@@ -166,21 +168,20 @@ void CGrey::PrintClip(int startX,int startY,int sizeX,int sizeY)
 //	int loopSize = screenSizeX * screenSizeY / 4;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
-	int* edi = dst;
+	INT32* edi = dst;
 	for (int j = 0; j < loopY; j++)
 	{
-		int* pushedi = edi;
+		INT32* pushedi = edi;
 		
 		for (int i = 0; i < loopX; i++)
 		{
-			int d = *edi;
+			INT32 d = *edi;
 			int r = (d >> 16) & 0xff;
 			int g = (d >>  8) & 0xff;
 			int b = (d      ) & 0xff;
 			int y = r * 76 + g * 150 + b * 29;
 			y >>= 8;
-			int color = (y << 16) | (y << 8) | y;
+			INT32 color = (y << 16) | (y << 8) | y;
 			*edi = color;
 
 			edi++;

@@ -3488,7 +3488,7 @@ void CCommonConfig::PrintSampleText(void)
 
 	m_mojiTime += mojiTime;
 	int printMojisuu = m_mojiTime / 1000;
-	int textLen = strlen(m_sampleText[m_sampleNowPrintGyo]) / 2;
+	int textLen = (int)(strlen(m_sampleText[m_sampleNowPrintGyo]) / 2);
 	if (printMojisuu > textLen)
 	{
 		printMojisuu = textLen;

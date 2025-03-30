@@ -41,15 +41,14 @@ void CBltBeta::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,S
 	if ((loopY<=0) || (loopX<=0)) return;
 
 #if defined _WIN64
-#pragma message("*** ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
-	int* esi = src;
-	int* edi = dst;
+	INT32* esi = (INT32*)src;
+	INT32* edi = (INT32*)dst;
 	for (int j = 0; j < loopY; j++)
 	{
-		int* pushesi = esi;
-		int* pushedi = edi;
+		INT32* pushesi = esi;
+		INT32* pushedi = edi;
 
-		memcpy(edi, esi, loopX * sizeof(int));
+		memcpy(edi, esi, loopX * sizeof(INT32));
 
 		esi = pushesi;
 		edi = pushedi;

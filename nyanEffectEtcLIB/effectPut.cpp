@@ -146,12 +146,11 @@ void CEffectPut::Print(LPVOID lpEffect,int layer)
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
 
-	int* dst = CMyGraphics::GetScreenBuffer();
-	int* src = CEffectGet::m_effectGetBuffer;
+	INT32* dst = CMyGraphics::GetScreenBuffer();
+	INT32* src = CEffectGet::m_effectGetBuffer;
 	int sz = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
 	
 	for (int i = 0; i < sz;i++)
 	{
@@ -195,12 +194,11 @@ void CEffectPut::PutScreen(void)
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
 
-	int* dst = CMyGraphics::GetScreenBuffer();
-	int* src = CEffectGet::m_effectGetBuffer;
+	INT32* dst = CMyGraphics::GetScreenBuffer();
+	INT32* src = CEffectGet::m_effectGetBuffer;
 	int sz = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
 	for (int i = 0; i < sz; i++)
 	{
 		*dst = *src;

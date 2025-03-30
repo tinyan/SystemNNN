@@ -56,19 +56,18 @@ void CAddSub::Print(int deltaR,int deltaG,int deltaB)
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 
 
 	int addColor = (addR << 16) | (addG << 8) | addB;
 	int subColor = (subR << 16) | (subG << 8) | subB;
 
 #if defined _WIN64
-#pragma message("***実装したにゃ　ここにc++実装が必要にゃ " __FILE__)
 	int loop = screenSizeX * screenSizeY;
 
 	for (int i = 0; i < loop; i++)
 	{
-		int d = *dst;
+		INT32 d = *dst;
 		int r = (d >> 16) & 0xff;
 		int g = (d >>  8) & 0xff;
 		int b = (d     ) & 0xff;
@@ -87,7 +86,7 @@ void CAddSub::Print(int deltaR,int deltaG,int deltaB)
 		if (b < 0) b = 0;
 		if (b > 255) b = 255;
 
-		int color = (r << 16) | (g << 8) | b;
+		INT32 color = (r << 16) | (g << 8) | b;
 
 		*dst = color;
 		dst++;
@@ -206,7 +205,7 @@ void CAddSub::PrintClip(int startX,int startY,int sizeX,int sizeY,int deltaR,int
 
 
 
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 	int lPitch = screenSizeX * sizeof(int);
 	dst += startX;
 	int delta = startY * screenSizeX;
@@ -219,16 +218,15 @@ void CAddSub::PrintClip(int startX,int startY,int sizeX,int sizeY,int deltaR,int
 	int subColor = (subR << 16) | (subG << 8) | subB;
 
 #if defined _WIN64
-#pragma message("***実装したにゃ ここにc++実装が必要にゃ " __FILE__)
 
-	int* edi = dst;
+	INT32* edi = dst;
 	for (int j=0;j<loopY;j++)
 	{
-		int* pushedi = edi;
+		INT32* pushedi = edi;
 
 		for (int i = 0; i < loopX; i++)
 		{
-			int d = *edi;
+			INT32 d = *edi;
 			int r = (d >> 16) & 0xff;
 			int g = (d >> 8) & 0xff;
 			int b = (d) & 0xff;
@@ -247,7 +245,7 @@ void CAddSub::PrintClip(int startX,int startY,int sizeX,int sizeY,int deltaR,int
 			if (b < 0) b = 0;
 			if (b > 255) b = 255;
 
-			int color = (r << 16) | (g << 8) | b;
+			INT32 color = (r << 16) | (g << 8) | b;
 
 			*edi = color;
 			edi++;

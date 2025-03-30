@@ -42,19 +42,18 @@ void CBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,SIZE 
 	if ((loopY<=0) || (loopX<=0)) return;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
-	int* esi = src;
-	int* edi = dst;
-	int ebx = tr;
+	INT32* esi = src;
+	INT32* edi = dst;
+	INT32 ebx = (INT32)tr;
 
 	for (int j = 0; j < loopY; j++)
 	{
-		int* esipush = esi;
-		int* edipush = edi;
+		INT32* esipush = esi;
+		INT32* edipush = edi;
 		for (int i = 0; i < loopX; i++)
 		{
-			int eax = *esi;
+			INT32 eax = *esi;
 			if (eax != ebx)
 			{
 				*edi = eax;

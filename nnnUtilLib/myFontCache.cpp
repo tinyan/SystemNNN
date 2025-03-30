@@ -103,26 +103,52 @@ void CMyFontCache::ClearCache(void)
 BOOL CMyFontCache::GetData(int n,CPicture* lpPic)
 {
 	SIZE sz = lpPic->GetPicSize();
-	int dstPitch = sz.cx * sizeof(int);
-	int dstMaskPitch = sz.cx;
-	int* dst = (int*)(lpPic->GetBuffer());
+	INT32 dstPitch = sz.cx * sizeof(int);
+	INT32 dstMaskPitch = sz.cx;
+	INT32* dst = (int*)(lpPic->GetBuffer());
 	char* dstMask = lpPic->GetMaskPic();
 
 	SIZE sz2 = m_fontPic->GetPicSize();
-	int srcPitch = sz2.cx * sizeof(int);
-	int srcMaskPitch = sz2.cx;
-	int* src = (int*)(m_fontPic->GetBuffer());
+	INT32 srcPitch = sz2.cx * sizeof(int);
+	INT32 srcMaskPitch = sz2.cx;
+	INT32* src = (int*)(m_fontPic->GetBuffer());
 	char* srcMask = m_fontPic->GetMaskPic();
 
 	int loopX = m_table[n*16+7];
 	int loopY = m_table[n*16+8];
 
-	int offsetY = m_table[n*16+9];
+	INT32 offsetY = m_table[n*16+9];
 	src += sz2.cx * offsetY;
 	srcMask += sz2.cx * offsetY;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64 = src;
+		INT32* dst64 = dst;
+		for (int i = 0; i < loopX; i++)
+		{
+			*dst64 = *src64;
+			src64++;
+			dst64++;
+		}
+		src += srcPitch/4;
+		dst += dstPitch/4;
+	}
+
+	for (int j = 0; j < loopY; j++)
+	{
+		char* srcMask64 = srcMask;
+		char* dstMask64 = dstMask;
+		for (int i = 0; i < loopX; i++)
+		{
+			*dstMask64 = *srcMask64;
+			srcMask64++;
+			dstMask64++;
+		}
+		srcMask += srcMaskPitch;
+		dstMask += dstMaskPitch;
+	}
 
 #else
 
@@ -321,25 +347,25 @@ int CMyFontCache::SetDataSub(int ln,int fontSize,LPSTR message,int colR,int colG
 	m_dataKosuu++;
 
 
-	int loopX = m_table[n*16+7];
-	int loopY = m_table[n*16+8];
-	int offsetY = m_table[n*16+9];
+	INT32 loopX = m_table[n*16+7];
+	INT32 loopY = m_table[n*16+8];
+	INT32 offsetY = m_table[n*16+9];
 
 	if ((loopX <= 0) || (loopY <= 0)) return n;
 
 	SIZE sz2 = lpPic->GetPicSize();
-	int srcPitch = sz2.cx * sizeof(int);
-	int srcMaskPitch = sz2.cx;
-	int* src = (int*)(lpPic->GetBuffer());
+	INT32 srcPitch = sz2.cx * sizeof(int);
+	INT32 srcMaskPitch = sz2.cx;
+	INT32* src = (INT32*)(lpPic->GetBuffer());
 	char* srcMask = lpPic->GetMaskPic();
 
 
 #if !defined _TINYAN3DLIB_
 
 	SIZE sz = m_fontPic->GetPicSize();
-	int dstPitch = sz.cx * sizeof(int);
-	int dstMaskPitch = sz.cx;
-	int* dst = (int*)(m_fontPic->GetBuffer());
+	INT32 dstPitch = sz.cx * sizeof(int);
+	INT32 dstMaskPitch = sz.cx;
+	INT32* dst = (INT32*)(m_fontPic->GetBuffer());
 	char* dstMask = m_fontPic->GetMaskPic();
 
 	dst += sz.cx * offsetY;
@@ -363,7 +389,34 @@ int CMyFontCache::SetDataSub(int ln,int fontSize,LPSTR message,int colR,int colG
 #if !defined _TINYAN3DLIB_
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64 = src;
+		INT32* dst64 = dst;
+		for (int i = 0; i < loopX; i++)
+		{
+			*dst64 = *src64;
+			src64++;
+			dst64++;
+		}
+		src += srcPitch/4;
+		dst += dstPitch/4;
+	}
+
+	for (int j = 0; j < loopY; j++)
+	{
+		char* srcMask64 = srcMask;
+		char* dstMask64 = dstMask;
+		for (int i = 0; i < loopX; i++)
+		{
+			*dstMask64 = *srcMask64;
+			srcMask64++;
+			dstMask64++;
+		}
+		srcMask += srcMaskPitch;
+		dstMask += dstMaskPitch;
+	}
 
 #else
 
@@ -573,18 +626,18 @@ LOOP2:
 //		char* dstMask = m_fontPic->GetMaskPic();
 
 		SIZE sz3 = lpRubiPic->GetPicSize();
-		int rubiPitch = sz3.cx * sizeof(int);
-		int rubiMaskPitch = sz3.cx;
-		int* rubiSrc = (int*)(lpRubiPic->GetBuffer());
+		INT32 rubiPitch = sz3.cx * sizeof(int);
+		INT32 rubiMaskPitch = sz3.cx;
+		INT32* rubiSrc = (int*)(lpRubiPic->GetBuffer());
 		char* rubiSrcMask = lpRubiPic->GetMaskPic();
 
 
 #if !defined _TINYAN3DLIB_
 
 		SIZE sz4 = m_rubiPic->GetPicSize();
-		int dstRubiPitch = sz4.cx * sizeof(int);
-		int dstRubiMaskPitch = sz4.cx;
-		int* dstRubi = (int*)(m_rubiPic->GetBuffer());
+		INT32 dstRubiPitch = sz4.cx * sizeof(int);
+		INT32 dstRubiMaskPitch = sz4.cx;
+		INT32* dstRubi = (int*)(m_rubiPic->GetBuffer());
 		char* dstRubiMask = m_rubiPic->GetMaskPic();
 
 
@@ -617,7 +670,34 @@ LOOP2:
 
 #if !defined _TINYAN3DLIB_
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64 = rubiSrc;
+		INT32* dst64 = dstRubi;
+		for (int i = 0; i < loopX; i++)
+		{
+			*dst64 = *src64;
+			src64++;
+			dst64++;
+		}
+		rubiSrc += rubiPitch / 4;
+		dstRubi += dstRubiPitch / 4;
+	}
+
+	for (int j = 0; j < loopY; j++)
+	{
+		char* srcMask64 = rubiSrcMask;
+		char* dstMask64 = dstRubiMask;
+		for (int i = 0; i < loopX; i++)
+		{
+			*dstMask64 = *srcMask64;
+			srcMask64++;
+			dstMask64++;
+		}
+		rubiSrcMask += rubiMaskPitch;
+		dstRubiMask += dstRubiMaskPitch;
+	}
 
 #else
 

@@ -30,8 +30,8 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 //	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
-	int* src = (int*)picData;
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* src = (int*)picData;
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 	char* mask = (char*)maskData;
 
 	src += srcPoint.x;
@@ -44,8 +44,8 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 	mask += (SSIZE_T)srcPoint.y * picSize.cx;
 
 
-	int dstPitch = screenSizeX * sizeof(int);
-	int srcPitch = picSize.cx * sizeof(int);
+	int dstPitch = screenSizeX * sizeof(INT32);
+	int srcPitch = picSize.cx * sizeof(INT32);
 	int maskPitch = picSize.cx;
 
 	int loopX = putSize.cx;
@@ -57,26 +57,26 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 #if defined _WIN64
 #pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
-	int* esi = src;
-	int* edi = dst;
+	INT32* esi = src;
+	INT32* edi = dst;
 	char* ebx = mask;
 
 	for (int j = 0; j < loopY; j++)
 	{
-		int* pushesi = esi;
-		int* pushedi = edi;
+		INT32* pushesi = esi;
+		INT32* pushedi = edi;
 		char* pushebx = ebx;
 
 		for (int i = 0; i < loopX; i++)
 		{
-			int maskData = 0xff & (int)(*ebx);
+			INT32 maskData = 0xff & (INT32)(*ebx);
 			if (maskData != 0)
 			{
-				int srcData = *src;
-				int dstData = *dst;
+				INT32 srcData = *esi;
+				INT32 dstData = *edi;
 
 
-				if (maskData == 255 * 255)
+				if (maskData == 255)
 				{
 					*edi = srcData;
 				}
@@ -86,7 +86,7 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 					int srcG = (srcData >> 8) & 0xff;
 					int srcB = (srcData) & 0xff;
 
-					int dstData = *edi;
+					INT32 dstData = *edi;
 					int dstR = (dstData >> 16) & 0xff;
 					int dstG = (dstData >> 8) & 0xff;
 					int dstB = (dstData) & 0xff;
@@ -99,7 +99,7 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 					colG >>= 8;
 					colB >>= 8;
 
-					int color = 0xff000000 | (colR << 16) | (colG << 8) | colB;
+					INT32 color = 0xff000000 | (colR << 16) | (colG << 8) | colB;
 
 					*edi = color;
 
