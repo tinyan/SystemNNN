@@ -49,7 +49,6 @@ void CTransLucentBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID pi
 	if ((loopY<=0) || (loopX<=0)) return;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 	int alpha = transPercent;
 	int one_minus_alpha = 256 - alpha;

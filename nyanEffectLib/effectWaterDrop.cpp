@@ -93,7 +93,6 @@ void CEffectWaterDrop::Print(LPVOID lpEffect,int layer)
 	int loopSize = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 	for (int i = 0; i < loopSize; i++)
 	{
 		*dst = col;

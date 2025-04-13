@@ -262,8 +262,53 @@ void CEffectGradation::Print(LPVOID lpEffect,int layer)
 	int sizeXdiv4 = sizeX / 4;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* delta64 = delta;
+	for (int i = 0; i < printSizeY; i++)
+	{
+		int rr = dr1 + ((dr * i) / printSizeY);
+		int gg = dg1 + ((dg * i) / printSizeY);
+		int bb = db1 + ((db * i) / printSizeY);
+		delta[i * 4 + 0] = rr;
+		delta[i * 4 + 1] = gg;
+		delta[i * 4 + 2] = bb;
+	}
 
+
+	INT32* dst64Org = dst;
+	INT32* deltaPtr64 = deltaPtr;
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32 deltaR = *delta64;
+		delta64++;
+		INT32 deltaG = *delta64;
+		delta64++;
+		INT32 deltaB = *delta64;
+		delta64++;
+		delta64++;
+
+		INT32* dst64 = dst64Org;
+		for (int i = 0; i < sizeX; i++)
+		{
+			INT32 dstData = *dst64;
+			INT32 r = (dstData >> 16) & 0xff;
+			INT32 g = (dstData >> 8) & 0xff;
+			INT32 b = (dstData  ) & 0xff;
+			r += deltaR;
+			g += deltaG;
+			b += deltaB;
+			if (r < 0) r = 0;
+			if (r > 255) r = 255;
+			if (g < 0) g = 0;
+			if (g > 255) g = 255;
+			if (b < 0) b = 0;
+			if (b > 255) b = 255;
+			INT32 color = (r << 16) | (g << 8) | b;
+			*dst64 = color;
+			
+			dst64++;
+		}
+		dst64Org += lPitch / 4;
+	}
 #else
 
 	__asm

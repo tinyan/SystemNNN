@@ -476,7 +476,73 @@ void CEffectColorBalance::Print(LPVOID lpEffect,int layer)
 	}
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	char* mask64Org = mask;
+//	INT32* trans64Ptr = transPtr;
+
+	INT32 yubMultiR = 76;
+	INT32 yubMultiG = 150;
+	INT32 yubMultiB = 29;
+
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+		for (int i = 0; i < sizeX; i++)
+		{
+			INT32 maskData = ((INT32)(*mask64)) & 0xff;
+			if (maskData > 0)
+			{
+				INT32 maskMul = maskData;
+				INT32 srcData = *src64;
+				INT32 dstData = *dst64;
+				INT32 srcR = (srcData >> 16) & 0xff;
+				INT32 srcG = (srcData >> 8) & 0xff;
+				INT32 srcB = (srcData) & 0xff;
+				INT32 dstR = (dstData >> 16) & 0xff;
+				INT32 dstG = (dstData >> 8) & 0xff;
+				INT32 dstB = (dstData) & 0xff;
+				INT32 yuvY = (srcR * yubMultiR + srcG * yubMultiG + srcB * yubMultiB) >> 8;
+				if (yuvY > 255) yuvY = 255;
+				INT32 addColor = colorAddSub[yuvY * 2];
+				INT32 subColor = colorAddSub[yuvY * 2+1];
+				INT32 addR = (addColor >> 16) & 0xff;
+				INT32 addG = (addColor >> 8) & 0xff;
+				INT32 addB = (addColor ) & 0xff;
+				INT32 subR = (subColor >> 16) & 0xff;
+				INT32 subG = (subColor >> 8) & 0xff;
+				INT32 subB = (subColor) & 0xff;
+
+				srcR += (addR - subR);
+				srcG += (addG - subG);
+				srcB += (addB - subB);
+				if (srcR < 0) srcR = 0;
+				if (srcR > 255) srcR = 255;
+				if (srcG < 0) srcG = 0;
+				if (srcG > 255) srcG = 255;
+				if (srcB < 0) srcB = 0;
+				if (srcB > 255) srcB = 255;
+
+				INT32 r = srcR * maskMul + (256 - maskMul) * dstR;
+				INT32 g = srcG * maskMul + (256 - maskMul) * dstG;
+				INT32 b = srcB * maskMul + (256 - maskMul) * dstB;
+				r >>= 8;
+				g >>= 8;
+				b >>= 8;
+				INT32 color = (r << 16) | (g << 8) | b;
+				*dst64 = color;
+			}
+			src64++;
+			dst64++;
+			mask64++;
+		}
+		src64Org += srcPitch / 4;
+		dst64Org += dstPitch / 4;
+		mask64Org += maskPitch;
+	}
+
 
 #else
 

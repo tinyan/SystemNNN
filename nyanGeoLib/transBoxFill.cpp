@@ -68,7 +68,6 @@ void CTransBoxFill::Print(int x, int y, int sizeX, int sizeY, int r, int g, int 
 	int lPitch = screenSizeX * sizeof(int);
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 	int alpha = dwAlpha;
 	int oneMinusAlpha = dwAlpha2;

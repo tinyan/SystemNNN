@@ -303,7 +303,101 @@ void CEffectCharaRaster::Print(LPVOID lpEffect,int layer)
 	mask += srcY * picSizeX;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	char* mask64Org = mask;
+	INT32* raster64Ptr = ras;
+//	dst64Org += putX;
+
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+
+
+
+		INT32 delta = *raster64Ptr;
+		INT32 putX64 = putX + delta;
+		//clip1
+
+		bool bPrint = true;
+		int loopX = sizeX;
+
+		if (putX64 + loopX > screenSizeX)
+		{
+			loopX = screenSizeX - putX64;
+		}
+		if (putX64 < 0)
+		{
+			loopX += putX64;
+			src64 -= putX64;
+			putX64 = 0;
+		}
+
+		if (loopX <= 0)
+		{
+			bPrint = false;
+		}
+		else
+		{
+			int checkX1 = putX64 + sizeX;
+			if (checkX1 <= 0)
+			{
+				bPrint = false;
+			}
+
+			int checkX2 = putX64 + delta;
+			if (checkX2 >= screenSizeX)
+			{
+				bPrint = false;
+			}
+		}
+		if (bPrint)
+		{
+			dst64 += putX64;
+
+			for (int i = 0; i < loopX; i++)
+			{
+				INT32 maskData = ((INT32)(*mask64)) & 0xff;
+
+
+
+				if (maskData == 255)
+				{
+					*dst64 = *src64;
+				}
+				else if (maskData > 0)
+				{
+					INT32 maskMul = maskData;
+					INT32 srcData = *src64;
+					INT32 dstData = *dst64;
+					INT32 srcR = (srcData >> 16) & 0xff;
+					INT32 srcG = (srcData >> 8) & 0xff;
+					INT32 srcB = (srcData) & 0xff;
+					INT32 dstR = (dstData >> 16) & 0xff;
+					INT32 dstG = (dstData >> 8) & 0xff;
+					INT32 dstB = (dstData) & 0xff;
+					INT32 r = srcR * maskMul + (256 - maskMul) * dstR;
+					INT32 g = srcG * maskMul + (256 - maskMul) * dstG;
+					INT32 b = srcB * maskMul + (256 - maskMul) * dstB;
+					r >>= 8;
+					g >>= 8;
+					b >>= 8;
+					INT32 color = (r << 16) | (g << 8) | b;
+					*dst64 = color;
+				}
+				src64++;
+				dst64++;
+				mask64++;
+			}
+		}
+		src64Org += srcPitch / 4;
+		dst64Org += lPitch / 4;
+		mask64Org += maskPitch;
+		raster64Ptr++;
+	}
+
 
 #else
 

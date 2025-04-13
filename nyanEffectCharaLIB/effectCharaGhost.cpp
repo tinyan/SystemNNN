@@ -283,7 +283,7 @@ void CEffectCharaGhost::Print(LPVOID lpEffect,int layer)
 	int picSizeY = sz.cy;
 
 
-	int* transWork = m_allEffect->GetTempWork();
+	INT32* transWork = m_allEffect->GetTempWork();
 
 	POINT pt = m_allEffect->GetDstPoint(layer);
 	int putX = pt.x;
@@ -349,13 +349,13 @@ void CEffectCharaGhost::Print(LPVOID lpEffect,int layer)
 		transWork[putY+j] = tr;
 	}
 
-	int* src = (int*)(lpPic->GetPictureBuffer());
+	INT32* src = (int*)(lpPic->GetPictureBuffer());
 	char* mask = lpPic->GetMaskPic();
 	int lPitch = screenSizeX * sizeof(int);
 	int srcPitch = picSizeX * sizeof(int);
 	int maskPitch = picSizeX;
 
-	int* dst = CMyGraphics::GetScreenBuffer();
+	INT32* dst = CMyGraphics::GetScreenBuffer();
 	dst += putX;
 	dst += putY * screenSizeX;
 
@@ -365,11 +365,59 @@ void CEffectCharaGhost::Print(LPVOID lpEffect,int layer)
 	mask += srcX;
 	mask += srcY * picSizeX;
 
-	int* transPtr = transWork;
+	INT32* transPtr = transWork;
 	transPtr += putY;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	char* mask64Org = mask;
+	INT32* trans64Ptr = transPtr;
+
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+		for (int i = 0; i < sizeX; i++)
+		{
+			INT32 maskData = ((INT32)(*mask64)) & 0xff;
+			INT32 transData = *trans64Ptr;
+			if ((maskData == 255) && (transData == 256))
+			{
+				*dst64 = *src64;
+			}
+			else if ((maskData > 0) && (transData > 0))
+			{
+				INT32 maskMul = maskData * transData / 256;
+				INT32 srcData = *src64;
+				INT32 dstData = *dst64;
+				INT32 srcR = (srcData >> 16) & 0xff;
+				INT32 srcG = (srcData >> 8) & 0xff;
+				INT32 srcB = (srcData ) & 0xff;
+				INT32 dstR = (dstData >> 16) & 0xff;
+				INT32 dstG = (dstData >> 8) & 0xff;
+				INT32 dstB = (dstData) & 0xff;
+				INT32 r = srcR * maskMul + (256 - maskMul) * dstR;
+				INT32 g = srcG * maskMul + (256 - maskMul) * dstG;
+				INT32 b = srcB * maskMul + (256 - maskMul) * dstB;
+				r >>= 8;
+				g >>= 8;
+				b >>= 8;
+				INT32 color = (r << 16) | (g << 8) | b;
+				*dst64 = color;
+			}
+			src64++;
+			dst64++;
+			mask64++;
+		}
+		src64Org += srcPitch / 4;
+		dst64Org += lPitch / 4;
+		mask64Org += maskPitch;
+		trans64Ptr++;
+	}
+
+
 
 #else
 

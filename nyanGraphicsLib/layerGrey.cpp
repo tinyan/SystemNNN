@@ -42,7 +42,6 @@ void CLayerGrey::Print(int ps256)
 //	int col = (r << 16) | (g<<8) | b;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 	int* edi = dst;
 	for (int i = 0; i < loopSize; i++)

@@ -68,7 +68,6 @@ void CColorAddBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picDa
 	int transPercent256 = (ps * 256) / 100;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 	INT32 maskPicSizeX = 0;
 	INT32 maskPitch = 0;
 

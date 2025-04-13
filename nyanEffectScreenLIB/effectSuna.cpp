@@ -385,8 +385,64 @@ void CEffectSuna::Print(LPVOID lpEffect,int layer)
 	if (ps==0) return;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
+	INT32* dst64Org = dst;
+	INT32* sunaOrg = m_suna;
+
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* dst64 = dst64Org;
+
+		for (int i = 0; i < loopX ; i++)
+		{
+			INT32 sunaData = *sunaOrg;
+			//INT32 sunaData2 = *(sunaOrg+1);
+			INT32 sunaWork[4];
+			sunaWork[0] = (((INT32)(sunaData >> 24)) & 0x7f) * 2;
+			sunaWork[1] = ((INT32)(sunaData >> 16)) & 0xff;
+			sunaWork[2] = (((INT32)(sunaData >> 8)) & 0x7f) * 2;
+			sunaWork[3] = ((INT32)(sunaData )) & 0xff;
+
+
+			for (int k = 0; k < 4; k++)
+			{
+				INT32 srcR = sunaWork[k];
+				INT32 srcG = sunaWork[k];
+				INT32 srcB = sunaWork[k];
+
+				for (int l = 0; l < 2; l++)
+				{
+					INT32* dstPtr = dst64 + l * lPitch / 4;
+					for (int m = 0; m < 2; m++)
+					{
+						if (ps == 256)
+						{
+							INT32 color = (srcR << 16) | (srcG << 8) | srcB;
+							*dstPtr = color;
+						}
+						else
+						{
+							INT32 dstData = *dstPtr;
+							INT32 dstR = (dstData >> 16) & 0xff;
+							INT32 dstG = (dstData >> 8) & 0xff;
+							INT32 dstB = (dstData ) & 0xff;
+							INT32 r = (srcR * ps + dstR * (256 - ps)) >> 8;
+							INT32 g = (srcG * ps + dstG * (256 - ps)) >> 8;
+							INT32 b = (srcB * ps + dstB * (256 - ps)) >> 8;
+							INT32 color = (r << 16) | (g << 8) | b;
+							*dstPtr = color;
+						}
+						dstPtr++;
+					}
+				}
+				dst64+=2;
+			}
+
+			sunaOrg+=1;
+		}
+
+		dst64Org += lPitch /4 * 2;
+	}
 #else
 
 	__asm

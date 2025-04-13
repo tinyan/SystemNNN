@@ -55,8 +55,6 @@ void CMaskBlt::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,L
 
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
-
 	INT32* esi = src;
 	INT32* edi = dst;
 	char* ebx = mask;

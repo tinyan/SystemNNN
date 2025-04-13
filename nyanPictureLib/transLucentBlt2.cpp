@@ -57,7 +57,6 @@ void CTransLucentBlt2::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID p
 	int one_minus_alpha = 256 - transPercent;
 
 #if defined _WIN64
-#pragma message("***　実装したにゃ。ここにc++実装が必要にゃ " __FILE__)
 	int* esi = src;
 	int* edi = dst;
 	int ebx = mask;

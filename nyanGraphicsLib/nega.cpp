@@ -118,7 +118,6 @@ void CNega::PrintClip(int startX,int startY,int sizeX,int sizeY)
 	int loopY = sizeY;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 	int* edi = dst;
 	for (int j = 0; j < loopY; j++)

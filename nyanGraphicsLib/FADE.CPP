@@ -56,7 +56,6 @@ void CFade::Print(int ps1,int r,int g,int b,int ps2)
 	int loops = sizeX * sizeY / 4;
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 	int mul1 = (ps1 * 256) / 100;
 	int mul2 = (ps2 * 256) / 100;
 

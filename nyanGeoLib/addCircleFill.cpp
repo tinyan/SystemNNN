@@ -114,7 +114,6 @@ void CAddCircleFill::Print(int x, int y, int rx, int ry, int dr, int dg, int db,
 
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á ‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 	int* edi = dst;
 	int* ebx = table;

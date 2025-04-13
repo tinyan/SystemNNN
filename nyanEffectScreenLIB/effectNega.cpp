@@ -160,8 +160,30 @@ void CEffectNega::Print(LPVOID lpEffect,int layer)
 	int loopSize = screenSizeX * screenSizeY / 2 / 2;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
+	INT32* dst64 = screen;
+	for (int i = 0; i < screenSizeX * screenSizeY; i++)
+	{
+		INT32 dstData = *dst64;
+		INT32 dstR = (dstData >> 16) & 0xff;
+		INT32 dstG = (dstData >> 8) & 0xff;
+		INT32 dstB = (dstData ) & 0xff;
+		INT32 deltaR = ((dstR - 128) * negaData) / 256;
+		INT32 deltaG = ((dstG - 128) * negaData) / 256;
+		INT32 deltaB = ((dstB - 128) * negaData) / 256;
+		INT32 r = 128 + deltaR;
+		INT32 g = 128 + deltaG;
+		INT32 b = 128 + deltaB;
+		if (r < 0) r = 0;
+		if (r > 255) r = 255;
+		if (g < 0) g = 0;
+		if (g > 255) g = 255;
+		if (b < 0) b = 0;
+		if (b > 255) b = 255;
+		INT32 color = (r << 16) | (g << 8) | b;
+		*dst64 = color;
+		dst64++;
+	}
 #else
 
 	__asm

@@ -84,8 +84,87 @@ void CChangeTransLucentBlt::Print(POINT dstPoint,SIZE putSize,LPVOID picData1,LP
 	int dstPitch = screenSizeX * 4;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* dst64Org = screen;
+	INT32* src64Org1 = src1;
+	INT32* src64Org2 = src2;
+	char* mask64Org1 = maskPtr1;
+	char* mask64Org2 = maskPtr2;
 
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* dst64 = dst64Org;
+		INT32* src64_1 = src64Org1;
+		INT32* src64_2 = src64Org2;
+		char* mask64_1 = mask64Org1;
+		char* mask64_2 = mask64Org2;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			INT32 srcData1 = *src64_1;
+			INT32 srcData2 = *src64_2;
+			INT32 maskData1 = ((INT32)(*mask64_1)) & 0xff;
+			INT32 maskData2 = ((INT32)(*mask64_2)) & 0xff;
+			INT32 dstData = *dst64;
+
+			INT32 srcR1 = (srcData1 >> 16) & 0xff;
+			INT32 srcG1 = (srcData1 >> 8) & 0xff;
+			INT32 srcB1 = (srcData1 ) & 0xff;
+			INT32 srcR2 = (srcData2 >> 16) & 0xff;
+			INT32 srcG2 = (srcData2 >> 8) & 0xff;
+			INT32 srcB2 = (srcData2) & 0xff;
+			INT32 dstR = (dstData >> 16) & 0xff;
+			INT32 dstG = (dstData >> 8) & 0xff;
+			INT32 dstB = (dstData) & 0xff;
+			INT32 percent64_1 = (percent1 * maskData1) >> 8;
+			INT32 percent64_2 = (percent2 * maskData2) >> 8;
+
+			INT32 srcR = srcR1 * percent64_1 + srcR2 * percent64_2;
+			srcR >>= 8;
+			if (srcR < 0) srcR = 0;
+			if (srcR > 255) srcR = 255;
+			INT32 srcG = srcG1 * percent64_1 + srcG2 * percent64_2;
+			srcG >>= 8;
+			if (srcG < 0) srcG = 0;
+			if (srcG > 255) srcG = 255;
+			INT32 srcB = srcB1 * percent64_1 + srcB2 * percent64_2;
+			srcB >>= 8;
+			if (srcB < 0) srcB = 0;
+			if (srcB > 255) srcB = 255;
+
+			INT32 totalPercent = percent64_1 + percent64_2;
+
+			int r = srcR * totalPercent + dstR * (256 - totalPercent);
+			int g = srcG * totalPercent + dstG * (256 - totalPercent);
+			int b = srcB * totalPercent + dstB * (256 - totalPercent);
+
+			r >>= 8;
+			g >>= 8;
+			b >>= 8;
+
+			if (r > 255) r = 255;
+			if (r < 0) r = 0;
+			if (g > 255) g = 255;
+			if (g < 0) g = 0;
+			if (b > 255) b = 255;
+			if (b < 0) b = 0;
+
+			INT32 color = (r << 16) | (g << 8) | b;
+
+			*dst64 = color;
+
+			dst64++;
+			src64_1++;
+			src64_2++;
+			mask64_1++;
+			mask64_2++;
+		}
+
+		dst64Org += dstPitch / 4;
+		src64Org1 += srcPitch / 4;
+		src64Org2 += srcPitch2 / 4;
+		mask64Org1 += maskPitch;
+		mask64Org2 += maskPitch2;
+	}
 #else
 
 

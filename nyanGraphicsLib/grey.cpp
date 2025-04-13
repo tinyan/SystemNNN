@@ -149,7 +149,9 @@ void CGrey::PrintClip(int startX,int startY,int sizeX,int sizeY)
 
 	if ((startX == 0) && (startY == 0) && (sizeX == screenSizeX) && (sizeY == screenSizeY))
 	{
-#if defined _WIN64
+
+#if !defined _WIN64
+
 		Print();
 		return;
 #endif

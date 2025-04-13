@@ -58,7 +58,6 @@ void CTransLucentBlt3::Print(POINT putPoint,POINT srcPoint, SIZE putSize,LPVOID 
 
 
 #if defined _WIN64
-#pragma message("***ŽÀ‘•‚µ‚½‚É‚á‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
 
 
 	int* esi = src;

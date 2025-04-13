@@ -785,8 +785,28 @@ void CPicture::Toumeika(void)
 	int loopY = m_pictureSizeY;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	char* mask64Org = mask;
+	INT32* dst64Org = dst;
 
+	INT32 leftTop = *dst64Org;
+
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* dst64 = dst64Org;
+		char* mask64 = mask64Org;
+		for (int i = 0; i < loopX; i++)
+		{
+			char c = *mask64;
+			if (c == 0)
+			{
+				*dst64 = leftTop;
+			}
+			dst64++;
+			mask64++;
+		}
+		dst64Org += loopX;
+		mask64Org += loopX;
+	}
 #else
 
 	__asm
@@ -3338,8 +3358,23 @@ BOOL CPicture::GetScreen(int x, int y, int sizeX, int sizeY)
 	int srcPitch = screenSizeX * 4;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
 
+		for (int i = 0; i < loopX; i++)
+		{
+			*dst64 = *src64;
+
+			src64++;
+			dst64++;
+		}
+		src64Org += srcPitch / 4;
+		dst64Org += lPitch / 4;
+	}
 #else
 
 	__asm
@@ -3414,7 +3449,23 @@ BOOL CPicture::GetScreen(void)
 	int srcLoopY = screenSizeY;
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	for (int j = 0; j < srcLoopY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
+
+		for (int i = 0; i < srcLoopX; i++)
+		{
+			*dst64 = *src64;
+
+			src64++;
+			dst64++;
+		}
+		src64Org += srcPitch / 4;
+		dst64Org += lPitch / 4;
+	}
 
 #else
 
