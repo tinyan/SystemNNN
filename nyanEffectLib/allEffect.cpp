@@ -372,6 +372,11 @@ CAllEffect::CAllEffect()
 		SetEye(i);
 	}
 
+	for (i = 0; i < PICTURE_KOSUU_MAX; i++)
+	{
+		SetGoreMask(i,0);
+	}
+
 	m_makeCGPicNum = 0;
 
 	for (i=0;i<EFFECT_SHURUI_MAX;i++)
@@ -1320,6 +1325,7 @@ void CAllEffect::PrintLayers(int startLayer,int endLayer,BOOL bScreenFlag,BOOL b
 	for (int i=startLayer;i<=endLayer;i++)
 	{
 		if ((m_eyeFlag[i] == FALSE) && (bEyeCheckFlag == TRUE)) continue;
+		if (m_goreMask[i]) continue;
 
 		if (m_effect[i].flag)
 		{
@@ -1453,6 +1459,8 @@ void CAllEffect::Print(BOOL bScreenFlag,BOOL bEyeCheckFlag)
 	for (int i=st;i<=ed;i++)
 	{
 		if ((m_eyeFlag[i] == FALSE) && (bEyeCheckFlag == TRUE)) continue;
+		if (m_goreMask[i]) continue;
+
 
 		if (m_effect[i].flag)
 		{
@@ -1625,6 +1633,13 @@ void CAllEffect::ReCreateAllShader(void)
 }
 
 
+void CAllEffect::SetGoreMask(int n, int mask)
+{
+	if ((n >= 0) && (n < PICTURE_KOSUU_MAX))
+	{
+		m_goreMask[n] = mask;
+	}
+}
 
 /*_*/
 

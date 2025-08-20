@@ -443,6 +443,7 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_volumePrintPage = new int[m_volumeKosuu];
 	m_modeButtonPrintPage = new int [m_modeButtonKosuu];
 	m_checkButtonPrintPage = new int [m_checkButtonKosuu];
+	m_goreButtonPrintPage = -1;
 	m_modeButtonExistFlag = new int[m_modeButtonKosuu];
 
 	for (i=0;i<m_volumeKosuu;i++)
@@ -492,6 +493,10 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		GetInitGameParam(&m_checkButtonPrintPage[i],name);
 	}
 
+	if (m_game->GetUseGoreFlag())
+	{
+		GetInitGameParam(&m_goreButtonPrintPage,"goreButtonPrintPage");
+	}
 
 //	GetInitGameParam(&m_messageSpeedPrintPage,"messageSpeedVolumePrintPage");
 	GetInitGameParam(&m_voicePrintPage,"voicePrintPage");
@@ -1084,6 +1089,16 @@ CCommonConfig::CCommonConfig(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		}
 	}
 
+	m_goreCheckButton = NULL;
+	if (m_game->GetUseGoreFlag())
+	{
+
+		m_goreCheckButton = new CCommonCheckButton(m_setup, lpBG, "goreButton");
+
+		CPicture* lpPic = GetUseOkPicture(m_goreButtonPrintPage);
+		m_goreCheckButton->SetPicture(lpPic, 0);
+		m_goreCheckButton->SetPicture(lpPic, 1);
+	}
 
 	//addRadio??
 
@@ -1542,6 +1557,7 @@ void CCommonConfig::End(void)
 
 	DELETEARRAY(m_windowPercentSe);
 
+	ENDDELETECLASS(m_goreCheckButton);
 
 	if (m_seVoice != nullptr)
 	{
@@ -1803,6 +1819,12 @@ int CCommonConfig::Init(void)
 		{
 			m_ppCheckButton[i]->Init();
 		}
+	}
+
+	if (m_game->GetUseGoreFlag())
+	{
+		m_goreCheckButton->SetState(m_game->GetGoreFlag());
+		m_goreCheckButton->Init();
 	}
 
 	for (i=0;i<m_clickButtonKosuu;i++)
@@ -2519,6 +2541,45 @@ int CCommonConfig::Calcu(void)
 		}
 	}
 
+	if (m_game->GetUseGoreFlag())
+	{
+		if (m_page == m_goreButtonPrintPage - 1)
+		{
+			if (m_goreCheckButton != NULL)
+			{
+				int rt = NNNBUTTON_NOTHING;
+
+				if (m_mode != -1)
+				{
+					rt = m_goreCheckButton->Calcu(NULL);
+				}
+				else
+				{
+					rt = m_goreCheckButton->Calcu(m_inputStatus);
+				}
+
+				if (rt != NNNBUTTON_NOTHING)
+				{
+					int nm = ProcessButtonGroup(rt);
+					if (nm >= 0)
+					{
+						m_game->SetGoreFlag(1 - nm);
+						m_game->SetGoreLayer();
+
+						m_goreCheckButton->SetState(1 - nm);
+						ReLoadGoreCheckButtonPic();
+						m_goreCheckButton->Init();
+					}
+
+					int st = CCommonButton::GetButtonStatus(rt);
+					if (st == NNNBUTTON_STARTCLICK)
+					{
+						//					m_mode = i + m_voiceCutNinzu;
+					}
+				}
+			}
+		}
+	}
 
 
 	for (i=0;i<m_expModeButtonKosuu;i++)
@@ -3285,6 +3346,18 @@ int CCommonConfig::Print(void)
 				m_ppCheckButton[i]->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
 			}
 		}
+	}
+
+	if (m_game->GetUseGoreFlag())
+	{
+		if (m_page == m_goreButtonPrintPage - 1)
+		{
+			if (m_goreCheckButton != NULL)
+			{
+				m_goreCheckButton->AppearPrint(m_appearCount, m_appearCountMax, m_menuStartEffectType);
+			}
+		}
+
 	}
 
 	for (int i=0;i<m_clickButtonKosuu;i++)
@@ -4124,6 +4197,21 @@ void CCommonConfig::ReLoadAllButtonPic(void)
 		}
 	}
 
+	if (m_game->GetUseGoreFlag())
+	{
+		if (m_page == m_goreButtonPrintPage - 1)
+		{
+			int md = m_goreCheckButton->GetState();
+
+			CPicture* lpPic = m_goreCheckButton->GetPicture(md);
+			LPSTR name = m_goreCheckButton->GetFileName(md);
+			char filename[256];
+			wsprintf(filename, "sys\\%s", name);
+			lpPic->LoadDWQ(filename);
+		}
+
+	}
+
 //systemvoice
 
 	if (m_ppSystemVoiceButton != nullptr)
@@ -4444,6 +4532,20 @@ void CCommonConfig::ReLoadCheckButtonPic(int n)
 		LPSTR name = m_ppCheckButton[n]->GetFileName(md);
 		char filename[256];
 		wsprintf(filename,"sys\\%s",name);
+		lpPic->LoadDWQ(filename);
+	}
+}
+
+void CCommonConfig::ReLoadGoreCheckButtonPic(void)
+{
+	if (m_goreCheckButton != NULL)
+	{
+		int md = m_goreCheckButton->GetState();
+
+		CPicture* lpPic = m_goreCheckButton->GetPicture(md);
+		LPSTR name = m_goreCheckButton->GetFileName(md);
+		char filename[256];
+		wsprintf(filename, "sys\\%s", name);
 		lpPic->LoadDWQ(filename);
 	}
 }

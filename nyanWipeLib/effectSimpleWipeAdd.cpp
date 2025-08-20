@@ -78,8 +78,53 @@ void CEffectSimpleWipeAdd::Print(CPicture* lpPicStart, CPicture* lpPicEnd, int c
 	int loopX = screenSizeX;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org1 = startPtr;
+	INT32* src64Org2 = endPtr;
+	INT32* dst64Org = dst;
 
+	for (int j = 0; j < loopY; j++)
+	{
+		INT32* src64_1 = src64Org1;
+		INT32* src64_2 = src64Org2;
+		INT32* dst64 = dst64Org;
+
+		for (int i = 0; i < loopX; i++)
+		{
+			INT32 srcData1 = *src64_1;
+			INT32 srcData2 = *src64_2;
+
+			INT32 srcR1 = (srcData1 >> 16) & 0xff;
+			INT32 srcG1 = (srcData1 >> 8) & 0xff;
+			INT32 srcB1 = (srcData1 ) & 0xff;
+
+			INT32 srcR2 = (srcData2 >> 16) & 0xff;
+			INT32 srcG2 = (srcData2 >> 8) & 0xff;
+			INT32 srcB2 = (srcData2) & 0xff;
+
+			INT32 r = srcR1 * 256 + srcR2 * ml256;
+			INT32 g = srcG1 * 256 + srcG2 * ml256;
+			INT32 b = srcB1 * 256 + srcB2 * ml256;
+
+			r >>= 8;
+			g >>= 8;
+			b >>= 8;
+			if (r > 255) r = 255;
+			if (g > 255) g = 255;
+			if (b > 255) b = 255;
+
+			INT32 color = (r << 16) | (g << 8) | b;
+
+			*dst64 = color;
+
+			src64_1++;
+			src64_2++;
+			dst64++;
+		}
+
+		src64Org1 += startSrcPitch / 4;
+		src64Org2 += endSrcPitch / 4;
+		dst64Org += dstPitch / 4;
+	}
 #else
 
 	__asm

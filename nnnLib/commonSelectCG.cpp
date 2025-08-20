@@ -183,6 +183,33 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetInitGameParam(&m_cursorSizeY,"cursorSizeY");
 
 
+	m_goreIconFileTag = NULL;
+	m_useGoreSMFileTag = 0;
+	m_useGoreIcon = 0;
+	m_goreIcon = NULL;
+	if (m_game->GetUseGoreFlag())
+	{
+		m_goreIconPrintX = 0;
+		m_goreIconPrintY = 0;
+		GetInitGameParam(&m_goreIconPrintX, "goreIconPrintX");
+		GetInitGameParam(&m_goreIconPrintY, "goreIconPrintY");
+		GetInitGameParam(&m_useGoreIcon, "useGoreIcon");
+		GetInitGameParam(&m_useGoreSMFileTag, "useGoreSMFileTag");
+
+		if (m_useGoreIcon)
+		{
+			LPSTR goreIconFileName = "";
+			if (GetInitGameString(&goreIconFileName,"filenameGoreIcon"))
+			{
+				m_goreIcon = m_game->GetSystemPicture(goreIconFileName);
+			}
+		}
+
+		if (m_useGoreSMFileTag)
+		{
+			GetInitGameString(&m_goreIconFileTag, "goreIconFileTag");
+		}
+	}
 
 
 	m_cgKosuu = new int[m_cgCharaKosuu+1];
@@ -209,6 +236,10 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 			if (m_cgDataControl != NULL)
 			{
 				LPSTR name = m_cgDataControl->GetCGFileName(i,k,FALSE);
+				if (*name == '*')
+				{
+					name++;
+				}
 
 				if ((*name) != '@')
 				{
@@ -794,6 +825,15 @@ int CCommonSelectCG::Print(void)
 //	m_back->Print(TRUE);
 //	m_updown->Print(TRUE);
 
+	bool bPutGoreIcon = FALSE;
+	if (m_game->GetUseGoreFlag())
+	{
+		if (m_game->GetGoreFlag())
+		{
+			bPutGoreIcon = TRUE;
+		}
+	}
+
 	for (int j=0;j<m_blockKosuuY;j++)
 	{
 		for (int i=0;i<m_blockKosuuX;i++)
@@ -859,6 +899,18 @@ int CCommonSelectCG::Print(void)
 								}
 //								m_cursorPic->Blt(putX,putY,0,0,sizeX,sizeY,TRUE);
 							}
+							
+							if (bPutGoreIcon && m_cgDataControl->CheckGore(m_cgCharaNumber, block))
+							{
+								if (m_useGoreIcon)
+								{
+									if (m_goreIcon != NULL)
+									{
+										m_goreIcon->Put(putX1 + m_goreIconPrintX, putY1 + m_goreIconPrintY, TRUE);
+									}
+								}
+							}
+
 //							CPicture::TransBox(putX,putY,sizeX,sizeY,230,0,255,50);
 //							m_cursorPic->AddBlt(putX-1,putY-1,0,0,135,101);
 						}
@@ -888,6 +940,17 @@ void CCommonSelectCG::LoadBackCG(void)
 		m_commonBG->Put(0,0,FALSE);
 	}
 
+
+	bool bGore = FALSE;
+	if (m_game->GetUseGoreFlag())
+	{
+		if (m_game->GetGoreFlag())
+		{
+			bGore = TRUE;
+		}
+	}
+
+
 	for (int j=0;j<m_blockKosuuY;j++)
 	{
 		for (int i=0;i<m_blockKosuuX;i++)
@@ -914,7 +977,14 @@ void CCommonSelectCG::LoadBackCG(void)
 						if (m_cgDataControl != NULL)
 						{
 							LPSTR name = m_cgDataControl->GetCGFileName(m_cgCharaNumber,from);
-							wsprintf(filename,"sys\\sm\\sm%s",name);
+							if (bGore && m_useGoreSMFileTag && m_cgDataControl->CheckGore(m_cgCharaNumber, from))
+							{
+								wsprintf(filename, "sys\\sm\\sm%s%s", name,m_goreIconFileTag);
+							}
+							else
+							{
+								wsprintf(filename, "sys\\sm\\sm%s", name);
+							}
 							m_miniPic[n0]->LoadDWQ(filename);
 						}
 					}
@@ -940,7 +1010,14 @@ void CCommonSelectCG::LoadBackCG(void)
 					{
 						LPSTR name = m_cgDataControl->GetCGFileName(m_cgCharaNumber,found);
 
-						wsprintf(filename,"sys\\sm\\sm%s",name);
+						if (bGore && m_useGoreSMFileTag && m_cgDataControl->CheckGore(m_cgCharaNumber, found))
+						{
+							wsprintf(filename, "sys\\sm\\sm%s%s", name, m_goreIconFileTag);
+						}
+						else
+						{
+							wsprintf(filename, "sys\\sm\\sm%s", name);
+						}
 						m_miniPic[n0]->LoadDWQ(filename);
 					}
 				}

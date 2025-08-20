@@ -18,6 +18,7 @@ class CMyMessage;
 class CSceneVoice;
 class CSceneList;
 class CSceneDataControl;
+class CNameList;
 
 class CCommonSelectScene : public CCommonGeneral
 {
@@ -57,6 +58,13 @@ protected:
 
 	int m_blockKosuuX;
 	int m_blockKosuuY;
+
+	int m_useGoreFlag;
+	int m_goreFlag;
+	CNameList* m_goreCheckList;
+	CPicture* m_goreIcon;
+	int m_goreIconPrintX;
+	int m_goreIconPrintY;
 
 	int m_sceneCharaKosuu;
 

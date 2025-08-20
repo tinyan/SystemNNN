@@ -252,6 +252,7 @@ protected:
 	CCommonCheckButton** m_ppExpCheckButton;
 	CCommonRadioButtonGroup** m_ppModeButton;
 	CCommonCheckButton** m_ppCheckButton;
+	CCommonCheckButton* m_goreCheckButton;
 	CCommonButton** m_ppClickButton;
 
 	CCommonRadioButtonGroup** m_ppExpModeButton;
@@ -278,6 +279,7 @@ protected:
 	void ReLoadVoiceButtonPic(int n);
 	void ReLoadModeButtonPic(int n);
 	void ReLoadCheckButtonPic(int n);
+	void ReLoadGoreCheckButtonPic();
 	void ReLoadExpModeButtonPic(int n);
 	void ReLoadExpCheckButtonPic(int n);
 	void ReLoadClickButtonPic(int n);
@@ -314,6 +316,7 @@ protected:
 	int* m_modeButtonExistFlag;
 
 	int* m_checkButtonPrintPage;
+	int m_goreButtonPrintPage;
 	int* m_expModeButtonPrintPage;
 	int* m_expCheckButtonPrintPage;
 	int* m_clickButtonPrintPage;

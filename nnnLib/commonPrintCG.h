@@ -108,6 +108,8 @@ protected:
 
 	int m_returnOneLookCGSet;
 
+	LPSTR m_goreCGTag;
+
 private:
 };
 

@@ -144,6 +144,8 @@ CCommonPrintCG::CCommonPrintCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetInitGameParam(&m_prevSound,"prevSound");
 	GetInitGameParam(&m_backSound,"backSound");
 
+	GetInitGameString(&m_goreCGTag, "goreCGTag");
+
 	m_cgVoice = new CCGVoice();
 	m_cgVoiceFileName = new char[1024];
 
@@ -672,7 +674,15 @@ void CCommonPrintCG::LoadCG(BOOL oldFlag,int oldNumber)
 
 	int maisuu = m_maisuuX * m_maisuuY;
 
-
+	bool bGore = FALSE;
+	LPSTR goreTag = "_gore";
+	if (m_game->GetUseGoreFlag())
+	{
+		if (m_game->GetGoreFlag())
+		{
+			bGore = TRUE;
+		}
+	}
 	if (m_cgDataControl != NULL)
 	{
 		LPSTR cgName = m_cgDataControl->GetCGFileName(cgCharaNumber,cgNumber);
@@ -686,7 +696,7 @@ void CCommonPrintCG::LoadCG(BOOL oldFlag,int oldNumber)
 
 				LPSTR tag = m_game->GetAnimeTag();
 
-				for (int i=0;i<animeMaisuu;i++)
+				for (int i = 0; i < animeMaisuu; i++)
 				{
 					CPicture* lpPic = m_game->GetAnimeBuffer(i);
 					if (oldFlag)
@@ -694,7 +704,14 @@ void CCommonPrintCG::LoadCG(BOOL oldFlag,int oldNumber)
 						lpPic = m_sabunPic;
 					}
 
-					wsprintf(fname,"%s%d",tag,animeStart+i);
+					if (bGore && m_cgDataControl->CheckGore(cgCharaNumber, cgNumber))
+					{
+						wsprintf(fname, "%s%s%d", tag, m_goreCGTag,animeStart + i);
+					}
+					else
+					{
+						wsprintf(fname, "%s%d", tag, animeStart + i);
+					}
 			//		fname[0] = *tag;
 			//		fname[1] = *(tag+1);
 					BOOL b256 = CEffectAnimation::Check256();
@@ -708,7 +725,14 @@ void CCommonPrintCG::LoadCG(BOOL oldFlag,int oldNumber)
 				{
 					if (i == 0)
 					{
-						wsprintf(fname,"__\\%s",cgName);
+						if (bGore && m_cgDataControl->CheckGore(cgCharaNumber, cgNumber))
+						{
+							wsprintf(fname,"__\\%s%s",cgName,m_goreCGTag);
+						}
+						else
+						{
+							wsprintf(fname, "__\\%s", cgName);
+						}
 						fname[0] = *cgName;
 						fname[1] = *(cgName+1);
 
@@ -722,7 +746,14 @@ void CCommonPrintCG::LoadCG(BOOL oldFlag,int oldNumber)
 					}
 					else
 					{
-						wsprintf(fname,"__\\%s_%d",cgName,i+1);
+						if (bGore && m_cgDataControl->CheckGore(cgCharaNumber, cgNumber))
+						{
+							wsprintf(fname, "__\\%s%s_%d", cgName, m_goreCGTag,i + 1);
+						}
+						else
+						{
+							wsprintf(fname, "__\\%s_%d", cgName, i + 1);
+						}
 						fname[0] = *cgName;
 						fname[1] = *(cgName+1);
 
@@ -880,11 +911,26 @@ void CCommonPrintCG::LoadCG(BOOL oldFlag,int oldNumber)
 				//	cgChara = m_cgDataControl->GetCGCharaNumber();
 		//		}
 
-				wsprintf(filename,"bg\\%s",m_taBGCharaFileName[cgCharaNumber]);
+				if (bGore&& m_cgDataControl->CheckGore(cgCharaNumber, cgNumber))
+				{
+					wsprintf(filename, "bg\\%s%s", m_taBGCharaFileName[cgCharaNumber],m_goreCGTag);
+				}
+				else
+				{
+					wsprintf(filename, "bg\\%s", m_taBGCharaFileName[cgCharaNumber]);
+				}
 			}
 			else
 			{
-				wsprintf(filename,"bg\\%s",m_taBGFileName);
+				if (bGore&& m_cgDataControl->CheckGore(cgCharaNumber, cgNumber))
+				{
+					wsprintf(filename, "bg\\%s%s", m_taBGFileName,m_goreCGTag);
+
+				}
+				else
+				{
+					wsprintf(filename, "bg\\%s", m_taBGFileName);
+				}
 			}
 
 			m_commonBG->LoadDWQ(filename);

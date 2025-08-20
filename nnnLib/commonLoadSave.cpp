@@ -97,6 +97,7 @@ CCommonLoadSave::CCommonLoadSave(CGameCallBack* lpGame,LPSTR modename) : CCommon
 	GetBackExecSetup();
 	GetAllPrintSetup();
 
+	m_saveDataBufferForBackLog = NULL;
 
 	wsprintf(m_defaultBGFileName,"%s_bg",modename);
 
@@ -198,6 +199,30 @@ CCommonLoadSave::CCommonLoadSave(CGameCallBack* lpGame,LPSTR modename) : CCommon
 	GetInitGameParam(&m_menuStartEffectType, "menuStartEffectType");
 
 
+	m_extDataBlockKosuu = m_game->GetExtDataBlockKosuu();
+
+	m_pExtBlockSize = NULL;
+	//	m_ppExtBlockData = NULL;
+	if (m_extDataBlockKosuu > 0)
+	{
+		m_pExtBlockSize = new int[m_extDataBlockKosuu];
+		//		m_ppExtBlockData = new char* [m_extDataBlockKosuu + sizeof(GAMEGENERALDATA)];
+		for (int i = 0; i < m_extDataBlockKosuu; i++)
+		{
+			m_pExtBlockSize[i] = m_game->GetExtDataBlockSize(i);
+			//			m_ppExtBlockData[i] = new char[ m_pExtBlockSize[i] + sizeof(GAMEGENERALDATA)];
+		}
+	}
+
+	m_omakeClassExistFlag = m_game->GetOmakeClassExistFlag();
+	m_cutinUseFlag = m_game->GetUseCutin();
+	m_logFlag = m_game->GetSaveLog();
+
+
+	//CreateSaveDataBufferForBackLog();
+	//m_saveDataForBackLogNumber = 0;
+	m_saveDataBufferForBackLog = NULL;
+
 	CreateBackButton();
 	if (m_pageMode == 1)
 	{
@@ -246,6 +271,8 @@ CCommonLoadSave::CCommonLoadSave(CGameCallBack* lpGame,LPSTR modename) : CCommon
 
 CCommonLoadSave::~CCommonLoadSave()
 {
+	DELETEARRAY(m_saveDataBufferForBackLog);
+
 	End();
 }
 
@@ -262,6 +289,9 @@ void CCommonLoadSave::End(void)
 		DELETEARRAY(m_ppDataFile);
 	}
 	ENDDELETECLASS(m_pagePrint);
+	DELETEARRAY(m_saveDataBufferForBackLog);
+	DELETEARRAY(m_pExtBlockSize);
+
 }
 
 
@@ -1147,6 +1177,417 @@ void CCommonLoadSave::EndStartWaitMode(void)
 	m_menuStartCount = m_menuStartWaitTime + m_menuStartEffectTime;
 	//m_game->InitMiniGameButton(OMAKE_MODE);
 }
+
+/*
+int CCommonLoadSave::CalcuSaveDataBufferSizeForBackLog(CGameCallBack* lpGame)
+{
+	int bufferSize = 0;
+
+	int headerSize = sizeof(CCommonDataFile::GAMEHEADER);
+	bufferSize += headerSize;
+
+	int gameInfoSize = sizeof(CCommonDataFile::GAMEINFO);
+	bufferSize += gameInfoSize;
+
+	int gameStatusSize = sizeof(CCommonDataFile::GAMESTATUS);
+	bufferSize += gameStatusSize;
+
+//	int miniCGSize = sizeof(CCommonDataFile::GAMEGENERALDATA) + sizeof(int) * 4 + m_savePicSize.cx * m_savePicSize.cy * sizeof(int);
+	//	bufferSize += miniCGSize;
+
+	int varType = lpGame->GetVarType();
+
+	int varSize = sizeof(CCommonDataFile::GAMEVAR1);
+	if (varType != 0)
+	{
+		varSize = sizeof(CCommonDataFile::GAMEVAR);
+	}
+	bufferSize += varSize;
+
+	int effectSize = sizeof(CCommonDataFile::GAMEEFFECT);
+	bufferSize += effectSize;
+
+	int effectFileNameSize = sizeof(CCommonDataFile::GAMEEFFECTFILENAME);
+	bufferSize += effectFileNameSize;
+
+	int messageSize = sizeof(CCommonDataFile::GAMEMESSAGE);
+	bufferSize += messageSize;
+
+	//ExtData[n]
+	int extDataBlockKosuu = lpGame->GetExtDataBlockKosuu();
+	if (extDataBlockKosuu > 0)
+	{
+		for (int i = 0; i < extDataBlockKosuu; i++)
+		{
+			bufferSize += sizeof(CCommonDataFile::GAMEGENERALDATA);
+			bufferSize += lpGame->GetExtDataBlockSize(i);
+		}
+	}
+
+
+	int cutInSize = sizeof(CCommonDataFile::GAMECUTIN);
+	bufferSize += cutInSize;
+
+	int logSize = sizeof(CCommonDataFile::GAMELOG);
+	bufferSize += logSize;
+
+	int omakeSize = sizeof(CCommonDataFile::GAMEOMAKECLASSDATA);
+	bufferSize += omakeSize;
+
+	m_saveBufferForBackLogSizeOne = bufferSize;
+	return m_saveBufferForBackLogSizeOne;
+
+}
+*/
+
+void CCommonLoadSave::CreateSaveDataBufferForBackLog(void)
+{
+	int bufferSize = 0;
+
+	int headerSize = sizeof(CCommonDataFile::GAMEHEADER);
+	bufferSize += headerSize;
+
+	int gameInfoSize = sizeof(CCommonDataFile::GAMEINFO);
+	bufferSize += gameInfoSize;
+
+	int gameStatusSize = sizeof(CCommonDataFile::GAMESTATUS);
+	bufferSize += gameStatusSize;
+
+//	int miniCGSize= sizeof(CCommonDataFile::GAMEGENERALDATA) + sizeof(int) * 4 + m_savePicSize.cx * m_savePicSize.cy * sizeof(int);
+//	bufferSize += miniCGSize;
+
+	int varType = m_game->GetVarType();
+
+	int varSize = sizeof(CCommonDataFile::GAMEVAR1);
+	if (varType != 0)
+	{
+		varSize = sizeof(CCommonDataFile::GAMEVAR);
+	}
+	bufferSize += varSize;
+
+	int effectSize = sizeof(CCommonDataFile::GAMEEFFECT);
+	bufferSize += effectSize;
+
+	int effectFileNameSize = sizeof(CCommonDataFile::GAMEEFFECTFILENAME);
+	bufferSize += effectFileNameSize;
+
+	int messageSize = sizeof(CCommonDataFile::GAMEMESSAGE);
+	bufferSize += messageSize;
+
+	//ExtData[n]
+	if (m_extDataBlockKosuu > 0)
+	{
+		for (int i = 0; i < m_extDataBlockKosuu; i++)
+		{
+			bufferSize += sizeof(CCommonDataFile::GAMEGENERALDATA);
+			bufferSize += m_game->GetExtDataBlockSize(i);
+		}
+	}
+
+	int cutInSize = sizeof(CCommonDataFile::GAMECUTIN);
+	bufferSize += cutInSize;
+
+	int logSize = sizeof(CCommonDataFile::GAMELOG);
+	bufferSize += logSize;
+
+	int omakeSize = sizeof(CCommonDataFile::GAMEOMAKECLASSDATA);
+	bufferSize += omakeSize;
+
+
+	m_saveBufferForBackLogSizeOne = bufferSize;
+
+	int backLogMax = m_game->GetBackLogMax();
+
+	m_saveDataBufferForBackLog = new char[backLogMax* m_saveBufferForBackLogSizeOne];
+}
+
+
+
+void CCommonLoadSave::MakeSaveDataForBackLog(int n)
+{
+	int totalSize = 0;
+
+	int bufferStart = m_saveBufferForBackLogSizeOne * n;
+//	int bufferStart = m_saveBufferForBackLogSizeOne * m_saveDataForBackLogNumber;
+
+	bufferStart += MakeSaveDataHeaderForBackLog(bufferStart);
+	bufferStart += MakeSaveInfoForbackLog(bufferStart);
+	bufferStart += MakeSaveStatusForBackLog(bufferStart);
+	//bufferStart += MakeMiniCGForBackLog(bufferStart);
+	bufferStart += MakeSaveVarForBackLog(bufferStart);
+	bufferStart += MakeSaveEffectForBackLog(bufferStart);
+	bufferStart += MakeSaveEffectFileNameForBackLog(bufferStart);
+	bufferStart += MakeSaveMessageForBackLog(bufferStart);
+	bufferStart += MakeSaveExtDataForBackLog(bufferStart);
+
+	if (m_game->GetUseCutin())
+	{
+		bufferStart += MakeSaveCutinForBackLog(bufferStart);
+	}
+	if (m_game->GetSaveLog())
+	{
+		bufferStart += MakeSaveLogForBackLog(bufferStart);
+	}
+	if (m_game->GetOmakeClassExistFlag())
+	{
+		bufferStart += MakeSaveOmakeClassForBackLog(bufferStart);
+	}
+
+
+//	m_saveDataForBackLogNumber++;
+//	m_saveDataForBackLogNumber %= 256;
+}
+
+void CCommonLoadSave::MakeHeaderForSaveBackLog(int* work, int sz, int cd, LPSTR mes)
+{
+	CCommonDataFile::GAMEHEADER* header = (CCommonDataFile::GAMEHEADER*)work;
+
+	header->general.size = sz;
+	header->general.code = cd;
+	header->general.dummy1 = 0;
+	header->general.dummy2 = 0;
+
+	ZeroMemory(header->general.message, 16);
+
+	int ln = (int)strlen(mes);
+	if (ln > 15) ln = 15;
+	memcpy(header->general.message, mes, ln);
+}
+
+int CCommonLoadSave::MakeSaveDataHeaderForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMEHEADER);
+	CCommonDataFile::GAMEHEADER* header = (CCommonDataFile::GAMEHEADER*)(m_saveDataBufferForBackLog + start);
+	ZeroMemory(header, sz);
+
+	LPSTR headerName = m_game->GetSaveHeaderName();
+
+		//	MakeHeader(m_commonBuffer2,sz,GAMEDATATYPE_HEADER,"ˆÅ‚ÌºSAVEDATA");
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_HEADER, headerName);
+
+	return sz;
+}
+
+
+int CCommonLoadSave::MakeSaveInfoForbackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMEINFO);
+	CCommonDataFile::GAMEINFO* header = (CCommonDataFile::GAMEINFO*)(m_saveDataBufferForBackLog + start);
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_INFO, "INFO");
+
+	header->extDataKosuu = m_extDataBlockKosuu;
+
+	header->omakeClass = 0;
+	if (m_omakeClassExistFlag)
+	{
+		header->omakeClass = 1;
+	}
+
+	header->cutin = 0;
+	if (m_cutinUseFlag)
+	{
+		header->cutin = 1;
+	}
+
+	header->log = 0;
+	if (m_logFlag)
+	{
+		header->log = 1;
+	}
+
+	header->dataKosuu = 8 + m_extDataBlockKosuu + header->cutin + header->omakeClass;
+
+	//	header->version = m_gameVersion;
+	header->version = m_game->GetGameVersion();
+
+	return sz;
+}
+
+
+int CCommonLoadSave::MakeSaveStatusForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMESTATUS);
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+
+
+	ZeroMemory(header, sz);
+
+	//get data
+
+	m_game->GetGameStatusForSave(header);
+
+
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+
+	header->year = st.wYear;
+	header->month = st.wMonth;
+	header->day = st.wDay;
+	header->week = st.wDayOfWeek;
+	header->hour = st.wHour;
+	header->minute = st.wMinute;
+	header->second = st.wSecond;
+	header->milli = st.wMilliseconds;
+
+	header->saveCount++;
+
+
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_STATUS, "GAMESTATUS");
+
+	return sz;
+}
+
+int CCommonLoadSave::MakeMiniCGForBackLog(int start)
+{
+	/*
+	//	int sz = sizeof(GAMEMINICG);
+	int sz = sizeof(GAMEGENERALDATA) + sizeof(int) * 4 + m_picSizeX * m_picSizeY * sizeof(int);
+
+	ZeroMemory(m_commonBuffer2, sz);
+	GAMEMINICG* lp = (GAMEMINICG*)m_commonBuffer2;
+	MakeHeader(m_commonBuffer2, sz, GAMEDATATYPE_MINICG, "MINICG");
+
+	lp->sizeX = m_picSizeX;
+	lp->sizeY = m_picSizeY;
+
+	m_game->GetMiniCGForSave(m_commonBuffer2);
+
+	fwrite(m_commonBuffer2, sz, 1, m_file);
+
+	return TRUE;
+	*/
+	return 0;
+}
+
+int CCommonLoadSave::MakeSaveVarForBackLog(int start)
+{
+	int varType = m_game->GetVarType();
+
+	int sz = sizeof(CCommonDataFile::GAMEVAR1);
+	if (varType != 0)
+	{
+		sz = sizeof(CCommonDataFile::GAMEVAR);
+	}
+
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_VAR, "GAMEVAR");
+
+	m_game->GetVarForSave(header);
+
+	return sz;
+}
+
+int CCommonLoadSave::MakeSaveEffectForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMEEFFECT);
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_EFFECT, "EFFECT");
+	m_game->GetEffectForSave(header);
+	return sz;
+}
+
+int CCommonLoadSave::MakeSaveEffectFileNameForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMEEFFECTFILENAME);
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_EFFECTFILENAME, "EFFECTFILENAME");
+	m_game->GetEffectFileNameForSave(header);
+	return sz;
+}
+
+int CCommonLoadSave::MakeSaveMessageForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMEMESSAGE);
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_MESSAGE, "MESSAGE");
+	m_game->GetMessageForSave(header);
+
+	return sz;
+}
+
+int CCommonLoadSave::MakeSaveExtDataForBackLog(int start)
+{
+	int totalSize = 0;
+	for (int i = 0; i < m_extDataBlockKosuu; i++)
+	{
+		int sz = m_pExtBlockSize[i];
+		char* header = (char*)(m_saveDataBufferForBackLog + start);
+		sz += sizeof(CCommonDataFile::GAMEGENERALDATA);
+		ZeroMemory(header, sz);
+
+		char ename[32];
+		wsprintf(ename, "EXT%d", i + 1);
+
+		MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_EXT+i, ename);
+
+		char* ptr = m_saveDataBufferForBackLog + start;
+		ptr += sizeof(CCommonDataFile::GAMEGENERALDATA);
+		m_game->GetExtDataForSaveGeneral(ptr, i);
+
+		start += sz;
+		totalSize += sz;
+	}
+	return totalSize;
+}
+
+
+int CCommonLoadSave::MakeSaveCutinForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMECUTIN);
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_CUTIN, "CUTIN");
+	m_game->GetCutinForSave(header);
+
+	return sz;
+}
+
+int CCommonLoadSave::MakeSaveLogForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMELOG);
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_LOG, "LOG");
+	m_game->GetLogForSave(header);
+
+	return sz;
+}
+
+
+int CCommonLoadSave::MakeSaveOmakeClassForBackLog(int start)
+{
+	int sz = sizeof(CCommonDataFile::GAMEOMAKECLASSDATA);
+	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
+
+
+	ZeroMemory(header, sz);
+	MakeHeaderForSaveBackLog((int*)header, sz, GAMEDATATYPE_OMAKECLASS, "OMAKECLASS");
+
+	char* ptr = (char*)header;
+	ptr += sizeof(CCommonDataFile::GAMEGENERALDATA);
+
+	m_game->GetOmakeClassDataForSave(ptr);
+	
+
+	return sz;
+}
+
+char* CCommonLoadSave::GetJumpBuffer(int n)
+{
+	return m_saveDataBufferForBackLog + n * m_saveBufferForBackLogSizeOne;
+}
+
+
 
 /*_*/
 

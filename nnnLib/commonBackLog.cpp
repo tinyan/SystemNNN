@@ -45,6 +45,7 @@ char CCommonBackLog::m_defaultBarMessage[] = "\\\\\\\\\\\\\\\\\
 char CCommonBackLog::m_defaultUpArrow[] = "#…£";
 char CCommonBackLog::m_defaultDownArrow[] = "#…¥";
 char CCommonBackLog::m_defaultVoice[] = "ô";
+char CCommonBackLog::m_defaultJump[] = "Ë";
 
 
 char CCommonBackLog::m_defaultTitleMessage1byte[] = "#RRecollection...";
@@ -54,6 +55,7 @@ char CCommonBackLog::m_defaultBarMessage1byte[] = "\\\\\\\\\\\\\\
 char CCommonBackLog::m_defaultUpArrow1byte[] = "#C^^";
 char CCommonBackLog::m_defaultDownArrow1byte[] = "#Cvv";
 char CCommonBackLog::m_defaultVoice1byte[] = "SD";
+char CCommonBackLog::m_defaultJump1byte[] = "JP";
 
 
 
@@ -104,6 +106,7 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_backColorB = 0;
 
 	m_onVoiceNumber = -1;
+	m_onJumpNumber = -1;
 	m_printStartGyo = 0;
 	m_titlePicFileName = nullptr;
 	m_titlePicPrintX = 0;
@@ -118,6 +121,11 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_voicePicPattern1 = 1;
 	m_voicePicPattern2 = 1;
 	m_voicePicPercent = 100;
+	m_jumpPicAnimeCount = 0;
+	m_jumpPicAnimeFlag = 0;
+	m_jumpPicPattern1 = 1;
+	m_jumpPicPattern2 = 1;
+	m_jumpPicPercent = 100;
 
 
 	GetInitGameParam(&m_backColorR,"backColorR");
@@ -183,12 +191,14 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_nextX = 0;
 	m_nextY = m_fontSize;
 	m_voiceFlag = 1;
+	m_jumpFlag = 0;
 
 	m_updownArrowPic = NULL;
 	m_upArrowPic = NULL;
 	m_downArrowPic = NULL;
 
 	m_voicePic = NULL;
+	m_jumpPic = NULL;
 
 	GetInitGameParam(&m_printGyosuuMax,"printLines");
 	GetInitGameParam(&m_printX,"printX");
@@ -196,6 +206,9 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetInitGameParam(&m_nextX,"nextX");
 	GetInitGameParam(&m_nextY,"nextY");
 	GetInitGameParam(&m_voiceFlag,"voiceFlag");
+	//GetInitGameParam(&m_jumpFlag, "jumpFlag");
+	m_jumpFlag = m_game->GetJumpFlag();
+
 
 	m_upArrowPrintX = screenSizeX / 2 - m_fontSize / 2;
 	m_upArrowPrintY = m_printY + m_nextY * 2;
@@ -244,6 +257,7 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 
 	m_updownArrowPicFlag = 0;
 	m_voicePicFlag = 0;
+	m_jumpPicFlag = 0;
 	m_updownArrowAnimeFlag = 0;
 
 	m_updownArrowAnimePattern = 1;
@@ -326,6 +340,43 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		}
 	}
 
+	GetInitGameParam(&m_jumpPicFlag, "jumpPicFlag");
+
+
+
+	m_jumpPicAnimePattern = 1;
+	m_jumpPicAnimeSpeed = 1;
+	m_jumpPicAnimeType = 1;
+
+
+	if (m_jumpPicFlag)
+	{
+		LPSTR jumpFileName = NULL;
+		GetInitGameString(&jumpFileName, "filenamejump");
+
+		m_jumpPic = new CPicture();
+		char filename[256];
+		wsprintf(filename, "sys\\%s", jumpFileName);
+		m_jumpPic->LoadDWQ(filename);
+
+
+		m_jumpPicAnimeFlag = 0;
+		GetInitGameParam(&m_jumpPicAnimeFlag, "jumpPicAnimeFlag");
+
+		if (m_jumpPicAnimeFlag)
+		{
+			m_jumpPicAnimePattern = 2;
+			m_jumpPicAnimeSpeed = 10;
+			m_jumpPicAnimeType = 5;
+
+			GetInitGameParam(&m_jumpPicAnimePattern, "jumpPicAnimePattern");
+			GetInitGameParam(&m_jumpPicAnimeSpeed, "jumpPicAnimeSpeed");
+			GetInitGameParam(&m_jumpPicAnimeType, "jumpPicAnimeType");
+		}
+	}
+
+
+
 	LPSTR messageReplace = NULL;
 	GetInitGameString(&messageReplace,"messageReplaceChara");
 
@@ -400,17 +451,20 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 		m_upArrowMessage = m_defaultUpArrow;
 		m_downArrowMessage = m_defaultDownArrow;
 		m_voiceMessage = m_defaultVoice;
+		m_jumpMessage = m_defaultJump;
 	}
 	else
 	{
 		m_upArrowMessage = m_defaultUpArrow1byte;
 		m_downArrowMessage = m_defaultDownArrow1byte;
 		m_voiceMessage = m_defaultVoice1byte;
+		m_jumpMessage = m_defaultJump1byte;
 	}
 
 	GetInitGameString(&m_upArrowMessage,"upArrowMessage");
 	GetInitGameString(&m_downArrowMessage,"downArrowMessage");
 	GetInitGameString(&m_voiceMessage,"voiceMessage");
+	GetInitGameString(&m_jumpMessage, "jumpMessage");
 
 
 	m_voicePrintX = -m_fontSize;
@@ -423,9 +477,46 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	GetInitGameParam(&m_voiceSizeX,"voiceSizeX");
 	GetInitGameParam(&m_voiceSizeY,"voiceSizeY");
 
+
+	m_jumpPrintX = -m_fontSize;
+	m_jumpPrintY = 0;
+	m_jumpSizeX = m_fontSize;
+	m_jumpSizeY = m_fontSize;
+
+	GetInitGameParam(&m_jumpPrintX, "jumpPrintX");
+	GetInitGameParam(&m_jumpPrintY, "jumpPrintY");
+	GetInitGameParam(&m_jumpSizeX, "jumpSizeX");
+	GetInitGameParam(&m_jumpSizeY, "jumpSizeY");
+
+
 	m_logColor = new int[BACKLOG_KOSUU];
 	m_logMessage = new char[BACKLOG_KOSUU * BACKLOG_LENGTH];
 	m_voiceFile = new char[BACKLOG_KOSUU * VOICEFILE_LENGTH];
+	m_jumpFlagTable = new int[BACKLOG_KOSUU];
+
+
+	m_jumpVoiceFlag = 0;
+//	m_jumpVoiceNumber = 0;
+	m_jumpVoiceFileName = NULL;
+
+	m_jumpFadeType = -1;
+	m_jumpFadeCount = 0;
+	m_jumpFadeFrame = 0;
+
+	GetInitGameParam(&m_jumpVoiceFlag, "JumpVoiceFlag");
+	//GetInitGameParam(&m_jumpVoiceNumber, "JumpVoiceNumber");
+	GetInitGameString(&m_jumpVoiceFileName, "JumpVoiceFileName");
+	GetInitGameParam(&m_jumpFadeType, "JumpFadeType");
+	//jumpFadeCount
+	GetInitGameParam(&m_jumpFadeFrame, "JumpFadeFrame");
+
+	m_jumpExitScreenR = 128;
+	m_jumpExitScreenG = 128;
+	m_jumpExitScreenB = 128;
+	GetInitGameParam(&m_jumpExitScreenR, "jumpExitScreenR");
+	GetInitGameParam(&m_jumpExitScreenG, "jumpExitScreenG");
+	GetInitGameParam(&m_jumpExitScreenB, "jumpExitScreenB");
+
 
 	m_message = new CMyMessage(m_game->GetMyFont());
 
@@ -541,12 +632,14 @@ CCommonBackLog::~CCommonBackLog()
 
 void CCommonBackLog::End(void)
 {
+	ENDDELETECLASS(m_jumpPic);
 	ENDDELETECLASS(m_voicePic);
 	ENDDELETECLASS(m_downArrowPic);
 	ENDDELETECLASS(m_upArrowPic);
 	ENDDELETECLASS(m_updownArrowPic);
 
 	DELETEARRAY(m_logColor);
+	DELETEARRAY(m_jumpFlagTable);
 	DELETEARRAY(m_voiceFile);
 	DELETEARRAY(m_logMessage);
 	ENDDELETECLASS(m_message);
@@ -565,6 +658,7 @@ int CCommonBackLog::Init(void)
 	if (back>m_printGyosuuMax) back = m_printGyosuuMax;
 
 	m_voicePicAnimeCount = 0;
+	m_jumpPicAnimeCount = 0;
 	m_updownArrowAnimeCount = 0;
 
 	if (back == 0)
@@ -578,6 +672,8 @@ int CCommonBackLog::Init(void)
 	m_printPointer %= BACKLOG_KOSUU;
 
 	m_startWait = 2;
+	m_jumpFadeCount = 0;
+	m_jumpStartFlag = FALSE;
 
 	if (m_backlogBGMode == 1)
 	{
@@ -650,6 +746,35 @@ int CCommonBackLog::Calcu(void)
 		return -1;
 	}
 
+	if (m_jumpStartFlag)
+	{
+		if (m_jumpFadeType != -1)
+		{
+			if (m_jumpFadeFrame > 0)
+			{
+				if (m_jumpFadeCount > 0)
+				{
+					m_jumpFadeCount--;
+					if (m_jumpFadeCount > 0)
+					{
+						return -1;
+					}
+
+					//@@@
+					m_game->TestJump(m_jumpFlagTable[m_onJumpNumber]);
+					m_jumpStartFlag = FALSE;
+				}
+			}
+		}
+		else
+		{
+			//@@@
+			m_game->TestJump(m_jumpFlagTable[m_onJumpNumber]);
+			m_jumpStartFlag = FALSE;
+		}
+	}
+
+
 	if (wheel>0)
 	{
 		if (UpScroll(2)) return -1;
@@ -701,6 +826,7 @@ int CCommonBackLog::Calcu(void)
 	}
 
 	m_onVoiceNumber = CheckOnVoice(mouseX,mouseY);
+	m_onJumpNumber = CheckOnJump(mouseX, mouseY);
 
 	m_onUpArrow = FALSE;
 	m_onDownArrow = FALSE;
@@ -743,6 +869,23 @@ int CCommonBackLog::Calcu(void)
 			}
 		}
 
+		int oj = m_onJumpNumber;
+		if (oj != -1)
+		{
+			if (m_jumpFlagTable[oj] != -1)
+			{
+				m_jumpFadeCount = m_jumpFadeFrame;
+				m_jumpStartFlag = TRUE;
+				if (m_jumpVoiceFlag == 2)
+				{
+					m_game->ReplayVoice(m_jumpVoiceFileName);
+				}
+				CreateExitScreenForJump();
+				//JUMP@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+				return -1;
+			}
+		}
+
 		if (om == -1)
 		{
 		//	if (UpScroll(5)) return -1;
@@ -760,8 +903,17 @@ int CCommonBackLog::Print(void)
 
 	CAreaControl::SetNextAllPrint();
 
+	if (m_jumpFlag)
+	{
+		if (m_jumpFadeCount > 0)
+		{
+			PrintJumpExitFade();
+			return -1;
+		}
+	}
 	VoicePicAnime();
-//MessageBox(NULL,"Print1","backlog",MB_OK);
+	JumpPicAnime();
+	//MessageBox(NULL,"Print1","backlog",MB_OK);
 
 	UpdownArrowPicAnime();
 //MessageBox(NULL,"Print2","backlog",MB_OK);
@@ -826,23 +978,81 @@ int CCommonBackLog::Print(void)
 				POINT pt = GetVoicePrintZahyo(i);
 				if (m_voicePicFlag == 0)
 				{
-					m_message->PrintMessage(pt.x, pt.y, m_voiceMessage, m_fontSize,255,255,255,m_sukima,m_nextY,0);
+					m_message->PrintMessage(pt.x, pt.y, m_voiceMessage, m_fontSize, 255, 255, 255, m_sukima, m_nextY, 0);
 				}
 				else
 				{
 					int md = 0;
 					if (m_onVoiceNumber != -1)
 					{
-						if (((i+ m_printPointer + BACKLOG_KOSUU) % BACKLOG_KOSUU) == m_onVoiceNumber)
+						if (((i + m_printPointer + BACKLOG_KOSUU) % BACKLOG_KOSUU) == m_onVoiceNumber)
 						{
 							md = 1;
 						}
 					}
 
-					PutVoicePic(pt.x,pt.y,md);
+					PutVoicePic(pt.x, pt.y, md);
 					//m_voicePic->Blt(pt.x,pt.y,0,0,m_voiceSizeX,m_voiceSizeY,TRUE);
 				}
+
+				/*
+				if (m_jumpFlag != 0)
+				{
+					POINT ptj = GetJumpPrintZahyo(i);
+					if (m_jumpPicFlag == 0)
+					{
+						m_message->PrintMessage(ptj.x, ptj.y, m_jumpMessage, m_fontSize, 255, 255, 255, m_sukima, m_nextY, 0);
+					}
+					else
+					{
+						int md = 0;
+						if (m_onJumpNumber != -1)
+						{
+							if (((i + m_printPointer + BACKLOG_KOSUU) % BACKLOG_KOSUU) == m_onJumpNumber)
+							{
+								md = 1;
+							}
+						}
+
+						PutJumpPic(ptj.x, ptj.y, md);
+						//m_voicePic->Blt(pt.x,pt.y,0,0,m_voiceSizeX,m_voiceSizeY,TRUE);
+					}
+				}
+				*/
+
 			}
+
+			if (m_jumpFlagTable != NULL)
+			{
+				if ((m_jumpFlagTable[k]) != -1)
+				{
+
+					if (m_jumpFlag != 0)
+					{
+						POINT ptj = GetJumpPrintZahyo(i);
+						if (m_jumpPicFlag == 0)
+						{
+							m_message->PrintMessage(ptj.x, ptj.y, m_jumpMessage, m_fontSize, 255, 255, 255, m_sukima, m_nextY, 0);
+						}
+						else
+						{
+							int md = 0;
+							if (m_onJumpNumber != -1)
+							{
+								if (((i + m_printPointer + BACKLOG_KOSUU) % BACKLOG_KOSUU) == m_onJumpNumber)
+								{
+									md = 1;
+								}
+							}
+
+							PutJumpPic(ptj.x, ptj.y, md);
+							//m_voicePic->Blt(pt.x,pt.y,0,0,m_voiceSizeX,m_voiceSizeY,TRUE);
+						}
+					}
+
+				}
+			}
+
 
 			m_message->PrintMessage(putX,putY,m_logMessage + k * BACKLOG_LENGTH,m_fontSize,colR,colG,colB,m_sukima,m_nextY,0);
 
@@ -927,6 +1137,16 @@ void CCommonBackLog::Clear(void)
 	{
 		*(m_voiceFile + i * VOICEFILE_LENGTH) = 0;
 	}
+
+	if (m_jumpFlagTable != NULL)
+	{
+
+		for (int i = 0; i < BACKLOG_KOSUU; i++)
+		{
+			*(m_jumpFlagTable + i) = 0;
+		}
+	}
+
 //	AddMessage("#Ô#”L#”’@‰ß‹ŽA‚»‚ê‚Í’P‚È‚é’Ê‰ß“_‚ÌW‚Ü‚èEEE@#Ô#”L");
 	if (m_firstMessagePrintFlag != 0)
 	{
@@ -980,6 +1200,8 @@ void CCommonBackLog::AddMessage(LPSTR mes,int colR, int colG , int colB)
 
 		char* ptr2 = m_voiceFile + k * VOICEFILE_LENGTH;
 		*ptr2 = 0;
+
+		m_jumpFlagTable[k] = -1;
 	}
 
 
@@ -1018,6 +1240,25 @@ void CCommonBackLog::AddVoice(LPSTR filename)
 	}
 }
 
+void CCommonBackLog::AddJump(int dataNumber)
+{
+	OutputDebugString("AddJump\n");
+
+	int n = m_nowPointer;
+	//	n--;
+	//	n += BACKLOG_KOSUU;
+	n %= BACKLOG_KOSUU;
+
+	m_jumpFlagTable[n] = dataNumber;
+
+	//ˆÈ‰º‚ðƒNƒŠƒA[
+	for (int i = 1; i < m_printGyosuuMax; i++)
+	{
+		int k = (n + i);
+		k %= BACKLOG_KOSUU;
+		m_jumpFlagTable[k] = -1;
+	}
+}
 
 
 void CCommonBackLog::ChangePreColor(int backNumber, int colR, int colG, int colB)
@@ -1156,6 +1397,37 @@ int CCommonBackLog::CheckOnVoice(int mouseX, int mouseY)
 	return -1;
 }
 
+int CCommonBackLog::CheckOnJump(int mouseX, int mouseY)
+{
+	if (m_jumpFlag == 0)
+	{
+		return -1;
+	}
+
+	int check = m_messageKosuu;
+	if (check > m_printGyosuuMax) check = m_printGyosuuMax;
+
+	//	for (int i=0;i<m_messageKosuu;i++)
+	for (int i = 0; i < check; i++)
+	{
+		int k = m_printPointer + i;
+		k %= BACKLOG_KOSUU;
+		if (m_jumpFlagTable[k] != -1)
+		{
+			POINT pt = GetJumpPrintZahyo(i);
+			int x = mouseX - pt.x;
+			int y = mouseY - pt.y;
+
+			if ((x >= 0) && (x < m_jumpSizeX) && (y >= 0) && (y < m_jumpSizeY))
+			{
+				return k;
+			}
+		}
+	}
+
+	return -1;
+}
+
 
 POINT CCommonBackLog::GetVoicePrintZahyo(int n)
 {
@@ -1166,6 +1438,19 @@ POINT CCommonBackLog::GetVoicePrintZahyo(int n)
 
 	pt.x = m_printX + m_voicePrintX;
 	pt.y = m_printY + m_nextY * (3 + n) + m_voicePrintY;
+
+	return pt;
+}
+
+POINT CCommonBackLog::GetJumpPrintZahyo(int n)
+{
+	POINT pt;
+
+	//	pt.x = m_printX  - m_fontSize;
+	//	pt.y = m_printY + m_nextY * (3 + n);
+
+	pt.x = m_printX + m_jumpPrintX;
+	pt.y = m_printY + m_nextY * (3 + n) + m_jumpPrintY;
 
 	return pt;
 }
@@ -1300,6 +1585,109 @@ void CCommonBackLog::VoicePicAnime(void)
 	m_voicePicPercent = percent;
 }
 
+void CCommonBackLog::JumpPicAnime(void)
+{
+	int type = m_jumpPicAnimeType;
+	int speed = m_jumpPicAnimeSpeed;
+	int count = m_jumpPicAnimeCount;
+	int pattern = m_jumpPicAnimePattern;
+
+	if (m_jumpPicAnimeFlag)
+	{
+		//		int type = m_jumpPicAnimeType;
+		//		int speed = m_jumpPicAnimeSpeed;
+		//		int count = m_jumpPicAnimeCount;
+		//		int pattern = m_jumpPicAnimePattern;
+
+		if (speed < 1) speed = 1;
+
+		int revFlag = 0;
+		int dv = pattern;
+
+		if ((type == 3) || (type == 4) || (type == 7) || (type == 8))
+		{
+			dv = (pattern - 1) * 2;
+			if (dv < 1) dv = 1;
+			revFlag = 1;
+		}
+
+		dv *= speed;
+
+		int limitFlag = 0;
+		if ((type == 2) || (type == 4) || (type == 6) || (type == 8))
+		{
+			limitFlag = 1;
+		}
+
+		count += 1;
+		if (limitFlag)
+		{
+			if (count >= dv) count = dv;
+		}
+		else
+		{
+			count %= dv;
+		}
+
+		m_jumpPicAnimeCount = count;
+	}
+
+	//pat
+	type = m_jumpPicAnimeType;
+	speed = m_jumpPicAnimeSpeed;
+	count = m_jumpPicAnimeCount;
+	pattern = m_jumpPicAnimePattern;
+
+	int revFlag = 0;
+	int dv = pattern;
+
+	if (speed < 1) speed = 1;
+
+	if ((type == 3) || (type == 4) || (type == 7) || (type == 8))
+	{
+		dv = (pattern - 1) * 2;
+		if (dv < 1) dv = 1;
+		revFlag = 1;
+	}
+
+	int limitFlag = 0;
+	if ((type == 2) || (type == 4) || (type == 6) || (type == 8))
+	{
+		limitFlag = 1;
+	}
+
+	int pic1 = count / speed;
+	int pic2 = pic1 + 1;
+
+	if (limitFlag)
+	{
+		int limData = dv - 1;
+		if (revFlag) limData = dv;
+
+		if (pic1 >= dv) pic1 = limData;
+		if (pic2 >= dv) pic2 = limData;
+	}
+
+	pic2 %= dv;
+
+	int percent = 100;
+
+	if (revFlag)
+	{
+		if (pic1 >= pattern) pic1 = (pattern - 1) * 2 - pic1;
+		if (pic2 >= pattern) pic2 = (pattern - 1) * 2 - pic2;
+	}
+
+	if (type >= 5)
+	{
+		percent = 100 * (count - ((count / speed) * speed));
+		percent /= speed;
+	}
+
+	m_jumpPicPattern1 = pic1;
+	m_jumpPicPattern2 = pic2;
+	m_jumpPicPercent = percent;
+}
 
 void CCommonBackLog::UpdownArrowPicAnime(void)
 {
@@ -1467,6 +1855,64 @@ void CCommonBackLog::PutVoicePic(int x,int y, int pt)
 	}
 }
 
+
+
+void CCommonBackLog::PutJumpPic(int x, int y, int pt)
+{
+	if (m_jumpPicAnimeFlag == 0) pt = 0;
+
+	CPicture* lpPic = m_jumpPic;
+	if (lpPic == NULL) return;
+	//	if (lpPic->CheckDataExsit() == FALSE) return;
+
+	int sizeX = m_jumpSizeX;
+	int sizeY = m_jumpSizeY;
+
+	int srcX = sizeX * pt;
+	int srcY = sizeY * m_jumpPicPattern1;
+	int srcY2 = sizeY * m_jumpPicPattern2;
+	if (m_jumpPicAnimeFlag == 0)
+	{
+		srcX = 0;
+		srcY = 0;
+	}
+
+	int putX = x;
+	int putY = y;
+
+
+	if (m_jumpPicPercent == 100)
+	{
+		lpPic->Blt(putX, putY, srcX, srcY, sizeX, sizeY, TRUE);
+	}
+	else if (m_jumpPicPercent == 0)
+	{
+		lpPic->Blt(putX, putY, srcX, srcY2, sizeX, sizeY, TRUE);
+	}
+	else
+	{
+		int ps2 = 100 - m_jumpPicPercent;
+		int* lpBuffer2 = (int*)(lpPic->GetBuffer());
+		char* lpMask2 = (char*)(lpPic->GetMaskPic());
+
+		int deltaX = 0;
+		int deltaY = srcY2 - srcY;
+
+		SIZE sz = lpPic->GetPicSize();
+
+		lpBuffer2 += deltaX;
+		lpBuffer2 += (int)(deltaY * sz.cx);
+
+		lpMask2 += deltaX;
+		lpMask2 += (int)(deltaY * sz.cx);
+
+
+		//		lpPic->ChangeTranslateBlt(putX,putY,srcX,srcY,sizeX,sizeY,m_jumpPicPercent,ps2,lpBuffer2,lpMask2,lpPic);
+		lpPic->ChangeTranslateBlt(putX, putY, srcX, srcY, sizeX, sizeY, m_jumpPicPercent, ps2, lpPic, srcX, srcY2);
+
+	}
+}
+
 void CCommonBackLog::PutUpdownArrowPic(int n,int x,int y, int md)
 {
 	if (m_updownArrowAnimeFlag == 0) md = 0;
@@ -1545,6 +1991,10 @@ void CCommonBackLog::ReplaceMessage(LPSTR message,LPSTR replace)
 	}
 }
 
+int CCommonBackLog::GetBackLogMax(void)
+{
+	return BACKLOG_KOSUU;
+}
 
 void CCommonBackLog::SetLogByLoad(void* ptr)
 {
@@ -1554,6 +2004,9 @@ void CCommonBackLog::SetLogByLoad(void* ptr)
 	memcpy(m_logMessage, logData->logMessage, BACKLOG_KOSUU * BACKLOG_LENGTH);
 	memcpy(m_logColor, logData->logColor, BACKLOG_KOSUU * sizeof(int));
 	memcpy(m_voiceFile, logData->voiceFile, BACKLOG_KOSUU * VOICEFILE_LENGTH);
+
+	//@@@@@@@@@@@@@@@@@@@@@
+//	memcpy(m_jumpFile, logData->jumpFile, BACKLOG_KOSUU * JUMPFILE_LENGTH);
 }
 
 
@@ -1565,9 +2018,58 @@ void CCommonBackLog::GetLogForSave(void* ptr)
 	memcpy(logData->logMessage, m_logMessage, BACKLOG_KOSUU * BACKLOG_LENGTH);
 	memcpy(logData->logColor, m_logColor, BACKLOG_KOSUU * sizeof(int));
 	memcpy(logData->voiceFile, m_voiceFile, BACKLOG_KOSUU * VOICEFILE_LENGTH);
+
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//	memcpy(logData->jumpFile, m_jumpFile, BACKLOG_KOSUU * JUMPFILE_LENGTH);
+}
+
+void CCommonBackLog::PrintJumpExitFade(void)
+{
+	if (m_jumpFadeType == 0)
+	{
+		int dv = m_jumpFadeFrame;
+		if (dv < 1) dv = 1;
+
+		int ps = ((m_jumpFadeFrame - m_jumpFadeCount) * 100) / dv;
+		if (ps < 0) ps = 0;
+		if (ps > 100) ps = 100;
+
+		m_exitScreen->Overrap(m_enterScreen, ps);
+	}
+	else if (m_jumpFadeType >= 1)
+	{
+		int count = m_jumpFadeFrame - m_jumpFadeCount;
+		int countMax = m_jumpFadeFrame - 1;
+		if (count < 0) count = 0;
+		if (countMax < 1) countMax = 1;
+		if (count > countMax) count = countMax;
+
+		m_game->PrintSimpleWipe(count, countMax, m_jumpFadeType - 1);
+	}
+
+}
+
+void CCommonBackLog::CreateExitScreenForJump(void)
+{
+	m_game->Erase();
+	ReCreateExitScreen();
+	m_exitScreen->GetScreen();
+
+	FillPicture(m_enterScreen, m_jumpExitScreenR, m_jumpExitScreenG, m_jumpExitScreenB);
 }
 
 
+void CCommonBackLog::ClearJumpTable(void)
+{
+	if (m_jumpFlagTable != NULL)
+	{
+		for (int i = 0; i < BACKLOG_KOSUU; i++)
+		{
+			*(m_jumpFlagTable + i) = -1;
+		}
 
+	}
+
+}
 /*_*/
 

@@ -118,236 +118,6 @@ void CEffectHaikeiYure::Calcu(LPVOID lpEffect,int layer)
 	lp->para[15] = ps2;
 }
 
-#if defined _TINYAN3DLIB_
-void CEffectHaikeiYure::Print(LPVOID lpEffect,int layer)
-{
-	EFFECT* lp = (EFFECT*)lpEffect;
-
-	int screenSizeX = CMyGraphics::GetScreenSizeX();
-	int screenSizeY = CMyGraphics::GetScreenSizeY();
-
-
-	int count = lp->count;
-	int countMax = lp->countMax;
-
-	int ml = 100;
-	if (lp->para[11])
-	{
-		ml = CCalcuSpeed::calcu(count,countMax,0,100,lp->para[13],lp->para[12]);
-	}
-
-	int leftright = lp->para[1];
-	int updown = lp->para[2];
-
-	leftright *= ml;
-	leftright /= 100;
-
-	updown *= ml;
-	updown /= 100;
-
-
-	int ps1 = (lp->para[6] + lp->para[3] * count + 100 - 25) % 100;
-	int ps2 = (lp->para[6] + lp->para[4] * count + 100 - 25) % 100;
-
-//	int ps1 = lp->para[14];
-//	int ps2 = lp->para[15];
-
-	ps1 -= 25;
-	ps1 += 100;
-	ps1 %= 100;
-
-	ps2 -= 25;
-	ps2 += 100;
-	ps2 %= 100;
-
-	if (ps1>50) ps1 = 100 - ps1;
-	if (ps2>50) ps2 = 100 - ps2;
-
-	int dx = -leftright + (leftright * 2 * ps1) / 50;
-	int dy = -updown + (updown * 2 * ps2) / 50;
-
-	int fillType = lp->para[7];
-	int colorR = lp->para[8];
-	int colorG = lp->para[9];
-	int colorB = lp->para[10];
-
-	int layerType = lp->para[5];
-
-
-	int pic = lp->pic;
-	if (layerType == 0)
-	{
-		if (pic == -1) return;
-	}
-
-	CPicture* lpPic = m_allEffect->GetPicture(layer);
-	if (layerType == 0)
-	{
-		if (lpPic == NULL) return;
-	}
-
-
-
-	if (layerType == 1)
-	{
-		MoveScreen(dx,dy);
-		return;
-	}
-
-
-
-
-	lpPic->Blt(dx,dy,0,0,screenSizeX,screenSizeY,FALSE);
-	//‚·‚«‚Ü
-	if (dy != 0)
-	{
-		int putX = 0;
-		int putY = 0;
-		int sizeX = screenSizeX;
-		int sizeY = dy;
-
-		if (dy < 0)
-		{
-			putY = screenSizeY + dy;
-			sizeY = -dy;
-		}
-
-		if (sizeY>0)
-		{
-			if (fillType == 0)
-			{
-				lpPic->Blt(putX,putY,putX,putY,sizeX,sizeY,FALSE);
-			}
-			else
-			{
-				CAllGeo::BoxFill(putX,putY,sizeX,sizeY,colorR,colorG,colorB);
-			}
-		}
-	}
-
-
-	if (dx != 0)
-	{
-		int putX = 0;
-		int putY = 0;
-		int sizeX = dx;
-		int sizeY = screenSizeY;
-
-		if (dy>0)
-		{
-			sizeY -= dy;
-			putY += dy;
-		}
-		else if (dy<0)
-		{
-			sizeY += dy;
-		}
-
-		if (sizeY>0)
-		{
-			if (dx<0)
-			{
-				sizeX = -dx;
-				putX = screenSizeX + dx;
-			}
-
-			if (sizeX>0)
-			{
-				if (fillType == 0)
-				{
-					lpPic->Blt(putX,putY,putX,putY,sizeX,sizeY,FALSE);
-				}
-				else
-				{
-					CAllGeo::BoxFill(putX,putY,sizeX,sizeY,colorR,colorG,colorB);
-				}
-			}
-		}
-	}
-
-}
-
-
-
-
-
-
-void CEffectHaikeiYure::MoveScreen(int dx, int dy)
-{
-	if ((dx == 0) && (dy == 0)) return;
-	int screenSizeX = CMyGraphics::GetScreenSizeX();
-	int screenSizeY = CMyGraphics::GetScreenSizeY();
-
-	if (dx>=screenSizeX) return;
-	if (dy>=screenSizeY) return;
-
-	if (dx <= -screenSizeX) return;
-	if (dy <= -screenSizeY) return;
-
-	ExchangeScreenAndBuffer();
-	SetTexture(GetBufferTexture());
-
-	POINT dstPoint;
-	dstPoint.x = dx;
-	dstPoint.y = dy;
-	SIZE dstSize;
-	dstSize.cx = screenSizeX;// - abs(dx);
-	dstSize.cy = screenSizeY;// - abs(dy);
-	POINT srcPoint;
-	srcPoint.x = 0;
-	srcPoint.y = 0;
-//	if ((dstSize.cx > 0) && (dstSize.cy > 0))
-//	{
-		Blt(dstPoint,dstSize,srcPoint);
-//	}
-
-
-	//‚·‚«‚Ü
-	if (dy != 0)
-	{
-		dstPoint.x = 0;
-		if (dy>0)
-		{
-			dstPoint.y = 0;
-		}
-		else
-		{
-			dstPoint.y = screenSizeY + dy;
-		}
-		dstSize.cx = screenSizeX;
-		dstSize.cy = abs(dy);
-		srcPoint = dstPoint;
-		if ((dstSize.cx > 0) && (dstSize.cy > 0))
-		{
-			Blt(dstPoint,dstSize,srcPoint);
-		}
-	}
-
-	if (dx != 0)
-	{
-		dstPoint.y = 0;
-		if (dx>0)
-		{
-			dstPoint.x = 0;
-		}
-		else
-		{
-			dstPoint.x = screenSizeX + dx;
-		}
-		dstSize.cy = screenSizeY;
-		dstSize.cx = abs(dx);
-		srcPoint = dstPoint;
-		if ((dstSize.cx > 0) && (dstSize.cy > 0))
-		{
-			Blt(dstPoint,dstSize,srcPoint);
-		}
-	}
-
-	return;
-
-}
-
-#else
 
 void CEffectHaikeiYure::Print(LPVOID lpEffect,int layer)
 {
@@ -583,8 +353,31 @@ void CEffectHaikeiYure::MoveScreen(int dx, int dy)
 	int ddx = dx;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
+	INT32* src64Org = src;
+	INT32* dst64Org = dst;
+	for (int j = 0; j < sizeY; j++)
+	{
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
 
+		for (int i = 0; i < sizeX; i++)
+		{
+			*dst64 = *src64;
+			if (dx < 0)
+			{
+				src64++;
+				dst64++;
+			}
+			else
+			{
+				src64--;
+				dst64--;
+			}
+		}
+		src64Org += srcPitch / 4;
+		dst64Org += dstPitch / 4;
+
+	}
 #else
 
 	__asm
@@ -636,7 +429,6 @@ LOOP1:
 #endif
 
 }
-#endif
 
 
 

@@ -40,6 +40,13 @@ public:
 
 	int GetCGBlockNumber(int cgCharaNumber,int cgNumber);
 
+	LPSTR m_goreIconFileTag;
+	int m_useGoreSMFileTag;
+	int m_useGoreIcon;
+	CPicture* m_goreIcon;
+	int m_goreIconPrintX;
+	int m_goreIconPrintY;
+
 protected:
 //	LPSTR m_filenameBG;
 	LPSTR m_filenameAdd;

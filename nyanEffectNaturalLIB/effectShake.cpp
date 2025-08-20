@@ -99,100 +99,6 @@ void CEffectShake::Calcu(LPVOID lpEffect,int layer)
 	}
 }
 
-#if defined _TINYAN3DLIB_
-void CEffectShake::Print(LPVOID lpEffect,int layer)
-{
-	EFFECT* lp = (EFFECT*)lpEffect;
-
-	int screenSizeX = CMyGraphics::GetScreenSizeX();
-	int screenSizeY = CMyGraphics::GetScreenSizeY();
-
-
-
-	int c = lp->count;
-	int mx = lp->countMax;
-	if (c >= mx) return;
-
-	c = mx - c;
-	c %= 4;
-
-	int dltx = m_shakeTable[c];
-
-	if (dltx == 0) return;
-	int dlty = 0;
-
-	if (lp->para[1])
-	{
-		dlty = dltx;
-		dltx = 0;
-	}
-
-	POINT dstPoint;
-	dstPoint.x = dltx;
-	dstPoint.y = dlty;
-	SIZE dstSize;
-	dstSize.cx = screenSizeX;
-	dstSize.cy = screenSizeY;
-	POINT srcPoint;
-	srcPoint.x = 0;
-	srcPoint.y = 0;
-
-
-
-//	if (CheckEffectError()) return;
-
-//	HRESULT hr = CMyDirect3D::ExchangeScreenAndBuffer();
-//	SetTexture(CMyDirect3D::GetBufferTexture());
-//	AllPass(SHADER_SUB_COMMAND_FILLTEXTURE);
-
-
-
-
-	ExchangeScreenAndBuffer();
-	SetTexture(GetBufferTexture());
-	Blt(dstPoint,dstSize,srcPoint);
-
-	//すきま
-	int putX = 0;
-	int putY = 0;
-	int sizeX = 0;
-	int sizeY = 0;
-
-	if (dltx>0)
-	{
-		sizeX = dltx;
-		sizeY = screenSizeY;
-	}
-	else if (dltx<0)
-	{
-		sizeX = -dltx;
-		putX = screenSizeX + dltx;
-		sizeY = screenSizeY;
-	}
-
-	if (dlty>0)
-	{
-		sizeY = dlty;
-		sizeX = screenSizeX;
-	}
-	else if (dlty<0)
-	{
-		sizeY = -dlty;
-		putY = screenSizeY + dlty;
-		sizeX = screenSizeX;
-	}
-	dstPoint.x = putX;
-	dstPoint.y = putY;
-	dstSize.cx = sizeX;
-	dstSize.cy = sizeY;
-	srcPoint.x = putX;
-	srcPoint.y = putY;
-	Blt(dstPoint,dstSize,srcPoint);
-
-
-	return;
-}
-#else
 
 void CEffectShake::Print(LPVOID lpEffect,int layer)
 {
@@ -246,8 +152,33 @@ void CEffectShake::Print(LPVOID lpEffect,int layer)
 		}
 
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+		{
+			INT32* src64Org = src;
+			INT32* dst64Org = dst;
 
+			for (int j = 0; j < screenSizeY; j++)
+			{
+				INT32* src64 = src64Org;
+				INT32* dst64 = dst64Org;
+				for (int i = 0; i < ln; i++)
+				{
+					*dst64 = *src64;
+					if (dltx > 0)
+					{
+						src64++;
+						dst64++;
+					}
+					else
+					{
+						src64--;
+						dst64--;
+					}
+				}
+				src64Org += dstPitch / 4;
+				dst64Org += dstPitch / 4;
+
+			}
+		}
 #else
 
 		__asm
@@ -322,8 +253,35 @@ LOOP1:
 			lPitch = -screenSizeX*4;
 		}
 #if defined _WIN64
-#pragma message("ここにc++実装が必要にゃ " __FILE__)
+		{
+			INT32* src64Org = src;
+			INT32* dst64Org = dst;
 
+			for (int j = 0; j < ln; j++)
+			{
+				INT32* src64 = src64Org;
+				INT32* dst64 = dst64Org;
+				for (int i = 0; i < screenSizeX; i++)
+				{
+					*dst64 = *src64;
+					src64++;
+					dst64++;
+				}
+
+				if (dltx > 0)
+				{
+					src64Org += lPitch / 4;
+					dst64Org += lPitch / 4;
+				}
+				else
+				{
+					src64Org -= lPitch / 4;
+					dst64Org -= lPitch / 4;
+				}
+
+			}
+
+		}
 #else
 
 		__asm
@@ -366,7 +324,6 @@ LOOP2:
 	}
 
 }
-#endif
 
 /*_*/
 

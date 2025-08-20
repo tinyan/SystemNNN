@@ -96,8 +96,12 @@ void CEffectFill::Print(LPVOID lpEffect,int layer)
 	int sz = screenSizeX * screenSizeY;
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
-
+	INT32* dst64 = dst;
+	for (int i = 0; i < sz; i++)
+	{
+		*dst64 = col;
+		dst64++;
+	}
 #else
 
 	__asm

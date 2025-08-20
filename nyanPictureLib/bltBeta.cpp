@@ -29,8 +29,8 @@ void CBltBeta::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,S
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 //	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
-	src += (SSIZE_T)srcPoint.y * srcSize.cx + srcPoint.x;
-	dst += (SSIZE_T)putPoint.y * screenSizeX + putPoint.x;
+	src += srcPoint.y * srcSize.cx + srcPoint.x;
+	dst += putPoint.y * screenSizeX + putPoint.x;
 
 	int srcPitch = srcSize.cx * sizeof(int);
 	int dstPitch = screenSizeX * 4;
@@ -41,19 +41,23 @@ void CBltBeta::Print(POINT putPoint,POINT srcPoint,SIZE putSize,LPVOID picData,S
 	if ((loopY<=0) || (loopX<=0)) return;
 
 #if defined _WIN64
-	INT32* esi = (INT32*)src;
-	INT32* edi = (INT32*)dst;
+	INT32* src64Org = (INT32*)src;
+	INT32* dst64Org = (INT32*)dst;
 	for (int j = 0; j < loopY; j++)
 	{
-		INT32* pushesi = esi;
-		INT32* pushedi = edi;
+		INT32* src64 = src64Org;
+		INT32* dst64 = dst64Org;
 
-		memcpy(edi, esi, loopX * sizeof(INT32));
+		for (int i = 0; i < loopX; i++)
+		{
+			*dst64 = *src64;
+			src64++;
+			dst64++;
+		}
+//		memcpy(edi, esi, loopX * sizeof(INT32));
 
-		esi = pushesi;
-		edi = pushedi;
-		esi += srcPitch / 4;
-		edi += dstPitch / 4;
+		src64Org += srcPitch / 4;
+		dst64Org += dstPitch / 4;
 	}
 #else
 

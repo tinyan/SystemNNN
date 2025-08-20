@@ -29,6 +29,8 @@
 
 #include "commonMode.h"
 #include "commonSystemParamName.h"
+#include "..\nnnUtilLib\nameList.h"
+
 
 #include "gameCallBack.h"
 
@@ -176,7 +178,21 @@ CCommonSelectScene::CCommonSelectScene(CGameCallBack* lpGame) : CCommonGeneral(l
 		m_addPic->LoadDWQ(filename);
 	}
 
-
+	m_useGoreFlag = m_game->GetUseGoreFlag();
+	m_goreCheckList = NULL;
+	m_goreIcon = NULL;
+	if (m_useGoreFlag)
+	{
+		m_goreCheckList = new CNameList();
+		m_goreCheckList->LoadFile("nya\\goresceneflag.xtx");
+		LPSTR gorePicName = "";
+		GetInitGameString(&gorePicName, "filenameGoreIcon");
+		m_goreIcon = m_game->GetSystemPicture(gorePicName);
+		m_goreIconPrintX = 0;
+		m_goreIconPrintY = 0;
+		GetInitGameParam(&m_goreIconPrintX, "goreIconPrintX");
+		GetInitGameParam(&m_goreIconPrintY, "goreIconPrintY");
+	}
 	m_miniPic = NULL;
 	m_miniPic = new CPicture*[m_blockKosuuX*m_blockKosuuY];
 	for (int i=0;i<m_blockKosuuX*m_blockKosuuY;i++)
@@ -457,6 +473,7 @@ void CCommonSelectScene::End(void)
 		DELETEARRAY(m_miniPic);
 	}
 
+	ENDDELETECLASS(m_goreCheckList);
 
 	ENDDELETECLASS(m_addPic);
 //	ENDDELETECLASS(m_updown);
@@ -470,6 +487,11 @@ void CCommonSelectScene::End(void)
 
 int CCommonSelectScene::Init(void)
 {
+	m_goreFlag = 0;
+	if (m_useGoreFlag)
+	{
+		m_goreFlag = m_game->GetGoreFlag();
+	}
 
 	m_appearCount = 1;
 	m_appearCountMax = 1;
@@ -893,6 +915,29 @@ int CCommonSelectScene::Print(void)
 
 						}
 					}
+
+					if (m_goreFlag)
+					{
+						if (appearPercent >= 100)
+						{
+							if (m_goreCheckList != NULL)
+							{
+								if (scene < m_goreCheckList->GetNameKosuu())
+								{
+									char* name = m_goreCheckList->GetName(scene);
+									if (name != NULL)
+									{
+										if (*name == '*')
+										{
+											m_goreIcon->Put(putX + m_goreIconPrintX, putY + m_goreIconPrintY, TRUE);
+										}
+									}
+								}
+							}
+						}
+
+					}
+
 
 					if (b == FALSE)
 					{

@@ -35,6 +35,42 @@ public:
 
 	virtual void ChangeExtDataSize(int extNumber,int dataSize);
 
+	//static int CalcuSaveDataBufferSizeForBackLog(CGameCallBack* lpGame);
+
+	void CreateSaveDataBufferForBackLog(void);
+	void MakeSaveDataForBackLog(int n);
+	int m_saveBufferForBackLogSizeOne;
+	char* m_saveDataBufferForBackLog;
+	char* GetJumpBuffer(int n);
+
+protected:
+	void MakeHeaderForSaveBackLog(int* work, int sz, int cd, LPSTR mes);
+
+	int MakeSaveDataHeaderForBackLog(int start);
+	int MakeSaveInfoForbackLog(int start);
+	int MakeSaveStatusForBackLog(int start);
+	int MakeMiniCGForBackLog(int start);
+	int MakeSaveVarForBackLog(int start);
+	int MakeSaveEffectForBackLog(int start);
+	int MakeSaveEffectFileNameForBackLog(int start);
+	int MakeSaveMessageForBackLog(int start);
+	int MakeSaveExtDataForBackLog(int start);
+	int MakeSaveCutinForBackLog(int start);
+	int MakeSaveLogForBackLog(int start);
+	int MakeSaveOmakeClassForBackLog(int start);
+
+
+	int m_extDataBlockKosuu;
+
+	int* m_pExtBlockSize;
+	int m_omakeClassExistFlag;
+	int m_cutinUseFlag;
+	int m_logFlag;
+
+//	int m_saveDataForBackLogNumber;
+
+
+
 protected:
 	virtual int ProcessDataClicked(int n) = 0;
 	virtual int ProcessStartClickExistData(int n) = 0;

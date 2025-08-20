@@ -108,36 +108,21 @@ void CEffectMeltDown::Print(LPVOID lpEffect,int layer)
 
 	if (y>=(screenSizeY-1)) return;
 
-#if defined _TINYAN3DLIB_
-	CopyScreenToBuffer();
-	SetTexture(GetBufferTexture());
-	POINT dstPoint;
-	SIZE dstSize;
-	POINT srcPoint;
-	SIZE srcSize;
-	SIZE srcPicSize;
-
-	dstPoint.x = 0;
-	dstPoint.y = y;
-	dstSize.cx = screenSizeX;
-	dstSize.cy = screenSizeY - y;
-	srcPoint.x = 0;
-	srcPoint.y = y;
-	srcSize.cx = screenSizeX;
-	srcSize.cy = 1;
-	srcPicSize.cx = screenSizeX;
-	srcPicSize.cy = screenSizeY;
-
-	StretchBlt(&dstPoint,&dstSize,&srcPoint,&srcSize,&srcPicSize);
-
-#else
 	int* screen = CMyGraphics::GetScreenBuffer();
 
 	int lPitch = screenSizeX * sizeof(int);
 
 #if defined _WIN64
-#pragma message("‚±‚±‚Éc++ŽÀ‘•‚ª•K—v‚É‚á " __FILE__)
-
+	INT32* src = screen;
+	src += screenSizeX * y;
+	INT32* dst = screen;
+	dst += screenSizeX * (y + 1);
+	for (int i = 0; i < screenSizeX * (screenSizeY - 1 - y); i++)
+	{
+		*dst = *src;
+		src++;
+		dst++;
+	}
 #else
 
 	__asm
@@ -174,8 +159,6 @@ void CEffectMeltDown::Print(LPVOID lpEffect,int layer)
 		pop ebx
 		pop eax
 	}
-
-#endif
 
 
 #endif

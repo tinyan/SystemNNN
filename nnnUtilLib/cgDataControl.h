@@ -13,6 +13,8 @@ public:
 
 	void CreateCGList(int kosuu);
 	LPSTR GetCGFileName(int cgCharaNumber, int cgNumber, BOOL realnameFlag = TRUE);
+	BOOL CheckGore(int player, int cg);
+
 	int GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber);
 
 	int GetCGKosuu(int playerNumber);

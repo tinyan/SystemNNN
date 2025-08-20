@@ -805,7 +805,9 @@ BOOL ff = m_systemFile->m_systemdata.fullScreenFlag;
 
 
 
-		SetWindowLong(m_hWnd,GWL_STYLE,WS_POPUP | WS_VISIBLE);
+//		SetWindowLong(m_hWnd,GWL_STYLE,WS_POPUP | WS_VISIBLE);
+		SetWindowLongPtr(m_hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+
 
 		MoveWindow(m_hWnd,0,0, realWindowSizeX,realWindowSizeY,TRUE);
 	}
@@ -1383,7 +1385,10 @@ BOOL CMainControl::Game(CGameCallBack* lpGame)
 //			}
 
 		}
-		else
+
+#if !defined _WIN64
+	//	else
+#endif
 		{
 //			timeBeginPeriod(1);
 			int tm = (int)timeGetTime();

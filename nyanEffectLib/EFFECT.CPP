@@ -456,6 +456,10 @@ LPSTR CEffect::GetAnimeTag(void)
 	return m_allEffect->GetAnimeTag();
 }
 
+void CEffect::SetGoreMask(int layer, int mask)
+{
+	m_allEffect->SetGoreMask(layer, mask);
+}
 
 /*_*/
 

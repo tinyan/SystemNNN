@@ -1059,6 +1059,16 @@ int CCommonSystemFile::GetCGCharaNinzu(void)
 	return m_CGCharaNumber;
 }
 
+
+void CCommonSystemFile::SetGoreFlag(int goreFlag)
+{
+	m_systemFlag2.goreFlag = goreFlag;
+}
+int CCommonSystemFile::GetGoreFlag(void)
+{
+	return m_systemFlag2.goreFlag;
+}
+
 BOOL CCommonSystemFile::CreateGUID(BOOL existCheck)
 {
 	if (existCheck)

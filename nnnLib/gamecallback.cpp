@@ -388,6 +388,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 	m_systemFile = lpSystemFile;
 	m_quitFlag = FALSE;
 	m_screenModeChangedFlag = FALSE;
+	m_createJumpSaveNumber = 0;
 
 	m_expSystemMenuMode = NULL;
 	m_expSystemMenuCommand = NULL;
@@ -404,6 +405,7 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 	AddDebugLog();
 	
 	m_preReceiveFileName = NULL;
+	m_requestCreateJumpSaveDataFlag = false;
 
 	m_skipVoiceOffCheck = false;
 
@@ -531,6 +533,9 @@ CGameCallBack::CGameCallBack(HWND hwnd, HINSTANCE hinstance, CCommonSystemFile* 
 
 	m_lastFilmName[0] = 0;
 	m_lastStoryName[0] = 0;
+
+	m_useGoreFlag = 0;
+	m_goreFlag = 0;
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -772,6 +777,47 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&m_autoDebugWait, "okikae");
 	int useDefaultOkikae = 0;
 	GetInitGameParam(&useDefaultOkikae, "useDefaultOkikae");
+
+
+	m_jumpFlag = 0;
+	GetInitGameParam(&m_jumpFlag, "JumpFlag");
+
+	m_useGoreFlag = 0;
+	GetInitGameParam(&m_useGoreFlag, "useGoreFlag");
+	m_goreVarNumberName = "goreFlag";
+
+	m_goreLayerCount = 0;
+	m_nonGoreLayerCount = 0;
+	m_goreEffectLayer = NULL;
+	m_nonGoreEffectLayer = NULL;
+
+	GetInitGameParam(&m_goreLayerCount, "goreLayerCount");
+	GetInitGameParam(&m_nonGoreLayerCount, "nonGoreLayerCount");
+	if (m_goreLayerCount > 0)
+	{
+		m_goreEffectLayer = new int[m_goreLayerCount];
+		for (int i = 0; i < m_goreLayerCount; i++)
+		{
+			int layer = -1;
+			char goreLayerName[256];
+			sprintf_s(goreLayerName, sizeof(goreLayerName), "goreLayer%d", i + 1);
+			GetInitGameParam(&layer, goreLayerName);
+			m_goreEffectLayer[i] = layer;
+		}
+	}
+
+	if (m_nonGoreLayerCount > 0)
+	{
+		m_nonGoreEffectLayer = new int[m_nonGoreLayerCount];
+		for (int i = 0; i < m_nonGoreLayerCount; i++)
+		{
+			int layer = -1;
+			char nonGoreLayerName[256];
+			sprintf_s(nonGoreLayerName, sizeof(nonGoreLayerName), "nonGoreLayer%d", i + 1);
+			GetInitGameParam(&layer, nonGoreLayerName);
+			m_nonGoreEffectLayer[i] = layer;
+		}
+	}
 
 
 	m_autoExtDataLoadKosuu = 0;
@@ -2057,6 +2103,18 @@ else
 	if (m_noScriptFlag == 0)
 	{
 		SetSystemVarNumber();
+	}
+
+	m_goreVarNumber = 95;
+	if (m_useGoreFlag)
+	{
+		GetInitGameString(&m_goreVarNumberName, "goreVarName");
+		int d = GetVarNumber(m_goreVarNumberName);
+		if (d != -1)
+		{
+			m_goreVarNumber = d;
+		}
+		GetGoreFlag();
 	}
 
 
@@ -3447,6 +3505,8 @@ else
 
 	m_effect->ClearAllEffect();
 
+
+
 	ClearWork();
 //OutputDebugString("\nGeneralCreate -13");
 
@@ -3568,6 +3628,9 @@ void CGameCallBack::End(void)
 	DELETEARRAY(m_expSystemMenuShortCut);
 
 	DELETEARRAY(m_expModeCheckVarNumber);
+
+	DELETEARRAY(m_goreEffectLayer);
+	DELETEARRAY(m_nonGoreEffectLayer);
 
 	int i= 0;
 //ugString("CGameCallBack::End();\n");
@@ -6128,6 +6191,7 @@ void CGameCallBack::SetLogByLoad(LPVOID ptr)
 
 	CCommonBackLog* pDoc = (CCommonBackLog*)m_general[BACKLOG_MODE];
 	pDoc->SetLogByLoad(lp);
+	pDoc->ClearJumpTable();
 }
 
 
@@ -7639,7 +7703,7 @@ LRESULT CGameCallBack::GameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 
 
-
+		
 	case WM_MOUSEMOVE:
 		if (m_mouseStatus != NULL)
 		{
@@ -10655,6 +10719,19 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 		}
 	}
 
+	if (m_jumpFlag)
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		if (backlog != NULL)
+		{
+			SetSaveMode(PRINTMESSAGE_MODE);
+
+			backlog->AddJump(m_createJumpSaveNumber);
+			m_requestCreateJumpSaveDataFlag = true;
+		}
+	}
+
+
 	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
 
 	LPSTR mes = (LPSTR)para2;
@@ -10692,6 +10769,16 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 		}
 	}
 
+	if (m_jumpFlag)
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		if (backlog != NULL)
+		{
+			SetSaveMode(PRINTMESSAGE_MODE);
+			backlog->AddJump(m_createJumpSaveNumber);
+			m_requestCreateJumpSaveDataFlag = true;
+		}
+	}
 
 	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
 
@@ -12813,6 +12900,7 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
 	int screenSizeY = CMyGraphics::GetScreenSizeY();
 
+	
 	if ((mouseX>=0) && (mouseX<screenSizeX) && (mouseY>=0) && (mouseY<screenSizeY))
 	{
 		if (m_gameMouse != NULL)
@@ -12829,6 +12917,8 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 			}
 		}
 	}
+	
+
 	m_gameMouseDontPrintFlag = FALSE;
 
 
@@ -12947,7 +13037,6 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 		BeforeChangeMode();
 		ChangeMode();
 		AfterChangeMode();
-
 		//
 //		if ((returnCode != PRINTMESSAGE_MODE) && (returnCode != PRINTOVERRAP_MODE))
 		if (returnCode != PRINTMESSAGE_MODE)
@@ -12956,6 +13045,16 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 			m_shakinControl->Clear();
 		}
 	}
+
+	if (m_jumpFlag)
+	{
+		if (m_requestCreateJumpSaveDataFlag)
+		{
+			CreateJumpSaveData();
+			m_requestCreateJumpSaveDataFlag = false;
+		}
+	}
+
 
 	if (m_debugVarFlag) PrintDebugParam();
 
@@ -13743,6 +13842,11 @@ void CGameCallBack::CreateAllClass(BOOL taikenFlag)
 	CreateCommonClass(SAVE_MODE);
 
 	CreateCommonClass(MINIGAME_MODE);
+
+	if (m_jumpFlag)
+	{
+		CreateJumpBuffer();
+	}
 
 }
 
@@ -17370,6 +17474,220 @@ void CGameCallBack::SetSpecialMouseType(int type)
 	if (m_gameMouse != nullptr)
 	{
 		m_gameMouse->SetHadohouType(type);
+	}
+}
+
+/*
+void CGameCallBack::MakeSaveDataForBackLog(void)
+{
+	CCommonSave* save = (CCommonSave*)(m_general[SAVE_MODE]);
+	if (save != NULL)
+	{
+		OutputDebugString("MakeSaveDataForBackLog\n");
+		save->MakeSaveDataForBackLog();
+	}
+	
+}
+*/
+
+
+int CGameCallBack::GetJumpFlag()
+{
+	return m_jumpFlag;
+}
+
+int CGameCallBack::GetBackLogMax(void)
+{
+	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	return backlog->GetBackLogMax();
+}
+
+void CGameCallBack::CreateJumpSaveData(void)
+{
+	OutputDebugString("CreateJumpSaveData\n");
+
+	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
+	if (save != NULL)
+	{
+		save->MakeSaveDataForBackLog(m_createJumpSaveNumber);
+	}
+
+
+	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+//	MakeSaveDataForBackLog();
+
+
+
+	int backLogMax = backlog->GetBackLogMax();
+
+	m_createJumpSaveNumber++;
+	m_createJumpSaveNumber %= backLogMax;
+
+}
+
+
+void CGameCallBack::CreateJumpBuffer(void)
+{
+	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
+	if (save != NULL)
+	{
+		save->CreateSaveDataBufferForBackLog();
+	}
+}
+
+
+void CGameCallBack::TestJump(int n)
+{
+	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
+	
+	char* buffer = save->GetJumpBuffer(n);
+	CCommonDataFile::GAMEHEADER* gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+
+	//header
+	buffer += gameHeader->general.size;
+	//info
+	//SetGameInfoByLoad(&m_gameInfo);
+	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+	buffer += gameHeader->general.size;
+	//status
+	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+	SetGameStatusByLoad(buffer);
+	buffer += gameHeader->general.size;
+	//
+	//Var
+	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+	SetVarByLoad(buffer);
+	buffer += gameHeader->general.size;
+	//Effect
+	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+	SetEffectByLoad(buffer);
+	buffer += gameHeader->general.size;
+	//EffectFileName
+	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+	SetEffectFileNameByLoad(buffer);
+	buffer += gameHeader->general.size;
+	//Message
+	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+	SetMessageByLoad(buffer);
+	buffer += gameHeader->general.size;
+	//Ext
+	int extDataCount = GetExtDataBlockKosuu();
+	for (int i = 0; i < extDataCount; i++)
+	{
+		gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+		SetExtDataByLoadGeneral(buffer, i);
+		buffer += gameHeader->general.size;
+	}
+
+
+	//Cutin
+	if (GetUseCutin())
+	{
+		gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+		SetCutinByLoad(buffer);
+		buffer += gameHeader->general.size;
+	}
+
+	//Log
+	if (GetSaveLog())
+	{
+		gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+		SetLogByLoad(buffer);
+		buffer += gameHeader->general.size;
+	}
+
+	//Omake
+	if (GetOmakeClassExistFlag())
+	{
+		gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
+		{
+			char* ptr = (char*)buffer;
+			ptr += sizeof(CCommonDataFile::GAMEGENERALDATA);
+			SetOmakeClassDataByLoad(ptr);
+		}
+		buffer += gameHeader->general.size;
+	}
+
+	{
+		ClearBackLog();
+	}
+
+	InitLoadGame();
+	FuqueAllEffect();
+
+
+}
+
+int CGameCallBack::GetUseGoreFlag(void)
+{
+	return m_useGoreFlag;
+}
+int CGameCallBack::GetGoreFlag(void)
+{
+	return m_systemFile->GetGoreFlag();
+/*
+	if (m_goreVarNumber != -1)
+	{
+		int d = GetVarData(m_goreVarNumber);
+		m_goreFlag = d;
+	}
+	return m_goreFlag;
+	*/
+}
+void CGameCallBack::SetGoreFlag(int goreFlag)
+{
+	m_systemFile->SetGoreFlag(goreFlag);
+	m_goreFlag = goreFlag;
+	/*
+	SetVarData(m_goreVarNumber, goreFlag);
+	*/
+}
+
+void CGameCallBack::SetGoreLayer(void)
+{
+	if (m_useGoreFlag == 0)
+	{
+		return;
+	}
+
+	int goreFlag = GetGoreFlag();
+	for (int i = 0; i < m_goreLayerCount; i++)
+	{
+		int layer = m_goreEffectLayer[i];
+		if ((layer != -1) && (layer >= 0) && (layer < LAYER_KOSUU_MAX))
+		{
+			if (goreFlag)
+			{
+				//visible
+				m_effect->SetGoreMask(layer, 0);
+
+			}
+			else
+			{
+				m_effect->SetGoreMask(layer, 1);
+
+			}
+		}
+	}
+
+	for (int i = 0; i < m_nonGoreLayerCount; i++)
+	{
+		int layer = m_nonGoreEffectLayer[i];
+		if ((layer != -1) && (layer >= 0) && (layer < LAYER_KOSUU_MAX))
+		{
+			if (goreFlag)
+			{
+				m_effect->SetGoreMask(layer, 1);
+			}
+			else
+			{
+				//visible
+				m_effect->SetGoreMask(layer, 0);
+
+			}
+
+		}
+
 	}
 }
 

@@ -54,6 +54,8 @@ public:
 
 	virtual void SetSelectMessageFlag(int select, int n,bool flag = true);
 	virtual bool CheckSelectMessageFlag(int select, int n);
+	virtual void SetGoreFlag(int goreFlag);
+	virtual int GetGoreFlag(void);
 //	void SetScene(int paraKosuu, int* paraPtr);
 //	void SetScene(int sceneNumber);
 
@@ -324,7 +326,8 @@ public:
 		int changeSelectMessageColor;
 
 		int autoSkip;
-		int pad1[3];
+		int goreFlag;
+		int pad1[2];
 
 		int pad[256 - 12];
 

@@ -57,7 +57,7 @@ public:
 
 
 
-
+	void SetGoreMask(int n, int mask);
 	void SetEye(int n, BOOL md = TRUE);
 	void ClearAllEffect(BOOL b = FALSE);
 	void ClearEffect(int n, BOOL prevClearFlag = TRUE);
@@ -155,6 +155,7 @@ private:
 
 	CPicture* m_pic[PICTURE_KOSUU_MAX+1];
 	BOOL m_eyeFlag[PICTURE_KOSUU_MAX];
+	int m_goreMask[PICTURE_KOSUU_MAX];
 
 	CPicture* m_overrapPic0;
 	CPicture* m_overrapPic1;

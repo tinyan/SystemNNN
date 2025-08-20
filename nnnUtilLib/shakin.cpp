@@ -79,8 +79,10 @@ void CShakin::BeginFrame(int tm)
 		return;
 	}
 
+
 	//¡‚Ì•ÔÏ‘¬“x‚Å—\’èŠúŠÔˆÈ“à‚É•Ô‹p‚Å‚«‚È‚¢‚È‚ç‚Ó‚â‚·
-	if ((m_hensaiYotei*m_kikan*m_frameTime) < m_shakin)
+	if ((m_hensaiYotei * m_kikan * m_frameTime) < m_shakin + m_kikan * m_frameTime)
+	//if (((m_hensaiYotei+2)*1*m_frameTime) < m_shakin)
 	{
 		m_hensaiYotei++;
 	}
@@ -88,7 +90,8 @@ void CShakin::BeginFrame(int tm)
 	//¡‚Ì•ÔÏ‘¬“x‚æ‚è‚¨‚Æ‚µ‚Ä‚à—\’èŠúŠÔ“à‚É•Ô‹p‚Å‚«‚é‚È‚ç‚Ö‚ç‚·
 	if (m_hensaiYotei>1)
 	{
-		if (((m_hensaiYotei-1)*m_kikan*m_frameTime) > m_shakin)
+		//if (((m_hensaiYotei-1)*m_kikan*m_frameTime) > m_shakin)
+		if (((m_hensaiYotei - 1) * m_kikan * m_frameTime) > m_shakin+m_kikan*m_frameTime)
 		{
 			m_hensaiYotei--;
 		}

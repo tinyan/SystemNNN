@@ -3025,6 +3025,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	}
 
 
+//	m_game->MakeSaveDataForBackLog();
 /*
 	if (m_cutinMode)
 	{

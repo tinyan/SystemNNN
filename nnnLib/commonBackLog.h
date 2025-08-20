@@ -16,6 +16,7 @@ class CMyMessage;
 #define BACKLOG_KOSUU 256
 #define BACKLOG_LENGTH 1024
 #define VOICEFILE_LENGTH 16
+//#define JUMPFILE_LENGTH 16
 
 
 
@@ -39,6 +40,7 @@ public:
 	void AddBar(void);
 
 	void AddVoice(LPSTR filename);
+	void AddJump(int dataNumber);
 
 	static char m_defaultTitleMessage[];
 	static char m_defualtFirstMessage[];
@@ -47,6 +49,7 @@ public:
 	static char m_defaultUpArrow[];
 	static char m_defaultDownArrow[];
 	static char m_defaultVoice[];
+	static char m_defaultJump[];
 
 
 	static char m_defaultTitleMessage1byte[];
@@ -56,6 +59,7 @@ public:
 	static char m_defaultUpArrow1byte[];
 	static char m_defaultDownArrow1byte[];
 	static char m_defaultVoice1byte[];
+	static char m_defaultJump1byte[];
 
 
 	static char m_defaultBackFilename[];
@@ -73,6 +77,11 @@ public:
 	void SetLogByLoad(void* ptr);
 	void GetLogForSave(void* ptr);
 
+	int GetBackLogMax(void);
+
+	void PrintJumpExitFade(void);
+	void CreateExitScreenForJump(void);
+	void ClearJumpTable(void);
 
 protected:
 	BOOL UpScroll(int n = 1);
@@ -83,6 +92,8 @@ protected:
 	int CheckOnVoice(int mouseX, int mouseY);
 	POINT GetVoicePrintZahyo(int n);
 
+	int CheckOnJump(int mouseX, int mouseY);
+	POINT GetJumpPrintZahyo(int n);
 
 
 	CMyMessage* m_message;
@@ -90,6 +101,7 @@ protected:
 	int* m_logColor;
 	char* m_logMessage;
 	char* m_voiceFile;
+	int* m_jumpFlagTable;
 
 	int m_printGyosuuMax;
 	int m_printStartGyo;
@@ -111,6 +123,7 @@ protected:
 	int m_sukima;
 
 	int m_voiceFlag;
+	int m_jumpFlag;
 
 	int m_upArrowPrintX;
 	int m_upArrowPrintY;
@@ -128,15 +141,18 @@ protected:
 	LPSTR m_upArrowMessage;
 	LPSTR m_downArrowMessage;
 	LPSTR m_voiceMessage;
+	LPSTR m_jumpMessage;
 
 	int m_updownArrowSizeX;
 	int m_updownArrowSizeY;
 
 	int m_updownArrowPicFlag;
 	int m_voicePicFlag;
+	int m_jumpPicFlag;
 
 	CPicture* m_updownArrowPic;
 	CPicture* m_voicePic;
+	CPicture* m_jumpPic;
 
 	CPicture* m_upArrowPic;
 	CPicture* m_downArrowPic;
@@ -145,6 +161,11 @@ protected:
 	int m_voiceSizeY;
 	int m_voicePrintX;
 	int m_voicePrintY;
+
+	int m_jumpSizeX;
+	int m_jumpSizeY;
+	int m_jumpPrintX;
+	int m_jumpPrintY;
 
 	virtual void BeforeInit(void) {}
 	virtual void AfterInit(void) {}
@@ -193,6 +214,20 @@ protected:
 	int m_voicePicPattern2;
 	int m_voicePicPercent;
 
+	int m_jumpPicAnimeFlag;
+
+	int m_jumpPicAnimeCount;
+	int m_jumpPicAnimeType;
+	int m_jumpPicAnimeSpeed;
+	int m_jumpPicAnimePattern;
+
+	void JumpPicAnime(void);
+
+	int m_jumpPicPattern1;
+	int m_jumpPicPattern2;
+	int m_jumpPicPercent;
+
+
 	int m_updownArrowAnimeFlag;
 	int m_updownArrowAnimeCount;
 	int m_updownArrowAnimeType;
@@ -207,6 +242,10 @@ protected:
 
 	void PutVoicePic(int x,int y,int pt);
 	int m_onVoiceNumber;
+
+	void PutJumpPic(int x,int y,int pt);
+	int m_onJumpNumber;
+
 
 	int m_backScreenEffectNega;
 	int m_backScreenEffectGrey;
@@ -226,6 +265,19 @@ protected:
 	int m_firstMessagePrintFlag;
 	int m_firstBarPrintFlag;
 
+	int m_jumpVoiceFlag;
+//	int m_jumpVoiceNumber;
+	char* m_jumpVoiceFileName;
+
+	int m_jumpFadeType;
+	int m_jumpFadeCount;
+	int m_jumpFadeFrame;
+
+	int m_jumpExitScreenR;
+	int m_jumpExitScreenG;
+	int m_jumpExitScreenB;
+
+	BOOL m_jumpStartFlag;
 
 	char* m_separatorMessage;
 	static char m_separatorData[][16];

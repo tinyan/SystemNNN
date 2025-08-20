@@ -760,6 +760,8 @@ public:
 	CCGDataControl* GetCGDataControl(void){return m_cgDataControl;}
 	void SetBackLogOk(int mode,int flg = 1);
 	int GetBackLogOk(int mode);
+	int GetBackLogMax(void);
+
 
 	LPSTR GetDefaultSeiMei(int md);
 	LPSTR GetGameDefaultSeiMei(int md);
@@ -891,6 +893,18 @@ public:
 
 	virtual void SetSpecialMouseType(int type);
 
+	//void MakeSaveDataForBackLog(void);
+
+	int GetJumpFlag();
+	void CreateJumpBuffer(void);
+	void TestJump(int n);
+
+	int GetUseGoreFlag();
+	int GetGoreFlag();
+	void SetGoreFlag(int goreFlag);
+
+	void SetGoreLayer(void);
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -923,7 +937,6 @@ protected:
 	int m_windowSizeX,m_windowSizeY;
 
 	int m_bpp;
-
 
 	int m_floatingLayerFlashFlag;
 
@@ -1107,6 +1120,10 @@ protected:
 
 	int m_totalTime;
 	int m_nextShakinFumitaoshi;
+
+	int m_jumpFlag;
+	BOOL m_requestCreateJumpSaveDataFlag;
+	int m_createJumpSaveNumber;
 
 	CMyMouseStatus* m_mouseStatus;
 	CMyKeyStatus* m_keyStatus;
@@ -1621,6 +1638,8 @@ protected:
 
 	int AdjustDate(int daymonth);
 
+	void CreateJumpSaveData(void);
+
 	static int m_daysOfMonth[13];
 
 	int m_configMask;
@@ -1915,6 +1934,16 @@ protected:
 	int m_delayExitVoiceCount;
 
 	int m_notUseYearVar;
+
+	int m_useGoreFlag;
+	int m_goreFlag;
+	int m_goreVarNumber;
+	LPSTR m_goreVarNumberName;
+	int m_goreLayerCount;
+	int m_nonGoreLayerCount;
+	int* m_goreEffectLayer;
+	int* m_nonGoreEffectLayer;
+
 };
 
 #endif

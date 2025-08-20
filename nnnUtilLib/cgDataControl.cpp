@@ -87,6 +87,17 @@ void CCGDataControl::CreateCGList(int kosuu)
 	}
 }
 
+BOOL CCGDataControl::CheckGore(int player, int cg)
+{
+	if ((player < 0) || (player >= m_cgCharaKosuu)) return FALSE;
+	LPSTR name = m_cgList[player]->GetName(cg);
+	if ((*name) == '*')
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
 
 LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 {
@@ -95,6 +106,7 @@ LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 
 	if (realnameFlag)
 	{
+		if ((*name) == '*') name++;
 		if ((*name) == '@') name++;
 		if ((*name) == '!') name++;
 		if ((*name) == '#')
@@ -155,7 +167,10 @@ LPSTR CCGDataControl::GetCGFileName(int player, int cg,BOOL realnameFlag)
 			}
 		}
 	}
+	else
+	{
 
+	}
 	return name;
 }
 
@@ -199,6 +214,7 @@ BOOL CCGDataControl::GetAnimeParam(int player,int num)
 
 	if (1)
 	{
+		if ((*name) == '*') name++;
 		if ((*name) == '@') name++;
 		if ((*name) == '!') name++;
 		if ((*name) == '#')
@@ -266,6 +282,7 @@ int CCGDataControl::GetCGScrollSpecial(int houkou, int charaNumber, int cgNumber
 	int lastHoukou = -1;
 
 	LPSTR name = GetCGFileName(charaNumber,cgNumber,FALSE);
+	if ((*name) == '*') name++;
 	if ((*name) == '@') name++;
 	if ((*name) == '!') name++;
 
