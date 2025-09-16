@@ -11869,8 +11869,9 @@ void CGameCallBack::PrintBackBuffer(void)
 		m_mmx->SetSurfaceParameter(dst01,lPitch01);
 
 
-
-
+		m_mmx->NonMMXPrint(m_bpp);
+		
+		/*
 		if (CAreaControl::CheckAllPrintMode())
 		{
 			m_mmx->MMXPrint(m_bpp,0,0,screenSizeX,screenSizeY);
@@ -11885,6 +11886,8 @@ void CGameCallBack::PrintBackBuffer(void)
 				m_mmx->MMXPrint(m_bpp,startX,startY,sizeX,sizeY);
 			}
 		}
+		*/
+
 
 		m_directDraw->Unlock();
 	}
@@ -11913,18 +11916,21 @@ void CGameCallBack::BltToFront(void)
 	int realWindowSizeX = m_viewControl->GetRealWindowSizeX();
 	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 
-	if (CAreaControl::CheckAllPrintMode())
+	if (true)
+	//if (CAreaControl::CheckAllPrintMode())
 	{
-		RECT srcRect = m_viewControl->GetSrcRect(0,0,realWindowSizeX,realWindowSizeY);
-		RECT dstRect = m_viewControl->GetDstRect(0,0,realWindowSizeX,realWindowSizeY);
 
 		if (!CheckUseDirect2D())
 //		if (m_notUseDirectDraw == 0)
 		{
-			m_directDraw->NiseFlip2(dstRect,srcRect, waitFlag);
+			RECT srcRect = m_viewControl->GetSrcRect(0, 0, screenSizeX, screenSizeY);
+			RECT dstRect = m_viewControl->GetDstRect(0, 0, realWindowSizeX, realWindowSizeY);
+			m_directDraw->NiseFlip3(dstRect,srcRect, waitFlag);
 		}
 		else
 		{
+			RECT srcRect = m_viewControl->GetSrcRect(0, 0, realWindowSizeX, realWindowSizeY);
+			RECT dstRect = m_viewControl->GetDstRect(0, 0, realWindowSizeX, realWindowSizeY);
 			m_directDraw->NiseFlip2(dstRect, srcRect, waitFlag);
 
 //			m_myGraphics->NiseFlip(m_hWnd,0,0,realWindowSizeX,realWindowSizeY,waitFlag);

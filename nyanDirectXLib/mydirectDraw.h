@@ -24,6 +24,8 @@ public:
 	virtual HRESULT NiseFlip(int x, int y, int sizeX,int sizeY,BOOL waitVSync = FALSE);
 	virtual HRESULT NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,int srcX,int srcY,int srcSizeX,int srcSizeY,BOOL waitVSync = FALSE);
 	virtual HRESULT NiseFlip2(RECT dstRect,RECT srcRect,BOOL waitVSync = FALSE);
+	virtual HRESULT NiseFlip3(int dstX, int dstY, int dstSizeX, int dstSizeY, int srcX, int srcY, int srcSizeX, int srcSizeY, BOOL waitVSync = FALSE);
+	virtual HRESULT NiseFlip3(RECT dstRect, RECT srcRect, BOOL waitVSync = FALSE);
 
 	virtual LPVOID GetSurfaceAddr(void);
 	virtual int GetLPitch(void);

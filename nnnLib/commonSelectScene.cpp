@@ -181,6 +181,9 @@ CCommonSelectScene::CCommonSelectScene(CGameCallBack* lpGame) : CCommonGeneral(l
 	m_useGoreFlag = m_game->GetUseGoreFlag();
 	m_goreCheckList = NULL;
 	m_goreIcon = NULL;
+	m_useGoreSCFileTag = 0;
+	m_goreIconTag = "_gore";
+
 	if (m_useGoreFlag)
 	{
 		m_goreCheckList = new CNameList();
@@ -192,7 +195,15 @@ CCommonSelectScene::CCommonSelectScene(CGameCallBack* lpGame) : CCommonGeneral(l
 		m_goreIconPrintY = 0;
 		GetInitGameParam(&m_goreIconPrintX, "goreIconPrintX");
 		GetInitGameParam(&m_goreIconPrintY, "goreIconPrintY");
+
+		GetInitGameParam(&m_useGoreSCFileTag, "useGoreSCFileTag");
+		GetInitGameString(&m_goreIconTag, "goreIconFileTag");
 	}
+
+
+
+
+
 	m_miniPic = NULL;
 	m_miniPic = new CPicture*[m_blockKosuuX*m_blockKosuuY];
 	for (int i=0;i<m_blockKosuuX*m_blockKosuuY;i++)
@@ -965,6 +976,13 @@ void CCommonSelectScene::LoadBackCG(void)
 		m_commonBG->Put(0,0,FALSE);
 	}
 
+	bool bGoreFlag = false;
+	if (m_goreFlag)
+	{
+		bGoreFlag = true;
+	}
+
+
 
 	for (j=0;j<m_blockKosuuY;j++)
 	{
@@ -972,6 +990,33 @@ void CCommonSelectScene::LoadBackCG(void)
 		{
 			int n0 = j * m_blockKosuuX + i;
 			int n = m_page * (m_blockKosuuX * m_blockKosuuY) + n0;
+
+
+			bool bGoreTag = false;
+
+			if (bGoreFlag)
+			{
+				if (m_useGoreSCFileTag)
+				{
+					if (m_goreCheckList != NULL)
+					{
+						if (n < m_goreCheckList->GetNameKosuu())
+						{
+							char* name = m_goreCheckList->GetName(n);
+							if (name != NULL)
+							{
+								if (*name == '*')
+								{
+									bGoreTag = true;
+								}
+							}
+						}
+					}
+				}
+			}
+
+
+
 
 			if (n < m_sceneKosuu)
 			{
@@ -989,7 +1034,14 @@ void CCommonSelectScene::LoadBackCG(void)
 					m_miniPicState[n0] = 1;
 					LPSTR name = m_sceneVoice->GetSceneFileName(m_sceneCharaNumber,n);
 
-					wsprintf(filename,"sys\\sc\\%s",name);
+					if (bGoreTag)
+					{
+						wsprintf(filename, "sys\\sc\\%s%s", name,m_goreIconTag);
+					}
+					else
+					{
+						wsprintf(filename, "sys\\sc\\%s", name);
+					}
 					m_miniPic[n0]->LoadDWQ(filename);
 				}
 				else
@@ -1000,7 +1052,15 @@ void CCommonSelectScene::LoadBackCG(void)
 
 						LPSTR name = m_sceneVoice->GetSceneFileName(m_sceneCharaNumber,n);
 
-						wsprintf(filename,"sys\\sc\\%s",name);
+						if (bGoreTag)
+						{
+							wsprintf(filename, "sys\\sc\\%s%s", name, m_goreIconTag);
+						}
+						else
+						{
+							wsprintf(filename, "sys\\sc\\%s", name);
+						}
+
 						m_miniPic[n0]->LoadDWQ(filename);
 					}
 				}

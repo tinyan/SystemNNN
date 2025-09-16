@@ -93,6 +93,9 @@ POINT CViewControl::WindowToGame(int windowMouseX,int windowMouseY)
 	y *= m_bufferSizeY;
 	y /= m_viewSizeY;
 
+	x = windowMouseX * m_bufferSizeX / m_realWindowSizeX;
+	y = windowMouseY * m_bufferSizeY / m_realWindowSizeY;
+
 	pt.x = x;
 	pt.y = y;
 

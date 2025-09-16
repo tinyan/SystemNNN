@@ -840,6 +840,11 @@ HRESULT CMyDirectDraw::NiseFlip2(RECT dstRect,RECT srcRect,BOOL waitVSync)
 	return NiseFlip2(dstRect.left,dstRect.top,dstRect.right,dstRect.bottom,srcRect.left,srcRect.top,srcRect.right,srcRect.bottom,waitVSync);
 }
 
+HRESULT CMyDirectDraw::NiseFlip3(RECT dstRect, RECT srcRect, BOOL waitVSync)
+{
+	return NiseFlip3(dstRect.left, dstRect.top, dstRect.right, dstRect.bottom, srcRect.left, srcRect.top, srcRect.right, srcRect.bottom, waitVSync);
+}
+
 HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,int srcX,int srcY,int srcSizeX,int srcSizeY,BOOL waitVSync)
 {
 	if (m_direct2DFlag)
@@ -992,6 +997,146 @@ HRESULT CMyDirectDraw::NiseFlip2(int dstX, int dstY, int dstSizeX,int dstSizeY,i
 	return TRUE;
 }
 
+HRESULT CMyDirectDraw::NiseFlip3(int dstX, int dstY, int dstSizeX, int dstSizeY, int srcX, int srcY, int srcSizeX, int srcSizeY, BOOL waitVSync)
+{
+	srcX = 0;
+	srcY = 0;
+	srcSizeX = dstSizeX;
+	srcSizeY = dstSizeY;
+
+	if (m_lpFront == NULL) return FALSE;
+	if (m_lpBack == NULL) return FALSE;
+
+	if (m_lpFront->IsLost() == DDERR_SURFACELOST)
+	{
+		m_lpFront->Restore();
+	}
+
+	if (m_lpBack != NULL)
+	{
+		if (m_lpBack->IsLost() == DDERR_SURFACELOST)
+		{
+			m_lpBack->Restore();
+			ClearBackSurface();
+		}
+	}
+
+	if (m_lpFront->IsLost() == DDERR_SURFACELOST) return FALSE;
+	if (m_lpBack->IsLost() == DDERR_SURFACELOST) return FALSE;
+
+
+	DWORD flg = DDBLT_ASYNC | DDBLT_WAIT;
+
+	RECT srcRect;
+	RECT dstRect;
+
+
+	int srcStartX = srcX;
+	int srcStartY = srcY;
+	int srcEndX = srcX + srcSizeX;
+	int srcEndY = srcY + srcSizeY;
+
+	int dstStartX = dstX;
+	int dstStartY = dstY;
+
+
+	if (m_fullScreenFlag == FALSE)
+	{
+		if (m_gdiFullScreenFlag == FALSE)
+		{
+			dstStartX += m_printX + m_edgeX;
+			dstStartY += m_printY + m_edgeY + m_menuBarY;
+		}
+	}
+
+	int dstEndX = dstStartX + dstSizeX;
+	int dstEndY = dstStartY + dstSizeY;
+
+	int srcMultiX = srcSizeX;
+	int dstMultiX = dstSizeX;
+	int srcMultiY = srcSizeY;
+	int dstMultiY = dstSizeY;
+
+	if (m_fullScreenFlag)
+	{
+		if (dstStartX < 0)
+		{
+			srcStartX += ((-dstStartX) * srcMultiX) / dstMultiX;
+			dstStartX = 0;
+		}
+
+		if (dstStartY < 0)
+		{
+			srcStartY += ((-dstStartY) + srcMultiY) / dstMultiY;
+			dstStartY = 0;
+		}
+
+
+		if (dstEndX > m_windowSizeX)
+		{
+			srcEndX -= ((dstEndX - m_windowSizeX) * srcMultiX) / dstMultiX;
+			dstEndX = m_windowSizeX;
+		}
+
+		if (dstEndY > m_windowSizeY)
+		{
+			srcEndY -= ((dstEndY - m_windowSizeY) * srcMultiY) / dstMultiY;
+			dstEndY = m_windowSizeY;
+		}
+	}
+	else
+	{
+		if (dstStartX < m_windowStartX)
+		{
+			srcStartX += ((m_windowStartX - dstStartX) * srcMultiX) / dstMultiX;
+			dstStartX = m_windowStartX;
+		}
+
+		if (dstStartY < m_windowStartY)
+		{
+			srcStartY += ((m_windowStartY - dstStartY) * srcMultiY) / dstMultiY;
+			dstStartY = m_windowStartY;
+		}
+
+
+		if (dstEndX > m_windowEndX)
+		{
+			srcEndX -= ((dstEndX - m_windowEndX) * srcMultiX) / dstMultiX;
+			dstEndX = m_windowEndX;
+		}
+
+		if (dstEndY > m_windowEndY)
+		{
+			srcEndY -= ((dstEndY - m_windowEndY) * srcMultiY) / dstMultiY;
+			dstEndY = m_windowEndY;
+		}
+	}
+
+	if (srcStartX >= srcEndX)
+	{
+		return FALSE;
+	}
+	if (srcStartY >= srcEndY)
+	{
+		return FALSE;
+	}
+
+	SetRect(&srcRect, srcStartX, srcStartY, srcEndX, srcEndY);
+	SetRect(&dstRect, dstStartX, dstStartY, dstEndX, dstEndY);
+
+
+
+
+	if (waitVSync)
+	{
+		m_lpDirectDraw->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+	}
+
+	HRESULT hr = m_lpFront->Blt(&dstRect, m_lpBack, &srcRect, flg, NULL);
+
+
+	return TRUE;
+}
 
 HRESULT CMyDirectDraw::Flip(void)
 {

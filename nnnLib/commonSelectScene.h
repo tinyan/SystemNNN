@@ -65,6 +65,8 @@ protected:
 	CPicture* m_goreIcon;
 	int m_goreIconPrintX;
 	int m_goreIconPrintY;
+	int m_useGoreSCFileTag;
+	LPSTR m_goreIconTag;
 
 	int m_sceneCharaKosuu;
 

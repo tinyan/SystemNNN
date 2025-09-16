@@ -31,6 +31,7 @@ public:
 	void MMX32to32BGR(int startX,int startY,int sizeX, int sizeY);
 
 	void MMXPrint(int bpp,int startX,int startY,int sizeX,int sizeY);
+	void CMMX::NonMMXPrint(int bpp);
 
 	BOOL CheckMMXExist(void);
 
@@ -39,6 +40,9 @@ public:
 	void SetRGB32Mode(BOOL md = TRUE);
 
 	static BOOL CheckMMX(void);
+
+	bool CheckNeedCreateTable(void);
+	void CreateStretchTable(void);
 
 private:
 	BOOL Clip(int& srcX,int& srcY,int& dstX,int& dstY,int& sizeX,int& sizeY);
@@ -62,6 +66,12 @@ private:
 	BOOL m_565Mode;
 	BOOL m_RGB24Mode;
 	BOOL m_RGB32Mode;
+	bool m_createStretchTable;
+	int* m_horizonTable;
+	int* m_verticalTable;
+	int m_horizonTableSize;
+	int m_verticalTableSize;
+
 };
 
 #endif

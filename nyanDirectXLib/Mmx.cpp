@@ -5,6 +5,7 @@
 
 #include <windows.h>
 #include "mmx.h"
+#include "..\nyanLib\include\commonMacro.h"
 
 
 CMMX::CMMX()
@@ -18,6 +19,12 @@ CMMX::CMMX()
 //	m_offsetX = (1024-800)/2;
 //	m_offsetY = (768-600)/2;
 
+	m_createStretchTable = false;
+	m_horizonTable = NULL;
+	m_verticalTable = NULL;
+
+	m_horizonTableSize = 0;
+	m_verticalTableSize = 0;
 
 	if (CheckMMX())
 	{
@@ -38,6 +45,8 @@ CMMX::~CMMX()
 
 void CMMX::End(void)
 {
+	DELETEARRAY(m_horizonTable);
+	DELETEARRAY(m_verticalTable);
 }
 
 
@@ -142,6 +151,87 @@ void CMMX::SetBufferParameter(int* lpScreenBuffer, int screenPitch, int screenSi
 }
 
 
+bool CMMX::CheckNeedCreateTable(void)
+{
+	if (!m_createStretchTable) return true;
+	if (m_realWindowSizeX != m_horizonTableSize) return true;
+	if (m_realWindowSizeY != m_verticalTableSize) return true;
+
+	return false;
+}
+
+
+void CMMX::CreateStretchTable(void)
+{
+	DELETEARRAY(m_horizonTable);
+	DELETEARRAY(m_verticalTable);
+
+	m_horizonTable = new int[m_realWindowSizeX * 4];
+	m_verticalTable = new int[m_realWindowSizeY * 4];
+
+	int blockX = (256 * m_realWindowSizeX) / m_screenSizeX;
+	int deltaX = blockX;
+	if (deltaX > 256) deltaX = 256;
+
+	for (int i = 0; i < m_realWindowSizeX; i++)
+	{
+		int offset256 = (blockX * i* m_screenSizeX) / m_realWindowSizeX;
+		int x = offset256 / blockX;
+		m_horizonTable[i * 4] = x;
+		int amari = 256;
+		int max1 = blockX - offset256 % blockX;
+		if (max1 > 256) max1 = 256;
+
+		m_horizonTable[i * 4+1] = max1;
+		amari -= max1;
+		if (amari >= deltaX)
+		{
+			m_horizonTable[i * 4 + 2] = deltaX;
+			amari -= deltaX;
+		}
+		else
+		{
+			m_horizonTable[i * 4 + 2] = amari;
+			amari = 0;
+		}
+		m_horizonTable[i * 4 + 3] = amari;
+
+	}
+
+
+	int blockY = (256 * m_realWindowSizeY) / m_screenSizeY;
+	int deltaY = blockY;
+	if (deltaY > 256) deltaY = 256;
+	for (int j = 0; j < m_realWindowSizeY; j++)
+	{
+		int offset256 = (blockY * j* m_screenSizeY) / m_realWindowSizeY;
+		int y = offset256 / blockY;
+		m_verticalTable[j * 4] = y;
+
+		int amari = 256;
+		int max1 = blockY - offset256 % blockY;
+		if (max1 > 256) max1 = 256;
+		m_verticalTable[j * 4 + 1] = max1;
+		amari -= max1;
+		if (amari >= deltaY)
+		{
+			m_verticalTable[j * 4 + 2] = deltaY;
+			amari -= deltaY;
+		}
+		else
+		{
+			m_verticalTable[j * 4 + 2] = amari;
+			amari = 0;
+		}
+		m_verticalTable[j * 4 + 3] = amari;
+	}
+
+
+	m_createStretchTable = true;
+	m_horizonTableSize = m_realWindowSizeX;
+	m_verticalTableSize = m_realWindowSizeY;
+}
+
 BOOL CMMX::Clip(int& srcX,int& srcY,int& dstX,int& dstY,int& sizeX,int& sizeY)
 {
 	int dltx = dstX & 7;
@@ -234,6 +324,115 @@ void CMMX::MMXPrint(int bpp, int startX, int startY,int sizeX,int sizeY)
 	if (bpp == 32) MMX32to32(startX,startY,sizeX,sizeY);
 }
 
+
+void CMMX::NonMMXPrint(int bpp)
+{
+	if (CheckNeedCreateTable())
+	{
+		CreateStretchTable();
+	}
+
+	bool bSame = false;
+	if ((m_screenSizeX == m_realWindowSizeX) && (m_screenSizeY == m_realWindowSizeY))
+	{
+		bSame = true;
+	}
+
+	int lPitch = m_lPitch;
+	int screenPitch = m_lScreenPitch;
+	int* src = m_lpScreenBuffer;
+	int* dst = (int*)m_lpSurface;
+
+	int* src0 = src;
+	int mulTable[9];
+
+//	for (int j = 0; j < 100; j++)
+	for (int j = 0; j < m_realWindowSizeY; j++)
+	{
+		int* dst0 = dst;
+
+		//int y = (j * m_screenSizeY) / m_realWindowSizeY;
+		int y = m_verticalTable[j * 4];
+
+		src = src0 + y * screenPitch / 4;
+
+		//for (int i = 0; i < 100; i++)
+		for (int i = 0; i < m_realWindowSizeX; i++)
+		{
+			int x = m_horizonTable[i*4];
+
+			for (int n = 0; n < 3; n++)
+			{
+				for (int m = 0; m < 3; m++)
+				{
+					mulTable[n * 3 + m] = 1;
+				}
+			}
+
+			for (int n = 0; n < 3; n++)
+			{
+				for (int m = 0; m < 3; m++)
+				{
+					mulTable[n * 3 + m] *= m_horizonTable[i * 4 + m+1];
+					mulTable[n * 3 + m] *= m_verticalTable[j * 4 + n+1];
+				}
+			}
+
+			INT32 colorR = 0;
+			INT32 colorG = 0;
+			INT32 colorB = 0;
+
+			if (bSame)
+			{
+				INT32 colorSrc = *(src + x);
+				colorR = (colorSrc >> 16) & 0xff;
+				colorG = (colorSrc >> 8) & 0xff;
+				colorB = (colorSrc) & 0xff;
+			}
+			else
+			{
+				for (int n = 0; n < 3; n++)
+				{
+					for (int m = 0; m < 3; m++)
+					{
+						INT32 mul = mulTable[n * 3 + m];
+						if (mul > 0)
+						{
+							INT32 colorSrc = *(src + x + m + n * screenPitch / 4);
+							INT32 colR = (colorSrc >> 16) & 0xff;
+							INT32 colG = (colorSrc >> 8) & 0xff;
+							INT32 colB = (colorSrc) & 0xff;
+							colR *= mul;
+							colG *= mul;
+							colB *= mul;
+							colorR += colR;
+							colorG += colG;
+							colorB += colB;
+						}
+					}
+				}
+
+				colorR >>= 16;
+				colorG >>= 16;
+				colorB >>= 16;
+			}
+
+
+			INT32 color = (colorR << 16) | (colorG << 8) | colorB;
+
+//			int x = (i * m_screenSizeX) / m_realWindowSizeX;
+			//int col = *(src + x);
+			//*dst = col;
+			*dst = color;
+
+			dst++;
+		}
+
+		dst = dst0;
+		dst += lPitch / 4;
+	}
+
+}
 
 void CMMX::MMX32to16(int startX,int startY,int sizeX,int sizeY)
 {
