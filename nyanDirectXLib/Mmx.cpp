@@ -26,6 +26,15 @@ CMMX::CMMX()
 	m_horizonTableSize = 0;
 	m_verticalTableSize = 0;
 
+	m_createSurfaceBuffer = false;
+	m_surfaceBuffer = NULL;
+
+	m_surfaceBufferBpp = 0;
+	m_surfaceBufferSizeX = 0;
+	m_surfaceBufferSizeY = 0;
+
+	m_simpleStretchMode = false;
+
 	if (CheckMMX())
 	{
 		m_mmxExistFlag = TRUE;
@@ -47,6 +56,7 @@ void CMMX::End(void)
 {
 	DELETEARRAY(m_horizonTable);
 	DELETEARRAY(m_verticalTable);
+	DELETEARRAY(m_surfaceBuffer);
 }
 
 
@@ -58,6 +68,11 @@ void CMMX::SetViewParam(int realSizeX,int realSizeY,int viewOffsetX,int viewOffs
 	m_realWindowSizeY = realSizeY;
 }
 
+
+void CMMX::SetSimpleStretchMode(int bSimple)
+{
+	m_simpleStretchMode = bSimple;
+}
 
 BOOL CMMX::CheckMMXExist(void)
 {
@@ -325,8 +340,342 @@ void CMMX::MMXPrint(int bpp, int startX, int startY,int sizeX,int sizeY)
 }
 
 
+void CMMX::CreateSurfaceData(int bpp, int realWindowSizeX, int realWindowSizeY, int screenSizeX, int screenSizeY)
+{
+	if (CheckNeedCreateTable())
+	{
+		CreateStretchTable();
+	}
+
+	if (CheckNeedCreateSurfaceBuffer(bpp, realWindowSizeX, realWindowSizeY))
+	{
+		CreateSurfaceBuffer(bpp,realWindowSizeX,realWindowSizeY);
+	}
+
+	if (CheckSameComplete(bpp))
+	{
+		//GameBufferとスクリーンの構造がおなじ
+		return;
+	}
+
+
+
+	bool bSame = false;
+	if ((m_screenSizeX == m_realWindowSizeX) && (m_screenSizeY == m_realWindowSizeY))
+	{
+		bSame = true;
+	}
+	if (m_simpleStretchMode == 1)
+	{
+		bSame = true;
+	}
+	if (m_simpleStretchMode == 2)
+	{
+		if ((m_screenSizeX < m_realWindowSizeX) && (m_screenSizeY < m_realWindowSizeY))
+		{
+			bSame = true;
+		}
+	}
+
+	int lPitch = m_realWindowSizeX;
+	int screenPitch = m_lScreenPitch;
+	int* src = m_lpScreenBuffer;
+	int* dst = (int*)m_surfaceBuffer;
+
+	char* dst24 = (char*)dst;
+	INT16* dst16 = (INT16*)dst;
+
+
+	int* src0 = src;
+	int mulTable[9];
+
+	int lPitch24 = (m_realWindowSizeX + 3) & (~3);
+	int lPitch16 = m_realWindowSizeX / 2;
+
+	//	for (int j = 0; j < 100; j++)
+	for (int j = 0; j < m_realWindowSizeY; j++)
+	{
+		int* dst0 = dst;
+		char* dst24_0 = dst24;
+		INT16* dst16_0 = dst16;
+
+		//int y = (j * m_screenSizeY) / m_realWindowSizeY;
+		int y = m_verticalTable[j * 4];
+
+		src = src0 + y * screenPitch / 4;
+
+		//for (int i = 0; i < 100; i++)
+		for (int i = 0; i < m_realWindowSizeX; i++)
+		{
+			int x = m_horizonTable[i * 4];
+
+			for (int n = 0; n < 3; n++)
+			{
+				for (int m = 0; m < 3; m++)
+				{
+					mulTable[n * 3 + m] = 1;
+				}
+			}
+
+			for (int n = 0; n < 3; n++)
+			{
+				for (int m = 0; m < 3; m++)
+				{
+					mulTable[n * 3 + m] *= m_horizonTable[i * 4 + m + 1];
+					mulTable[n * 3 + m] *= m_verticalTable[j * 4 + n + 1];
+				}
+			}
+
+			INT32 colorR = 0;
+			INT32 colorG = 0;
+			INT32 colorB = 0;
+
+			if (bSame)
+			{
+				INT32 colorSrc = *(src + x);
+				colorR = (colorSrc >> 16) & 0xff;
+				colorG = (colorSrc >> 8) & 0xff;
+				colorB = (colorSrc) & 0xff;
+
+				if (bpp == 32)
+				{
+					if (m_RGB32Mode)
+					{
+						INT32 color = (colorR << 16) | (colorG << 8) | colorB;
+						*dst = color;
+					}
+					else
+					{
+						INT32 color = (colorB << 16) | (colorG << 8) | colorR;
+						*dst = color;
+					}
+					dst++;
+				}
+				else if (bpp == 24)
+				{
+					if (m_RGB24Mode)
+					{
+						*dst24 = colorR;
+						dst24++;
+						*dst24 = colorG;
+						dst24++;
+						*dst24 = colorB;
+						dst24++;
+					}
+					else
+					{
+						*dst24 = colorB;
+						dst24++;
+						*dst24 = colorG;
+						dst24++;
+						*dst24 = colorR;
+						dst24++;
+					}
+				}
+				else if (bpp == 16)
+				{
+					if (m_565Mode)
+					{
+						INT16 color = ((colorR>>3 << 11) | ((colorG>>2)  << 5) | (colorB >>3));
+						*dst16 = color;
+					}
+					else
+					{
+						INT16 color = ((colorR >> 3 << 10) | ((colorG >> 3) << 5) | (colorB >> 3));
+						*dst16 = color;
+					}
+					dst16++;
+				}
+
+
+			}
+			else
+			{
+				for (int n = 0; n < 3; n++)
+				{
+					for (int m = 0; m < 3; m++)
+					{
+						INT32 mul = mulTable[n * 3 + m];
+						if (mul > 0)
+						{
+							INT32 colorSrc = *(src + x + m + n * screenPitch / 4);
+							INT32 colR = (colorSrc >> 16) & 0xff;
+							INT32 colG = (colorSrc >> 8) & 0xff;
+							INT32 colB = (colorSrc) & 0xff;
+							colR *= mul;
+							colG *= mul;
+							colB *= mul;
+							colorR += colR;
+							colorG += colG;
+							colorB += colB;
+						}
+					}
+				}
+
+				colorR >>= 16;
+				colorG >>= 16;
+				colorB >>= 16;
+
+				if (bpp == 32)
+				{
+					if (m_RGB32Mode)
+					{
+						INT32 color = (colorR << 16) | (colorG << 8) | colorB;
+						*dst = color;
+					}
+					else
+					{
+						INT32 color = (colorB << 16) | (colorG << 8) | colorR;
+						*dst = color;
+					}
+					dst++;
+				}
+				else if (bpp == 24)
+				{
+					if (m_RGB24Mode)
+					{
+						*dst24 = colorR;
+						dst24++;
+						*dst24 = colorG;
+						dst24++;
+						*dst24 = colorB;
+						dst24++;
+					}
+					else
+					{
+						*dst24 = colorB;
+						dst24++;
+						*dst24 = colorG;
+						dst24++;
+						*dst24 = colorR;
+						dst24++;
+					}
+				}
+				else if (bpp == 16)
+				{
+					if (m_565Mode)
+					{
+						INT16 color = ((colorR >> 3 << 11) | ((colorG >> 2) << 5) | (colorB >> 3));
+						*dst16 = color;
+					}
+					else
+					{
+						INT16 color = ((colorR >> 3 << 10) | ((colorG >> 3) << 5) | (colorB >> 3));
+						*dst16 = color;
+					}
+					dst16++;
+				}
+
+
+
+			}
+
+
+		}
+
+		if (bpp == 32)
+		{
+			dst = dst0;
+			dst += lPitch;
+		}
+		else if (bpp == 24)
+		{
+			dst24 = dst24_0;
+			dst24 += lPitch24;
+		}
+		else if (bpp == 16)
+		{
+			dst16 = dst16_0;
+			dst16 += lPitch16;
+		}
+	}
+
+
+
+}
+
+
+bool CMMX::CheckSameComplete(int bpp)
+{
+	if (bpp != 32) return false;
+	if (!m_RGB32Mode) return false;
+	if (m_realWindowSizeX != m_screenSizeX) return false;
+	if (m_realWindowSizeY != m_screenSizeY) return false;
+	return true;
+}
+
+
+bool CMMX::CheckNeedCreateSurfaceBuffer(int bpp, int realWindowSizeX, int realWindowSizeY)
+{
+	if (!m_createSurfaceBuffer) return true;
+	if (bpp != m_surfaceBufferBpp) return true;
+	if (m_realWindowSizeX != m_surfaceBufferSizeX) return true;
+	if (m_realWindowSizeY != m_surfaceBufferSizeY) return true;
+
+	return false;
+}
+
+
+
+
+void CMMX::CreateSurfaceBuffer(int bpp, int realWindowSizeX, int realWindowSizeY)
+{
+	m_createSurfaceBuffer = true;
+	m_surfaceBufferBpp = bpp;
+	m_surfaceBufferSizeX = realWindowSizeX;
+	m_surfaceBufferSizeY = realWindowSizeY;
+
+	int sizeX32 = realWindowSizeX;
+	if (bpp == 16)
+	{
+		sizeX32 = (realWindowSizeX * 2 + 3) / 4;
+	}
+	if (bpp == 24)
+	{
+		sizeX32 = (realWindowSizeX * 3 + 3) / 4;
+	}
+
+	DELETEARRAY(m_surfaceBuffer);
+	m_surfaceBuffer = new INT32[sizeX32 * realWindowSizeY];
+}
+
+
+
+
 void CMMX::NonMMXPrint(int bpp)
 {
+	int lPitch = m_lPitch;
+	int screenPitch = m_realWindowSizeX;
+	int* src = m_surfaceBuffer;
+	int* dst = (int*)m_lpSurface;
+
+
+	if (CheckSameComplete(bpp))
+	{
+		screenPitch = m_lScreenPitch / 4;
+		src = m_lpScreenBuffer;
+	}
+
+
+	//32bit only
+	for (int j = 0; j < m_realWindowSizeY;j++)
+	{
+		int* src0 = src;
+		int* dst0 = dst;
+
+		memcpy(dst, src, screenPitch * 4);
+
+		src = src0;
+		src += screenPitch;
+		dst = dst0;
+		dst += lPitch/4;
+	}
+
+	return;
+
+
+
+
 	if (CheckNeedCreateTable())
 	{
 		CreateStretchTable();
@@ -338,10 +687,10 @@ void CMMX::NonMMXPrint(int bpp)
 		bSame = true;
 	}
 
-	int lPitch = m_lPitch;
-	int screenPitch = m_lScreenPitch;
-	int* src = m_lpScreenBuffer;
-	int* dst = (int*)m_lpSurface;
+	//int lPitch = m_lPitch;
+	//int screenPitch = m_lScreenPitch;
+	//int* src = m_lpScreenBuffer;
+	//int* dst = (int*)m_lpSurface;
 
 	int* src0 = src;
 	int mulTable[9];

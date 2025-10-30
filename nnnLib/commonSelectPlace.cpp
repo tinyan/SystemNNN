@@ -1228,6 +1228,15 @@ int CCommonSelectPlace::GetOnPlace(POINT pt,BOOL cannotOk)
 void CCommonSelectPlace::MoveCursorToPlaceButton(int pl)
 {
 	POINT pt = m_placeButtonGroup->GetZahyo(pl);
+
+	SIZE realWindowSize = m_game->GetRealWindowSize();
+	int screenSizeX = CMyGraphics::GetScreenSizeX();
+	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+
+
+
+
 	CCommonButton* button = m_placeButtonGroup->GetButton(pl);
 
 	SIZE sz = button->GetSize();
@@ -1241,6 +1250,12 @@ void CCommonSelectPlace::MoveCursorToPlaceButton(int pl)
 
 	pt2.x -= hotPoint.x;
 	pt2.y -= hotPoint.y;
+
+	pt2.x *= realWindowSize.cx;
+	pt2.y *= realWindowSize.cy;
+	pt2.x /= screenSizeX;
+	pt2.y /= screenSizeY;
+
 
 	ClientToScreen(m_game->GetGameHWND(),&pt2);
 

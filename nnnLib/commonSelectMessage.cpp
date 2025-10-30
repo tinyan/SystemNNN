@@ -2331,6 +2331,16 @@ void CCommonSelectMessage::SetCursorToKeyArea(int pl)
 	pt.x = x - hotPoint.x;
 	pt.y = y - hotPoint.y;
 
+	SIZE realWindowSize = m_game->GetRealWindowSize();
+	int screenSizeX = CMyGraphics::GetScreenSizeX();
+	int screenSizeY = CMyGraphics::GetScreenSizeY();
+
+	pt.x *= realWindowSize.cx;
+	pt.y *= realWindowSize.cy;
+	pt.x /= screenSizeX;
+	pt.y /= screenSizeY;
+
+
 	ClientToScreen(m_game->GetGameHWND(),&pt);
 	SetCursorPos(pt.x, pt.y);
 }

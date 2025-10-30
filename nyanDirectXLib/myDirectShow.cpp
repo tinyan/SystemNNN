@@ -161,8 +161,23 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 			int srcSizeY = height;
 			int srcStartX = 0;
 			int srcStartY = 0;
-			int dstSizeX = m_aspectFitSize.cx;
-			int dstSizeY = m_aspectFitSize.cy;
+			int dstSizeX = m_windowSize.cx;
+			int dstSizeY = m_windowSize.cy;
+			//int dstSizeX = m_aspectFitSize.cx;
+			//int dstSizeY = m_aspectFitSize.cy;
+
+			if ((dstSizeY / dstSizeX) > (m_aspectFitSize.cy / m_aspectFitSize.cx))
+			{
+				dstSizeX = (dstSizeY * m_aspectFitSize.cy) / m_aspectFitSize.cx;
+			}
+			else if ((dstSizeY / dstSizeX) < (m_aspectFitSize.cy / m_aspectFitSize.cx))
+			{
+				dstSizeY = (dstSizeX * m_aspectFitSize.cx) / m_aspectFitSize.cy;
+
+			}
+
+			/*
+
 
 			OutputDebugString("\n\n[a-1]");
 			char mes2[256];
@@ -195,6 +210,9 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 
 				SetRect(&srcRect,srcStartX,srcStartY,srcStartX+srcSizeX,srcStartY+srcSizeY);
 			}
+
+			*/
+			SetRect(&srcRect, srcStartX, srcStartY, srcStartX + srcSizeX, srcStartY + srcSizeY);
 
 
 			char mes[256];
@@ -246,12 +264,23 @@ BOOL CMyDirectShow::PlayMovie(LPSTR filename,LONGLONG seekTime)
 		int dstStartY = 0;
 		if (m_aspectFitFlag)
 		{
-			int amariX = (destWidth - m_aspectFitSize.cx) / 2;
-			int amariY = (destHeight - m_aspectFitSize.cy) / 2;
+			if ((destHeight / destWidth) > (m_aspectFitSize.cy / m_aspectFitSize.cx))
+			{
+				destWidth = (destHeight * m_aspectFitSize.cy) / m_aspectFitSize.cx;
+			}
+			else if ((destHeight / destWidth) < (m_aspectFitSize.cy / m_aspectFitSize.cx))
+			{
+				destHeight = (destWidth * m_aspectFitSize.cx) / m_aspectFitSize.cy;
+
+			}
+
+
+			int amariX = (destWidth - rc.right) / 2;
+			int amariY = (destHeight - rc.bottom) / 2;
 			dstStartX = amariX;
 			dstStartY = amariY;
-			destWidth = m_aspectFitSize.cx;
-			destHeight = m_aspectFitSize.cy;
+//			destWidth = m_aspectFitSize.cx;
+//			destHeight = m_aspectFitSize.cy;
 
 			char mes[256];
 			sprintf_s(mes,256,"movie2:%d %d %d %d",amariX,amariY,destWidth,destHeight);

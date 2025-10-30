@@ -43,6 +43,14 @@ public:
 
 	bool CheckNeedCreateTable(void);
 	void CreateStretchTable(void);
+	void CreateSurfaceData(int bpp, int realWindowSizeX, int realWindowSizeY, int screenSizeX, int screenSizeY);
+
+	bool CheckNeedCreateSurfaceBuffer(int bpp, int realWindowSizeX, int realWindowSizeY);
+	void CreateSurfaceBuffer(int bpp, int realWindowSizeX, int realWindowSizeY);
+
+	void SetSimpleStretchMode(int bSimple);
+
+	bool CheckSameComplete(int bpp);
 
 private:
 	BOOL Clip(int& srcX,int& srcY,int& dstX,int& dstY,int& sizeX,int& sizeY);
@@ -72,6 +80,13 @@ private:
 	int m_horizonTableSize;
 	int m_verticalTableSize;
 
+	bool m_createSurfaceBuffer;
+	INT32* m_surfaceBuffer;
+	int m_surfaceBufferBpp;
+	int m_surfaceBufferSizeX;
+	int m_surfaceBufferSizeY;
+
+	int m_simpleStretchMode;
 };
 
 #endif

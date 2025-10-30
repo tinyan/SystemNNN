@@ -64,8 +64,9 @@ CCommonPrintMovie::CCommonPrintMovie(CGameCallBack* lpGame) : CCommonGeneral(lpG
 	m_noSkipFlag = 0;
 	GetInitGameParam(&m_noSkipFlag,"noSKipFlag");
 
-	int fixedMovieSizeX = 0;
-	int fixedMovieSizeY = 0;
+	SIZE sz = m_game->GetRealWindowSize();
+	int fixedMovieSizeX = sz.cx;
+	int fixedMovieSizeY = sz.cy;
 	if (GetInitGameParam(&fixedMovieSizeX,"fixedMovieSizeX"))
 	{
 		if (GetInitGameParam(&fixedMovieSizeY,"fixedMovieSizeY"))

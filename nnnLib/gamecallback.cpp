@@ -1910,6 +1910,9 @@ else
 //	int realWindowSizeY = m_viewControl->GetRealWindowSizeY();
 	m_mmx->SetViewParam(realWindowSizeX,realWindowSizeY,offsetX,offsetY);
 	
+	int simpleStretch = 0;
+	GetInitGameParam(&simpleStretch, "simpleStretch");
+	m_mmx->SetSimpleStretchMode(simpleStretch);
 
 	if (m_directDraw != NULL)
 	{
@@ -4767,9 +4770,11 @@ LogMessage("ToWindowScreen Mid 4");
 	Sleep(20);
 LogMessage("ToWindowScreen Mid 5");
 
-	int windowSizeX = CMyGraphics::GetScreenSizeX();
-	int windowSizeY = CMyGraphics::GetScreenSizeY();
+	//int windowSizeX = CMyGraphics::GetScreenSizeX();
+	//int windowSizeY = CMyGraphics::GetScreenSizeY();
 
+	int windowSizeX = realWindowSizeX;
+	int windowSizeY = realWindowSizeY;
 
 
 	rc.top = 0;
@@ -11838,7 +11843,10 @@ void CGameCallBack::PrintBackBuffer(void)
 //		*p++ = 0x4080c0f0;
 //	}
 
-
+	if (CheckUseDirect2D())
+	{
+		return;
+	}
 
 
 	int screenSizeX = CMyGraphics::GetScreenSizeX();
@@ -11855,6 +11863,19 @@ void CGameCallBack::PrintBackBuffer(void)
 	int offsetX = (realWindowSizeX - m_windowSizeX) / 2;
 	int offsetY = (realWindowSizeY - m_windowSizeY) / 2;
 
+
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	//Lock中にサイズ変換などはおこなわずに
+	//そとでぜんぶやって、Lock中は転送のみにさせる
+
+	int* src02 = CMyGraphics::GetScreenBuffer();
+	int lPitch02 = screenSizeX * sizeof(int);
+	m_mmx->SetBufferParameter(src02, lPitch02, screenSizeX, screenSizeY);
+
+	m_mmx->CreateSurfaceData(m_bpp,realWindowSizeX,realWindowSizeY,screenSizeX,screenSizeY);
+
+
+
 	//スピードアップさせる必要ありにゃ
 	if (m_directDraw->Lock())
 	{
@@ -11862,10 +11883,7 @@ void CGameCallBack::PrintBackBuffer(void)
 		int lPitch01 = m_directDraw->GetLPitch();
 
 		//int* src02 = (int*)CPicture::m_lpScreenBuffer;
-		int* src02 = CMyGraphics::GetScreenBuffer();
-		int lPitch02 = screenSizeX * sizeof(int);
 
-		m_mmx->SetBufferParameter(src02,lPitch02,screenSizeX,screenSizeY);
 		m_mmx->SetSurfaceParameter(dst01,lPitch01);
 
 
@@ -11929,7 +11947,8 @@ void CGameCallBack::BltToFront(void)
 		}
 		else
 		{
-			RECT srcRect = m_viewControl->GetSrcRect(0, 0, realWindowSizeX, realWindowSizeY);
+			RECT srcRect = m_viewControl->GetSrcRect(0, 0, screenSizeX, screenSizeY);
+//			RECT srcRect = m_viewControl->GetSrcRect(0, 0, realWindowSizeX, realWindowSizeY);
 			RECT dstRect = m_viewControl->GetDstRect(0, 0, realWindowSizeX, realWindowSizeY);
 			m_directDraw->NiseFlip2(dstRect, srcRect, waitFlag);
 
@@ -12767,7 +12786,10 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	if (m_debugOkFlag)
 	{
 		char dbgm[256];
-		sprintf_s(dbgm,sizeof(dbgm),"遅れ：%d",m_shakinControl->GetShakinTime(0));
+		int okure = m_shakinControl->GetShakinTime(0);
+		if (okure < 0) okure = 0;
+		sprintf_s(dbgm,sizeof(dbgm),"遅れ：%d",okure);
+//		sprintf_s(dbgm, sizeof(dbgm), "遅れ：%d", m_shakinControl->GetShakinTime(0));
 		m_message->PrintMessage(0,300,dbgm);
 		sprintf_s(dbgm,sizeof(dbgm),"バックスクリプトモード：%d",m_backScriptModeFlag);
 		m_message->PrintMessage(0,320,dbgm);
@@ -17695,6 +17717,15 @@ void CGameCallBack::SetGoreLayer(void)
 		}
 
 	}
+}
+
+
+SIZE CGameCallBack::GetRealWindowSize()
+{
+	SIZE sz;
+	sz.cx = m_viewControl->GetRealWindowSizeX();
+	sz.cy = m_viewControl->GetRealWindowSizeY();
+	return sz;
 }
 
 /*_*/

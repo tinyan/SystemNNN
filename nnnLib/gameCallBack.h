@@ -905,6 +905,8 @@ public:
 
 	void SetGoreLayer(void);
 
+	SIZE GetRealWindowSize();
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
