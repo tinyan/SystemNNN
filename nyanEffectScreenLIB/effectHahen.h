@@ -65,7 +65,7 @@ private:
 
 	int SearchBunkatsu(int type,int* lpParam);
 
-	void PrintNormalPoligon(int* lpPicSrc, int picSizeX, int n, int putX, int putY, int sizeY, int* lpZahyo,int ps256=256);
+	void PrintNormalPoligon(int* lpPicSrc, int picSizeX, int picSizeY,int n, int putX, int putY, int sizeY, int* lpZahyo,int ps256=256);
 //	void PrintTransPoligon(int* lpPicSrc, int picSizeX, int n, int putX, int putY, int sizeY, int* lpZahyo,int trans256);
 };
 

@@ -207,6 +207,8 @@ protected:
 
 	CPagePrint* m_pagePrint;
 
+	int* m_goreCheckedFlag;
+
 	int m_selectSound;
 	CCGDataControl* m_cgDataControl;
 

@@ -439,6 +439,8 @@ void CEffectHahen::Print(LPVOID lpEffect,int layer)
 	lpPic->GetPicSize(&rc);
 
 	int picSizeX = rc.right;
+	int picSizeY = rc.bottom;
+	
 
 	EFFECT* lp = (EFFECT*)lpEffect;
 	int count = lp->count;
@@ -557,7 +559,7 @@ void CEffectHahen::Print(LPVOID lpEffect,int layer)
 //sprintf(mes,"[%d %d %d %d]",i,putX,putY,maxY-minY+1);
 //OutputDebugString(mes);
 
-		PrintNormalPoligon(srcPic, picSizeX, n, putX, putY, maxY - minY + 1, zahyo,ps256);
+		PrintNormalPoligon(srcPic, picSizeX, picSizeY,n, putX, putY, maxY - minY + 1, zahyo,ps256);
 	}
 
 	return;
@@ -565,7 +567,7 @@ void CEffectHahen::Print(LPVOID lpEffect,int layer)
 
 #if defined _TINYAN3DLIB_
 
-void CEffectHahen::PrintNormalPoligon(int*lpPicSrc,int picSizeX,int n, int putX, int putY, int sizeY,int* lpZahyo,int ps)
+void CEffectHahen::PrintNormalPoligon(int*lpPicSrc,int picSizeX,int picSizeY,int n, int putX, int putY, int sizeY,int* lpZahyo,int ps)
 {
 	POINT srcPoint[16];
 	POINT dstPoint[16];
@@ -582,7 +584,7 @@ void CEffectHahen::PrintNormalPoligon(int*lpPicSrc,int picSizeX,int n, int putX,
 }
 
 #else
-void CEffectHahen::PrintNormalPoligon(int* lpPicSrc, int picSizeX, int n, int putX, int putY, int sizeY, int* lpZahyo,int ps256)
+void CEffectHahen::PrintNormalPoligon(int* lpPicSrc, int picSizeX, int picSizeY,int n, int putX, int putY, int sizeY, int* lpZahyo,int ps256)
 {
 //	int work[MAXSCREENSIZEY*2];
 //	int* work = CEffectSimpleWipe::m_shapeWork;
@@ -779,6 +781,11 @@ void CEffectHahen::PrintNormalPoligon(int* lpPicSrc, int picSizeX, int n, int pu
 				rightDivRev = 1.0f / rightDiv;
 			}
 		}
+	}
+
+	if (srcY + loopY >= picSizeY)
+	{
+		loopY = picSizeY - srcY;
 	}
 
 	if (loopY<=0) return;

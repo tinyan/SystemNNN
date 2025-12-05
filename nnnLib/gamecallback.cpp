@@ -782,6 +782,9 @@ void CGameCallBack::GeneralCreate(void)
 	m_jumpFlag = 0;
 	GetInitGameParam(&m_jumpFlag, "JumpFlag");
 
+	m_enableAppendJump = 0;
+	GetInitGameParam(&m_enableAppendJump, "enableAppendJump");
+	
 	m_useGoreFlag = 0;
 	GetInitGameParam(&m_useGoreFlag, "useGoreFlag");
 	m_goreVarNumberName = "goreFlag";
@@ -1266,6 +1269,8 @@ void CGameCallBack::GeneralCreate(void)
 	m_modalCannotCloseFlag = 1;
 	GetInitGameParam(&m_modalCannotCloseFlag, "modalCannotCloseFlag");
 
+	m_mustPlayScriptSE = 0;
+	GetInitGameParam(&m_mustPlayScriptSE, "mustPlayScriptSEInSkip");
 
 	m_useHsavemask = 0;
 	m_hSaveList = NULL;
@@ -4806,6 +4811,8 @@ LogMessage("ToWindowScreen Mid 5");
 	m_directDraw->SetWindowSize(m_deskTopWindowSizeX,m_deskTopWindowSizeY);
 	m_directDraw->WindowIsMoved(m_windowX, m_windowY);
 	LogMessage("ToWindowScreen End");
+
+	m_mainControl->ResetIcon();
 
 	m_screenModeChangedFlag = TRUE;
 }
@@ -9467,7 +9474,7 @@ void CGameCallBack::SystemFunctionSound(int para1,LPVOID para2)
 //		m_loopSoundWork[ch*16] = FALSE;
 	}
 
-	if ((m_skipNextCommandFlag || CheckMessageSkipFlag()) && (m_autoMessage == 0))
+	if (((m_skipNextCommandFlag || CheckMessageSkipFlag()) && (m_autoMessage == 0)) && (m_mustPlayScriptSE == 0))
 	{
 		m_scriptSoundControl->StopIfLoops(ch);
 		m_scriptSoundControl->InvalidateVolumeCommand(ch);
@@ -10823,6 +10830,22 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 		}
 	}
 
+	if (m_jumpFlag)
+	{
+		if (m_enableAppendJump != 0)
+		{
+			CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+			if (backlog != NULL)
+			{
+				SetSaveMode(PRINTMESSAGE_MODE);
+
+				backlog->AddJump(m_createJumpSaveNumber);
+				m_requestCreateJumpSaveDataFlag = true;
+			}
+		}
+	}
+
+
 	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
 
 	LPSTR mes = (LPSTR)para2;
@@ -12097,6 +12120,14 @@ int CGameCallBack::GetExtDataBlockSize(int extNumber)
 
 void CGameCallBack::SetReturnCode(int code)
 {
+	if (code != -1)
+	{
+		char mes[256];
+		wsprintf(mes, "\n[changemode=%d]", code);
+		OutputDebugString(mes);
+
+	}
+
 	m_returnCode[m_modalLevel] = code;
 }
 
@@ -17534,6 +17565,8 @@ void CGameCallBack::CreateJumpSaveData(void)
 {
 	OutputDebugString("CreateJumpSaveData\n");
 
+	TaihiAllEffect();
+
 	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
 	if (save != NULL)
 	{
@@ -17566,6 +17599,18 @@ void CGameCallBack::CreateJumpBuffer(void)
 
 void CGameCallBack::TestJump(int n)
 {
+
+	StopScriptSoundAndVoice();
+
+	for (int i = 0; i < m_layerKosuuMax; i++)
+	{
+		SetDontLoadDWQ(i, 0);
+	}
+
+
+	//CreateExitScreen();
+
+
 	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
 	
 	char* buffer = save->GetJumpBuffer(n);
@@ -17641,9 +17686,10 @@ void CGameCallBack::TestJump(int n)
 	}
 
 	InitLoadGame();
-	FuqueAllEffect();
+	//FuqueAllEffect();
 
-
+	//m_exitScreen->Put(0, 0, FALSE);
+	//m_game->GetOverrapPic(0);
 }
 
 int CGameCallBack::GetUseGoreFlag(void)

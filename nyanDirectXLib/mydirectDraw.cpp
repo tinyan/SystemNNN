@@ -1416,8 +1416,12 @@ BOOL CMyDirectDraw::WindowIsMoved(int x, int y)
 	if (m_fullScreenFlag) return FALSE;
 
 
-	m_edgeX = GetSystemMetrics(SM_CXFIXEDFRAME );
-	m_edgeY = GetSystemMetrics(SM_CYFIXEDFRAME );
+//	m_edgeX = GetSystemMetrics(SM_CXFIXEDFRAME );
+//	m_edgeY = GetSystemMetrics(SM_CYFIXEDFRAME );
+//	m_edgeX += GetSystemMetrics(SM_CXSIZEFRAME);
+//	m_edgeY += GetSystemMetrics(SM_CYSIZEFRAME);
+//	m_edgeX += 1;
+//	m_edgeY += 1;
 
 	m_edgeX = CMainControl::GetClientOffsetX();
 	m_edgeY = CMainControl::GetClientOffsetY();

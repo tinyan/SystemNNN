@@ -427,6 +427,7 @@ CCommonSelectCG::CCommonSelectCG(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	}
 */
 
+	m_goreCheckedFlag = new int[m_blockKosuuX * m_blockKosuuY];
 	m_length = 8;
 	m_selectedNumber = -1;
 
@@ -449,6 +450,8 @@ CCommonSelectCG::~CCommonSelectCG()
 
 void CCommonSelectCG::End(void)
 {
+	DELETEARRAY(m_goreCheckedFlag);
+
 	ENDDELETECLASS(m_pagePrint);
 
 	DELETEARRAY(m_animeFlag);
@@ -900,7 +903,8 @@ int CCommonSelectCG::Print(void)
 //								m_cursorPic->Blt(putX,putY,0,0,sizeX,sizeY,TRUE);
 							}
 							
-							if (bPutGoreIcon && m_cgDataControl->CheckGore(m_cgCharaNumber, block))
+							//if (bPutGoreIcon && m_cgDataControl->CheckGore(m_cgCharaNumber, block))
+							if (m_goreCheckedFlag[i+j*m_blockKosuuX] != 0)
 							{
 								if (m_useGoreIcon)
 								{
@@ -958,6 +962,8 @@ void CCommonSelectCG::LoadBackCG(void)
 			int n0 = j * m_blockKosuuX + i;
 			int block = m_page * (m_blockKosuuX * m_blockKosuuY) + n0;
 
+			m_goreCheckedFlag[n0] = 0;
+
 			m_miniPicState[n0] = -1;
 			m_animeFlag[n0] = FALSE;
 
@@ -1013,6 +1019,8 @@ void CCommonSelectCG::LoadBackCG(void)
 						if (bGore && m_useGoreSMFileTag && m_cgDataControl->CheckGore(m_cgCharaNumber, found))
 						{
 							wsprintf(filename, "sys\\sm\\sm%s%s", name, m_goreIconFileTag);
+							m_goreCheckedFlag[n0] = 1;
+
 						}
 						else
 						{

@@ -376,6 +376,77 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	}
 
 
+	m_jumpVoiceFlag = 0;
+	GetInitGameParam(&m_jumpVoiceFlag, "JumpVoiceFlag");
+
+
+	m_preOnJump = -1;
+	m_jumpButtonClickSound = 0;
+	m_jumpButtonEnterSound = 0;
+	m_jumpButtonExitSound = 0;
+//	m_jumpButtonClickVoice = 0;
+//	m_jumpButtonClickVoiceChara = 0;
+
+	GetInitGameParam(&m_jumpButtonClickSound, "jumpButtonClickSound");
+	GetInitGameParam(&m_jumpButtonEnterSound, "jumpButtonEnterSound");
+	GetInitGameParam(&m_jumpButtonExitSound, "jumpButtonExitSound");
+	
+	
+//	GetInitGameParam(&m_jumpButtonClickVoice, "jumpButtonClickVoice");
+//	GetInitGameParam(&m_jumpButtonClickVoiceChara, "jumpButtonClickVoiceChara");
+	m_jumpVoiceList = NULL;
+	m_jumpVoiceNumberList = NULL;
+	m_jumpEnterVoiceNumberList = NULL;
+	m_jumpExitVoiceNumberList = NULL;
+
+	m_useJumpEnterVoice = 0;
+	m_useJumpExitVoice = 0;
+
+	if (m_jumpVoiceFlag > 0)
+	{
+		int voiceCount = m_game->GetUseSystemVoiceCount();
+		m_jumpVoiceList = new CNameList*[voiceCount];
+		for (int i = 0; i < voiceCount; i++)
+		{
+			m_jumpVoiceList[i] = new CNameList();
+			char name[256];
+			wsprintf(name, "nya\\systemVoice%d.xtx", i+1);
+			m_jumpVoiceList[i]->LoadFile(name);
+		}
+
+		GetInitGameParam(&m_useJumpEnterVoice,"useJumpEnterVoice");
+		GetInitGameParam(&m_useJumpExitVoice, "useJumpExitVoice");
+
+
+
+		m_jumpVoiceNumberList = new int[voiceCount];
+		m_jumpEnterVoiceNumberList = new int[voiceCount];
+		m_jumpExitVoiceNumberList = new int[voiceCount];
+		for (int i = 0; i < voiceCount; i++)
+		{
+			char name[256];
+			wsprintf(name, "jumpClickVoiceNumber%d", i + 1);
+			int nm = 0;
+			GetInitGameParam(&nm, name);
+			m_jumpVoiceNumberList[i] = nm;
+
+			wsprintf(name, "jumpEnterVoiceNumber%d", i + 1);
+			nm = 0;
+			GetInitGameParam(&nm, name);
+			m_jumpEnterVoiceNumberList[i] = nm;
+
+			wsprintf(name, "jumpExitVoiceNumber%d", i + 1);
+			nm = 0;
+			GetInitGameParam(&nm, name);
+			m_jumpExitVoiceNumberList[i] = nm;
+
+		}
+	}
+
+	//jumpButtonClickSound 2
+//		jumpButtonEnterSound 9
+		//jumpButtonExitSound 9
+		//jumpButtonClickvoice 48
 
 	LPSTR messageReplace = NULL;
 	GetInitGameString(&messageReplace,"messageReplaceChara");
@@ -495,17 +566,17 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_jumpFlagTable = new int[BACKLOG_KOSUU];
 
 
-	m_jumpVoiceFlag = 0;
+//	m_jumpVoiceFlag = 0;
 //	m_jumpVoiceNumber = 0;
-	m_jumpVoiceFileName = NULL;
+//	m_jumpVoiceFileName = NULL;
 
 	m_jumpFadeType = -1;
 	m_jumpFadeCount = 0;
 	m_jumpFadeFrame = 0;
 
-	GetInitGameParam(&m_jumpVoiceFlag, "JumpVoiceFlag");
+//	GetInitGameParam(&m_jumpVoiceFlag, "JumpVoiceFlag");
 	//GetInitGameParam(&m_jumpVoiceNumber, "JumpVoiceNumber");
-	GetInitGameString(&m_jumpVoiceFileName, "JumpVoiceFileName");
+//	GetInitGameString(&m_jumpVoiceFileName, "JumpVoiceFileName");
 	GetInitGameParam(&m_jumpFadeType, "JumpFadeType");
 	//jumpFadeCount
 	GetInitGameParam(&m_jumpFadeFrame, "JumpFadeFrame");
@@ -637,6 +708,20 @@ void CCommonBackLog::End(void)
 	ENDDELETECLASS(m_downArrowPic);
 	ENDDELETECLASS(m_upArrowPic);
 	ENDDELETECLASS(m_updownArrowPic);
+
+	DELETEARRAY(m_jumpVoiceNumberList);
+	DELETEARRAY(m_jumpEnterVoiceNumberList);
+	DELETEARRAY(m_jumpExitVoiceNumberList);
+
+	if (m_jumpVoiceNumberList != NULL)
+	{
+		int nm = m_game->GetUseSystemVoiceCount();
+		for (int i = 0; i < nm; i++)
+		{
+			ENDDELETECLASS(m_jumpVoiceList[i]);
+		}
+		DELETEARRAY(m_jumpVoiceList);
+	}
 
 	DELETEARRAY(m_logColor);
 	DELETEARRAY(m_jumpFlagTable);
@@ -827,6 +912,67 @@ int CCommonBackLog::Calcu(void)
 
 	m_onVoiceNumber = CheckOnVoice(mouseX,mouseY);
 	m_onJumpNumber = CheckOnJump(mouseX, mouseY);
+	if (m_onJumpNumber != m_preOnJump)
+	{
+		if (m_onJumpNumber == -1)
+		{
+			//exit
+			if (m_useJumpExitVoice != 0)
+			{
+				int nm = m_game->GetUseSystemVoice();
+				if (nm == 0)
+				{
+					if (m_jumpButtonExitSound > 0)
+					{
+						m_game->PlaySystemSound(m_jumpButtonExitSound - 1);
+					}
+				}
+				else
+				{
+					LPSTR voiceName = m_jumpVoiceList[nm - 1]->GetName(m_jumpExitVoiceNumberList[nm-1]*2);
+					m_game->PlaySystemVoiceByFileName(voiceName);
+				}
+			}
+			else
+			{
+				if (m_jumpButtonExitSound > 0)
+				{
+					m_game->PlaySystemSound(m_jumpButtonExitSound - 1);
+				}
+			}
+		}
+		else
+		{
+			if (m_useJumpEnterVoice != 0)
+			{
+				int nm = m_game->GetUseSystemVoice();
+				if (nm == 0)
+				{
+					if (m_jumpButtonExitSound > 0)
+					{
+						m_game->PlaySystemSound(m_jumpButtonExitSound - 1);
+					}
+				}
+				else
+				{
+					LPSTR voiceName = m_jumpVoiceList[nm - 1]->GetName(m_jumpEnterVoiceNumberList[nm - 1] * 2);
+					m_game->PlaySystemVoiceByFileName(voiceName);
+				}
+
+			}
+			else
+
+			{
+				if (m_jumpButtonEnterSound > 0)
+				{
+					m_game->PlaySystemSound(m_jumpButtonEnterSound - 1);
+				}
+			}
+		}
+	}
+
+
+	m_preOnJump = m_onJumpNumber;
 
 	m_onUpArrow = FALSE;
 	m_onDownArrow = FALSE;
@@ -876,10 +1022,36 @@ int CCommonBackLog::Calcu(void)
 			{
 				m_jumpFadeCount = m_jumpFadeFrame;
 				m_jumpStartFlag = TRUE;
-				if (m_jumpVoiceFlag == 2)
+				
+		
+				if (m_jumpVoiceFlag > 0)
 				{
-					m_game->ReplayVoice(m_jumpVoiceFileName);
+					int jumpVoiceChara = m_game->GetUseSystemVoice();
+					if (jumpVoiceChara > 0)
+					{
+						int jumpVoiceNumber = m_jumpVoiceNumberList[jumpVoiceChara-1];
+						if (jumpVoiceNumber > 0)
+						{
+							LPSTR jumpVoiceName = m_jumpVoiceList[jumpVoiceChara - 1]->GetName((jumpVoiceNumber-1) * 2);
+							m_game->PlaySystemVoiceByFileName(jumpVoiceName);
+						}
+					}
+					else
+					{
+						if (m_jumpButtonClickSound > 0)
+						{
+							m_game->PlaySystemSound(m_jumpButtonClickSound - 1);
+						}
+					}
 				}
+				else
+				{
+					if (m_jumpButtonClickSound > 0)
+					{
+						m_game->PlaySystemSound(m_jumpButtonClickSound - 1);
+					}
+				}
+				
 				CreateExitScreenForJump();
 				//JUMP@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				return -1;

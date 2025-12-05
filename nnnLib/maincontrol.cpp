@@ -909,14 +909,34 @@ HWND CMainControl::ReCreateWindow(void)
 
 	m_hWnd = hWnd;
 
-    ShowWindow( hWnd, SW_SHOW );
+	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)m_userIcon);
+	ShowWindow( hWnd, SW_SHOW );
 	SetFocus(hWnd);
 
 	return m_hWnd;
 }
 
 
+void CMainControl::ResetIcon(void)
+{
+	/*
+	if (m_userIcon == NULL)
+	{
+		LPSTR iconName = NULL;
+		GetInitGameString(&iconName, "iconName");
+		if (iconName != NULL)
+		{
+			m_userIcon = (HICON)LoadImage(NULL, iconName, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+			icon = m_userIcon;
+		}
 
+		m_icon = icon;
+
+	}
+	*/
+
+	SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)m_icon);
+}
 
 BOOL CMainControl::CheckDirectXInit(BOOL result)
 {

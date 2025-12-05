@@ -267,7 +267,7 @@ protected:
 
 	int m_jumpVoiceFlag;
 //	int m_jumpVoiceNumber;
-	char* m_jumpVoiceFileName;
+//	char* m_jumpVoiceFileName;
 
 	int m_jumpFadeType;
 	int m_jumpFadeCount;
@@ -278,6 +278,22 @@ protected:
 	int m_jumpExitScreenB;
 
 	BOOL m_jumpStartFlag;
+
+	int m_preOnJump;
+	int m_jumpButtonClickSound;
+	int m_jumpButtonEnterSound;
+	int m_jumpButtonExitSound;
+//	int m_jumpButtonClickVoice;
+//	int m_jumpButtonClickVoiceChara;
+
+	int m_useJumpEnterVoice;
+	int m_useJumpExitVoice;
+
+	CNameList** m_jumpVoiceList;
+	int* m_jumpVoiceNumberList;
+	int* m_jumpEnterVoiceNumberList;
+	int* m_jumpExitVoiceNumberList;
+
 
 	char* m_separatorMessage;
 	static char m_separatorData[][16];

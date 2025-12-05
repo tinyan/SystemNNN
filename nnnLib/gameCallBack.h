@@ -1946,6 +1946,8 @@ protected:
 	int* m_goreEffectLayer;
 	int* m_nonGoreEffectLayer;
 
+	int m_enableAppendJump;
+	int m_mustPlayScriptSE;
 };
 
 #endif

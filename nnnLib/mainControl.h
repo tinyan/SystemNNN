@@ -67,6 +67,7 @@ public:
 	static int GetClientOffsetY(void);
 
 	void ReCalcuClientOffset();
+	void ResetIcon(void);
 
 protected:
 	HANDLE m_eventHandle[16];
