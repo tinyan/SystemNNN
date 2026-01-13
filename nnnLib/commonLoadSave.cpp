@@ -1324,10 +1324,10 @@ void CCommonLoadSave::MakeSaveDataForBackLog(int n)
 	{
 		bufferStart += MakeSaveCutinForBackLog(bufferStart);
 	}
-	if (m_game->GetSaveLog())
-	{
-		bufferStart += MakeSaveLogForBackLog(bufferStart);
-	}
+//	if (m_game->GetSaveLog())
+//	{
+//		bufferStart += MakeSaveLogForBackLog(bufferStart);
+//	}
 	if (m_game->GetOmakeClassExistFlag())
 	{
 		bufferStart += MakeSaveOmakeClassForBackLog(bufferStart);

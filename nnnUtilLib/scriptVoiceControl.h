@@ -47,6 +47,7 @@ public:
 
 	void InvalidateVolumeCommand(int ch,BOOL flg = TRUE);
 	BOOL CheckVolumeCommandOk(int ch);
+	void JumpToLast(void);
 
 private:
 	CMyDirectSound* m_myDirectSound;

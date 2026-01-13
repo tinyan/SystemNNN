@@ -469,6 +469,20 @@ void CScriptVoiceControl::CalcuTeii(int ch)
 
 }
 
+void CScriptVoiceControl::JumpToLast(void)
+{
+	for (int i = 0; i < m_voiceKosuu; i++)
+	{
+		int fadeTime = m_fadeTime[i];
+		if (fadeTime > 0)
+		{
+			if (m_fadeCount[i] < fadeTime - 2)
+			{
+				m_fadeCount[i] = fadeTime - 2;
+			}
+		}
+	}
+}
 
 void CScriptVoiceControl::OnMainLoop(int cnt)
 {

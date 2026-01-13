@@ -252,6 +252,7 @@ int CCommonTitle::Init(void)
 	m_game->StopScriptSoundAndVoice();
 
 	m_game->ClearWork();
+	m_game->ClearJumpTable();
 
 	for (int i=100;i<200;i++)
 	{

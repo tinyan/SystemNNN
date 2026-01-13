@@ -1641,6 +1641,35 @@ void CAllEffect::SetGoreMask(int n, int mask)
 	}
 }
 
+
+void CAllEffect::PreClear(void)
+{
+	for (int i = 0; i < LAYER_KOSUU_MAX; i++)
+	{
+		if (m_effect[i].flag)
+		{
+
+		//	char mes[256];
+		//	sprintf_s(mes, 256, "%d %d\n",i,m_effect[i].command);
+		//	OutputDebugString(mes);
+
+			if (m_effect[i].command == EFFECT_BATHWINDOW)
+			{
+				CPicture* lpPic = GetPicture(i);
+				if (lpPic != NULL)
+				{
+					LPSTR filename = lpPic->GetFileName();
+					char filenamebuf[256];
+					memcpy(filenamebuf, filename, strlen(filename) + 1);
+					lpPic->Flush();
+					lpPic->LoadDWQ(filenamebuf);
+
+				}
+			}
+		}
+	}
+}
+
 /*_*/
 
 

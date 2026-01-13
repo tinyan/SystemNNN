@@ -785,6 +785,9 @@ void CGameCallBack::GeneralCreate(void)
 	m_enableAppendJump = 0;
 	GetInitGameParam(&m_enableAppendJump, "enableAppendJump");
 	
+	m_enableJumpToFade = 0;
+	GetInitGameParam(&m_enableJumpToFade,"enableJumpToFade");
+
 	m_useGoreFlag = 0;
 	GetInitGameParam(&m_useGoreFlag, "useGoreFlag");
 	m_goreVarNumberName = "goreFlag";
@@ -1357,6 +1360,11 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&m_backLogDisableCheckTime, "backLogDisableCheckTime");
 	GetInitGameParam(&m_backLogDisableCheckFlag, "backLogDisableCheckFlag");
 	m_backLogDisableOldTime = 0;
+
+	m_addBlankPrint = 0;
+	m_addBlankLPrint = 0;
+	GetInitGameParam(&m_addBlankPrint, "addBlankPrint");
+	GetInitGameParam(&m_addBlankLPrint, "addBlankLPrint");
 
 
 
@@ -2010,6 +2018,8 @@ else
 
 	m_effect = new CEffect();
 	m_effect->ClearAllEffect();
+
+	SetGoreLayer();
 
 //	m_allEffect = m_effect->GetAllEffect();
 	m_allEffect = NULL;
@@ -3626,6 +3636,8 @@ void CGameCallBack::End(void)
 //	return;
 
 	if (m_gameCreateFlagGeneral == FALSE) return;
+
+	StopScriptSoundAndVoice();
 
 	DELETEARRAY(m_specialVoiceName);
 
@@ -6161,6 +6173,25 @@ void CGameCallBack::SetMessageByLoad(LPVOID ptr)
 	}
 }
 
+void CGameCallBack::SetMessageByJump(LPVOID ptr)
+{
+	CCommonDataFile::GAMEMESSAGE* lp = (CCommonDataFile::GAMEMESSAGE*)ptr;
+
+	CCommonBackLog* pDoc = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	CCommonPrintMessage* pDoc2 = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
+
+	for (int i = 0; i < 64; i++)
+	{
+		LPSTR src = &(lp->messageData[i][0]);
+		if (*src == 0)
+		{
+			break;
+		}
+		pDoc->AddMessage(src);
+	}
+
+}
+
 
 void CGameCallBack::SetOmakeClassDataByLoad(LPVOID ptr)
 {
@@ -6197,13 +6228,16 @@ void CGameCallBack::GetCutinForSave(LPVOID ptr)
 	lp->cutinData[64*4-1] = m_cutinFlag;
 }
 
-void CGameCallBack::SetLogByLoad(LPVOID ptr)
+void CGameCallBack::SetLogByLoad(LPVOID ptr,BOOL bClearJumpTable)
 {
 	CCommonDataFile::GAMELOG* lp = (CCommonDataFile::GAMELOG*)ptr;
 
 	CCommonBackLog* pDoc = (CCommonBackLog*)m_general[BACKLOG_MODE];
 	pDoc->SetLogByLoad(lp);
-	pDoc->ClearJumpTable();
+	if (bClearJumpTable)
+	{
+		pDoc->ClearJumpTable();
+	}
 }
 
 
@@ -10722,7 +10756,7 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 	//get and set para
 	m_messageWindowPrintFlag = TRUE;
 	ChangeMessageWindowModeByNext();
-
+	int currentBackLogPointer = -1;
 	for (int i = 0; i < 4; i++)
 	{
 		if (m_voiceExistCount[i] > 0)
@@ -10731,22 +10765,33 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 		}
 	}
 
-	if (m_jumpFlag)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
-		if (backlog != NULL)
-		{
-			SetSaveMode(PRINTMESSAGE_MODE);
+		currentBackLogPointer = backlog->GetNowPointer();
+		backlog->ClearJump(m_createJumpSaveNumber);
+	}
 
-			backlog->AddJump(m_createJumpSaveNumber);
-			m_requestCreateJumpSaveDataFlag = true;
+	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
+	LPSTR mes = (LPSTR)para2;
+
+	if (!m_sceneMode)
+	{
+		if (m_jumpFlag)
+		{
+			CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+			if (backlog != NULL)
+			{
+				SetSaveMode(PRINTMESSAGE_MODE);
+
+				backlog->AddJumpMessage(m_createJumpSaveNumber, mes);
+
+				backlog->AddJump(m_createJumpSaveNumber);
+				m_requestCreateJumpSaveDataFlag = true;
+			}
 		}
 	}
 
 
-	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
-
-	LPSTR mes = (LPSTR)para2;
 
 	mesObj->SetMessageMode(CODE_SYSTEMCOMMAND_PRINT,(m_sptFileNumber[m_scriptRunMode]<<16) | (para1 & 0xffff),mes,para3);
 	m_lastMessageID = para1;
@@ -10763,6 +10808,23 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 	{
 		SetMessageReadSkipMode(para1);
 	}
+
+	if (m_addBlankPrint)
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		if (backlog != NULL)
+		{
+			backlog->AddMessage(" ");
+		}
+	}
+	if (currentBackLogPointer != -1)
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		{
+			backlog->SetBackLogMessageEnd(currentBackLogPointer);
+		}
+	}
+
 }
 
 
@@ -10772,6 +10834,7 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 	m_messageWindowPrintFlag = FALSE;
 //	m_messageWindowPrintFlag = TRUE;
 	ChangeMessageWindowModeByNext();
+	int currentBackLogPointer = -1;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -10781,20 +10844,31 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 		}
 	}
 
-	if (m_jumpFlag)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
-		if (backlog != NULL)
-		{
-			SetSaveMode(PRINTMESSAGE_MODE);
-			backlog->AddJump(m_createJumpSaveNumber);
-			m_requestCreateJumpSaveDataFlag = true;
-		}
+		currentBackLogPointer = backlog->GetNowPointer();
+		backlog->ClearJump(m_createJumpSaveNumber);
 	}
 
 	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
 
 	LPSTR mes = (LPSTR)para2;
+
+	if (!m_sceneMode)
+	{
+		if (m_jumpFlag)
+		{
+			CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+			if (backlog != NULL)
+			{
+				SetSaveMode(PRINTMESSAGE_MODE);
+				backlog->AddJumpMessage(m_createJumpSaveNumber, mes);
+				backlog->AddJump(m_createJumpSaveNumber);
+				m_requestCreateJumpSaveDataFlag = true;
+			}
+		}
+	}
+
 
 	mesObj->SetMessageMode(CODE_SYSTEMCOMMAND_LPRINT,(m_sptFileNumber[m_scriptRunMode]<<16) | (para1 & 0xffff),mes,para3);
 	m_lastMessageID = para1;
@@ -10812,6 +10886,22 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 		SetMessageReadSkipMode(para1);
 	}
 
+	if (m_addBlankLPrint)
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		if (backlog != NULL)
+		{
+			backlog->AddMessage(" ");
+		}
+	}
+
+	if (currentBackLogPointer != -1)
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		{
+			backlog->SetBackLogMessageEnd(currentBackLogPointer);
+		}
+	}
 
 //		ResetAllShakin();
 }
@@ -10821,6 +10911,7 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 	//get and set para
 //	m_messageWindowPrintFlag = FALSE;
 	ChangeMessageWindowModeByNext();
+	int currentBackLogPointer = -1;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -10829,6 +10920,16 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 			m_voiceExistCount[i]--;
 		}
 	}
+
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		currentBackLogPointer = backlog->GetNowPointer();
+		backlog->ClearJump(m_createJumpSaveNumber);
+	}
+
+	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
+
+	LPSTR mes = (LPSTR)para2;
 
 	if (m_jumpFlag)
 	{
@@ -10839,6 +10940,7 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 			{
 				SetSaveMode(PRINTMESSAGE_MODE);
 
+				backlog->AddJumpMessage(m_createJumpSaveNumber,mes);
 				backlog->AddJump(m_createJumpSaveNumber);
 				m_requestCreateJumpSaveDataFlag = true;
 			}
@@ -10846,9 +10948,6 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 	}
 
 
-	CCommonPrintMessage* mesObj = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
-
-	LPSTR mes = (LPSTR)para2;
 
 	mesObj->SetMessageMode(CODE_SYSTEMCOMMAND_APPEND,(m_sptFileNumber[m_scriptRunMode]<<16) | (para1 & 0xffff),mes,para3);
 	m_lastMessageID = para1;
@@ -10866,6 +10965,13 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 		SetMessageReadSkipMode(para1);
 	}
 
+	if (currentBackLogPointer != -1)
+	{
+		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+		{
+			backlog->SetBackLogMessageEnd(currentBackLogPointer);
+		}
+	}
 
 //		ResetAllShakin();
 }
@@ -10925,6 +11031,9 @@ void CGameCallBack::SystemCommandSelect(int para1,LPVOID para2)
 	CCommonSelectMessage* selObj = (CCommonSelectMessage*)m_general[SELECTMESSAGE_MODE];
 	int kosuu = para1;
 	
+	CCommonBackLog* backLog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	backLog->ClearJump(m_createJumpSaveNumber);
+
 	selObj->SetBackLogMessage();
 
 //		AddBackLogMessage("@");
@@ -17597,8 +17706,9 @@ void CGameCallBack::CreateJumpBuffer(void)
 }
 
 
-void CGameCallBack::TestJump(int n)
+void CGameCallBack::TestJump(int n,int onJumpNumber)
 {
+//	m_effect->GetAllEffect()->PreClear();
 
 	StopScriptSoundAndVoice();
 
@@ -17626,6 +17736,14 @@ void CGameCallBack::TestJump(int n)
 	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
 	SetGameStatusByLoad(buffer);
 	buffer += gameHeader->general.size;
+
+	if (m_enableJumpToFade)
+	{
+		m_scriptSoundControl->JumpToLast();
+		m_scriptVoiceControl->JumpToLast();
+
+	}
+
 	//
 	//Var
 	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
@@ -17640,6 +17758,7 @@ void CGameCallBack::TestJump(int n)
 	SetEffectFileNameByLoad(buffer);
 	buffer += gameHeader->general.size;
 	//Message
+	char* messageBuffer = buffer;
 	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
 	SetMessageByLoad(buffer);
 	buffer += gameHeader->general.size;
@@ -17661,13 +17780,26 @@ void CGameCallBack::TestJump(int n)
 		buffer += gameHeader->general.size;
 	}
 
+
+	//log
+	CCommonBackLog* backLog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	backLog->ResetBackLogByJump(onJumpNumber);
+
+	if (m_gameMode[0] == PRINTMESSAGE_MODE)
+	{
+		//@@@@SetMessageByJump(messageBuffer);
+	}
+
 	//Log
+	/*
 	if (GetSaveLog())
 	{
 		gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
-		SetLogByLoad(buffer);
+		SetLogByLoad(buffer,FALSE);
 		buffer += gameHeader->general.size;
 	}
+	*/
+
 
 	//Omake
 	if (GetOmakeClassExistFlag())
@@ -17682,8 +17814,11 @@ void CGameCallBack::TestJump(int n)
 	}
 
 	{
-		ClearBackLog();
+		//@@ClearBackLog();
 	}
+
+	m_effect->GetAllEffect()->PreClear();
+
 
 	InitLoadGame();
 	//FuqueAllEffect();
@@ -17773,6 +17908,14 @@ SIZE CGameCallBack::GetRealWindowSize()
 	sz.cy = m_viewControl->GetRealWindowSizeY();
 	return sz;
 }
+
+void CGameCallBack::ClearJumpTable(void)
+{
+	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	backlog->ClearJumpTable();
+}
+
+
 
 /*_*/
 

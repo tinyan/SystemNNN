@@ -17,6 +17,7 @@ class CMyMessage;
 #define BACKLOG_LENGTH 1024
 #define VOICEFILE_LENGTH 16
 //#define JUMPFILE_LENGTH 16
+#define JUMPMESSAGE_LENGTH 1024
 
 
 
@@ -41,6 +42,10 @@ public:
 
 	void AddVoice(LPSTR filename);
 	void AddJump(int dataNumber);
+	void ClearJump(int dataNumber);
+	void ResetBackLogByJump(int onJumpNumber);
+
+	void AddJumpMessage(int n, LPSTR mes);
 
 	static char m_defaultTitleMessage[];
 	static char m_defualtFirstMessage[];
@@ -83,6 +88,9 @@ public:
 	void CreateExitScreenForJump(void);
 	void ClearJumpTable(void);
 
+	void SetBackLogMessageEnd(int current,int messageEnd = -1);
+	int GetNowPointer(void);
+
 protected:
 	BOOL UpScroll(int n = 1);
 	BOOL DownScroll(int n = 1);
@@ -102,6 +110,8 @@ protected:
 	char* m_logMessage;
 	char* m_voiceFile;
 	int* m_jumpFlagTable;
+	char* m_backlogMessage;
+	int* m_backLogMessageEnd;
 
 	int m_printGyosuuMax;
 	int m_printStartGyo;
@@ -293,6 +303,7 @@ protected:
 	int* m_jumpVoiceNumberList;
 	int* m_jumpEnterVoiceNumberList;
 	int* m_jumpExitVoiceNumberList;
+
 
 
 	char* m_separatorMessage;

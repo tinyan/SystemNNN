@@ -146,6 +146,7 @@ public:
 	/////
 
 	LPSTR GetExistEffectFileName(int n);
+	void PreClear(void);
 
 private:
 	int* m_tempWork;

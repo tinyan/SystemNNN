@@ -130,6 +130,7 @@ public:
 	LPSTR GetExistEffectFileName(int n);
 
 	void SetGoreMask(int layer, int mask);
+	CAllEffect* GetAllEffect(void);
 private:
 	CAllEffect* m_allEffect;
 	int m_layerKosuuMax;

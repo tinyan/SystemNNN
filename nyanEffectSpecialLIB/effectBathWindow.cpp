@@ -96,6 +96,7 @@ CEffectBathWindow::CEffectBathWindow(CAllEffect* lpAll) : CCommonEffect(lpAll)
 }
 
 
+
 CEffectBathWindow::~CEffectBathWindow()
 {
 	End();
@@ -854,3 +855,11 @@ SKIP2M:
 #endif
 
 }
+
+/*
+void CEffectBathWindow::PreClear(LPVOID lpEffect, int layer)
+{
+
+
+}
+*/

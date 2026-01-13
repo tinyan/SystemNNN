@@ -461,5 +461,11 @@ void CEffect::SetGoreMask(int layer, int mask)
 	m_allEffect->SetGoreMask(layer, mask);
 }
 
+CAllEffect* CEffect::GetAllEffect(void)
+{
+	return m_allEffect;
+}
+
+
 /*_*/
 

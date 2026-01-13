@@ -228,7 +228,9 @@ public:
 	virtual void SetMessageByLoad(LPVOID ptr);
 	virtual void SetOmakeClassDataByLoad(LPVOID ptr);
 	virtual void SetCutinByLoad(LPVOID ptr);
-	virtual void SetLogByLoad(LPVOID ptr);
+	virtual void SetLogByLoad(LPVOID ptr, BOOL bClearJumpTable = TRUE);
+
+	virtual void SetMessageByJump(LPVOID ptr);
 
 
 	virtual int GetWeek(int dayMonth);
@@ -897,7 +899,7 @@ public:
 
 	int GetJumpFlag();
 	void CreateJumpBuffer(void);
-	void TestJump(int n);
+	void TestJump(int n, int onJumpNumber);
 
 	int GetUseGoreFlag();
 	int GetGoreFlag();
@@ -906,6 +908,7 @@ public:
 	void SetGoreLayer(void);
 
 	SIZE GetRealWindowSize();
+	void ClearJumpTable(void);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1948,6 +1951,11 @@ protected:
 
 	int m_enableAppendJump;
 	int m_mustPlayScriptSE;
+
+	int m_addBlankPrint;
+	int m_addBlankLPrint;
+
+	int m_enableJumpToFade;
 };
 
 #endif

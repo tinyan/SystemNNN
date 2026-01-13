@@ -27,6 +27,7 @@ public:
 
 	int GetEternalType(void){return 1;}
 
+	//void PreClear(LPVOID lpEffect, int layer);
 private:
 	char* m_yuge0;
 	char* m_yuge;

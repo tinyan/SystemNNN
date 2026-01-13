@@ -564,8 +564,8 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_logMessage = new char[BACKLOG_KOSUU * BACKLOG_LENGTH];
 	m_voiceFile = new char[BACKLOG_KOSUU * VOICEFILE_LENGTH];
 	m_jumpFlagTable = new int[BACKLOG_KOSUU];
-
-
+	m_backlogMessage = new char[BACKLOG_KOSUU * JUMPMESSAGE_LENGTH];
+	m_backLogMessageEnd = new int[BACKLOG_KOSUU];
 //	m_jumpVoiceFlag = 0;
 //	m_jumpVoiceNumber = 0;
 //	m_jumpVoiceFileName = NULL;
@@ -728,6 +728,8 @@ void CCommonBackLog::End(void)
 	DELETEARRAY(m_voiceFile);
 	DELETEARRAY(m_logMessage);
 	ENDDELETECLASS(m_message);
+	DELETEARRAY(m_backlogMessage);
+	DELETEARRAY(m_backLogMessageEnd);
 
 	DELETEARRAY(m_separatorMessage);
 }
@@ -846,7 +848,7 @@ int CCommonBackLog::Calcu(void)
 					}
 
 					//@@@
-					m_game->TestJump(m_jumpFlagTable[m_onJumpNumber]);
+					m_game->TestJump(m_jumpFlagTable[m_onJumpNumber],m_onJumpNumber);
 					m_jumpStartFlag = FALSE;
 				}
 			}
@@ -854,7 +856,7 @@ int CCommonBackLog::Calcu(void)
 		else
 		{
 			//@@@
-			m_game->TestJump(m_jumpFlagTable[m_onJumpNumber]);
+			m_game->TestJump(m_jumpFlagTable[m_onJumpNumber],m_onJumpNumber);
 			m_jumpStartFlag = FALSE;
 		}
 	}
@@ -1194,34 +1196,37 @@ int CCommonBackLog::Print(void)
 
 			}
 
-			if (m_jumpFlagTable != NULL)
+			if (!m_game->CheckSceneMode())
 			{
-				if ((m_jumpFlagTable[k]) != -1)
+				if (m_jumpFlagTable != NULL)
 				{
-
-					if (m_jumpFlag != 0)
+					if ((m_jumpFlagTable[k]) != -1)
 					{
-						POINT ptj = GetJumpPrintZahyo(i);
-						if (m_jumpPicFlag == 0)
+
+						if (m_jumpFlag != 0)
 						{
-							m_message->PrintMessage(ptj.x, ptj.y, m_jumpMessage, m_fontSize, 255, 255, 255, m_sukima, m_nextY, 0);
-						}
-						else
-						{
-							int md = 0;
-							if (m_onJumpNumber != -1)
+							POINT ptj = GetJumpPrintZahyo(i);
+							if (m_jumpPicFlag == 0)
 							{
-								if (((i + m_printPointer + BACKLOG_KOSUU) % BACKLOG_KOSUU) == m_onJumpNumber)
-								{
-									md = 1;
-								}
+								m_message->PrintMessage(ptj.x, ptj.y, m_jumpMessage, m_fontSize, 255, 255, 255, m_sukima, m_nextY, 0);
 							}
+							else
+							{
+								int md = 0;
+								if (m_onJumpNumber != -1)
+								{
+									if (((i + m_printPointer + BACKLOG_KOSUU) % BACKLOG_KOSUU) == m_onJumpNumber)
+									{
+										md = 1;
+									}
+								}
 
-							PutJumpPic(ptj.x, ptj.y, md);
-							//m_voicePic->Blt(pt.x,pt.y,0,0,m_voiceSizeX,m_voiceSizeY,TRUE);
+								PutJumpPic(ptj.x, ptj.y, md);
+								//m_voicePic->Blt(pt.x,pt.y,0,0,m_voiceSizeX,m_voiceSizeY,TRUE);
+							}
 						}
-					}
 
+					}
 				}
 			}
 
@@ -1412,6 +1417,15 @@ void CCommonBackLog::AddVoice(LPSTR filename)
 	}
 }
 
+void CCommonBackLog::ClearJump(int dataNumber)
+{
+	int n = m_nowPointer;
+	//	n--;
+	//	n += BACKLOG_KOSUU;
+	n %= BACKLOG_KOSUU;
+	m_jumpFlagTable[n] = -1;
+}
+
 void CCommonBackLog::AddJump(int dataNumber)
 {
 	OutputDebugString("AddJump\n");
@@ -1572,6 +1586,11 @@ int CCommonBackLog::CheckOnVoice(int mouseX, int mouseY)
 int CCommonBackLog::CheckOnJump(int mouseX, int mouseY)
 {
 	if (m_jumpFlag == 0)
+	{
+		return -1;
+	}
+
+	if (m_game->CheckSceneMode())
 	{
 		return -1;
 	}
@@ -2243,5 +2262,71 @@ void CCommonBackLog::ClearJumpTable(void)
 	}
 
 }
+
+
+void CCommonBackLog::ResetBackLogByJump(int onJumpNumber)
+{
+	int last = m_backLogMessageEnd[onJumpNumber];
+	int delta = last - onJumpNumber;
+
+//	int delta = m_nowPointer - onJumpNumber;
+	delta += BACKLOG_KOSUU;
+	delta %= BACKLOG_KOSUU;
+
+//	m_messageKosuu -= delta;
+//	if (m_messageKosuu < 0)
+//	{
+//		m_messageKosuu = 0;
+//	}
+	
+	int startNowPointer = m_nowPointer;
+	m_nowPointer = onJumpNumber + delta;
+	m_nowPointer += BACKLOG_KOSUU;
+	m_nowPointer %= BACKLOG_KOSUU;
+
+	int kosuuDelta = startNowPointer - m_nowPointer;
+	kosuuDelta += BACKLOG_KOSUU;
+	kosuuDelta %= BACKLOG_KOSUU;
+	
+	m_messageKosuu -= kosuuDelta;
+	if (m_messageKosuu < 0)
+	{
+		m_messageKosuu = 0;
+	}
+
+	/*
+	m_jumpFlagTable[m_nowPointer] = -1;
+	char* ptr = m_voiceFile + m_nowPointer * VOICEFILE_LENGTH;
+	*ptr = 0;
+
+	AddMessage("y‚i‚t‚l‚oz");
+	*/
+
+}
+
+void CCommonBackLog::AddJumpMessage(int n, LPSTR mes)
+{
+	int len = (int)strlen(mes) + 1;
+	memcpy(m_backlogMessage + n * JUMPMESSAGE_LENGTH,mes,len);
+}
+
+void CCommonBackLog::SetBackLogMessageEnd(int current, int messageEnd)
+{
+	if (m_backLogMessageEnd != NULL)
+	{
+		if (messageEnd == -1)
+		{
+			messageEnd = GetNowPointer();
+		}
+		m_backLogMessageEnd[current] = messageEnd;
+	}
+}
+
+int CCommonBackLog::GetNowPointer(void)
+{
+	return m_nowPointer;
+}
+
+
 /*_*/
 
