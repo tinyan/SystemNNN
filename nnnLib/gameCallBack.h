@@ -1772,6 +1772,9 @@ protected:
 	int m_autoResultNotice;
 	int* m_backLogOkTable;
 
+	int m_messageMiniCGNoMessageFlag;
+	int m_selectMiniCGNoMessageFlag;
+
 	void SetMessageWindowPercent(void);
 
 	static char m_errorName[];

@@ -99,6 +99,25 @@ public:
 	int GetTextNextY(void){return m_textNextY;}
 	int GetTextPrintGyo(void){return m_textPrintGyo;}
 
+
+	int GetLogPrintFlag(void) { return m_logPrintFlag; }
+	int GetLogPrintGyo(void) { return m_logPrintGyo; }
+	int GetLogFontSize(void) { return m_logFontSize; }
+	int GetLogPrintSizeX(void) {return m_logPrintSizeX;	}
+	int	GetLogPrintX(void) {return m_logPrintX;	}
+	int GetLogPrintY(void) { return m_logPrintY; }
+	int GetLogNextY(void) { return m_logNextY; }
+	int GetLogNamePrintFlag(void) { return m_logNamePrintFlag; }
+	int GetLogColorR(void) { return m_logColorR; }
+	int GetLogColorG(void) { return m_logColorG; }
+	int GetLogColorB(void) { return m_logColorB; }
+	int GetLogKage(void) { return m_logKage; }
+	int GetLogSelectTopPrintFlag(void){return m_logSelectTopPrintFlag; }
+	int GetLogSukima(void) { return m_logSukima; }
+	int GetLogRubiNotPrintFlag(void) { return m_logRubiNotPrintFlag; }
+	int GetLogColorNotChangeFlag(void) { return m_logColorNotChangeFlag; }
+	int GetLogSerialUpZeroPrintFlag(void) { return m_logSerialUpZeroPrintFlag; }
+
 	int GetBasePrintFlag(void){return m_basePrintFlag;}
 	CPicture* GetLoadBase(void){return m_loadBasePic;}
 	CPicture* GetSaveBase(void){return m_saveBasePic;}
@@ -234,6 +253,25 @@ private:
 	int m_textColor[4];
 	int m_textNextY;
 	int m_textPrintGyo;
+
+
+	int m_logPrintFlag;
+	int m_logPrintGyo;
+	int m_logFontSize;
+	int m_logPrintSizeX;
+	int m_logPrintX;
+	int m_logPrintY;
+	int m_logNextY;
+	int m_logNamePrintFlag;
+	int m_logColorR;
+	int m_logColorG;
+	int m_logColorB;
+	int m_logKage;
+	int m_logSelectTopPrintFlag;
+	int m_logSukima;
+	int m_logRubiNotPrintFlag;
+	int m_logColorNotChangeFlag;
+	int m_logSerialUpZeroPrintFlag;
 
 	int m_basePrintFlag;
 	int m_baseChangeLoadSave;

@@ -222,6 +222,8 @@ public:
 		char largeComment2[256];
 		char largeComment3[256];
 		char largeComment4[256];
+
+		char logMessage[256 * 4];
 	} GAMESTATUS;
 
 
@@ -387,6 +389,7 @@ protected:
 
 	void MakeHeader(int* work, int sz, int cd ,LPSTR mes);
 
+	void PrintLogMessage(void);
 
 	int* m_commonBuffer;
 	int* m_commonBuffer2;
@@ -487,6 +490,23 @@ protected:
 	int m_textNextY;
 	int m_textPrintGyo;
 
+	int m_logPrintFlag;
+	int m_logPrintGyo;
+	int m_logFontSize;
+	int m_logPrintSizeX;
+	int m_logPrintX;
+	int m_logPrintY;
+	int m_logNextY;
+	int m_logNamePrintFlag;
+	int m_logColorR;
+	int m_logColorG;
+	int m_logColorB;
+	int m_logKage;
+	int m_logSelectTopPrintFlag;
+	int m_logSukima;
+	int m_logRubiNotPrintFlag;
+	int m_logColorNotChanheFlag;
+	int m_logSerialUpZeroPrintFlag;
 
 	int m_kazariPrintFlag;
 	SIZE m_kazariSize;

@@ -120,6 +120,9 @@ public:
 	void SetNextMessageEffectTime(int md);
 
 	int GetMessageSpeedTable(int n, bool autoFlag);
+
+	char* GetLogMessageForSave(int n);
+
 protected:
 	CMyMessage* m_message;
 	CMessageCursor* m_cursor;
@@ -488,6 +491,9 @@ private:
 	int m_readNameColorB;
 
 	int m_addLPrintImageOffWithWindow;
+
+	char m_logMessageForSave[256];
+
 };
 
 #endif

@@ -24,6 +24,7 @@ public:
 	int GetSizeX(void){return m_sizeX;}
 	int GetNextX(void){return m_nextX;}
 
+	void SetUpZeroFlag(BOOL b) { m_upZeroFlag = b; }
 protected:
 	CPicture* m_pic;
 	int m_sizeX;

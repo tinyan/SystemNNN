@@ -242,10 +242,10 @@ void CMyMessage::End(void)
 }
 
 //startもじめからlengthもじ表示。戻り値はちょうどかいたら0、かけなかったらマイナス、あまったらプラス
-int CMyMessage::PrintMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag, bool rubiColorIsMessageColor)
+int CMyMessage::PrintMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize, int colR, int colG , int colB,int sukima, int nextY,int kageColor, BOOL bAntiAliasFlag, bool rubiColorIsMessageColor,bool bRubiNotPrintFlag,bool bColorNorChangeFlag)
 {
 	m_myFont->BeginPrint(fontSize,bAntiAliasFlag);
-	int rt = MakeMessage(start,start+length,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag, -1,1,rubiColorIsMessageColor);
+	int rt = MakeMessage(start,start+length,x, y, message, fontSize, colR, colG, colB, sukima, nextY, kageColor, bAntiAliasFlag, -1,1,rubiColorIsMessageColor, bRubiNotPrintFlag, bColorNorChangeFlag);
 
 	m_myFont->EndPrint();
 
@@ -566,7 +566,7 @@ int CMyMessage::GetOkikae(char* mes)
 
 
 //1行のみ対応に修正
-int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag,int startY,int lengthY,bool rubiColorIsMessageColor)
+int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int fontSize,int colR, int colG, int colB,int sukima, int nextY,int kageColor,BOOL bAntiAliasFlag,int startY,int lengthY,bool rubiColorIsMessageColor, bool bRubiNotPrintFlag, bool bColorNorChangeFlag)
 {
 	int codeByte = CMyFont::m_codeByte;
 
@@ -1112,7 +1112,7 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				continue;
 			}
 
-			if ((cmd >= OKIKAE_COLOR) && (cmd < (OKIKAE_COLOR + 100)))	//color
+			if ((!bColorNorChangeFlag) && (cmd >= OKIKAE_COLOR) && (cmd < (OKIKAE_COLOR + 100)))	//color
 			{
 				if (bNewCol == FALSE)
 				{
@@ -1166,7 +1166,10 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 
 
-
+		if (bRubiNotPrintFlag)
+		{
+			rubiKosuu = 0;
+		}
 
 		if (cmd == 2)
 		{
@@ -1190,6 +1193,12 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 				m_messageWork[nowLen*2] = 0;
 			}
 			int rt = -1;
+
+//			LPSTR* rubiMessage = NULL;
+//			if (!bRubiNotPrintFlag)
+//			{
+//				rubiMessage = m_rubiMessage;
+//			}
 
 			if (bNewCol)
 			{
@@ -1438,11 +1447,14 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 	if (m_rubiFont != NULL)
 	{
-		HDC hdc = m_myFont->GetHDC();
-//		m_rubiFont->BeginPrint();
-		m_rubiFont->PrintRubi(hdc);
-//		m_rubiFont->EndPrint();
-		//print rubi
+		if (!bRubiNotPrintFlag)
+		{
+			HDC hdc = m_myFont->GetHDC();
+			//		m_rubiFont->BeginPrint();
+			m_rubiFont->PrintRubi(hdc);
+			//		m_rubiFont->EndPrint();
+					//print rubi
+		}
 	}
 
 

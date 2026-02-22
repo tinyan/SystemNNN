@@ -223,6 +223,22 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 	GetInitGameParam(&m_messageNextX,"messageNextX");
 	GetInitGameParam(&m_messageNextY,"messageNextY");
 
+	for (int i = 0; i < 8; i++)
+	{
+		char name[256];
+		
+		sprintf_s(name, 256, "newMessageNextY%d", i + 1);
+		int nextY = m_messageNextY;
+		GetInitGameParam(&nextY, name);
+		m_newMesageNextY[i] = nextY;
+
+		sprintf_s(name, 256, "newMessagePrintY%d", i + 1);
+		int printY = m_messagePrintY;
+		GetInitGameParam(&printY, name);
+		m_newMesagePrintY[i] = printY;
+
+	}
+
 	GetInitGameParam(&m_cursorSizeX,"cursorSizeX");
 	GetInitGameParam(&m_cursorSizeY,"cursorSizeY");
 
@@ -510,6 +526,18 @@ CCommonSelectMessage::CCommonSelectMessage(CGameCallBack* lpGame) : CCommonGener
 	m_specialWindowPic = NULL;
 
 	m_centeringFlag = 0;
+//	GetInitGameParam(&m_centeringFlag, "centeringFlag");
+
+	m_newCenteringFlag = 0;
+	GetInitGameParam(&m_newCenteringFlag, "newCenteringFlag");
+	m_newCenteringSizeX = 800;
+	if (m_newCenteringFlag)
+	{
+		GetInitGameParam(&m_newCenteringSizeX, "newCenteringSizeX");
+	}
+
+	m_newAddMessageCenteringFlag = 0; 
+	GetInitGameParam(&m_newAddMessageCenteringFlag, "newAddmessageCenteringFlag");
 
 	if (m_useSpecialFlagKosuu)
 	{
@@ -1789,6 +1817,17 @@ void CCommonSelectMessage::PrintMessageSub(int printN,int dataN,BOOL bAllFlag,BO
 		updatePoint = messagePoint;
 		cursorPoint.x = 0;
 		cursorPoint.y = 0;
+
+		if (m_newAddMessageCenteringFlag)
+		{
+			int lnln = m_message->GetMessageRealLength(m_messageData[dataN]);
+			int mesSizeX = lnln * (m_fontSize + 1) - 1;
+
+			int areaSizeX = m_newCenteringSizeX;
+
+			messagePoint.x += (areaSizeX - mesSizeX) / 2;
+
+		}
 	}
 	else
 	{
@@ -1805,6 +1844,19 @@ void CCommonSelectMessage::PrintMessageSub(int printN,int dataN,BOOL bAllFlag,BO
 				int mesSizeX = lnln * (m_specialFontSize + 1) - 1;
 
 				int areaSizeX = m_centerAreaSizeX;//ŒÅ’è
+
+				messagePoint.x += (areaSizeX - mesSizeX) / 2;
+			}
+		}
+		else
+		{
+			if (m_newCenteringFlag)
+			{
+				int mesNum00 = dataN + m_addMessageKosuu;
+				int lnln = m_message->GetMessageRealLength(m_messageData[mesNum00]);
+				int mesSizeX = lnln * (m_fontSize + 1) - 1;
+
+				int areaSizeX = m_newCenteringSizeX;
 
 				messagePoint.x += (areaSizeX - mesSizeX) / 2;
 			}
@@ -2132,7 +2184,10 @@ POINT CCommonSelectMessage::GetMessageZahyo(int place)
 	else
 	{
 		pt.x = m_messagePrintX;
-		pt.y = m_messagePrintY + (m_addMessageKosuu + place) * m_messageNextY;
+		int printY = GetNewMessagePrintY();
+		int nextY = GetNewMessageNext();
+//		pt.y = m_messagePrintY + (m_addMessageKosuu + place) * nextY;
+		pt.y = printY + (m_addMessageKosuu + place) * nextY;
 	}
 
 	return pt;
@@ -2144,9 +2199,34 @@ POINT CCommonSelectMessage::GetAddMessageZahyo(int place)
 	POINT pt;
 
 	pt.x = m_messagePrintX;
-	pt.y = m_messagePrintY + place * m_messageNextY;
+	int printY = GetNewMessagePrintY();
+	int nextY = GetNewMessageNext();
+//	pt.y = m_messagePrintY + place * nextY;
+	pt.y = printY + place * nextY;
 
 	return pt;
+}
+
+int CCommonSelectMessage::GetNewMessageNext(void)
+{
+	int n = m_messageKosuu - 1;
+	if (n < 0) n = 0;
+	if (n > 7) n = 7;
+
+	return m_newMesageNextY[n];
+
+//	return m_messageNextY + m_messageKosuu;
+}
+
+int CCommonSelectMessage::GetNewMessagePrintY(void)
+{
+	int n = m_messageKosuu - 1;
+	if (n < 0) n = 0;
+	if (n > 7) n = 7;
+
+	return m_newMesagePrintY[n];
+
+	//	return m_messageNextY + m_messageKosuu;
 }
 
 CPicture* CCommonSelectMessage::GetSelectCursorPic(void)
@@ -2369,5 +2449,23 @@ void CCommonSelectMessage::CheckAndAutoOff(void)
 	{
 		m_game->SetMessageSkipFlag(false);
 	}
+}
+
+
+char* CCommonSelectMessage::GetLogMessageForSave(int n)
+{
+	if (n < m_addMessageKosuu)
+	{
+		sprintf_s(m_logMessageForSave, 256, ";%s", m_messageData[n]);
+		return m_logMessageForSave;
+	}
+
+	if (n < m_addMessageKosuu + m_messageKosuu)
+	{
+		sprintf_s(m_logMessageForSave, 256, "%s", m_messageData[n]);
+		return m_logMessageForSave;
+	}
+
+	return NULL;
 }
 

@@ -20,7 +20,7 @@ public:
 	void End(void);
 
 	void PrintMessage(int x, int y, LPSTR message, int fontSize=16, int colR = -1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor = -1,BOOL bAntiAliasFlag = TRUE,bool rubiColorIsMessageColor = false);
-	int PrintMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize = 16, int col=-1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor= -1, BOOL bAntiAliasFlag = TRUE, bool rubiColorIsMessageColor = false);
+	int PrintMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize = 16, int col=-1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor= -1, BOOL bAntiAliasFlag = TRUE, bool rubiColorIsMessageColor = false, bool bRubiNotPrintFlag = false, bool bColorNorChangeFlag = false);
 	int PrintEffectMessageParts(int start, int length, int x, int y, LPSTR message, int fontSize = 16, int col=-1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor= -1, BOOL bAntiAliasFlag = TRUE,int effectType = 0,int effectCount1000 = 0, bool rubiColorIsMessageColor = false);
 	void PrintSelectMessage(int start, int length, int x, int y, LPSTR message, int fontSize = 16, int col=-1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor= -1, BOOL bAntiAliasFlag = TRUE, bool rubiColorIsMessageColor = false);
 	void GradPrintMessage(int startX,int endX,int x, int y, LPSTR message, int fontSize=16, int colR = -1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor = -1,BOOL bAntiAliasFlag = TRUE, bool rubiColorIsMessageColor = false);
@@ -78,7 +78,7 @@ protected:
 	int GetRubiFontSize(void);
 
 private:
-	int MakeMessage(int start, int length, int x, int y, LPSTR message, int fontSize=16, int colR = -1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor = -1,BOOL bAntiAliasFlag = TRUE,int startY = -1,int lengthY = 1, bool rubiColorIsMessageColor = false);
+	int MakeMessage(int start, int length, int x, int y, LPSTR message, int fontSize=16, int colR = -1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor = -1,BOOL bAntiAliasFlag = TRUE,int startY = -1,int lengthY = 1, bool rubiColorIsMessageColor = false, bool bRubiNotPrintFlag = false, bool bColorNorChangeFlag = false);
 //	CGame* m_game;
 	CMyFont* m_myFont;
 	CRubiFont* m_rubiFont;

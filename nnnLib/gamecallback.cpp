@@ -1366,7 +1366,10 @@ void CGameCallBack::GeneralCreate(void)
 	GetInitGameParam(&m_addBlankPrint, "addBlankPrint");
 	GetInitGameParam(&m_addBlankLPrint, "addBlankLPrint");
 
-
+	m_messageMiniCGNoMessageFlag = 0;
+	m_selectMiniCGNoMessageFlag = 0;
+	GetInitGameParam(&m_messageMiniCGNoMessageFlag, "messageMiniCGNoMessageFlag");
+	GetInitGameParam(&m_selectMiniCGNoMessageFlag, "selectMiniCGNoMessageFlag");
 
 	m_charaVoiceVolumeDelta = 2;
 	GetInitGameParam(&m_charaVoiceVolumeDelta, "charaVoiceVolumeDelta");
@@ -6370,6 +6373,48 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 		memcpy(largeComment[i],cmt,(SSIZE_T)ln+2);
 	}
 
+	//logMessage
+	for (int i = 0; i < 4; i++)
+	{
+		lp->logMessage[i*256] = 0;
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (lp->gameMode == PRINTMESSAGE_MODE)
+		{
+			char* logMes = pDoc2->GetLogMessageForSave(i);
+			if (logMes == NULL)
+			{
+				break;
+			}
+			if (*(logMes + 1) == 0)
+			{
+				break;
+			}
+			memcpy(&lp->logMessage[256 * i], logMes, strlen(logMes));
+		}
+		else if (lp->gameMode == SELECTMESSAGE_MODE)
+		{
+			char* logMes = pDoc->GetLogMessageForSave(i);
+			if (logMes == NULL)
+			{
+				break;
+			}
+			if (*(logMes + 1) == 0)
+			{
+				break;
+			}
+			memcpy(&lp->logMessage[256 * i], logMes, strlen(logMes));
+		}
+		else
+		{
+			break;
+		}
+//		memcpy(&lp->logMessage[256 * i], "1行目のログ", strlen("1行目のログ")+1);
+//		lp->logMessage[256 * i] = 48 + i + 1;
+//		lp->logMessage[256 * i + 1] = 0;
+	}
 
 
 	//names
@@ -6709,6 +6754,30 @@ void CGameCallBack::MakeMiniCG(void)
 
 
 #endif
+
+	//CAllGraphics::FillScreen(128,96,192);
+	//m_allEffect->Print();
+	//CAreaControl::SetNextAllPrint();
+	bool bEraseMessage = false;
+	if (m_saveMode == PRINTMESSAGE_MODE)
+	{
+		if (m_messageMiniCGNoMessageFlag)
+		{
+			bEraseMessage = true;
+		}
+	}
+	if (m_saveMode == SELECTMESSAGE_MODE)
+	{
+		if (m_selectMiniCGNoMessageFlag)
+		{
+			bEraseMessage = true;
+		}
+	}
+
+	if (bEraseMessage)
+	{
+		PrintEffect();
+	}
 
 	m_gameUtil->MakeMiniCG((int*)(CMyGraphics::GetScreenBuffer()),m_miniCG);
 

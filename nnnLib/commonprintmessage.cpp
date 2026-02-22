@@ -3685,5 +3685,38 @@ int CCommonPrintMessage::GetMessageSpeedTable(int n, bool autoFlag)
 	return m_messageSpeedTable[n];
 }
 
+char* CCommonPrintMessage::GetLogMessageForSave(int n)
+{
+	if ((n >= 0) && (n < 4))
+	{
+		if (n >= m_messageKosuu)
+		{
+			return NULL;
+		}
+
+		bool bNameFlag = false;
+		if (n == 0)
+		{
+			if (m_printMode == CODE_SYSTEMCOMMAND_PRINT)
+			{
+				bNameFlag = CheckHaveName();
+			}
+
+		}
+
+		if (bNameFlag)
+		{
+			sprintf_s(m_logMessageForSave, 256, ";%s", m_messageData[n]);
+		}
+		else
+		{
+			sprintf_s(m_logMessageForSave, 256, "%s", m_messageData[n]);
+		}
+		return m_logMessageForSave;
+	}
+
+	return NULL;
+}
+
 /*_*/
 

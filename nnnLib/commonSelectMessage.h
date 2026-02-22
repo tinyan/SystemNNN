@@ -66,6 +66,8 @@ public:
 	int m_autoDebugWait;
 	CAutoSelectControl* m_autoSelectControl;
 
+	char* GetLogMessageForSave(int n);
+
 protected:
 
 	virtual void BeforeInit(void) {}
@@ -267,11 +269,18 @@ protected:
 	int m_clickingTime;
 	int m_selected;
 
+	int GetNewMessageNext(void);
+	int GetNewMessagePrintY(void);
+
 //	int m_keyMoveEnable;
 //	int m_keyMoveUpDownEnable;
 //	int m_keyMoveLeftRightEnable;
 //	int m_lastKeyButton;
 
+	int m_newCenteringFlag;
+	int m_newCenteringSizeX;
+	int m_newAddMessageCenteringFlag;
+	
 
 	//åpè≥
 	int GetOnKeyArea(POINT pt);
@@ -315,6 +324,9 @@ protected:
 
 	CPicture* m_specialWindowPic;
 
+	int m_newMesagePrintY[8];
+	int m_newMesageNextY[8];
+
 	int m_centeringFlag;
 	int m_centerAreaSizeX;
 
@@ -341,6 +353,7 @@ protected:
 
 private:
 
+	char m_logMessageForSave[256];
 };
 
 

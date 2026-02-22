@@ -461,6 +461,44 @@ CDataFileSetup::CDataFileSetup()
 		m_setup->GetInitGameParam(&m_textPrintGyo,"textPrintNumber");
 	}
 
+	m_logPrintFlag = 0;
+	m_logPrintGyo = 2;
+	m_logFontSize = 24;
+	m_logPrintSizeX = 200;
+	m_logPrintX = 100;
+	m_logPrintY = 10;
+	m_logNextY = 24;
+	m_logNamePrintFlag = 1;
+	m_logColorR = 255;
+	m_logColorG = 255;
+	m_logColorB = 255;
+	m_logKage = 0;
+	m_logSelectTopPrintFlag = 1;
+	m_logSukima = 1;
+	m_logRubiNotPrintFlag = 0;
+	m_logColorNotChangeFlag = 0;
+	m_logSerialUpZeroPrintFlag = 0;
+
+	m_setup->GetInitGameParam(&m_logPrintFlag, "logPrintFlag");
+	if (m_logPrintFlag)
+	{
+		m_setup->GetInitGameParam(&m_logPrintGyo, "logPrintGyo");
+		m_setup->GetInitGameParam(&m_logFontSize, "logFontSize");
+		m_setup->GetInitGameParam(&m_logPrintSizeX, "logPrintSizeX");
+		m_setup->GetInitGameParam(&m_logPrintX, "logPrintX");
+		m_setup->GetInitGameParam(&m_logPrintY, "logPrintY");
+		m_setup->GetInitGameParam(&m_logNextY, "logNextY");
+		m_setup->GetInitGameParam(&m_logNamePrintFlag, "logNamePrintFlag");
+		m_setup->GetInitGameParam(&m_logColorR, "logColorR");
+		m_setup->GetInitGameParam(&m_logColorG, "logColorG");
+		m_setup->GetInitGameParam(&m_logColorB, "logColorB");
+		m_setup->GetInitGameParam(&m_logKage, "logKage");
+		m_setup->GetInitGameParam(&m_logSelectTopPrintFlag, "logSelectTopPrintFlag");
+		m_setup->GetInitGameParam(&m_logSukima, "logSukima");
+		m_setup->GetInitGameParam(&m_logRubiNotPrintFlag, "logRubiNotPrintFlag");
+		m_setup->GetInitGameParam(&m_logColorNotChangeFlag, "logRubiColorNotCangeFlag");
+		m_setup->GetInitGameParam(&m_logSerialUpZeroPrintFlag, "logSerialUpZeroPrintFlag");
+	}
 
 
 //error

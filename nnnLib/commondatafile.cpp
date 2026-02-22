@@ -32,6 +32,8 @@
 
 #include "..\nnnUtilLib\commonGameVersion.h"
 
+#include "..\nnnUtilLib\scriptDefine.h"
+
 #include "commonMode.h"
 
 #include "commonGeneral.h"
@@ -334,6 +336,30 @@ CCommonDataFile::CCommonDataFile(CGameCallBack* lpGame, int printX, int printY,C
 	}
 
 
+
+	m_logPrintFlag = m_dataFileSetup->GetLogPrintFlag();
+	if (m_logPrintFlag)
+	{
+		m_logPrintGyo = m_dataFileSetup->GetLogPrintGyo();
+		m_logFontSize = m_dataFileSetup->GetLogFontSize();
+		m_logPrintSizeX = m_dataFileSetup->GetLogPrintSizeX();
+		m_logPrintX = m_dataFileSetup->GetLogPrintX();
+		m_logPrintY = m_dataFileSetup->GetLogPrintY();
+		m_logNextY = m_dataFileSetup->GetLogNextY();
+		m_logNamePrintFlag = m_dataFileSetup->GetLogNamePrintFlag();
+		m_logColorR = m_dataFileSetup->GetLogColorR();
+		m_logColorG = m_dataFileSetup->GetLogColorG();
+		m_logColorB = m_dataFileSetup->GetLogColorB();
+		m_logKage = m_dataFileSetup->GetLogKage();
+		m_logSelectTopPrintFlag = m_dataFileSetup->GetLogSelectTopPrintFlag();
+		m_logSukima = m_dataFileSetup->GetLogSukima();
+		m_logRubiNotPrintFlag = m_dataFileSetup->GetLogRubiNotPrintFlag();
+		m_logColorNotChanheFlag = m_dataFileSetup->GetLogColorNotChangeFlag();
+		m_logSerialUpZeroPrintFlag = m_dataFileSetup->GetLogSerialUpZeroPrintFlag();
+		m_serialSuuji->SetUpZeroFlag(m_logSerialUpZeroPrintFlag);
+	}
+
+
 	m_cursorPic[0] = NULL;
 	m_cursorPic[1] = NULL;
 	m_cursorPic[2] = NULL;
@@ -496,7 +522,12 @@ BOOL CCommonDataFile::LoadHeaderAndPic(int n)
 //	Load1Block();	//info
 	fread(&m_gameInfo,sizeof(GAMEINFO),1,m_file);
 
-	fread(&m_gameStatus,sizeof(GAMESTATUS),1,m_file);
+	Load1Block();
+	int ln = *m_commonBuffer2;
+	m_gameStatus.logMessage[0] = 0;
+	memcpy(&m_gameStatus, m_commonBuffer2, ln);
+
+//	fread(&m_gameStatus,sizeof(GAMESTATUS),1,m_file);
 
 	Load1Block();	//
 
@@ -923,6 +954,13 @@ void CCommonDataFile::Print(int md,int clicking,int nm,int loadSave,int lastCoun
 			}
 		}
 
+		if (m_logPrintFlag)
+		{
+			PrintLogMessage();
+
+		}
+
+
 		if (lastCount > 0)
 		{
 			if (m_printLastSelect != NULL)
@@ -1347,6 +1385,65 @@ void CCommonDataFile::AppearPrint(int appearCount, int appearCountMax, int appea
 			}
 		}
 
+		if (m_logPrintFlag)
+		{
+			PrintLogMessage();
+			/*
+			if (m_gameStatus.logMessage[0] != 0)
+			{
+				int n = 0;
+				for (int i = 0; i < 4; i++)
+				{
+					char* logText = &m_gameStatus.logMessage[256 * i];
+					if (*logText == 0)
+					{
+						break;
+					}
+
+					int putX = m_printX + m_logPrintX;
+					int putY = m_printY + m_logPrintY + n * m_logNextY;
+
+					bool b = false;
+					switch (m_gameStatus.gameMode)
+					{
+					case PRINTMESSAGE_MODE:
+						if (m_gameStatus.messageSubMode == CODE_SYSTEMCOMMAND_PRINT)
+						{
+							if ((i > 0) || (m_logNamePrintFlag != 0))
+							{
+								b = true;
+							}
+						}
+						else
+						{
+							b = true;
+						}
+						break;
+					case SELECTMESSAGE_MODE:
+						if ((i > 0) || (m_logSelectTopPrintFlag != 0))
+						{
+							b = true;
+						}
+						break;
+					}
+					if (b)
+					{
+//						m_message->PrintMessage(putX, putY, logText, m_logFontSize, m_logColorR, m_logColorG, m_logColorB, 1, -1, m_logKage);
+						m_message->PrintMessageParts(0,m_logPrintSizeX,putX, putY, logText, m_logFontSize, m_logColorR, m_logColorG, m_logColorB, 1, -1, m_logKage);
+						n++;
+					}
+
+					if (n >= m_logPrintGyo)
+					{
+						break;
+					}
+				}
+			}
+			*/
+
+		}
+
+
 		if (lastCount > 0)
 		{
 			if (m_printLastSelect != NULL)
@@ -1682,7 +1779,11 @@ BOOL CCommonDataFile::LoadInfo(void)
 
 BOOL CCommonDataFile::LoadStatus(void)
 {
-	fread(&m_gameStatus,sizeof(GAMESTATUS),1,m_file);
+	Load1Block();
+	int ln = *m_commonBuffer2;
+	m_gameStatus.logMessage[0] = 0;
+	memcpy(&m_gameStatus, m_commonBuffer2, ln);
+//	fread(&m_gameStatus,sizeof(GAMESTATUS),1,m_file);
 	m_game->SetGameStatusByLoad(&m_gameStatus);
 	return TRUE;
 }
@@ -2233,6 +2334,62 @@ void CCommonDataFile::ChangeExtDataSize(int extNumber,int dataSize)
 	}
 }
 
+void CCommonDataFile::PrintLogMessage(void)
+{
+	if (m_gameStatus.logMessage[0] == 0)
+	{
+		return;
+	}
+
+	int n = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		char* logText = &m_gameStatus.logMessage[256 * i];
+		if (*logText == 0)
+		{
+			break;
+		}
+
+		int putX = m_printX + m_logPrintX;
+		int putY = m_printY + m_logPrintY + n * m_logNextY;
+
+		bool bCheckSkip = false;
+		if (m_gameStatus.gameMode == PRINTMESSAGE_MODE)
+		{
+			if (m_logNamePrintFlag == 0)
+			{
+				bCheckSkip = true;
+			}
+		}
+		if (m_gameStatus.gameMode == SELECTMESSAGE_MODE)
+		{
+			if (m_logSelectTopPrintFlag == 0)
+			{
+				bCheckSkip = true;
+			}
+		}
+
+		if (*logText == ';')
+		{
+			logText++;
+			if (bCheckSkip)
+			{
+				continue;
+			}
+		}
+
+		m_message->PrintMessageParts(0, m_logPrintSizeX, putX, putY, logText, m_logFontSize, m_logColorR, m_logColorG, m_logColorB,m_logSukima, -1, m_logKage,1,0,m_logRubiNotPrintFlag,m_logColorNotChanheFlag);
+		n++;
+		m_logRubiNotPrintFlag = m_dataFileSetup->GetLogRubiNotPrintFlag();
+		m_logColorNotChanheFlag = m_dataFileSetup->GetLogColorNotChangeFlag();
+
+
+		if (n >= m_logPrintGyo)
+		{
+			break;
+		}
+	}
+}
 
 /*_*/
 
