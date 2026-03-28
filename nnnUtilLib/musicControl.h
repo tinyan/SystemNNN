@@ -47,6 +47,7 @@ public:
 
 	void SetVolumeData(int vol);
 	int GetVolumeData(void);
+	int GetTargetVolume(void) { return m_targetVolume; }
 private:
 	CWaveMusic* m_waveMusic[2];
 	int m_useWaveMusicNumber;
@@ -55,6 +56,8 @@ private:
 	int m_defaultFadeOutTime;
 
 	int m_volumeData;
+	int m_targetVolume;
+
 //	CCDControl* m_cdControl;
 //	CMIDIPlayer* m_midi;
 

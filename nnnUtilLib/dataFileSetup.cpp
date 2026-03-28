@@ -496,7 +496,7 @@ CDataFileSetup::CDataFileSetup()
 		m_setup->GetInitGameParam(&m_logSelectTopPrintFlag, "logSelectTopPrintFlag");
 		m_setup->GetInitGameParam(&m_logSukima, "logSukima");
 		m_setup->GetInitGameParam(&m_logRubiNotPrintFlag, "logRubiNotPrintFlag");
-		m_setup->GetInitGameParam(&m_logColorNotChangeFlag, "logRubiColorNotCangeFlag");
+		m_setup->GetInitGameParam(&m_logColorNotChangeFlag, "logColorNotCangeFlag");
 		m_setup->GetInitGameParam(&m_logSerialUpZeroPrintFlag, "logSerialUpZeroPrintFlag");
 	}
 

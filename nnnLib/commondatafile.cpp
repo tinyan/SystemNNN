@@ -1793,6 +1793,8 @@ BOOL CCommonDataFile::LoadVar(void)
 {
 	Load1Block();
 	m_game->SetVarByLoad(m_commonBuffer2);
+	m_game->AdjustLoadBGM();
+
 	return TRUE;
 }
 

@@ -38,7 +38,7 @@ public:
 	//static int CalcuSaveDataBufferSizeForBackLog(CGameCallBack* lpGame);
 
 	void CreateSaveDataBufferForBackLog(void);
-	void MakeSaveDataForBackLog(int n);
+	void MakeSaveDataForBackLog(int n,int targetVolume);
 	int m_saveBufferForBackLogSizeOne;
 	char* m_saveDataBufferForBackLog;
 	char* GetJumpBuffer(int n);
@@ -48,7 +48,7 @@ protected:
 
 	int MakeSaveDataHeaderForBackLog(int start);
 	int MakeSaveInfoForbackLog(int start);
-	int MakeSaveStatusForBackLog(int start);
+	int MakeSaveStatusForBackLog(int start, int targetVolume);
 	int MakeMiniCGForBackLog(int start);
 	int MakeSaveVarForBackLog(int start);
 	int MakeSaveEffectForBackLog(int start);

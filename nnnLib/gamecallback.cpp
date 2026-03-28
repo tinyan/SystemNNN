@@ -2255,6 +2255,39 @@ else
 		m_bgmKosuu = 0;
 	}
 
+	m_adjustLoadBGMFlag = 0;
+	GetInitGameParam(&m_adjustLoadBGMFlag, "adjustLoadBGMFlag");
+	m_adjustLoadBGMVar = -1;
+	LPSTR adjustBGMVarName = NULL;
+	if (GetInitGameString(&adjustBGMVarName, "adjustLoadBGMVarName"))
+	{
+		m_adjustLoadBGMVar = GetVarNumber(adjustBGMVarName);
+	}
+
+	m_adjustLoadBGMTable = NULL;
+	if (m_adjustLoadBGMFlag)
+	{
+		m_adjustLoadBGMTable = new int[m_bgmKosuu+1];
+		for (int i = 0; i < m_bgmKosuu; i++)
+		{
+			m_adjustLoadBGMTable[i] = -1;
+			int target = -1;
+			char name[256];
+			sprintf_s(name, sizeof(name), "adjustLoadBGMNumber%d", i + 1);
+			if (GetInitGameParam(&target, name))
+			{
+				m_adjustLoadBGMTable[i] = target - 1;
+			}
+		}
+	}
+
+
+	m_enableLoopVoiceOnInSkip = 0;
+	m_enableLoopVoiceOffInSkip = 0;
+	GetInitGameParam(&m_enableLoopVoiceOnInSkip,"enableLoopVoiceOnInSkip");
+	GetInitGameParam(&m_enableLoopVoiceOffInSkip,"enableLoopVoiceOffInSkip");
+
+
 	int noSystemSeFlag = 0;
 	GetInitGameParam(&noSystemSeFlag,"noSystemSeFlag");
 	
@@ -3881,6 +3914,7 @@ ENDDELETECLASS(m_waveData);	//dummy
 	ENDDELETECLASS(m_saijitsuList);
 	ENDDELETECLASS(m_varList);
 	ENDDELETECLASS(m_bgmList);
+	DELETEARRAY(m_adjustLoadBGMTable);
 
 //OutputDebugString("delete CEffectX\n");
 
@@ -5692,6 +5726,7 @@ void CGameCallBack::SetByLoad(int cd, LPVOID ptr)
 		break;
 	case GAMEDATATYPE_VAR:
 		SetVarByLoad(ptr);
+		AdjustLoadBGM();
 		break;
 //	case GAMEDATATYPE_VAR2:
 //		SetVar2ByLoad(ptr);
@@ -5973,6 +6008,7 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 //	m_bgmKaisuu = lp->bgmKaisuu;
 	m_musicNumber = lp->bgmNumber;
 	m_musicKaisuu = lp->bgmKaisuu;
+	m_musicVolumeLoaded = lp->bgmVolume;
 
 	int vol = lp->bgmVolume;
 	vol -= GetSystemParam(NNNPARAM_MUSICVOLUME);
@@ -5981,7 +6017,7 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 	{
 		StopMusic();
 	}
-	else
+	else if (m_adjustLoadBGMFlag == 0)
 	{
 		PlayMusic(m_musicNumber,m_musicKaisuu,vol);
 	}
@@ -6069,6 +6105,40 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 }
 
 
+void CGameCallBack::AdjustLoadBGM(void)
+{
+	if (m_adjustLoadBGMFlag == 0)
+	{
+		return;
+	}
+	if (m_musicNumber == -1)
+	{
+		return;
+	}
+
+	int n = m_musicNumber;
+	if ((n >= 0) && (n < m_bgmKosuu))
+	{
+		if (m_adjustLoadBGMTable[n] != -1)
+		{
+			if (m_adjustLoadBGMVar == -1)
+			{
+				m_musicNumber = m_adjustLoadBGMTable[n];
+			}
+			else
+			{
+				if (GetVarData(m_adjustLoadBGMVar) != 0)
+				{
+					m_musicNumber = m_adjustLoadBGMTable[n];
+				}
+			}
+		}
+	}
+
+	int vol = m_musicVolumeLoaded - GetSystemParam(NNNPARAM_MUSICVOLUME);
+	PlayMusic(m_musicNumber, m_musicKaisuu, vol);
+
+}
 
 void CGameCallBack::SetVarByLoad(LPVOID ptr)
 {
@@ -9914,7 +9984,23 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 	}
 	m_noWaitSameChara[ch] = noWaitSameChara;
 
-
+	if (ch >= 2)
+	{
+		if (m_scriptVoiceControl->GetLoopWork(ch, 0))
+		{
+			if (m_enableLoopVoiceOffInSkip)
+			{
+				koukaonOnOkFlag = FALSE;
+			}
+		}
+		else
+		{
+			if (m_enableLoopVoiceOnInSkip)
+			{
+				koukaonOnOkFlag = FALSE;
+			}
+		}
+	}
 
 
 	if (m_skipNextCommandFlag || CheckMessageSkipFlag())
@@ -16001,6 +16087,9 @@ BOOL CGameCallBack::CheckOnMessageWindowSize(POINT pt)
 
 void CGameCallBack::CheckAndWaitMainThread(void)
 {
+	return;
+
+
 	SetEvent(m_threadControlHandle[0]);
 	
 	DWORD flg1 = WaitForSingleObject(m_threadControlHandle[1],1000*5);
@@ -17748,7 +17837,8 @@ void CGameCallBack::CreateJumpSaveData(void)
 	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
 	if (save != NULL)
 	{
-		save->MakeSaveDataForBackLog(m_createJumpSaveNumber);
+		int targetVolume = m_musicControl->GetTargetVolume();
+		save->MakeSaveDataForBackLog(m_createJumpSaveNumber,targetVolume);
 	}
 
 
@@ -17817,6 +17907,7 @@ void CGameCallBack::TestJump(int n,int onJumpNumber)
 	//Var
 	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
 	SetVarByLoad(buffer);
+	AdjustLoadBGM();
 	buffer += gameHeader->general.size;
 	//Effect
 	gameHeader = (CCommonDataFile::GAMEHEADER*)buffer;
@@ -17890,6 +17981,9 @@ void CGameCallBack::TestJump(int n,int onJumpNumber)
 
 
 	InitLoadGame();
+	backLog->ClearExitScreen();
+
+
 	//FuqueAllEffect();
 
 	//m_exitScreen->Put(0, 0, FALSE);

@@ -127,6 +127,7 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_jumpPicPattern2 = 1;
 	m_jumpPicPercent = 100;
 
+	m_skipPrintForJump = false;
 
 	GetInitGameParam(&m_backColorR,"backColorR");
 	GetInitGameParam(&m_backColorG,"backColorG");
@@ -740,6 +741,7 @@ int CCommonBackLog::Init(void)
 {
 //MessageBox(NULL,"Init","backlog",MB_OK);
 	m_game->StopScriptSoundAndVoice();
+	m_skipPrintForJump = false;
 
 	int back = m_messageKosuu;
 	if (back>m_printGyosuuMax) back = m_printGyosuuMax;
@@ -1084,6 +1086,13 @@ int CCommonBackLog::Print(void)
 			PrintJumpExitFade();
 			return -1;
 		}
+	}
+
+	if (m_skipPrintForJump)
+	{
+		CAllGraphics::FillScreen(m_jumpExitScreenR, m_jumpExitScreenG, m_jumpExitScreenB);
+		m_skipPrintForJump = false;
+		return -1;
 	}
 	VoicePicAnime();
 	JumpPicAnime();
@@ -1663,6 +1672,7 @@ int CCommonBackLog::ReturnToBackMode(void)
 void CCommonBackLog::FinalExitRoutine(void)
 {
 	m_game->FuqueAllEffect();
+
 }
 
 int CCommonBackLog::EndMode(void)
@@ -2247,6 +2257,7 @@ void CCommonBackLog::CreateExitScreenForJump(void)
 	m_exitScreen->GetScreen();
 
 	FillPicture(m_enterScreen, m_jumpExitScreenR, m_jumpExitScreenG, m_jumpExitScreenB);
+//	FillPicture(m_exitScreen, m_jumpExitScreenR, m_jumpExitScreenG, m_jumpExitScreenB);
 }
 
 
@@ -2328,5 +2339,10 @@ int CCommonBackLog::GetNowPointer(void)
 }
 
 
+void CCommonBackLog::ClearExitScreen(void)
+{
+	FillPicture(m_exitScreen, m_jumpExitScreenR, m_jumpExitScreenG, m_jumpExitScreenB);
+	m_skipPrintForJump = true;
+}
 /*_*/
 

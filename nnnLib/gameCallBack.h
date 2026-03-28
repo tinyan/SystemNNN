@@ -909,6 +909,7 @@ public:
 
 	SIZE GetRealWindowSize();
 	void ClearJumpTable(void);
+	void AdjustLoadBGM(void);
 
 protected:
 	virtual void BeforeSaveSystemFile(void){}
@@ -1959,6 +1960,14 @@ protected:
 	int m_addBlankLPrint;
 
 	int m_enableJumpToFade;
+	int m_musicVolumeLoaded;
+	int m_adjustLoadBGMFlag;
+	int m_adjustLoadBGMVar;
+	int* m_adjustLoadBGMTable;
+
+	int m_enableLoopVoiceOnInSkip;
+	int m_enableLoopVoiceOffInSkip;
+
 };
 
 #endif

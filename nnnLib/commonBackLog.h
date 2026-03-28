@@ -90,6 +90,7 @@ public:
 
 	void SetBackLogMessageEnd(int current,int messageEnd = -1);
 	int GetNowPointer(void);
+	void ClearExitScreen(void);
 
 protected:
 	BOOL UpScroll(int n = 1);
@@ -305,6 +306,7 @@ protected:
 	int* m_jumpExitVoiceNumberList;
 
 
+	bool m_skipPrintForJump;
 
 	char* m_separatorMessage;
 	static char m_separatorData[][16];

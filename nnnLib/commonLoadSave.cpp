@@ -1303,7 +1303,7 @@ void CCommonLoadSave::CreateSaveDataBufferForBackLog(void)
 
 
 
-void CCommonLoadSave::MakeSaveDataForBackLog(int n)
+void CCommonLoadSave::MakeSaveDataForBackLog(int n,int targetVolume)
 {
 	int totalSize = 0;
 
@@ -1312,7 +1312,7 @@ void CCommonLoadSave::MakeSaveDataForBackLog(int n)
 
 	bufferStart += MakeSaveDataHeaderForBackLog(bufferStart);
 	bufferStart += MakeSaveInfoForbackLog(bufferStart);
-	bufferStart += MakeSaveStatusForBackLog(bufferStart);
+	bufferStart += MakeSaveStatusForBackLog(bufferStart,targetVolume);
 	//bufferStart += MakeMiniCGForBackLog(bufferStart);
 	bufferStart += MakeSaveVarForBackLog(bufferStart);
 	bufferStart += MakeSaveEffectForBackLog(bufferStart);
@@ -1405,7 +1405,7 @@ int CCommonLoadSave::MakeSaveInfoForbackLog(int start)
 }
 
 
-int CCommonLoadSave::MakeSaveStatusForBackLog(int start)
+int CCommonLoadSave::MakeSaveStatusForBackLog(int start,int targetVolume)
 {
 	int sz = sizeof(CCommonDataFile::GAMESTATUS);
 	CCommonDataFile::GAMESTATUS* header = (CCommonDataFile::GAMESTATUS*)(m_saveDataBufferForBackLog + start);
@@ -1417,6 +1417,7 @@ int CCommonLoadSave::MakeSaveStatusForBackLog(int start)
 
 	m_game->GetGameStatusForSave(header);
 
+	header->bgmVolume = targetVolume;
 
 	SYSTEMTIME st;
 	GetLocalTime(&st);
