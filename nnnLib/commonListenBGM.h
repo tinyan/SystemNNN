@@ -287,6 +287,9 @@ protected:
 	int GetStartWaitMode(void);
 	void EndStartWaitMode(void);
 
+	int m_specialFukuroType;
+	int m_specialRubiFukuroType;
+
 };
 
 #endif

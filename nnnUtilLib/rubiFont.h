@@ -35,6 +35,13 @@ public:
 	static int m_userFont;
 	static char m_userFontName[256];
 
+	static void SaveFukuroTypeTable(void);
+	static void SaveAndChangeFukuroType(int type);
+	static void ResumeFukuroTypeTable(void);
+
+	static int m_fukuroType;
+	static int m_copiedFukuroType;
+
 private:
 	int m_rubiKosuu;
 	static COLORREF m_rubiColor[];

@@ -88,10 +88,19 @@ public:
 	static int m_codeByte;
 //	static int m_fukuroType;
 	static int m_fukuroTable[3][3];
+	static int m_copiedFukuroTable[3][3];
 	static void SetFukuroType(int type);
+
+	static void SaveFukuroTypeTable(void);
+	static void SaveAndChangeFukuroType(int type);
+	static void ResumeFukuroTypeTable(void);
 
 	static int m_fontWeight;
 	static int m_fontItalic;
+
+	static int m_fukuroType;
+	static int m_copiedFukuroType;
+
 private:
 //	CGame* m_game;
 
@@ -158,6 +167,7 @@ private:
 	int m_fontAdjustHeight2;
 
 	void EnumFontAndGetAdjustSize(LPSTR fontname1, LPSTR fontname2);
+
 };
 
 

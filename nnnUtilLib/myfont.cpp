@@ -29,6 +29,7 @@
 #include "myFontCache.h"
 
 #include "myfont.h"
+#include "rubiFont.h"
 
 #define DIB_MASK_COLOR 0x00C0E080
 #define MYGRAY_COLOR 0x505050
@@ -73,6 +74,18 @@ int CMyFont::m_fukuroTable[3][3] =
 	{0,0,1},
 };
 
+int CMyFont::m_copiedFukuroTable[3][3] =
+{
+	{0,0,0},
+	{0,0,0},
+	{0,0,1},
+};
+
+
+int CMyFont::m_fukuroType = 0;
+int CMyFont::m_copiedFukuroType = -1;
+
+
 int CMyFont::m_rightShift1byte = 2;
 
 
@@ -91,6 +104,8 @@ int CALLBACK EnumFontFamExProc(
 
 void CMyFont::SetFukuroType(int type)
 {
+	m_fukuroType = type;
+
 	int i,j;
 
 	for (j=0;j<=2;j++)
@@ -156,6 +171,45 @@ void CMyFont::SetFukuroType(int type)
 		m_fukuroTable[1][0] = 1;
 		m_fukuroTable[1][2] = 1;
 	}
+
+}
+
+void CMyFont:: SaveAndChangeFukuroType(int type)
+{
+	SaveFukuroTypeTable();
+	SetFukuroType(type);
+}
+
+void CMyFont::SaveFukuroTypeTable(void)
+{
+	for (int j = 0; j < 3; j++)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			m_copiedFukuroTable[j][i] = m_fukuroTable[j][i];
+		}
+	}
+	m_copiedFukuroType = m_fukuroType;
+}
+
+
+void CMyFont::ResumeFukuroTypeTable(void)
+{
+	for (int j = 0; j < 3; j++)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			m_fukuroTable[j][i] = m_copiedFukuroTable[j][i];
+		}
+	}
+
+	if (m_copiedFukuroType != -1)
+	{
+		SetFukuroType(m_copiedFukuroType);
+		m_copiedFukuroType = -1;
+	}
+
+
 
 }
 
@@ -1419,11 +1473,11 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 
 
 
-			for (int rubi = 0;rubi < rubiKosuu; rubi++)
+			for (int rubi = 0; rubi < rubiKosuu; rubi++)
 			{
-				int rubiKanjiLength = rubiParam[rubi*4+0];
-				int rubiLength = rubiParam[rubi*4+1];
-				int rubiKanjiStart = rubiParam[rubi*4+2];
+				int rubiKanjiLength = rubiParam[rubi * 4 + 0];
+				int rubiLength = rubiParam[rubi * 4 + 1];
+				int rubiKanjiStart = rubiParam[rubi * 4 + 2];
 				LPSTR rubiStart = rubiMessage[rubi];
 
 				if (colorPtr != NULL)
@@ -1434,11 +1488,11 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 						{
 							if (rubiKanjiStart >= colorChangeStart)
 							{
-								rubiColor = *(colorPtr+rubiKanjiStart);
+								rubiColor = *(colorPtr + rubiKanjiStart);
 
 								rubiColorR = (rubiColor >> 16) & 0xff;
-								rubiColorG = (rubiColor >> 8 ) & 0xff;
-								rubiColorB = (rubiColor      ) & 0xff;
+								rubiColorG = (rubiColor >> 8) & 0xff;
+								rubiColorB = (rubiColor) & 0xff;
 							}
 						}
 					}
@@ -1453,12 +1507,12 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 				if (m_codeByte == 2)
 				{
 					rubiPutX = rubiKanjiStart * kanjiWidth + rubiKanjiLength * kanjiWidth / 2 - (rubiWidth * rubiLength) / 2;
-					rubiPutXLast = rubiPutX + rubiWidth * (rubiLength-1);
+					rubiPutXLast = rubiPutX + rubiWidth * (rubiLength - 1);
 				}
 				else
 				{
 					rubiPutX = rubiKanjiStart * kanjiWidth1byte + rubiKanjiLength * kanjiWidth1byte / 2 - (rubiWidth * rubiLength) / 4;
-					rubiPutXLast = rubiPutX + rubiWidth * (rubiLength-1) / 2;
+					rubiPutXLast = rubiPutX + rubiWidth * (rubiLength - 1) / 2;
 				}
 
 				if (rubiLength == -1)
@@ -1467,20 +1521,20 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 					if (m_codeByte == 2)
 					{
 						rubiPutX = rubiKanjiStart * kanjiWidth + (kanjiWidth - rubiWidth) / 2;
-						rubiPutXLast = rubiPutX + kanjiWidth * (rubiLength-1);
+						rubiPutXLast = rubiPutX + kanjiWidth * (rubiLength - 1);
 					}
 					else
 					{
 						rubiPutX = rubiKanjiStart * kanjiWidth1byte + (kanjiWidth1byte - rubiWidth) / 2;
-						rubiPutXLast = rubiPutX + kanjiWidth1byte * (rubiLength-1);
+						rubiPutXLast = rubiPutX + kanjiWidth1byte * (rubiLength - 1);
 					}
 				}
 
-//				if (m_codeByte == 1)
-//				{
-//					rubiPutX /= 2;
-//					rubiPutXLast /= 2;
-//				}
+				//				if (m_codeByte == 1)
+				//				{
+				//					rubiPutX /= 2;
+				//					rubiPutXLast /= 2;
+				//				}
 
 
 				if (rubiPutX < leftLimit)
@@ -1514,47 +1568,47 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 					leftLimit = rightMax;
 				}
 
-				int dv = rubiLength-1;
-				if (dv<1) dv = 1;//youjin
+				int dv = rubiLength - 1;
+				if (dv < 1) dv = 1;//youjin
 
 				int rubiNextX = (rubiPutXLast - rubiPutX) / dv;
 
 
-//				int ln = strlen(message);
-//				ln /= 2;
+				//				int ln = strlen(message);
+				//				ln /= 2;
 
 
 
-				//Fill GREY
-				int sizeYRubi = rubiFontSize*2;
-//				int sizeXRubi = rubiNextX * rubiLength * 2;
-				int sizeXRubi = (rubiNextX * (rubiLength-1) +rubiWidth)* 2;
-//				if (m_codeByte == 1)
-//				{
-//					sizeXRubi /= 2;
-//				}
+								//Fill GREY
+				int sizeYRubi = rubiFontSize * 2;
+				//				int sizeXRubi = rubiNextX * rubiLength * 2;
+				int sizeXRubi = (rubiNextX * (rubiLength - 1) + rubiWidth) * 2;
+				//				if (m_codeByte == 1)
+				//				{
+				//					sizeXRubi /= 2;
+				//				}
 
-				if ((rubiPutX+sizeXRubi) > screenSizeX*2)
+				if ((rubiPutX + sizeXRubi) > screenSizeX * 2)
 				{
-					int d = rubiPutX+sizeXRubi - screenSizeX*2;
+					int d = rubiPutX + sizeXRubi - screenSizeX * 2;
 					sizeXRubi -= d;
 				}
 
-//				if (sizeX>screenSizeX*2) sizeX = screenSizeX*2;
+				//				if (sizeX>screenSizeX*2) sizeX = screenSizeX*2;
 				int* dst0 = (int*)m_lpBuffer;
-				dst0 += rubiPutX*2;
+				dst0 += rubiPutX * 2;
 
 				if (customFontFlag == FALSE)
 				{
-					for (j=0;j<sizeYRubi;j++)
+					for (j = 0; j < sizeYRubi; j++)
 					{
 						int* dst = dst0;
-						for (i=0;i<sizeXRubi;i++)
+						for (i = 0; i < sizeXRubi; i++)
 						{
 							*dst = MYGRAY_COLOR;
 							dst++;
 						}
-						dst0 += screenSizeX*2;
+						dst0 += screenSizeX * 2;
 					}
 				}
 
@@ -1564,10 +1618,10 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 					//fill mask 0
 					char* anti00 = (char*)m_rubiAntiBuffer;
 					int antiSizeX = sizeXRubi / 2;
-					for (int j=0;j<sizeYRubi;j++)
+					for (int j = 0; j < sizeYRubi; j++)
 					{
 
-						ZeroMemory(anti00,antiSizeX);
+						ZeroMemory(anti00, antiSizeX);
 						anti00 += screenSizeX;
 					}
 				}
@@ -1575,8 +1629,14 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 
 
 
-				x = 2;
-				y = 2;
+				x = 0;
+				y = 0;
+				if (CMyFont::m_fukuroType != -1)
+				{
+					x = 2;
+					y = 2;
+				}
+
 				stp = rubiNextX * 2;
 
 				int kageColorR = (kageColor >> 16) & 0xff;
@@ -1599,14 +1659,19 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 //						char ckc = *(message+i*2);
 //						if (ckc != (char)0x80)
 //						{
+						
+						if (CRubiFont::m_fukuroType != -1)
+						{
 							if (customFontFlag == FALSE)
 							{
-								TextOut(hdc,x,y,rubiStart+i*m_codeByte,m_codeByte);
+								TextOut(hdc, x, y, rubiStart + i * m_codeByte, m_codeByte);
 							}
 							else
 							{
-								MakeCustom(x/2,y/2,1,1,rubiStart+i*2,kageColorR,kageColorG,kageColorB);
+								MakeCustom(x / 2, y / 2, 1, 1, rubiStart + i * 2, kageColorR, kageColorG, kageColorB);
 							}
+						}
+
 //						}
 //						else
 //						{
@@ -1855,15 +1920,27 @@ int CMyFont::MakePic(LPSTR orgMessage,LPSTR message, int colR, int colG, int col
 									int d = *(src+ii+jj*screenSizeX*2);
 									if (d != MYGRAY_COLOR)
 									{
-										kosuu++;
+											kosuu++;
 
-										int r = (d>>16) & 0xff;
-										int g = (d>>8) & 0xff;
-										int b = d & 0xff;
+											int r = (d >> 16) & 0xff;
+											int g = (d >> 8) & 0xff;
+											int b = d & 0xff;
 
-										rr += r;
-										gg += g;
-										bb += b;
+											if (CRubiFont::m_fukuroType != -1)
+											{
+												rr += r;
+												gg += g;
+												bb += b;
+
+											}
+											else
+											{
+												rr += rubiColorR;
+												gg += rubiColorG;
+												bb += rubiColorB;
+											}
+
+
 									}
 								}
 							}
@@ -2377,13 +2454,16 @@ void CMyFont::PrintRubi(int putX,int putY,int deltaX,int deltaY,int sizeX,int si
 
 	int srcX = pt.x + deltaX;
 	int srcY = pt.y + deltaY;
+
 	putX += deltaX;
 	putY += deltaY;
+
 
 	putY -= rubiFontSize;
 	putY += m_rubiDeltaY;
 
 //	CAllGeo::BoxFill(putX,putY,sizeX,sizeY,128,128,128);
+
 	m_fontCache->BltRubi(putX,putY,srcX,srcY,sizeX,sizeY,TRUE);
 
 

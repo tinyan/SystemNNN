@@ -17,6 +17,7 @@
 #include "..\nyanLib\include\allGeo.h"
 
 #include "..\nnnUtilLib\myFont.h"
+#include "..\nnnUtilLib\rubiFont.h";
 
 #include "..\nnnUtilLib\myMouseStatus.h"
 #include "..\nnnUtilLib\nnnButtonStatus.h"
@@ -211,7 +212,12 @@ CCommonListenBGM::CCommonListenBGM(CGameCallBack* lpGame) : CCommonGeneral(lpGam
 	int timeIsKosuu = 0;
 	m_bgmKosuu = (m_bgmList->GetNameKosuu()) / 8;
 
+	m_specialFukuroType = -2;
+	m_specialRubiFukuroType = -2;
 
+
+	GetInitGameParam(&m_specialFukuroType, "SpecialFukuroType");
+	GetInitGameParam(&m_specialRubiFukuroType, "SpecialRubiFukuroType");
 
 	if (codeByte == 1)
 	{
@@ -1736,7 +1742,26 @@ void CCommonListenBGM::PrintMusicName(int n)
 	{
 		if (m_appearCount >= m_appearCountMax)
 		{
+			if (m_specialFukuroType != -2)
+			{
+				CMyFont::SaveAndChangeFukuroType(m_specialFukuroType);
+			}
+			if (m_specialRubiFukuroType != -2)
+			{
+				CRubiFont::SaveAndChangeFukuroType(m_specialRubiFukuroType);
+			}
+
 			m_message->PrintMessage(putX, putY, musicName, m_messageFontSize, colR, colG, colB, 2, 24, 0);
+
+			if (m_specialRubiFukuroType != -2)
+			{
+				CRubiFont::ResumeFukuroTypeTable();
+			}
+			if (m_specialFukuroType != -2)
+			{
+				CMyFont::ResumeFukuroTypeTable();
+			}
+
 		}
 	}
 	else

@@ -17982,7 +17982,7 @@ void CGameCallBack::TestJump(int n,int onJumpNumber)
 
 	InitLoadGame();
 	backLog->ClearExitScreen();
-
+	backLog->ReplayJumpVoice();
 
 	//FuqueAllEffect();
 

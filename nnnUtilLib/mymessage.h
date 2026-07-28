@@ -26,6 +26,8 @@ public:
 	void GradPrintMessage(int startX,int endX,int x, int y, LPSTR message, int fontSize=16, int colR = -1, int colG = -1, int colB = -1,int sukima = 1, int nextY = -1,int kageColor = -1,BOOL bAntiAliasFlag = TRUE, bool rubiColorIsMessageColor = false);
 
 	int GetMessageRealLength(LPSTR message);
+	void SaveAndSetFukuroType(int type);
+	void ResumeFukuroType(void);
 
 	//static void InitStaticData(int param = -1);
 	//static void ReleaseStaticData(void);

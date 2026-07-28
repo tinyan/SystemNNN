@@ -468,6 +468,22 @@ int CMyMessage::GetMessageRealLength(LPSTR message)
 
 }
 
+
+void CMyMessage::SaveAndSetFukuroType(int type)
+{
+	if (m_myFont != NULL)
+	{
+		m_myFont->SaveAndChangeFukuroType(type);
+	}
+}
+void CMyMessage::ResumeFukuroType(void)
+{
+	if (m_myFont != NULL)
+	{
+		m_myFont->ResumeFukuroTypeTable();
+	}
+}
+
 int CMyMessage::GetNewSkip(char* mes)
 {
 	short* ptr = (short*)mes;
@@ -1301,11 +1317,11 @@ int CMyMessage::MakeMessage(int start, int end, int x, int y, LPSTR message,int 
 
 								if (m_gradFlag == FALSE)
 								{
-									m_myFont->PrintRubi(x,rubiPutY,deltaX,deltaY,putSizeX,rubiPutSizeY);
+									m_myFont->PrintRubi(x, rubiPutY, deltaX, deltaY, putSizeX, rubiPutSizeY);
 								}
 								else
 								{
-									m_myFont->GradPrintRubi(m_gradStartX,m_gradEndX,x,rubiPutY,deltaX,deltaY,putSizeX,rubiPutSizeY);
+									m_myFont->GradPrintRubi(m_gradStartX, m_gradEndX, x, rubiPutY, deltaX, deltaY, putSizeX, rubiPutSizeY);
 								}
 
 							//rubi print delta y,fontsize-rubi

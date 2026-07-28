@@ -91,6 +91,7 @@ public:
 	void SetBackLogMessageEnd(int current,int messageEnd = -1);
 	int GetNowPointer(void);
 	void ClearExitScreen(void);
+	void ReplayJumpVoice(void);
 
 protected:
 	BOOL UpScroll(int n = 1);
@@ -311,6 +312,9 @@ protected:
 	char* m_separatorMessage;
 	static char m_separatorData[][16];
 	static char m_separatorData_1byte[][16];
+
+	char m_jumpVoiceReplayWork[256];
+
 private:
 	void ReplaceMessage(LPSTR message,LPSTR replace);
 

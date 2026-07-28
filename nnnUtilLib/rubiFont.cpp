@@ -30,6 +30,9 @@ LPSTR CRubiFont::m_rubiMessage[RUBI_KOSUU_MAX];
 int CRubiFont::m_rubiZahyo[RUBI_KOSUU_MAX*2];
 int CRubiFont::m_rubiLength[RUBI_KOSUU_MAX];
 
+int CRubiFont::m_fukuroType = 0;
+int CRubiFont::m_copiedFukuroType = -2;
+
 
 int CRubiFont::m_fontSizeTable[7]=
 {
@@ -208,6 +211,26 @@ BOOL CRubiFont::AddRubi(int x, int y, LPSTR mes, COLORREF col,int ln)
 	return TRUE;
 }
 
+void  CRubiFont::SaveFukuroTypeTable(void)
+{
+	m_copiedFukuroType = m_fukuroType;
+}
+void  CRubiFont::SaveAndChangeFukuroType(int type)
+{
+	SaveFukuroTypeTable();
+	m_fukuroType = type;
+
+}
+void  CRubiFont::ResumeFukuroTypeTable(void)
+{
+	if (m_copiedFukuroType != -2)
+	{
+		m_fukuroType = m_copiedFukuroType;
+		m_copiedFukuroType = -2;
+	}
+
+}
+
 
 void CRubiFont::PrintRubi(HDC hdc)
 {
@@ -240,12 +263,14 @@ void CRubiFont::PrintRubi(HDC hdc)
 		int ln = m_rubiLength[i];
 
 		TextOut(hdc,x,y,mes,ln);
+		/*
 char mes0[256];
 memcpy(mes0,mes,16);
 mes0[16]=0;
 char mes1[256];
 wsprintf(mes1,"[%s x=%d y=%d ln=%d]",mes0,x,y,ln);
 OutputDebugString(mes1);
+*/
 
 	}
 
@@ -390,7 +415,11 @@ int CRubiFont::MakePic(LPSTR message, int colR, int colG, int colB ,int sukima, 
 			char ckc = *(message+i*2);
 			if (ckc != (char)0x80)
 			{
-				TextOut(hdc,x,y,message+i*2,2);
+				//‰E‰ºˆÈŠO‚Í”ñ‘Î‰ž
+				if (m_fukuroType == 0)
+				{
+					TextOut(hdc, x, y, message + i * 2, 2);
+				}
 			}
 			else
 			{
@@ -401,7 +430,7 @@ int CRubiFont::MakePic(LPSTR message, int colR, int colG, int colB ,int sukima, 
 		}
 	}
 
-
+	
 	COLORREF lastColor = col;
 	SetTextColor(m_src,col);
 

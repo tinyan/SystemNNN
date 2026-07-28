@@ -1056,6 +1056,19 @@ int CCommonBackLog::Calcu(void)
 					}
 				}
 				
+				LPSTR fileName = m_voiceFile + oj * VOICEFILE_LENGTH;
+				m_jumpVoiceReplayWork[0] = 0;
+
+				if ((*fileName) != 0)
+				{
+					memcpy_s(m_jumpVoiceReplayWork, 256, fileName, strlen(fileName) + 1);
+					CreateExitScreenForJump();
+					//m_game->ReplayVoice(fileName);
+					return -1;
+				}
+
+
+
 				CreateExitScreenForJump();
 				//JUMP@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				return -1;
@@ -2344,5 +2357,14 @@ void CCommonBackLog::ClearExitScreen(void)
 	FillPicture(m_exitScreen, m_jumpExitScreenR, m_jumpExitScreenG, m_jumpExitScreenB);
 	m_skipPrintForJump = true;
 }
+
+void CCommonBackLog::ReplayJumpVoice(void)
+{
+	if (m_jumpVoiceReplayWork[0] != 0)
+	{
+		m_game->ReplayVoice(m_jumpVoiceReplayWork);
+	}
+}
+
 /*_*/
 
