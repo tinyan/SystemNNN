@@ -5262,6 +5262,14 @@ void CGameCallBack::AddBackLogMessage(LPSTR mes,int colR, int colG, int colB)
 	obj->AddMessage(mes,colR,colG,colB);
 }
 
+void CGameCallBack::AddBackLogMessageAppend(int offset,LPSTR mes, int colR, int colG, int colB)
+{
+	CCommonBackLog* obj = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	if (obj == NULL) return;
+
+	obj->AddMessageAppend(offset,mes, colR, colG, colB);
+}
+
 void CGameCallBack::AddBacklogSeparator(void)
 {
 	CCommonBackLog* obj = (CCommonBackLog*)m_general[BACKLOG_MODE];

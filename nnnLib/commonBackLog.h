@@ -37,6 +37,7 @@ public:
 	void Clear(void);
 
 	void AddMessage(LPSTR mes,int colR = 255, int colG = 255, int colB = 255);
+	void AddMessageAppend(int offset,LPSTR mes, int colR = 255, int colG = 255, int colB = 255);
 	void ChangePreColor(int backNumber, int colR, int colG, int colB);
 	void AddBar(void);
 
@@ -114,6 +115,8 @@ protected:
 	int* m_jumpFlagTable;
 	char* m_backlogMessage;
 	int* m_backLogMessageEnd;
+	int* m_nowReplayVoiceNumber;
+	int* m_existVoiceCount;
 
 	int m_printGyosuuMax;
 	int m_printStartGyo;
@@ -314,6 +317,9 @@ protected:
 	static char m_separatorData_1byte[][16];
 
 	char m_jumpVoiceReplayWork[256];
+
+	int m_enableBackLogAppned;
+	int m_voiceMultiCount;
 
 private:
 	void ReplaceMessage(LPSTR message,LPSTR replace);

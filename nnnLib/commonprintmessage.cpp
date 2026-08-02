@@ -2644,6 +2644,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 	int codeByte = CMyFont::m_codeByte;
 
+	bool appendLogFlag = true;
 
 	int n = 0;
 	while (n < ln)
@@ -2651,6 +2652,8 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		//改行か0まで
 		int ln1 = -1;
 		char c;
+
+		bool crlf = false;
 
 		int n1 = n;
 
@@ -2664,6 +2667,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 				if (ln1 == -1) ln1 = 0;
 				n1 += 1;	//skip 0xa
 				c = *(mes+n1);
+				crlf = true;
 				break;
 			}
 
@@ -2821,112 +2825,119 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 					{
 						memcpy(cutinName,mes+n,ln1);
 						cutinName[ln1] = 0;
-						cutinName[ln1+1] = 0;
+cutinName[ln1 + 1] = 0;
 
-						int saNameNumber = m_nameColor->SearchName(cutinName);
-						if (saNameNumber != -1)
-						{
-							setok = FALSE;
-						}
+int saNameNumber = m_nameColor->SearchName(cutinName);
+if (saNameNumber != -1)
+{
+	setok = FALSE;
+}
 					}
 				}
 			}
 
 
-//			if (setok == FALSE)
-//			{
-//				memcpy(cutinName,mes+n,ln);
-//				cutinName[ln] = 0;
-//				cutinName[ln+1] = 0;
-//			}
+			//			if (setok == FALSE)
+			//			{
+			//				memcpy(cutinName,mes+n,ln);
+			//				cutinName[ln] = 0;
+			//				cutinName[ln+1] = 0;
+			//			}
 
 			if (setok)
 			{
 
-	//			if (m_messageKosuu>=MESSAGEPRINT_MAX) break;
-				if ((m_messageKosuu>=MESSAGEKOSUU_MAX) && ((firstAppend > 0) || (specialAppendMode == 0)))
+				//			if (m_messageKosuu>=MESSAGEPRINT_MAX) break;
+				if ((m_messageKosuu >= MESSAGEKOSUU_MAX) && ((firstAppend > 0) || (specialAppendMode == 0)))
 				{
 					MessageScroll();
-					if (m_messagePrintedGyo>0) m_messagePrintedGyo--;
+					if (m_messagePrintedGyo > 0) m_messagePrintedGyo--;
 					m_messageKosuu--;
 				}
 
-				if (m_messageKosuu>=MESSAGEKOSUU_MAX) break;	//用心
+				if (m_messageKosuu >= MESSAGEKOSUU_MAX) break;	//用心
 
-				if (ln1 > (MESSAGEBYTE_MAX-2)) ln1 = MESSAGEBYTE_MAX-2;
+				if (ln1 > (MESSAGEBYTE_MAX - 2)) ln1 = MESSAGEBYTE_MAX - 2;
 
 				if ((firstAppend > 0) || (specialAppendMode == 0) || (m_messageKosuu == 0) || specialCR || (tsunagu == 0))
 				{
 					if (ln1 > 0)
 					{
-						memcpy(&m_messageData[m_messageKosuu][0],mes+n,ln1);
+						memcpy(&m_messageData[m_messageKosuu][0], mes + n, ln1);
 					}
 					m_messageData[m_messageKosuu][ln1] = 0;
-					m_messageData[m_messageKosuu][ln1+1] = 0;
+					m_messageData[m_messageKosuu][ln1 + 1] = 0;
 				}
 				else//現在位置に追加
 				{
-					int apln = (int)strlen(m_messageData[m_messageKosuu-1]);
-					if ((apln + ln1) > (MESSAGEBYTE_MAX-2))
+					int apln = (int)strlen(m_messageData[m_messageKosuu - 1]);
+					if ((apln + ln1) > (MESSAGEBYTE_MAX - 2))
 					{
-						ln1 = MESSAGEBYTE_MAX-2 - apln;
+						ln1 = MESSAGEBYTE_MAX - 2 - apln;
 					}
 					if (ln1 > 0)
 					{
-						memcpy(&(m_messageData[m_messageKosuu-1][apln]),mes+n,ln1);
-						m_messageData[m_messageKosuu-1][apln+ln1] = 0;
-						m_messageData[m_messageKosuu-1][apln+ln1+1] = 0;
+						memcpy(&(m_messageData[m_messageKosuu - 1][apln]), mes + n, ln1);
+						m_messageData[m_messageKosuu - 1][apln + ln1] = 0;
+						m_messageData[m_messageKosuu - 1][apln + ln1 + 1] = 0;
 					}
 
-					m_messageLength[m_messageKosuu-1] = m_message->GetMessageRealLength(m_messageData[m_messageKosuu-1]);
+					m_messageLength[m_messageKosuu - 1] = m_message->GetMessageRealLength(m_messageData[m_messageKosuu - 1]);
 
 				}
 
-				if ((m_printMode == CODE_SYSTEMCOMMAND_PRINT) && (kosuu==0) && m_nameColorChangeFlag)
+				if ((m_printMode == CODE_SYSTEMCOMMAND_PRINT) && (kosuu == 0) && m_nameColorChangeFlag)
 				{
 					int nameColor = m_nameColor->GetColor(m_messageData[m_messageKosuu]);
 					int r = (nameColor >> 16) & 0xff;
-					int g = (nameColor >>  8) & 0xff;
-					int b = (nameColor      ) & 0xff;
+					int g = (nameColor >> 8) & 0xff;
+					int b = (nameColor) & 0xff;
 
-//					if ((m_cutinMode == 0) || (kosuu>0))
-//					{
-					if ((m_messageKosuu > 0) && specialAppendMode && (specialCR == 0) && (tsunagu == 1) )
+					//					if ((m_cutinMode == 0) || (kosuu>0))
+					//					{
+					if ((m_messageKosuu > 0) && specialAppendMode && (specialCR == 0) && (tsunagu == 1))
 					{
-//						m_game->AddBackLogMessage(m_messageData[m_messageKosuu-1],r,g,b);
+						//						m_game->AddBackLogMessage(m_messageData[m_messageKosuu-1],r,g,b);
 						char tmplog[1024];
-						memcpy(tmplog,mes+n,ln1);
+						memcpy(tmplog, mes + n, ln1);
 						tmplog[ln1] = 0;
-						tmplog[ln1+1] = 0;
-						m_game->AddBackLogMessage(tmplog,r,g,b);
+						tmplog[ln1 + 1] = 0;
+						m_game->AddBackLogMessage(tmplog, r, g, b);
 					}
 					else
 					{
-						m_game->AddBackLogMessage(m_messageData[m_messageKosuu],r,g,b);
+						m_game->AddBackLogMessage(m_messageData[m_messageKosuu], r, g, b);
 					}
 
-//					}
+					//					}
 				}
 				else
 				{
 					if ((firstAppend == 0) && specialAppendMode)
 					{
-					//	OutputDebugString("[f]");
+						//	OutputDebugString("[f]");
 						char tmplog[1024];
-						memcpy(tmplog,mes+n,ln1);
+						memcpy(tmplog, mes + n, ln1);
 						tmplog[ln1] = 0;
-						tmplog[ln1+1] = 0;
-						m_game->AddBackLogMessage(tmplog);
+						tmplog[ln1 + 1] = 0;
+						m_game->AddBackLogMessageAppend(-2,tmplog);
+						appendLogFlag = true;
 					}
 					else
 					{
-//						OutputDebugString("[g]");
+						if ((cmd == CODE_SYSTEMCOMMAND_APPEND) && specialAppendMode)
+						{
 
-//					if ((m_cutinMode == 0) || (kosuu>0))
-//					{
-						m_game->AddBackLogMessage(&m_messageData[m_messageKosuu][0]);
-//					}
+							m_game->AddBackLogMessageAppend(-2,&m_messageData[m_messageKosuu][0]);
+							appendLogFlag = true;
+						}
+						else
+						{
+							m_game->AddBackLogMessage(&m_messageData[m_messageKosuu][0]);
+						}
 					}
+
+					appendLogFlag = true;
 				}
 
 
@@ -2990,7 +3001,10 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 
 	//backlogについかするもの
-	m_game->AddBacklogSeparator();
+	if (!appendLogFlag)
+	{
+		m_game->AddBacklogSeparator();
+	}
 
 
 

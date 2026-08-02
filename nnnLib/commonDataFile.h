@@ -299,11 +299,12 @@ public:
 		GAMEGENERALDATA general;
 		int nowPointer;
 		int messageKosuu;
-		int pad[6];
+		int multiVoiceCount;
+		int pad[7];
 		
 		int logColor[BACKLOG_KOSUU];
 		char logMessage[BACKLOG_KOSUU * BACKLOG_LENGTH];
-		char voiceFile[BACKLOG_KOSUU * VOICEFILE_LENGTH];
+		char voiceFile[BACKLOG_KOSUU * VOICEFILE_LENGTH*8];
 
 	} GAMELOG;
 

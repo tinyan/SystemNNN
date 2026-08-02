@@ -182,6 +182,7 @@ public:
 	virtual bool CheckPlayerVoice(int playerNumber);
 
 	virtual void AddBackLogMessage(LPSTR mes,int colR=255, int colG=255, int colB=255);
+	virtual void AddBackLogMessageAppend(int offset,LPSTR mes, int colR = 255, int colG = 255, int colB = 255);
 	virtual BOOL CheckMessageHaveVoice(void) {return m_messageHaveVoiceFlag;}
 	virtual int GetVoiceLength(void) {return m_messageVoiceLength;}
 	virtual void SetMessageRead(int mesNum, int sptNum = -1);
