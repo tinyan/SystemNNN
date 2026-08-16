@@ -37,16 +37,22 @@ public:
 	void Clear(void);
 
 	void AddMessage(LPSTR mes,int colR = 255, int colG = 255, int colB = 255);
-	void AddMessageAppend(int offset,LPSTR mes, int colR = 255, int colG = 255, int colB = 255);
+	void AddMessageAppend(int target,LPSTR mes, int colR = 255, int colG = 255, int colB = 255);
 	void ChangePreColor(int backNumber, int colR, int colG, int colB);
 	void AddBar(void);
 
-	void AddVoice(LPSTR filename);
-	void AddJump(int dataNumber);
+//	void ExecAddVoice(LPSTR filename);
+	void ExecAddVoice2(int jumpNumber);
+//	void AddJump(int dataNumber);
+	void AddJumpFromMessage(int jumpNumber, int dataNumber);
+
 	void ClearJump(int dataNumber);
 	void ResetBackLogByJump(int onJumpNumber);
 
-	void AddJumpMessage(int n, LPSTR mes);
+	void YoyakuAddVoice(LPSTR filename);
+	void ClearYoyakuVoice(void);
+
+//	void AddJumpMessage(int n, LPSTR mes);
 
 	static char m_defaultTitleMessage[];
 	static char m_defualtFirstMessage[];
@@ -79,6 +85,7 @@ public:
 	virtual int EndMode(void);
 
 	void AddSeparator(void);
+	void AddBlank(void);
 
 	void SetLogByLoad(void* ptr);
 	void GetLogForSave(void* ptr);
@@ -89,10 +96,18 @@ public:
 	void CreateExitScreenForJump(void);
 	void ClearJumpTable(void);
 
-	void SetBackLogMessageEnd(int current,int messageEnd = -1);
+	//void SetBackLogMessageEnd(int current,int messageEnd = -1);
 	int GetNowPointer(void);
 	void ClearExitScreen(void);
 	void ReplayJumpVoice(void);
+
+	void NewVoiceFromMessage(int jumpNumber);
+	void AddVoiceFromMessage(void);
+	bool CheckExistYoyakuVoice(void);
+	void AdjustAppendTail(void);
+
+	int GetLastSetJumpNumber(void);
+	int GetMessageTail(void);
 
 protected:
 	BOOL UpScroll(int n = 1);
@@ -113,8 +128,8 @@ protected:
 	char* m_logMessage;
 	char* m_voiceFile;
 	int* m_jumpFlagTable;
-	char* m_backlogMessage;
-	int* m_backLogMessageEnd;
+//	char* m_backlogMessage;
+//	int* m_backLogMessageEnd;
 	int* m_nowReplayVoiceNumber;
 	int* m_existVoiceCount;
 
@@ -320,6 +335,11 @@ protected:
 
 	int m_enableBackLogAppned;
 	int m_voiceMultiCount;
+
+	char m_yoyakuVoice[256];
+
+	int m_lastVoicePointer;
+	int m_lastSetJumpNumber;
 
 private:
 	void ReplaceMessage(LPSTR message,LPSTR replace);

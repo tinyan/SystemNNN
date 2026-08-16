@@ -121,6 +121,8 @@ class CViewControl;
 
 class CAutoSelectControl;
 
+class CCommonBackLog;
+
 class CGameCallBack : public CScriptCallBack
 {
 public:
@@ -182,7 +184,7 @@ public:
 	virtual bool CheckPlayerVoice(int playerNumber);
 
 	virtual void AddBackLogMessage(LPSTR mes,int colR=255, int colG=255, int colB=255);
-	virtual void AddBackLogMessageAppend(int offset,LPSTR mes, int colR = 255, int colG = 255, int colB = 255);
+	//virtual void AddBackLogMessageAppend(int offset,LPSTR mes, int colR = 255, int colG = 255, int colB = 255);
 	virtual BOOL CheckMessageHaveVoice(void) {return m_messageHaveVoiceFlag;}
 	virtual int GetVoiceLength(void) {return m_messageVoiceLength;}
 	virtual void SetMessageRead(int mesNum, int sptNum = -1);
@@ -912,6 +914,17 @@ public:
 	void ClearJumpTable(void);
 	void AdjustLoadBGM(void);
 
+	void ResetCreateJumpFlag(void);
+	void SetCreateJumpFlag(void);
+	bool CheckCreateJumpFlag(void);
+	int GetCreateJumpSaveNumber(void);
+	void ClearYoyakuVoice(void);
+	bool CheckEnableAppendJump(void);
+	CCommonBackLog* GetBackLogClassObject(void);
+
+	int GetLogMessageTop(void);
+	int GetLogMessageTail(void);
+//	int GetLogVoicePointer(void);
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -1969,6 +1982,9 @@ protected:
 	int m_enableLoopVoiceOnInSkip;
 	int m_enableLoopVoiceOffInSkip;
 
+	int m_logMessageTop;
+	int m_logMessageTail;
+	//int m_logVoicePointer;
 };
 
 #endif

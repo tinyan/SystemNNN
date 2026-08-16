@@ -39,6 +39,7 @@
 #include "commonGeneral.h"
 #include "commonPrintMessage.h"
 
+#include "commonBackLog.h"
 
 
 #include "..\nnnUtilLib\scriptcommand.h"
@@ -547,6 +548,12 @@ CCommonPrintMessage::CCommonPrintMessage(CGameCallBack* lpGame) : CCommonGeneral
 		m_noVoiceLastWaitTableAutoMode[i] = m_noVoiceLastWaitTable[i];
 	}
 
+	m_logPrintCR = 1;
+	m_logLPrintCR = 1;
+	m_logAppendCR = 0;
+	GetInitGameParam(&m_logPrintCR, "logPrintCR");
+	GetInitGameParam(&m_logLPrintCR, "logLPrintCR");
+	GetInitGameParam(&m_logAppendCR, "logAppendCR");
 
 
 
@@ -2434,6 +2441,103 @@ void CCommonPrintMessage::SetNextMessageEffectTime(int md)
 
 void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 {
+	bool newLine = false;
+	bool newVoice = false;
+	bool addVoice = false;
+	CCommonBackLog* pBackLog = m_game->GetBackLogClassObject();
+
+
+	m_logMessageTop = m_game->GetLogMessageTop();
+	m_logMessageTail = m_game->GetLogMessageTail();
+
+	if (cmd == CODE_SYSTEMCOMMAND_PRINT)
+	{
+		if (m_logPrintCR > 0)
+		{
+			for (int i = 0; i < m_logPrintCR; i++)
+			{
+				pBackLog->AddBlank();
+			}
+		}
+		m_jumpMessageNumber = pBackLog->GetNowPointer();
+		newLine = true;
+		newVoice = true;
+	}
+
+	if (cmd == CODE_SYSTEMCOMMAND_LPRINT)
+	{
+		if (m_logLPrintCR > 0)
+		{
+			for (int i = 0; i < m_logLPrintCR; i++)
+			{
+				pBackLog->AddBlank();
+			}
+		}
+		m_jumpMessageNumber = pBackLog->GetNowPointer();
+		newLine = true;
+		newVoice = true;
+	}
+
+	bool connectTop = false;
+
+
+	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+	{
+		//つなげる？
+		//Topだったら
+		if (m_messageKosuu <= 0)
+		{
+			m_printMode = CODE_SYSTEMCOMMAND_LPRINT;
+			newLine = true;
+			newVoice = true;
+		}
+		else
+		{
+
+			if (CheckAppendConnect(mes))
+			{
+				addVoice = true;
+				connectTop = true;
+				m_game->ResetCreateJumpFlag();
+			}
+			else
+			{
+				newLine = true;
+				newVoice = true;
+			}
+		}
+
+	}
+
+	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+	{
+		if (!connectTop)
+		{
+			if (m_logAppendCR > 0)
+			{
+				for (int i = 0; i < m_logAppendCR; i++)
+				{
+					//	m_game->AddBacklogSeparator();
+					pBackLog->AddBlank();
+				}
+			}
+			//ほかと同じ処理
+			m_jumpMessageNumber = pBackLog->GetNowPointer();
+		}
+	
+		if (connectTop)
+		{
+			m_jumpMessageNumber = pBackLog->GetLastSetJumpNumber();
+		}
+		
+		
+	}
+
+	
+
+
+
+
 	m_autoMessageCount = 0;
 
 	m_messageEffect = 0;
@@ -2503,14 +2607,71 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 
 
+	m_jumpMessageNumber = pBackLog->GetNowPointer();
 
 
 	if (cmd != CODE_SYSTEMCOMMAND_APPEND) m_printMode = cmd;
+	
 	if (m_printMode == CODE_SYSTEMCOMMAND_DRAW) m_printMode = CODE_SYSTEMCOMMAND_PRINT;	//1行目にアペンドを使ったばあいにとばないように
-
-	//test 2010-04-30
+	// 2010-04-30
 	if (m_printMode == CODE_SYSTEMCOMMAND_OVERRAP) m_printMode = CODE_SYSTEMCOMMAND_PRINT;	//1行目にアペンドを使ったばあいにとばないように
 
+	/*
+	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+	{
+		//つなげる？
+		//Topだったら
+		if (m_messageKosuu <= 0)
+		{
+			m_printMode = CODE_SYSTEMCOMMAND_LPRINT;
+			newLine = true;
+			newVoice = true;
+		}
+		else
+		{
+
+			if (CheckAppendConnect(mes))
+			{
+				addVoice = true;
+				connectTop = true;
+				//m_jumpMessageNumber = (m_preJumpMessageNumber + 1 + BACKLOG_KOSUU) % BACKLOG_KOSUU;
+				m_jumpMessageNumber = pBackLog->GetLastSetJumpNumber();
+
+			}
+			else
+			{
+				newLine = true;
+				newVoice = true;
+			}
+		}
+	}
+	else
+	{
+		newLine = true;
+		newVoice = true;
+	}
+	*/
+
+	/*
+	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+	{
+		if (!connectTop)
+		{
+			if (m_logAppendCR > 0)
+			{
+				for (int i = 0; i < m_logAppendCR; i++)
+				{
+				//	m_game->AddBacklogSeparator();
+					pBackLog->AddBlank();
+				}
+			}
+			//ほかと同じ処理
+			m_jumpMessageNumber = pBackLog->GetNowPointer();
+		}
+	}
+	*/
+
+	
 //	m_subMode = cmd;
 	if (cmd == CODE_SYSTEMCOMMAND_PRINT)
 	{
@@ -2563,6 +2724,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		}
 	}
 
+	
 	//appendで先頭が人名だったら飛ばす
 	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
 	{
@@ -2591,7 +2753,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 			}
 		}
 	}
-
+	
 
 
 	//メッセージ分割
@@ -2638,8 +2800,8 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 	}
 
-	int specialCR = 0;
-	int tsunagu = 0;
+//	int specialCR = 0;
+	//int tsunagu = 0;
 
 
 	int codeByte = CMyFont::m_codeByte;
@@ -2671,13 +2833,62 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 				break;
 			}
 
-			if (c == 0) break;
+			if (c == 0)
+			{
+				break;
+			}
 
 			if (ln1 == -1) ln1 = 0;
 			ln1++;
 		}
 
+		bool appendConnect = false;
 		//特殊改行ちぇっく
+		if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+		{
+			if (CheckAppendConnect(mes+n))
+			{
+				appendConnect = true;
+
+				if (codeByte == 2)
+				{
+					mes += 3;
+					ln1 -= 3;
+					n1 -= 3;
+				//	n -= 3;
+				}
+				else if (codeByte == 1)
+				{
+					mes += 2;
+					ln1 -= 2;
+					n1 -= 2;
+				//	n -= 2;
+				}
+				ln = (int)strlen(mes);
+			}
+		}
+
+		if ((cmd == CODE_SYSTEMCOMMAND_APPEND) && (m_printMode == CODE_SYSTEMCOMMAND_LPRINT))
+		{
+			if (newLine)
+			{
+				for (int i00 = 0; i00 < m_messageKosuu; i00++)
+				{
+					m_messagePrinted[i00] = m_messageLength[i00];
+				}
+
+				if (m_messageKosuu > 0)
+				{
+					m_messageLength[m_messageKosuu - 1] = -1;
+				}
+
+				if (m_messagePrintedGyo > 0) m_messagePrintedGyo--;
+
+				specialAppendMode = 1;
+			}
+		}
+
+		/*
 //		if (specialAppendMode)
 //		{
 			if (firstAppend == 0)
@@ -2777,6 +2988,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 				}
 			}
 //		}
+*/
 
 		if (ln1 != -1)
 		{
@@ -2825,13 +3037,13 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 					{
 						memcpy(cutinName,mes+n,ln1);
 						cutinName[ln1] = 0;
-cutinName[ln1 + 1] = 0;
+						cutinName[ln1 + 1] = 0;
 
-int saNameNumber = m_nameColor->SearchName(cutinName);
-if (saNameNumber != -1)
-{
-	setok = FALSE;
-}
+						int saNameNumber = m_nameColor->SearchName(cutinName);
+						if (saNameNumber != -1)
+						{
+							setok = FALSE;
+						}
 					}
 				}
 			}
@@ -2859,30 +3071,45 @@ if (saNameNumber != -1)
 
 				if (ln1 > (MESSAGEBYTE_MAX - 2)) ln1 = MESSAGEBYTE_MAX - 2;
 
-				if ((firstAppend > 0) || (specialAppendMode == 0) || (m_messageKosuu == 0) || specialCR || (tsunagu == 0))
+//				if ((firstAppend > 0) || (specialAppendMode == 0) || (m_messageKosuu == 0) || specialCR || (tsunagu == 0))
+				if (newLine)
 				{
-					if (ln1 > 0)
-					{
-						memcpy(&m_messageData[m_messageKosuu][0], mes + n, ln1);
-					}
-					m_messageData[m_messageKosuu][ln1] = 0;
-					m_messageData[m_messageKosuu][ln1 + 1] = 0;
+					CopyMessageToMessageData(m_messageKosuu,mes+n,ln1);
 				}
 				else//現在位置に追加
 				{
-					int apln = (int)strlen(m_messageData[m_messageKosuu - 1]);
-					if ((apln + ln1) > (MESSAGEBYTE_MAX - 2))
+					if (appendConnect)
 					{
-						ln1 = MESSAGEBYTE_MAX - 2 - apln;
-					}
-					if (ln1 > 0)
-					{
-						memcpy(&(m_messageData[m_messageKosuu - 1][apln]), mes + n, ln1);
-						m_messageData[m_messageKosuu - 1][apln + ln1] = 0;
-						m_messageData[m_messageKosuu - 1][apln + ln1 + 1] = 0;
-					}
+						int apln = (int)strlen(m_messageData[m_messageKosuu - 1]);
+						if ((apln + ln1) > (MESSAGEBYTE_MAX - 2))
+						{
+							ln1 = MESSAGEBYTE_MAX - 2 - apln;
+						}
 
-					m_messageLength[m_messageKosuu - 1] = m_message->GetMessageRealLength(m_messageData[m_messageKosuu - 1]);
+						ConnectMessageToMessageData(m_messageKosuu-1, apln,mes+n, ln1);
+
+						if (ln1 > 0)
+						{
+							memcpy(&(m_messageData[m_messageKosuu - 1][apln]), mes + n, ln1);
+							m_messageData[m_messageKosuu - 1][apln + ln1] = 0;
+							m_messageData[m_messageKosuu - 1][apln + ln1 + 1] = 0;
+						}
+						/*
+						pBackLog->AdjustAppendTail();
+
+						m_jumpMessageNumber = m_logMessageTail;
+	//					m_jumpMessageNumber += 1;
+						m_jumpMessageNumber += BACKLOG_KOSUU;
+						m_jumpMessageNumber %= BACKLOG_KOSUU;
+						//@@@--
+						*/
+
+						m_messageLength[m_messageKosuu - 1] = m_message->GetMessageRealLength(m_messageData[m_messageKosuu - 1]);
+					}
+					else
+					{
+						CopyMessageToMessageData(m_messageKosuu, mes+n,ln1);
+					}
 
 				}
 
@@ -2895,7 +3122,7 @@ if (saNameNumber != -1)
 
 					//					if ((m_cutinMode == 0) || (kosuu>0))
 					//					{
-					if ((m_messageKosuu > 0) && specialAppendMode && (specialCR == 0) && (tsunagu == 1))
+					if ((m_messageKosuu > 0) && specialAppendMode)
 					{
 						//						m_game->AddBackLogMessage(m_messageData[m_messageKosuu-1],r,g,b);
 						char tmplog[1024];
@@ -2913,6 +3140,30 @@ if (saNameNumber != -1)
 				}
 				else
 				{
+					if (newLine)
+					{
+						m_game->AddBackLogMessage(&m_messageData[m_messageKosuu][0]);
+					}
+					else
+					{
+						if (appendConnect)
+						{
+							char tmplog[1024];
+							memcpy(tmplog, mes + n, ln1);
+							tmplog[ln1] = 0;
+							tmplog[ln1 + 1] = 0;
+							int tail = pBackLog->GetMessageTail();
+							//m_game->AddBackLogMessageAppend(m_jumpMessageNumber, tmplog);
+							pBackLog->AddMessageAppend(tail, tmplog);
+							appendLogFlag = true;
+						}
+						else
+						{
+							m_game->AddBackLogMessage(&m_messageData[m_messageKosuu][0]);
+						}
+					}
+
+					/*
 					if ((firstAppend == 0) && specialAppendMode)
 					{
 						//	OutputDebugString("[f]");
@@ -2936,21 +3187,27 @@ if (saNameNumber != -1)
 							m_game->AddBackLogMessage(&m_messageData[m_messageKosuu][0]);
 						}
 					}
+					*/
+
 
 					appendLogFlag = true;
 				}
 
 
-				if ((specialAppendMode == 0) || (firstAppend) || specialCR || (tsunagu == 0))
+				if (!appendConnect)
 				{
 					m_messageKosuu++;
 				}
+//				if ((specialAppendMode == 0) || (firstAppend) || specialCR || (tsunagu == 0))
+//				{
+//					m_messageKosuu++;
+			//	}
 
-				if (tsunagu)
-				{
-					specialCR = 1;
-				}
-
+				//if (tsunagu)
+				//{
+				//	specialCR = 1;
+			//	}
+//
 				firstAppend = 1;
 
 				kosuu++;
@@ -3000,22 +3257,71 @@ if (saNameNumber != -1)
 	}
 
 
+	//この処理を修正@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@S
+	//@@@@@@@@@@@@@@@@@@@@@
 	//backlogについかするもの
-	if (!appendLogFlag)
+//	if (newLine)
 	{
-		m_game->AddBacklogSeparator();
+//		m_game->AddBacklogSeparator();
+	}
+
+	/*
+	if (newLine)
+	{
+		if (m_jumpMessageNumber != -1)
+		{
+			m_jumpMessageNumber++;
+			m_jumpMessageNumber %= BACKLOG_KOSUU;
+
+
+			
+		}
+	}
+	*/
+
+
+	if (pBackLog != nullptr)
+	{
+		if (newVoice)
+		{
+			pBackLog->NewVoiceFromMessage(m_jumpMessageNumber);
+		}
+
+		if (addVoice)
+		{
+			pBackLog->AddVoiceFromMessage();
+		}
+
+		if (!CheckSceneMode())
+		{
+			if (newLine)
+			{
+				if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+				{
+					if (m_game->CheckCreateJumpFlag())
+					{
+						int jumpSaveNumber = m_game->GetCreateJumpSaveNumber();
+						pBackLog->AddJumpFromMessage(m_jumpMessageNumber, jumpSaveNumber);
+
+					}
+				}
+				else
+				{
+					int jumpSaveNumber = m_game->GetCreateJumpSaveNumber();
+					pBackLog->AddJumpFromMessage(m_jumpMessageNumber, jumpSaveNumber);
+
+				}
+			}
+		}
+
+
+		pBackLog->ClearYoyakuVoice();
+	//	pBackLog->StoreNowTail();
 	}
 
 
 
-
-
-
-
-
-
-
-
+	//表示数補正
 	if (m_printMode == CODE_SYSTEMCOMMAND_PRINT)
 	{
 		if (m_messageKosuu>m_windowMessageKosuuMax) m_messageKosuu = m_windowMessageKosuuMax;
@@ -3730,6 +4036,64 @@ char* CCommonPrintMessage::GetLogMessageForSave(int n)
 	}
 
 	return NULL;
+}
+
+
+bool CCommonPrintMessage::CheckAppendConnect(LPSTR mes)
+{
+	int codeByte = CMyFont::m_codeByte;
+	int ln = (int)strlen(mes);
+
+	int n = 0;
+	if (ln < 3)
+	{
+		return false;
+	}
+
+	char c = *(mes);
+	if (c != '#')
+	{
+		return false;
+	}
+
+	if (codeByte == 2)
+	{
+		short* crPtr = (short*)(mes + n + 1);
+
+		return ((*crPtr) == (short)SPECIAL_CR_CODE);
+	}
+	else if (codeByte == 1)
+	{
+		return (*(mes + 1) == SPECIAL_CR_CODE_1BYTE);
+	}
+
+	return false;
+}
+
+void CCommonPrintMessage::CopyMessageToMessageData(int target,LPSTR mes,int ln)
+{
+	if (ln > 0)
+	{
+		memcpy(&m_messageData[target][0], mes, ln);
+	}
+	m_messageData[target][ln] = 0;
+	m_messageData[target][ln + 1] = 0;
+}
+
+
+void CCommonPrintMessage::ConnectMessageToMessageData(int target,int offset,LPSTR mes,int ln)
+{
+	if (target >= 0)
+	{
+		if (ln > 0)
+		{
+			memcpy(&(m_messageData[target][offset]), mes, ln);
+		}
+
+		m_messageData[target][offset + ln] = 0;
+		m_messageData[target][offset + ln + 1] = 0;
+	}
+
 }
 
 /*_*/

@@ -5261,7 +5261,7 @@ void CGameCallBack::AddBackLogMessage(LPSTR mes,int colR, int colG, int colB)
 
 	obj->AddMessage(mes,colR,colG,colB);
 }
-
+/*
 void CGameCallBack::AddBackLogMessageAppend(int offset,LPSTR mes, int colR, int colG, int colB)
 {
 	CCommonBackLog* obj = (CCommonBackLog*)m_general[BACKLOG_MODE];
@@ -5269,6 +5269,7 @@ void CGameCallBack::AddBackLogMessageAppend(int offset,LPSTR mes, int colR, int 
 
 	obj->AddMessageAppend(offset,mes, colR, colG, colB);
 }
+*/
 
 void CGameCallBack::AddBacklogSeparator(void)
 {
@@ -9949,7 +9950,7 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 		if ((ch>=0) && (ch<=1))
 		{
-			backlog->AddVoice(name);
+			backlog->YoyakuAddVoice(name);
 		}
 
 		//set voice flag to system file
@@ -10928,8 +10929,11 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 		}
 	}
 
+	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	m_logMessageTop = backlog->GetNowPointer();
+
+
 	{
-		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 		currentBackLogPointer = backlog->GetNowPointer();
 		backlog->ClearJump(m_createJumpSaveNumber);
 	}
@@ -10941,15 +10945,16 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 	{
 		if (m_jumpFlag)
 		{
-			CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 			if (backlog != NULL)
 			{
-				SetSaveMode(PRINTMESSAGE_MODE);
+//				SetSaveMode(PRINTMESSAGE_MODE);
 
-				backlog->AddJumpMessage(m_createJumpSaveNumber, mes);
+//				backlog->AddJumpMessage(m_createJumpSaveNumber, mes);
 
-				backlog->AddJump(m_createJumpSaveNumber);
+//				backlog->AddJump(m_createJumpSaveNumber);
 				m_requestCreateJumpSaveDataFlag = true;
+				SetCreateJumpFlag();
+
 			}
 		}
 	}
@@ -10972,14 +10977,22 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 		SetMessageReadSkipMode(para1);
 	}
 
+	m_logMessageTail = backlog->GetNowPointer();
+	m_logMessageTail -= 1;
+	m_logMessageTail += BACKLOG_KOSUU;
+	m_logMessageTail %= BACKLOG_KOSUU;
+
+	/*
 	if (m_addBlankPrint)
 	{
-		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 		if (backlog != NULL)
 		{
 			backlog->AddMessage(" ");
 		}
 	}
+	*/
+
+	/*
 	if (currentBackLogPointer != -1)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
@@ -10987,7 +11000,7 @@ void CGameCallBack::SystemCommandPrint(int para1,LPVOID para2,int para3)
 			backlog->SetBackLogMessageEnd(currentBackLogPointer);
 		}
 	}
-
+	*/
 }
 
 
@@ -10999,6 +11012,11 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 	ChangeMessageWindowModeByNext();
 	int currentBackLogPointer = -1;
 
+	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+
+	m_logMessageTop = backlog->GetNowPointer();
+
+
 	for (int i = 0; i < 4; i++)
 	{
 		if (m_voiceExistCount[i] > 0)
@@ -11008,7 +11026,6 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 	}
 
 	{
-		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 		currentBackLogPointer = backlog->GetNowPointer();
 		backlog->ClearJump(m_createJumpSaveNumber);
 	}
@@ -11025,8 +11042,9 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 			if (backlog != NULL)
 			{
 				SetSaveMode(PRINTMESSAGE_MODE);
-				backlog->AddJumpMessage(m_createJumpSaveNumber, mes);
-				backlog->AddJump(m_createJumpSaveNumber);
+//				backlog->AddJumpMessage(m_createJumpSaveNumber, mes);
+//				backlog->AddJump(m_createJumpSaveNumber);
+				SetCreateJumpFlag();
 				m_requestCreateJumpSaveDataFlag = true;
 			}
 		}
@@ -11049,6 +11067,12 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 		SetMessageReadSkipMode(para1);
 	}
 
+	m_logMessageTail = backlog->GetNowPointer();
+	m_logMessageTail -= 1;
+	m_logMessageTail += BACKLOG_KOSUU;
+	m_logMessageTail %= BACKLOG_KOSUU;
+
+	/*
 	if (m_addBlankLPrint)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
@@ -11057,7 +11081,10 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 			backlog->AddMessage(" ");
 		}
 	}
+	*/
 
+
+	/*
 	if (currentBackLogPointer != -1)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
@@ -11065,6 +11092,7 @@ void CGameCallBack::SystemCommandLPrint(int para1,LPVOID para2,int para3)
 			backlog->SetBackLogMessageEnd(currentBackLogPointer);
 		}
 	}
+	*/
 
 //		ResetAllShakin();
 }
@@ -11084,8 +11112,10 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 		}
 	}
 
+	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	m_logMessageTop = backlog->GetNowPointer();
+
 	{
-		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 		currentBackLogPointer = backlog->GetNowPointer();
 		backlog->ClearJump(m_createJumpSaveNumber);
 	}
@@ -11094,18 +11124,20 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 
 	LPSTR mes = (LPSTR)para2;
 
+
 	if (m_jumpFlag)
 	{
 		if (m_enableAppendJump != 0)
 		{
-			CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 			if (backlog != NULL)
 			{
 				SetSaveMode(PRINTMESSAGE_MODE);
 
-				backlog->AddJumpMessage(m_createJumpSaveNumber,mes);
-				backlog->AddJump(m_createJumpSaveNumber);
-				m_requestCreateJumpSaveDataFlag = true;
+				SetCreateJumpFlag();
+//				m_requestCreateJumpSaveDataFlag = true;
+//				backlog->AddJumpMessage(m_createJumpSaveNumber,mes);
+//				backlog->AddJump(m_createJumpSaveNumber);
+//				m_requestCreateJumpSaveDataFlag = true;
 			}
 		}
 	}
@@ -11128,6 +11160,13 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 		SetMessageReadSkipMode(para1);
 	}
 
+	m_logMessageTail = backlog->GetNowPointer();
+	m_logMessageTail -= 1;
+	m_logMessageTail += BACKLOG_KOSUU;
+	m_logMessageTail %= BACKLOG_KOSUU;
+
+
+	/*
 	if (currentBackLogPointer != -1)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
@@ -11135,6 +11174,7 @@ void CGameCallBack::SystemCommandAppend(int para1,LPVOID para2,int para3)
 			backlog->SetBackLogMessageEnd(currentBackLogPointer);
 		}
 	}
+	*/
 
 //		ResetAllShakin();
 }
@@ -12853,6 +12893,9 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 		return 0;
 	}
 
+	ResetCreateJumpFlag();
+	ClearYoyakuVoice();
+
 #if !defined _TINYAN3DLIB_
 	if (m_directDraw != NULL)
 	{
@@ -12866,7 +12909,7 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	}
 #endif
 
-
+	/*
 	static int kkk = 0;
 	kkk++;
 	if (kkk == 3)
@@ -12877,7 +12920,7 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 //			ToFullScreen(TRUE);
 		}
 	}
-
+	*/
 
 	if (m_adjustFullScreenLost)
 	{
@@ -13379,12 +13422,14 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 
 	if (m_jumpFlag)
 	{
-		if (m_requestCreateJumpSaveDataFlag)
+		if (CheckCreateJumpFlag())
 		{
 			CreateJumpSaveData();
-			m_requestCreateJumpSaveDataFlag = false;
+			ResetCreateJumpFlag();
 		}
 	}
+
+	ResetCreateJumpFlag();
 
 
 	if (m_debugVarFlag) PrintDebugParam();
@@ -17839,6 +17884,7 @@ int CGameCallBack::GetBackLogMax(void)
 void CGameCallBack::CreateJumpSaveData(void)
 {
 	OutputDebugString("CreateJumpSaveData\n");
+	SetSaveMode(PRINTMESSAGE_MODE);
 
 	TaihiAllEffect();
 
@@ -18087,6 +18133,56 @@ void CGameCallBack::ClearJumpTable(void)
 }
 
 
+void CGameCallBack::ResetCreateJumpFlag(void)
+{
+	m_requestCreateJumpSaveDataFlag = false;
+}
+void CGameCallBack::SetCreateJumpFlag(void)
+{
+	m_requestCreateJumpSaveDataFlag = true;
+}
+bool CGameCallBack::CheckCreateJumpFlag(void)
+{
+	return m_requestCreateJumpSaveDataFlag;
+}
+int CGameCallBack::GetCreateJumpSaveNumber(void)
+{
+	return m_createJumpSaveNumber;
+}
+
+void CGameCallBack::ClearYoyakuVoice(void)
+{
+	CCommonBackLog* obj = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	if (obj == NULL) return;
+	obj->ClearYoyakuVoice();
+
+}
+
+bool CGameCallBack::CheckEnableAppendJump(void)
+{
+	return m_enableAppendJump != 0;
+}
+
+CCommonBackLog* CGameCallBack::GetBackLogClassObject(void)
+{
+	CCommonBackLog* obj = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	return obj;
+}
+
+int CGameCallBack::GetLogMessageTop(void)
+{
+	return m_logMessageTop;
+}
+int CGameCallBack::GetLogMessageTail(void)
+{
+	return m_logMessageTail;
+
+}
+
+//int CGameCallBack::GetLogVoicePointer(void)
+//{
+//	return m_logVoicePointer;
+//}
 
 /*_*/
 

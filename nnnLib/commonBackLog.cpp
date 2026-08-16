@@ -265,6 +265,8 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_updownArrowAnimeSpeed = 1;
 	m_updownArrowAnimeType = 1;
 
+	ClearYoyakuVoice();
+
 	GetInitGameParam(&m_updownArrowPicFlag,"updownArrowPicFlag");
 	if (m_updownArrowPicFlag)
 	{
@@ -572,8 +574,8 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_logMessage = new char[BACKLOG_KOSUU * BACKLOG_LENGTH];
 	m_voiceFile = new char[BACKLOG_KOSUU * VOICEFILE_LENGTH * m_voiceMultiCount];
 	m_jumpFlagTable = new int[BACKLOG_KOSUU];
-	m_backlogMessage = new char[BACKLOG_KOSUU * JUMPMESSAGE_LENGTH];
-	m_backLogMessageEnd = new int[BACKLOG_KOSUU];
+//	m_backlogMessage = new char[BACKLOG_KOSUU * JUMPMESSAGE_LENGTH];
+//	m_backLogMessageEnd = new int[BACKLOG_KOSUU];
 	m_nowReplayVoiceNumber = new int[BACKLOG_KOSUU];
 	m_existVoiceCount = new int[BACKLOG_KOSUU];
 
@@ -740,8 +742,8 @@ void CCommonBackLog::End(void)
 	DELETEARRAY(m_voiceFile);
 	DELETEARRAY(m_logMessage);
 	ENDDELETECLASS(m_message);
-	DELETEARRAY(m_backlogMessage);
-	DELETEARRAY(m_backLogMessageEnd);
+//	DELETEARRAY(m_backlogMessage);
+//	DELETEARRAY(m_backLogMessageEnd);
 	DELETEARRAY(m_nowReplayVoiceNumber);
 	DELETEARRAY(m_existVoiceCount);
 
@@ -756,6 +758,7 @@ int CCommonBackLog::Init(void)
 //MessageBox(NULL,"Init","backlog",MB_OK);
 	m_game->StopScriptSoundAndVoice();
 	m_skipPrintForJump = false;
+	ClearYoyakuVoice();
 
 	int back = m_messageKosuu;
 	if (back>m_printGyosuuMax) back = m_printGyosuuMax;
@@ -1025,11 +1028,22 @@ int CCommonBackLog::Calcu(void)
 		if (ov != -1)
 		{
 			LPSTR fileName = m_voiceFile + ov * VOICEFILE_LENGTH * m_voiceMultiCount;
+			int nowPlayVoiceNumber = m_nowReplayVoiceNumber[ov];
+			int existVoiceCount = m_existVoiceCount[ov];
 
-			if ((*fileName) != 0)
+			if (existVoiceCount > 0)
 			{
-				m_game->ReplayVoice(fileName);
-				return -1;
+				nowPlayVoiceNumber++;
+				nowPlayVoiceNumber %= existVoiceCount;
+				m_nowReplayVoiceNumber[ov] = nowPlayVoiceNumber;
+
+				LPSTR fileName = m_voiceFile + (ov * m_voiceMultiCount + nowPlayVoiceNumber)* VOICEFILE_LENGTH;
+				if ((*fileName) != 0)
+				{
+					m_game->ReplayVoice(fileName);
+
+					return -1;
+				}
 			}
 		}
 
@@ -1384,6 +1398,18 @@ void CCommonBackLog::AddSeparator(void)
 	}
 }
 
+void CCommonBackLog::AddBlank(void)
+{
+	if (CMyFont::m_codeByte == 2)
+	{
+		AddMessage("　");
+	}
+	else if (CMyFont::m_codeByte == 1)
+	{
+		AddMessage(" ");
+	}
+}
+
 void CCommonBackLog::AddMessage(LPSTR mes,int colR, int colG , int colB)
 {
 	if (mes == NULL) return;
@@ -1432,7 +1458,22 @@ void CCommonBackLog::AddMessage(LPSTR mes,int colR, int colG , int colB)
 	if (m_messageKosuu<BACKLOG_KOSUU-30) m_messageKosuu++;
 }
 
-void CCommonBackLog::AddMessageAppend(int offset,LPSTR mes, int colR, int colG, int colB)
+void CCommonBackLog::AdjustAppendTail(void)
+{
+	m_messageKosuu -= 1;//@@@
+	if (m_messageKosuu < 0)
+	{
+		m_messageKosuu = 0;
+	}
+
+	m_nowPointer -= 1;
+	m_nowPointer += BACKLOG_KOSUU;
+	m_nowPointer %= BACKLOG_KOSUU;
+
+
+}
+
+void CCommonBackLog::AddMessageAppend(int target,LPSTR mes, int colR, int colG, int colB)
 {
 	if (mes == NULL) return;
 
@@ -1448,7 +1489,7 @@ void CCommonBackLog::AddMessageAppend(int offset,LPSTR mes, int colR, int colG, 
 		ln = BACKLOG_LENGTH - 2;
 	}
 
-	int n = (m_nowPointer + offset + BACKLOG_KOSUU) % BACKLOG_KOSUU;
+	int n = (target + BACKLOG_KOSUU) % BACKLOG_KOSUU;
 	char* ptr = m_logMessage + n * BACKLOG_LENGTH;
 	int nowLength = (int)strlen(ptr);
 
@@ -1465,41 +1506,32 @@ void CCommonBackLog::AddMessageAppend(int offset,LPSTR mes, int colR, int colG, 
 	*(ptr + nowLength + ln+1) = 0;
 
 
-	///	*(m_voiceFile+m_nowPointer * VOICEFILE_LENGTH) = 0;
-
-//	m_logColor[m_nowPointer] = (colR << 16) | (colG << 8) | colB;
-
-	//クリアー
-
-	/*
-		//以下をクリアー
-	for (int i = 0; i < m_printGyosuuMax; i++)
-	{
-		int k = (m_nowPointer + 4 + i);
-		k %= BACKLOG_KOSUU;
-
-		char* ptr2 = m_voiceFile + k * VOICEFILE_LENGTH;
-		*ptr2 = 0;
-
-		char* ptr3 = m_voiceFile + k * VOICEFILE_LENGTH * m_voiceMultiCount;
-		//		*ptr2 = 0;
-		for (int k = 0; k < m_voiceMultiCount; k++)
-		{
-			*(ptr3 + k * VOICEFILE_LENGTH) = 0;
-		}
-		m_jumpFlagTable[k] = -1;
-	}
-
-
-	m_nowPointer++;
-	m_nowPointer %= BACKLOG_KOSUU;
-
-	if (m_messageKosuu < BACKLOG_KOSUU - 30) m_messageKosuu++;
-	*/
 
 }
 
-void CCommonBackLog::AddVoice(LPSTR filename)
+void CCommonBackLog::YoyakuAddVoice(LPSTR filename)
+{
+	if (filename == nullptr)
+	{
+		return;
+	}
+
+	int ln = strlen(filename);
+	if (ln > 0)
+	{
+		memcpy(m_yoyakuVoice, filename, ln);
+		m_yoyakuVoice[ln] = 0;
+		m_yoyakuVoice[ln+1] = 0;
+	}
+}
+
+void CCommonBackLog::ClearYoyakuVoice(void)
+{
+	m_yoyakuVoice[0] = 0;
+}
+
+/*
+void CCommonBackLog::ExecAddVoice(LPSTR filename)
 {
 	int n = m_nowPointer;
 //	n--;
@@ -1547,6 +1579,8 @@ void CCommonBackLog::AddVoice(LPSTR filename)
 
 	//*(m_existVoiceCount) = 1;
 }
+*/
+
 
 void CCommonBackLog::ClearJump(int dataNumber)
 {
@@ -1557,6 +1591,7 @@ void CCommonBackLog::ClearJump(int dataNumber)
 	m_jumpFlagTable[n] = -1;
 }
 
+/*
 void CCommonBackLog::AddJump(int dataNumber)
 {
 	OutputDebugString("AddJump\n");
@@ -1576,7 +1611,31 @@ void CCommonBackLog::AddJump(int dataNumber)
 		m_jumpFlagTable[k] = -1;
 	}
 }
+*/
 
+
+void CCommonBackLog::AddJumpFromMessage(int jumpNumber,int dataNumber)
+{
+	//OutputDebugString("AddJump\n");
+	m_lastSetJumpNumber = jumpNumber;
+
+
+//	int n = m_nowPointer;
+	int n = jumpNumber;
+	//	n--;
+	//	n += BACKLOG_KOSUU;
+	n %= BACKLOG_KOSUU;
+
+	m_jumpFlagTable[n] = dataNumber;
+
+	//以下をクリアー
+	for (int i = 1; i < m_printGyosuuMax; i++)
+	{
+		int k = (n + i);
+		k %= BACKLOG_KOSUU;
+		m_jumpFlagTable[k] = -1;
+	}
+}
 
 void CCommonBackLog::ChangePreColor(int backNumber, int colR, int colG, int colB)
 {
@@ -2418,6 +2477,7 @@ void CCommonBackLog::ClearJumpTable(void)
 
 void CCommonBackLog::ResetBackLogByJump(int onJumpNumber)
 {
+	/*
 	int last = m_backLogMessageEnd[onJumpNumber];
 	int delta = last - onJumpNumber;
 
@@ -2445,6 +2505,7 @@ void CCommonBackLog::ResetBackLogByJump(int onJumpNumber)
 	{
 		m_messageKosuu = 0;
 	}
+	*/
 
 	/*
 	m_jumpFlagTable[m_nowPointer] = -1;
@@ -2456,14 +2517,17 @@ void CCommonBackLog::ResetBackLogByJump(int onJumpNumber)
 
 }
 
-void CCommonBackLog::AddJumpMessage(int n, LPSTR mes)
-{
+//void CCommonBackLog::AddJumpMessage(int n, LPSTR mes)
+//{
+	/*
 	int len = (int)strlen(mes) + 1;
 	memcpy(m_backlogMessage + n * JUMPMESSAGE_LENGTH,mes,len);
-}
+	*/
+//}
 
-void CCommonBackLog::SetBackLogMessageEnd(int current, int messageEnd)
-{
+//void CCommonBackLog::SetBackLogMessageEnd(int current, int messageEnd)
+//{
+	/*
 	if (m_backLogMessageEnd != NULL)
 	{
 		if (messageEnd == -1)
@@ -2472,7 +2536,8 @@ void CCommonBackLog::SetBackLogMessageEnd(int current, int messageEnd)
 		}
 		m_backLogMessageEnd[current] = messageEnd;
 	}
-}
+	*/
+//}
 
 int CCommonBackLog::GetNowPointer(void)
 {
@@ -2492,6 +2557,103 @@ void CCommonBackLog::ReplayJumpVoice(void)
 	{
 		m_game->ReplayVoice(m_jumpVoiceReplayWork);
 	}
+}
+
+void CCommonBackLog::NewVoiceFromMessage(int jumpNumber)
+{
+	if (CheckExistYoyakuVoice())
+	{
+//		int n = m_nowPointer;
+		int n = jumpNumber;
+		n %= BACKLOG_KOSUU;
+
+		m_lastVoicePointer = n;
+		*(m_existVoiceCount + n) = 0;
+
+		ExecAddVoice2(jumpNumber);
+	}
+}
+void CCommonBackLog::AddVoiceFromMessage(void)
+{
+	if (CheckExistYoyakuVoice())
+	{
+		ExecAddVoice2(m_lastVoicePointer);
+	}
+}
+
+void CCommonBackLog::ExecAddVoice2(int jumpNumber)
+{
+	//int n = m_nowPointer;
+	int n = jumpNumber;
+
+	//	n--;
+	//	n += BACKLOG_KOSUU;
+	n %= BACKLOG_KOSUU;
+
+
+	int existVoiceCount = *(m_existVoiceCount + n);
+
+	char* ptr = m_voiceFile + (n * m_voiceMultiCount + existVoiceCount)* VOICEFILE_LENGTH;
+	ZeroMemory(ptr, VOICEFILE_LENGTH * m_voiceMultiCount);
+
+	LPSTR filename = &m_yoyakuVoice[0];
+
+	int ln = (int)strlen(filename);
+	if (ln > 14) ln = 14;
+
+	memcpy(ptr, filename, ln);
+	*(ptr + ln) = 0;
+	*(ptr + ln + 1) = 0;
+
+
+	//以下をクリアー
+	for (int i = 1; i < m_printGyosuuMax; i++)
+	{
+		int k = (n + i);
+		k %= BACKLOG_KOSUU;
+
+		ptr = m_voiceFile + k * VOICEFILE_LENGTH * m_voiceMultiCount;
+		//		*ptr = 0;
+		for (int l = 0; l < m_voiceMultiCount; l++)
+		{
+			*(ptr + VOICEFILE_LENGTH * l) = 0;
+		}
+
+		*(m_nowReplayVoiceNumber + k) = -1;
+		*(m_existVoiceCount + k) = 0;
+	}
+
+	*(m_nowReplayVoiceNumber + n) = -1;
+	existVoiceCount++;
+	if (existVoiceCount > m_voiceMultiCount)
+	{
+		existVoiceCount = m_voiceMultiCount - 1;
+	}
+	*(m_existVoiceCount + n) = existVoiceCount;
+
+}
+
+
+bool CCommonBackLog::CheckExistYoyakuVoice(void)
+{
+	return m_yoyakuVoice[0] != 0;
+}
+
+
+int CCommonBackLog::GetLastSetJumpNumber(void)
+{
+	return m_lastSetJumpNumber;
+}
+
+int  CCommonBackLog::GetMessageTail(void)
+{
+	int n = GetNowPointer();
+	n -= 1;
+	n += BACKLOG_KOSUU;
+	n %= BACKLOG_KOSUU;
+
+
+	return n;
 }
 
 /*_*/

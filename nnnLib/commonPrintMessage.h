@@ -373,6 +373,11 @@ private:
 	void CalcuPrinting(void);
 	BOOL CheckBackLogOk(void);
 
+	bool CheckAppendConnect(LPSTR mes);
+
+	void CopyMessageToMessageData(int target, LPSTR mes, int ln);
+	void ConnectMessageToMessageData(int target, int offset,LPSTR mes, int ln);
+
 	int m_autoMessageCount;
 	int m_autoMessageLastTime;
 
@@ -493,6 +498,16 @@ private:
 	int m_addLPrintImageOffWithWindow;
 
 	char m_logMessageForSave[256];
+
+	int m_jumpMessageNumber;
+	int m_preJumpMessageNumber;
+
+	int m_logMessageTop;
+	int m_logMessageTail;
+
+	int m_logPrintCR;
+	int m_logLPrintCR;
+	int m_logAppendCR;
 
 };
 
