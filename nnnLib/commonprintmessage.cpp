@@ -2450,18 +2450,31 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	m_logMessageTop = m_game->GetLogMessageTop();
 	m_logMessageTail = m_game->GetLogMessageTail();
 
+	bool connectTop = false;
+
 	if (cmd == CODE_SYSTEMCOMMAND_PRINT)
 	{
-		if (m_logPrintCR > 0)
+		if (m_messageKosuu <= 0)
 		{
-			for (int i = 0; i < m_logPrintCR; i++)
+			m_printMode = CODE_SYSTEMCOMMAND_PRINT;
+			newLine = true;
+			newVoice = true;
+		}
+		else
+		{
+
+			if (CheckAppendConnect(mes))
 			{
-				pBackLog->AddBlank();
+				addVoice = true;
+				connectTop = true;
+				m_game->ResetCreateJumpFlag();
+			}
+			else
+			{
+				newLine = true;
+				newVoice = true;
 			}
 		}
-		m_jumpMessageNumber = pBackLog->GetNowPointer();
-		newLine = true;
-		newVoice = true;
 	}
 
 	if (cmd == CODE_SYSTEMCOMMAND_LPRINT)
@@ -2478,7 +2491,6 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		newVoice = true;
 	}
 
-	bool connectTop = false;
 
 
 	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
@@ -2508,6 +2520,31 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		}
 
 	}
+
+	if (cmd == CODE_SYSTEMCOMMAND_PRINT)
+	{
+		if (!connectTop)
+		{
+
+			//‚Ù‚©‚Æ“¯‚¶ˆ—
+			if (m_logPrintCR > 0)
+			{
+				for (int i = 0; i < m_logPrintCR; i++)
+				{
+					pBackLog->AddBlank();
+				}
+			}
+
+			m_jumpMessageNumber = pBackLog->GetNowPointer();
+		}
+		else
+		{
+			m_jumpMessageNumber = pBackLog->GetLastSetJumpNumber();
+			m_game->ResetCreateJumpFlag();
+
+		}
+	}
+
 
 	if (cmd == CODE_SYSTEMCOMMAND_APPEND)
 	{
@@ -2711,16 +2748,19 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 	if ((cmd == CODE_SYSTEMCOMMAND_PRINT) || (cmd == CODE_SYSTEMCOMMAND_LPRINT))
 	{
-//		m_printMode = m_subMode;
-		m_messageKosuu = 0;
-		m_messagePrintedGyo = 0;
-		for (int i=0;i<MESSAGEKOSUU_MAX;i++)
+		if (!connectTop)
 		{
-			m_messageLength[i] = -1;
-			m_messagePrinted[i] = 0;
-			m_cutinData[i*2] = 0;
-			m_cutinData[i*2+1] = 0;
+			//		m_printMode = m_subMode;
+			m_messageKosuu = 0;
+			m_messagePrintedGyo = 0;
+			for (int i = 0; i < MESSAGEKOSUU_MAX; i++)
+			{
+				m_messageLength[i] = -1;
+				m_messagePrinted[i] = 0;
+				m_cutinData[i * 2] = 0;
+				m_cutinData[i * 2 + 1] = 0;
 
+			}
 		}
 	}
 
@@ -2844,7 +2884,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 		bool appendConnect = false;
 		//“ÁŽê‰üs‚¿‚¥‚Á‚­
-		if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+		if ((cmd == CODE_SYSTEMCOMMAND_APPEND) || (cmd == CODE_SYSTEMCOMMAND_PRINT))
 		{
 			if (CheckAppendConnect(mes+n))
 			{
@@ -3129,11 +3169,37 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 						memcpy(tmplog, mes + n, ln1);
 						tmplog[ln1] = 0;
 						tmplog[ln1 + 1] = 0;
-						m_game->AddBackLogMessage(tmplog, r, g, b);
+						if (appendConnect)
+						{
+							int tail = pBackLog->GetMessageTail();
+							//m_game->AddBackLogMessageAppend(m_jumpMessageNumber, tmplog);
+							pBackLog->AddMessageAppend(tail, tmplog);
+							appendLogFlag = true;
+						}
+						else
+						{
+							m_game->AddBackLogMessage(tmplog, r, g, b);
+						}
 					}
 					else
 					{
-						m_game->AddBackLogMessage(m_messageData[m_messageKosuu], r, g, b);
+						if (appendConnect)
+						{
+							char tmplog[1024];
+							memcpy(tmplog, mes + n, ln1);
+							tmplog[ln1] = 0;
+							tmplog[ln1 + 1] = 0;
+							int tail = pBackLog->GetMessageTail();
+							//m_game->AddBackLogMessageAppend(m_jumpMessageNumber, tmplog);
+							pBackLog->AddMessageAppend(tail, tmplog);
+							appendLogFlag = true;
+						}
+						else
+						{
+							m_game->AddBackLogMessage(&m_messageData[m_messageKosuu][0]);
+						}
+
+//						m_game->AddBackLogMessage(m_messageData[m_messageKosuu], r, g, b);
 					}
 
 					//					}
@@ -3341,6 +3407,14 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 				}
 				m_messageKosuu--;
 			}
+		}
+	}
+
+	if (!CheckSceneMode())
+	{
+		if (!connectTop)
+		{
+			pBackLog->SetBackLogMessageEnd(m_jumpMessageNumber);
 		}
 	}
 

@@ -96,7 +96,8 @@ public:
 	void CreateExitScreenForJump(void);
 	void ClearJumpTable(void);
 
-	//void SetBackLogMessageEnd(int current,int messageEnd = -1);
+//	void SetBackLogMessageEnd(int current,int messageEnd = -1);
+	void SetBackLogMessageEnd(int jumpMessageNumber);
 	int GetNowPointer(void);
 	void ClearExitScreen(void);
 	void ReplayJumpVoice(void);
@@ -129,7 +130,7 @@ protected:
 	char* m_voiceFile;
 	int* m_jumpFlagTable;
 //	char* m_backlogMessage;
-//	int* m_backLogMessageEnd;
+	int* m_backLogMessageEnd;
 	int* m_nowReplayVoiceNumber;
 	int* m_existVoiceCount;
 

@@ -300,7 +300,8 @@ public:
 		int nowPointer;
 		int messageKosuu;
 		int multiVoiceCount;
-		int pad[7];
+		int tailPointer;
+		int pad[6];
 		
 		int logColor[BACKLOG_KOSUU];
 		char logMessage[BACKLOG_KOSUU * BACKLOG_LENGTH];

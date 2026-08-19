@@ -575,7 +575,7 @@ CCommonBackLog::CCommonBackLog(CGameCallBack* lpGame) : CCommonGeneral(lpGame)
 	m_voiceFile = new char[BACKLOG_KOSUU * VOICEFILE_LENGTH * m_voiceMultiCount];
 	m_jumpFlagTable = new int[BACKLOG_KOSUU];
 //	m_backlogMessage = new char[BACKLOG_KOSUU * JUMPMESSAGE_LENGTH];
-//	m_backLogMessageEnd = new int[BACKLOG_KOSUU];
+	m_backLogMessageEnd = new int[BACKLOG_KOSUU];
 	m_nowReplayVoiceNumber = new int[BACKLOG_KOSUU];
 	m_existVoiceCount = new int[BACKLOG_KOSUU];
 
@@ -743,7 +743,7 @@ void CCommonBackLog::End(void)
 	DELETEARRAY(m_logMessage);
 	ENDDELETECLASS(m_message);
 //	DELETEARRAY(m_backlogMessage);
-//	DELETEARRAY(m_backLogMessageEnd);
+	DELETEARRAY(m_backLogMessageEnd);
 	DELETEARRAY(m_nowReplayVoiceNumber);
 	DELETEARRAY(m_existVoiceCount);
 
@@ -2419,7 +2419,7 @@ void CCommonBackLog::GetLogForSave(void* ptr)
 	memcpy(logData->logMessage, m_logMessage, BACKLOG_KOSUU * BACKLOG_LENGTH);
 	memcpy(logData->logColor, m_logColor, BACKLOG_KOSUU * sizeof(int));
 	memcpy(logData->voiceFile, m_voiceFile, BACKLOG_KOSUU * VOICEFILE_LENGTH*m_voiceMultiCount);
-
+	logData->tailPointer = GetMessageTail();
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //	memcpy(logData->jumpFile, m_jumpFile, BACKLOG_KOSUU * JUMPFILE_LENGTH);
 }
@@ -2477,6 +2477,23 @@ void CCommonBackLog::ClearJumpTable(void)
 
 void CCommonBackLog::ResetBackLogByJump(int onJumpNumber)
 {
+	int last = m_backLogMessageEnd[onJumpNumber];
+	int delta = m_nowPointer - last;
+	delta += 1;
+	delta += BACKLOG_KOSUU;
+	delta %= BACKLOG_KOSUU;
+
+	m_nowPointer = last-1;
+	m_nowPointer += BACKLOG_KOSUU;
+	m_nowPointer %= BACKLOG_KOSUU;
+
+
+	m_messageKosuu -= delta;
+	if (m_messageKosuu < 0)
+	{
+		m_messageKosuu = 0;
+	}
+
 	/*
 	int last = m_backLogMessageEnd[onJumpNumber];
 	int delta = last - onJumpNumber;
@@ -2526,18 +2543,19 @@ void CCommonBackLog::ResetBackLogByJump(int onJumpNumber)
 //}
 
 //void CCommonBackLog::SetBackLogMessageEnd(int current, int messageEnd)
-//{
-	/*
+void CCommonBackLog::SetBackLogMessageEnd(int jumpMessageNumber)
+{
+
 	if (m_backLogMessageEnd != NULL)
 	{
-		if (messageEnd == -1)
-		{
-			messageEnd = GetNowPointer();
-		}
-		m_backLogMessageEnd[current] = messageEnd;
+//		if (messageEnd == -1)
+//		{
+		int messageEnd = GetNowPointer();
+//		}
+		m_backLogMessageEnd[jumpMessageNumber] = messageEnd;
 	}
-	*/
-//}
+	
+}
 
 int CCommonBackLog::GetNowPointer(void)
 {

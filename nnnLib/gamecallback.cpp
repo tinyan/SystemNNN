@@ -6259,6 +6259,7 @@ void CGameCallBack::SetMessageByJump(LPVOID ptr)
 {
 	CCommonDataFile::GAMEMESSAGE* lp = (CCommonDataFile::GAMEMESSAGE*)ptr;
 
+
 	CCommonBackLog* pDoc = (CCommonBackLog*)m_general[BACKLOG_MODE];
 	CCommonPrintMessage* pDoc2 = (CCommonPrintMessage*)m_general[PRINTMESSAGE_MODE];
 
@@ -17886,6 +17887,8 @@ void CGameCallBack::CreateJumpSaveData(void)
 	OutputDebugString("CreateJumpSaveData\n");
 	SetSaveMode(PRINTMESSAGE_MODE);
 
+
+
 	TaihiAllEffect();
 
 	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
@@ -18001,7 +18004,7 @@ void CGameCallBack::TestJump(int n,int onJumpNumber)
 
 	if (m_gameMode[0] == PRINTMESSAGE_MODE)
 	{
-		//@@@@SetMessageByJump(messageBuffer);
+		SetMessageByJump(messageBuffer);
 	}
 
 	//Log
