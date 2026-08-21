@@ -109,6 +109,8 @@ public:
 
 	int GetLastSetJumpNumber(void);
 	int GetMessageTail(void);
+//
+	//void AdjustJumpSaveData(int jumpMessageNumber, int jumpSaveNumber);
 
 protected:
 	BOOL UpScroll(int n = 1);

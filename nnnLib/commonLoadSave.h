@@ -42,6 +42,7 @@ public:
 	int m_saveBufferForBackLogSizeOne;
 	char* m_saveDataBufferForBackLog;
 	char* GetJumpBuffer(int n);
+	//char* GetStatusBuffer(char* bufferTop);
 
 protected:
 	void MakeHeaderForSaveBackLog(int* work, int sz, int cd, LPSTR mes);

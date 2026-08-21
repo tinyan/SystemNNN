@@ -2451,6 +2451,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	m_logMessageTail = m_game->GetLogMessageTail();
 
 	bool connectTop = false;
+	bool topIsConnetctMessage = false;
 
 	if (cmd == CODE_SYSTEMCOMMAND_PRINT)
 	{
@@ -2467,7 +2468,10 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 			{
 				addVoice = true;
 				connectTop = true;
-				m_game->ResetCreateJumpFlag();
+				topIsConnetctMessage = true;
+
+//				m_game->ResetCreateJumpFlag();
+				m_game->SetUpdateJumpFlag();
 			}
 			else
 			{
@@ -2510,7 +2514,11 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 			{
 				addVoice = true;
 				connectTop = true;
-				m_game->ResetCreateJumpFlag();
+				topIsConnetctMessage = true;
+
+//				m_game->ResetCreateJumpFlag();
+				m_game->SetUpdateJumpFlag();
+
 			}
 			else
 			{
@@ -2540,7 +2548,8 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 		else
 		{
 			m_jumpMessageNumber = pBackLog->GetLastSetJumpNumber();
-			m_game->ResetCreateJumpFlag();
+//			m_game->ResetCreateJumpFlag();
+			m_game->SetUpdateJumpFlag();
 
 		}
 	}
@@ -2644,7 +2653,7 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 
 
 
-	m_jumpMessageNumber = pBackLog->GetNowPointer();
+//	m_jumpMessageNumber = pBackLog->GetNowPointer();
 
 
 	if (cmd != CODE_SYSTEMCOMMAND_APPEND) m_printMode = cmd;
@@ -3364,17 +3373,51 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 			{
 				if (cmd == CODE_SYSTEMCOMMAND_APPEND)
 				{
-					if (m_game->CheckCreateJumpFlag())
+//					if (m_game->CheckCreateJumpFlag())
+					if (!topIsConnetctMessage)
 					{
 						int jumpSaveNumber = m_game->GetCreateJumpSaveNumber();
 						pBackLog->AddJumpFromMessage(m_jumpMessageNumber, jumpSaveNumber);
 
 					}
+					else
+					{
+						m_game->SetUpdateJumpFlag();
+					}
 				}
 				else
 				{
-					int jumpSaveNumber = m_game->GetCreateJumpSaveNumber();
-					pBackLog->AddJumpFromMessage(m_jumpMessageNumber, jumpSaveNumber);
+					if (!topIsConnetctMessage)
+					{
+						int jumpSaveNumber = m_game->GetCreateJumpSaveNumber();
+						pBackLog->AddJumpFromMessage(m_jumpMessageNumber, jumpSaveNumber);
+					}
+					else
+					{
+						m_game->SetUpdateJumpFlag();
+					}
+
+				}
+			}
+			else
+			{
+				if (cmd == CODE_SYSTEMCOMMAND_APPEND)
+				{
+					if (connectTop)
+					{
+						int jumpSaveNumber = m_game->GetCreateJumpSaveNumber();
+						//pBackLog->AdjustJumpSaveData(m_jumpMessageNumber, jumpSaveNumber);
+						m_game->SetUpdateJumpFlag();
+					}
+				}
+				else
+				{
+					if (connectTop)
+					{
+						int jumpSaveNumber = m_game->GetCreateJumpSaveNumber();
+						//pBackLog->AdjustJumpSaveData(m_jumpMessageNumber, jumpSaveNumber);
+						m_game->SetUpdateJumpFlag();
+					}
 
 				}
 			}
@@ -3413,6 +3456,10 @@ void CCommonPrintMessage::SetMessageMode(int cmd, int nm, LPSTR mes,int cutin)
 	if (!CheckSceneMode())
 	{
 		if (!connectTop)
+		{
+			pBackLog->SetBackLogMessageEnd(m_jumpMessageNumber);
+		}
+		else
 		{
 			pBackLog->SetBackLogMessageEnd(m_jumpMessageNumber);
 		}

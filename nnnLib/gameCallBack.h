@@ -915,6 +915,8 @@ public:
 	void AdjustLoadBGM(void);
 
 	void ResetCreateJumpFlag(void);
+	void SetUpdateJumpFlag(void);
+	void ResetUpdateJumpFlag(void);
 	void SetCreateJumpFlag(void);
 	bool CheckCreateJumpFlag(void);
 	int GetCreateJumpSaveNumber(void);
@@ -925,6 +927,8 @@ public:
 	int GetLogMessageTop(void);
 	int GetLogMessageTail(void);
 //	int GetLogVoicePointer(void);
+	void AdjustJumpSaveData(int jumpMessageNumber, int jumpSaveNumber);
+
 protected:
 	virtual void BeforeSaveSystemFile(void){}
 	virtual void AfterSaveSystemFile(void){}
@@ -1144,6 +1148,7 @@ protected:
 	int m_jumpFlag;
 	BOOL m_requestCreateJumpSaveDataFlag;
 	int m_createJumpSaveNumber;
+	bool m_updateJuumpSaveDataFlag;
 
 	CMyMouseStatus* m_mouseStatus;
 	CMyKeyStatus* m_keyStatus;
@@ -1658,7 +1663,7 @@ protected:
 
 	int AdjustDate(int daymonth);
 
-	void CreateJumpSaveData(void);
+	void CreateJumpSaveData(bool increment = true);
 
 	static int m_daysOfMonth[13];
 

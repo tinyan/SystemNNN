@@ -1588,6 +1588,12 @@ char* CCommonLoadSave::GetJumpBuffer(int n)
 	return m_saveDataBufferForBackLog + n * m_saveBufferForBackLogSizeOne;
 }
 
+/*
+char* CCommonLoadSave::GetStatusBuffer(char* bufferTop)
+{
+
+}
+*/
 
 
 /*_*/

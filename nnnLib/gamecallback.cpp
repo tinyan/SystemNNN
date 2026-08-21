@@ -5941,6 +5941,9 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 		m_controlScript->m_stack[i] = lp->callStack[i];
 	}
 
+	CCommonBackLog* backLog = (CCommonBackLog*)(m_general[BACKLOG_MODE]);
+	backLog->MyPrintDebugLog((int)(lp->m_PC2), "\n<<<<<Load scriptPC2");
+
 	m_execScript->SetPC(lp->m_PC2);
 	m_execScript->m_stackPointer = lp->stackPointer2;
 	for (i=0;i<255;i++)
@@ -6270,7 +6273,7 @@ void CGameCallBack::SetMessageByJump(LPVOID ptr)
 		{
 			break;
 		}
-		pDoc->AddMessage(src);
+	//	pDoc->AddMessage(src);
 	}
 
 }
@@ -6334,6 +6337,17 @@ void CGameCallBack::GetLogForSave(LPVOID ptr)
 }
 
 
+void CGameCallBack::AdjustJumpSaveData(int jumpMessageNumber, int jumpSaveNumber)
+{
+	CCommonLoadSave* loadSave = (CCommonLoadSave*)(m_general[LOAD_MODE]);
+	if (loadSave == nullptr)
+	{
+		return;
+	}
+	char* jumpSavePointer = loadSave->GetJumpBuffer(jumpSaveNumber);
+
+
+}
 
 void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 {
@@ -6348,6 +6362,11 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	lp->m_PC2 = m_taihiPC2;
 	lp->m_PC3 = m_taihiPC3;
 	lp->m_PC4 = m_taihiPC4;
+
+
+	CCommonBackLog* backLog = (CCommonBackLog*)(m_general[BACKLOG_MODE]);
+	backLog->MyPrintDebugLog((int)(lp->m_PC2), "\nSave>>>>> scriptPC2");
+
 
 	lp->configMask = m_configMask;
 
@@ -6644,6 +6663,7 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	}
 
 }
+
 
 
 //type 0:80x60 1:132x100 -1:(custom) -2:cgSize
@@ -12895,6 +12915,8 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	}
 
 	ResetCreateJumpFlag();
+	ResetUpdateJumpFlag();
+
 	ClearYoyakuVoice();
 
 #if !defined _TINYAN3DLIB_
@@ -13425,12 +13447,14 @@ int CGameCallBack::GeneralMainLoop(int cnt)
 	{
 		if (CheckCreateJumpFlag())
 		{
-			CreateJumpSaveData();
+			CreateJumpSaveData(!m_updateJuumpSaveDataFlag);
 			ResetCreateJumpFlag();
+			ResetUpdateJumpFlag();
 		}
 	}
 
 	ResetCreateJumpFlag();
+	ResetUpdateJumpFlag();
 
 
 	if (m_debugVarFlag) PrintDebugParam();
@@ -17882,32 +17906,47 @@ int CGameCallBack::GetBackLogMax(void)
 	return backlog->GetBackLogMax();
 }
 
-void CGameCallBack::CreateJumpSaveData(void)
+void CGameCallBack::CreateJumpSaveData(bool increment)
 {
-	OutputDebugString("CreateJumpSaveData\n");
+//	OutputDebugString("CreateJumpSaveData\n");
 	SetSaveMode(PRINTMESSAGE_MODE);
 
 
 
 	TaihiAllEffect();
 
+	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+	int backLogMax = backlog->GetBackLogMax();
+
 	CCommonSave* save = (CCommonSave*)m_general[SAVE_MODE];
 	if (save != NULL)
 	{
 		int targetVolume = m_musicControl->GetTargetVolume();
-		save->MakeSaveDataForBackLog(m_createJumpSaveNumber,targetVolume);
+		int createJumpSaveNumber = m_createJumpSaveNumber;
+		if (!increment)
+		{
+			createJumpSaveNumber--;
+			createJumpSaveNumber += backLogMax;
+			createJumpSaveNumber %= backLogMax;
+		}
+
+		backlog->MyPrintDebugLog((int)increment, "\n Increment");
+		backlog->MyPrintDebugLog(createJumpSaveNumber,"\n********** CreateJumpSaveDataNumber");
+
+		save->MakeSaveDataForBackLog(createJumpSaveNumber,targetVolume);
 	}
 
 
-	CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
 //	MakeSaveDataForBackLog();
 
 
 
-	int backLogMax = backlog->GetBackLogMax();
 
-	m_createJumpSaveNumber++;
-	m_createJumpSaveNumber %= backLogMax;
+	if (increment)
+	{
+		m_createJumpSaveNumber++;
+		m_createJumpSaveNumber %= backLogMax;
+	}
 
 }
 
@@ -18151,6 +18190,18 @@ bool CGameCallBack::CheckCreateJumpFlag(void)
 int CGameCallBack::GetCreateJumpSaveNumber(void)
 {
 	return m_createJumpSaveNumber;
+}
+
+void CGameCallBack::SetUpdateJumpFlag(void)
+{
+	m_updateJuumpSaveDataFlag = true;
+
+}
+void CGameCallBack::ResetUpdateJumpFlag(void)
+{
+	m_updateJuumpSaveDataFlag = false;
+
+
 }
 
 void CGameCallBack::ClearYoyakuVoice(void)

@@ -1364,7 +1364,7 @@ void CCommonBackLog::Clear(void)
 	{
 		*(m_voiceFile + i * VOICEFILE_LENGTH * m_voiceMultiCount) = 0;
 		*(m_nowReplayVoiceNumber + i) = 0;
-		*(m_existVoiceCount) = 0;
+		*(m_existVoiceCount+i) = 0;
 	}
 
 	if (m_jumpFlagTable != NULL)
@@ -1439,8 +1439,8 @@ void CCommonBackLog::AddMessage(LPSTR mes,int colR, int colG , int colB)
 		int k=(m_nowPointer+4+i);
 		k %= BACKLOG_KOSUU;
 
-		char* ptr2 = m_voiceFile + k * VOICEFILE_LENGTH;
-		*ptr2 = 0; 
+//		char* ptr2 = m_voiceFile + k * VOICEFILE_LENGTH;
+//		*ptr2 = 0; 
 
 		char* ptr3 = m_voiceFile + k * VOICEFILE_LENGTH * m_voiceMultiCount;
 //		*ptr2 = 0;
@@ -1636,6 +1636,15 @@ void CCommonBackLog::AddJumpFromMessage(int jumpNumber,int dataNumber)
 		m_jumpFlagTable[k] = -1;
 	}
 }
+
+/*
+void CCommonBackLog::AdjustJumpSaveData(int jumpMessageNumber, int jumpSaveNumber)
+{
+//	m_game->TaihiAllEffect();
+//	m_game->AdjustJumpSaveData(jumpMessageNumber,jumpSaveNumber);
+
+}
+*/
 
 void CCommonBackLog::ChangePreColor(int backNumber, int colR, int colG, int colB)
 {
@@ -2479,11 +2488,11 @@ void CCommonBackLog::ResetBackLogByJump(int onJumpNumber)
 {
 	int last = m_backLogMessageEnd[onJumpNumber];
 	int delta = m_nowPointer - last;
-	delta += 1;
+	//delta += 1;
 	delta += BACKLOG_KOSUU;
 	delta %= BACKLOG_KOSUU;
 
-	m_nowPointer = last-1;
+	m_nowPointer = last;
 	m_nowPointer += BACKLOG_KOSUU;
 	m_nowPointer %= BACKLOG_KOSUU;
 

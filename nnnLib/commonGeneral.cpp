@@ -2208,5 +2208,14 @@ void CCommonGeneral::SetFromUserCommand(BOOL flag)
 }
 
 
+void CCommonGeneral::MyPrintDebugLog(int param, LPSTR title)
+{
+#if defined _DEBUG
+	char mes[256];
+	wsprintf(mes, "\n%s=%d",title,param);
+	OutputDebugString(mes);
+#endif
+
+}
 /*_*/
 

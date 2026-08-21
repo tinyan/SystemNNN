@@ -66,6 +66,7 @@ public:
 	virtual int CheckAndPrintDokuritsu(int nowMode);
 	virtual int PrintDokuristu(int nowMode) { return -1; };
 
+	virtual void MyPrintDebugLog(int param, LPSTR title = "Param=");
 
 protected:
 	virtual int Calcu(void) = 0;

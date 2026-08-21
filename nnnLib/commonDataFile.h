@@ -80,6 +80,7 @@ public:
 	LPSTR GetMiniMessage(int n);
 	LPSTR GetLargeMessage(int n);
 
+	
 //	typedef struct _tagGAMEDATATYPETABLE
 //	{
 //		int dataType;
@@ -357,7 +358,7 @@ protected:
 	BOOL SaveInfo(void);
 	BOOL SaveStatus(void);
 	BOOL SaveVar(void);
-	BOOL SaveKumiawaseVar(void);
+	//BOOL SaveKumiawaseVar(void);
 	BOOL SaveMiniCG(void);
 	BOOL SaveMessage(void);
 	BOOL SaveEffect(void);
@@ -386,7 +387,7 @@ protected:
 	void MakeCG(int n);
 
 
-	int GetMessage(void);
+	//int GetMessage(void);
 
 
 	void MakeHeader(int* work, int sz, int cd ,LPSTR mes);
