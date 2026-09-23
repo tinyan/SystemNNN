@@ -803,7 +803,10 @@ int CCommonSelectMessage::Calcu(void)
 	{
 		if (CheckOptionOk())
 		{
-			rt = m_game->CalcuOptionButton();
+			if (!CheckOtherSetup(SYSTEMMENU_MODE,0,nullptr))
+			{
+				rt = m_game->CalcuOptionButton();
+			}
 		}
 	}
 

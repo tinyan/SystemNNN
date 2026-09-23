@@ -1509,25 +1509,31 @@ void CCommonBackLog::AddMessageAppend(int target,LPSTR mes, int colR, int colG, 
 
 }
 
-void CCommonBackLog::YoyakuAddVoice(LPSTR filename)
+void CCommonBackLog::YoyakuAddVoice(int ch,LPSTR filename)
 {
 	if (filename == nullptr)
 	{
 		return;
 	}
 
-	int ln = strlen(filename);
-	if (ln > 0)
+	if ((ch >= 0) && (ch <= 3))
 	{
-		memcpy(m_yoyakuVoice, filename, ln);
-		m_yoyakuVoice[ln] = 0;
-		m_yoyakuVoice[ln+1] = 0;
+		int ln = strlen(filename);
+		if (ln > 0)
+		{
+			memcpy(&m_yoyakuVoice[ch][0], filename, ln);
+			m_yoyakuVoice[ch][ln] = 0;
+			m_yoyakuVoice[ch][ln + 1] = 0;
+		}
 	}
 }
 
 void CCommonBackLog::ClearYoyakuVoice(void)
 {
-	m_yoyakuVoice[0] = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		m_yoyakuVoice[i][0] = 0;
+	}
 }
 
 /*
@@ -2618,52 +2624,63 @@ void CCommonBackLog::ExecAddVoice2(int jumpNumber)
 	n %= BACKLOG_KOSUU;
 
 
-	int existVoiceCount = *(m_existVoiceCount + n);
-
-	char* ptr = m_voiceFile + (n * m_voiceMultiCount + existVoiceCount)* VOICEFILE_LENGTH;
-	ZeroMemory(ptr, VOICEFILE_LENGTH * m_voiceMultiCount);
-
-	LPSTR filename = &m_yoyakuVoice[0];
-
-	int ln = (int)strlen(filename);
-	if (ln > 14) ln = 14;
-
-	memcpy(ptr, filename, ln);
-	*(ptr + ln) = 0;
-	*(ptr + ln + 1) = 0;
-
-
-	//以下をクリアー
-	for (int i = 1; i < m_printGyosuuMax; i++)
+	for (int ch = 0; ch < 4; ch++)
 	{
-		int k = (n + i);
-		k %= BACKLOG_KOSUU;
+		int existVoiceCount = *(m_existVoiceCount + n);
 
-		ptr = m_voiceFile + k * VOICEFILE_LENGTH * m_voiceMultiCount;
-		//		*ptr = 0;
-		for (int l = 0; l < m_voiceMultiCount; l++)
+		char* ptr = m_voiceFile + (n * m_voiceMultiCount + existVoiceCount)* VOICEFILE_LENGTH;
+		ZeroMemory(ptr, VOICEFILE_LENGTH * m_voiceMultiCount);
+
+		LPSTR filename = &m_yoyakuVoice[ch][0];
+		if ((*filename) != 0)
 		{
-			*(ptr + VOICEFILE_LENGTH * l) = 0;
+			int ln = (int)strlen(filename);
+			if (ln > 14) ln = 14;
+
+			memcpy(ptr, filename, ln);
+			*(ptr + ln) = 0;
+			*(ptr + ln + 1) = 0;
+
+
+			//以下をクリアー
+			for (int i = 1; i < m_printGyosuuMax; i++)
+			{
+				int k = (n + i);
+				k %= BACKLOG_KOSUU;
+
+				ptr = m_voiceFile + k * VOICEFILE_LENGTH * m_voiceMultiCount;
+				//		*ptr = 0;
+				for (int l = 0; l < m_voiceMultiCount; l++)
+				{
+					*(ptr + VOICEFILE_LENGTH * l) = 0;
+				}
+
+				*(m_nowReplayVoiceNumber + k) = -1;
+				*(m_existVoiceCount + k) = 0;
+			}
+
+			*(m_nowReplayVoiceNumber + n) = -1;
+			existVoiceCount++;
+			if (existVoiceCount > m_voiceMultiCount)
+			{
+				existVoiceCount = m_voiceMultiCount - 1;
+			}
+			*(m_existVoiceCount + n) = existVoiceCount;
 		}
-
-		*(m_nowReplayVoiceNumber + k) = -1;
-		*(m_existVoiceCount + k) = 0;
 	}
-
-	*(m_nowReplayVoiceNumber + n) = -1;
-	existVoiceCount++;
-	if (existVoiceCount > m_voiceMultiCount)
-	{
-		existVoiceCount = m_voiceMultiCount - 1;
-	}
-	*(m_existVoiceCount + n) = existVoiceCount;
-
 }
 
 
 bool CCommonBackLog::CheckExistYoyakuVoice(void)
 {
-	return m_yoyakuVoice[0] != 0;
+	for (int i = 0; i < 4; i++)
+	{
+		if (m_yoyakuVoice[i][0] != 0)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 

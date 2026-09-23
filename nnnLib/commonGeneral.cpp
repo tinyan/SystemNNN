@@ -67,7 +67,7 @@ char CCommonGeneral::m_defaultBackButtonFileName[] = "ta_backButton";
 
 char CCommonGeneral::m_disableQuickButtonCheckMode[][64]=
 {
-	"save","load","config","backlog",
+	"save","load","config","backlog","systemMenu",
 	""
 };
 

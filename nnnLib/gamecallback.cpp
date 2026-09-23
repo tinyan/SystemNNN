@@ -5888,8 +5888,8 @@ void CGameCallBack::SetGameStatusByLoad(LPVOID ptr)
 
 	m_voiceExistCount[0] = lp->voiceExistCount & 0xff;
 	m_voiceExistCount[1] = (lp->voiceExistCount>>8) & 0xff;
-	m_voiceExistCount[2] = 0;
-	m_voiceExistCount[3] = 0;
+	m_voiceExistCount[2] = (lp->voiceExistCount >> 16) & 0xff;
+	m_voiceExistCount[3] = (lp->voiceExistCount >> 24) & 0xff;
 
 
 	m_configMask = lp->configMask;
@@ -6412,13 +6412,13 @@ void CGameCallBack::GetGameStatusForSave(LPVOID ptr)
 	lp->cannotSkip = m_cannotSkip;
 	lp->renameLayer = m_renameLayer;
 
-	lp->voiceExistCount = (m_voiceExistCount[0] & 0xff) | ((m_voiceExistCount[1] << 8) & 0xff00);
+	lp->voiceExistCount = (m_voiceExistCount[0] & 0xff) | ((m_voiceExistCount[1] << 8) & 0xff00) | ((m_voiceExistCount[2] << 16) & 0xff0000) | ((m_voiceExistCount[3] << 24) & 0xff000000);
 
 	if (m_layerKosuuMax == 32)
 	{
 		for (int i=0;i<m_layerKosuuMax/2;i++)
 		{
-			int d = (m_taihiVarControlLayer[i] & 0xff) | ((m_taihiVarControlLayer[i+16] << 8) & 0xff00);
+			int d = (m_taihiVarControlLayer[i] & 0xff) | ((m_taihiVarControlLayer[i+16] << 8) & 0xff00) ;
 			lp->varcontrollayer[i] = (short)d;
 		}
 
@@ -8439,9 +8439,10 @@ void CGameCallBack::InitLoadGame(void)
 	{
 		if (m_gameMode[0] == PRINTMESSAGE_MODE)
 		{
-			for (int ch = 0; ch < 2; ch++)
+			//for (int ch = 0; ch < 2; ch++)
+			for (int ch = 0; ch < 4; ch++)
 			{
-				if ((m_playLoadVoiceFlag & (ch + 1)) != 0)
+				if ((m_playLoadVoiceFlag & (1 << ch)) != 0)
 				{
 					if (m_voiceExistCount[ch] > 0)
 					{
@@ -9961,18 +9962,34 @@ void CGameCallBack::SystemFunctionVoice(int para1,LPVOID para2,int defVoiceFlag)
 	int ch = *(pData+1);
 
 
-
-
+	int loopFlag = 0;
+	if (paraKosuu >= 4)
+	{
+		loopFlag = *(pData + 3);
+	}
 
 
 	int vcn = -1;
 	if (voiceNum != -1)
 	{
 		CCommonBackLog* backlog = (CCommonBackLog*)m_general[BACKLOG_MODE];
+
+		//int loopFlag = m_scriptVoiceControl->GetLoopWork(ch, 0);
+		if (loopFlag)
+		{
+			OutputDebugString("\n***** Loop Voice *****");
+		}
+
+		if (loopFlag == 0)
+		{
+			backlog->YoyakuAddVoice(ch,name);
+		}
+		/*
 		if ((ch>=0) && (ch<=1))
 		{
 			backlog->YoyakuAddVoice(name);
 		}
+		*/
 
 		//set voice flag to system file
 
@@ -14595,21 +14612,28 @@ int CGameCallBack::ProcessGameKey(int modeNumber)
 
 
 	CCommonGeneral* general = m_general[modeNumber];
+	int md = GetGameMode();
 
 	if (loadOk)
 	{
-		if (CheckClickKey(LOAD_KEY))
+
+
+		if (CheckQuickButtonOkMode(md,LOAD_MODE))
 		{
-			TaihiAllEffect();
 
-			if (m_shortCutLoadSound > 0)
+			if (CheckClickKey(LOAD_KEY))
 			{
-				PlaySystemSound(m_shortCutLoadSound-1);
-			}
+				TaihiAllEffect();
 
-			SetCommonBackMode(LOAD_MODE,modeNumber);
-			if (createExitScreenFlag) general->CreateExitScreen();
-			return LOAD_MODE;
+				if (m_shortCutLoadSound > 0)
+				{
+					PlaySystemSound(m_shortCutLoadSound - 1);
+				}
+
+				SetCommonBackMode(LOAD_MODE, modeNumber);
+				if (createExitScreenFlag) general->CreateExitScreen();
+				return LOAD_MODE;
+			}
 		}
 	}
 
@@ -14618,19 +14642,22 @@ int CGameCallBack::ProcessGameKey(int modeNumber)
 	{
 		if (CheckClickKey(SAVE_KEY))
 		{
-			TaihiAllEffect();
-
-			if (m_shortCutSaveSound > 0)
+			if (CheckQuickButtonOkMode(md, SAVE_MODE))
 			{
-				PlaySystemSound(m_shortCutSaveSound-1);
+				TaihiAllEffect();
+
+				if (m_shortCutSaveSound > 0)
+				{
+					PlaySystemSound(m_shortCutSaveSound - 1);
+				}
+
+				SetSaveMode(modeNumber);
+				MakeMiniCG();
+
+				SetCommonBackMode(SAVE_MODE, modeNumber);
+				if (createExitScreenFlag) general->CreateExitScreen();
+				return SAVE_MODE;
 			}
-
-			SetSaveMode(modeNumber);
-			MakeMiniCG();
-
-			SetCommonBackMode(SAVE_MODE,modeNumber);
-			if (createExitScreenFlag) general->CreateExitScreen();
-			return SAVE_MODE;
 		}
 	}
 
@@ -14742,65 +14769,71 @@ int CGameCallBack::ProcessGameKey(int modeNumber)
 
 		if (m_quickSaveKey > 0)
 		{
-			if (CheckClickKey(m_quickSaveKey))
+			if (CheckQuickButtonOkMode(md, SAVE_MODE))
 			{
-				if (m_quickSaveSound > 0)
+				if (CheckClickKey(m_quickSaveKey))
 				{
-					PlaySystemSound(m_quickSaveSound-1);
-				}
+					if (m_quickSaveSound > 0)
+					{
+						PlaySystemSound(m_quickSaveSound - 1);
+					}
 
-				TaihiAllEffect();
-				SetSaveMode(modeNumber);
-				MakeMiniCG();
+					TaihiAllEffect();
+					SetSaveMode(modeNumber);
+					MakeMiniCG();
 
-				int cmdrt = ExpOptionCommand(SAVE_MODE);
-				CheckAndSetQuickLoadButtonEnable();
+					int cmdrt = ExpOptionCommand(SAVE_MODE);
+					CheckAndSetQuickLoadButtonEnable();
 
-				if (cmdrt == -1)
-				{
+					if (cmdrt == -1)
+					{
+						return -1;
+					}
 					return -1;
 				}
-				return -1;
 			}
 		}
 
 		if (m_quickLoadKey > 0)
 		{
-			if (CheckClickKey(m_quickLoadKey))
+			if (CheckQuickButtonOkMode(md, SAVE_MODE))
 			{
-				if (CheckExistQuickLoadData())
+				if (CheckClickKey(m_quickLoadKey))
 				{
-					if (m_quickLoadDelay == 0)
+					if (CheckExistQuickLoadData())
 					{
-						int cmdrt = ExpOptionCommand(LOAD_MODE);
-						if (cmdrt == -1)
+						if (m_quickLoadDelay == 0)
 						{
-							if (m_quickLoadErrorSound > 0)
+							int cmdrt = ExpOptionCommand(LOAD_MODE);
+							if (cmdrt == -1)
 							{
-								PlaySystemSound(m_quickLoadErrorSound-1);
+								if (m_quickLoadErrorSound > 0)
+								{
+									PlaySystemSound(m_quickLoadErrorSound - 1);
+								}
+								return -1;
 							}
-							return -1;
-						}
 
-						if (m_quickLoadSound > 0)
+							if (m_quickLoadSound > 0)
+							{
+								PlaySystemSound(m_quickLoadSound - 1);
+							}
+						}
+						else
 						{
-							PlaySystemSound(m_quickLoadSound-1);
+							m_quickLoadYoyaku = 1;
 						}
 					}
 					else
 					{
-						m_quickLoadYoyaku = 1;
+						if (m_quickLoadSound > 0)
+						{
+							PlaySystemSound(m_quickLoadSound - 1);
+						}
 					}
-				}
-				else
-				{
-					if (m_quickLoadSound > 0)
-					{
-						PlaySystemSound(m_quickLoadSound-1);
-					}
-				}
 
-				return -1;
+					return -1;
+				}
 			}
 		}
 	}
@@ -14810,37 +14843,40 @@ int CGameCallBack::ProcessGameKey(int modeNumber)
 
 	if (optionOk)
 	{
-		BOOL flg = FALSE;
-		if (CheckClickKey(SYSTEMMENU_KEY)) flg = TRUE;
-		if (CheckClickKey(OPTIONMENU_KEY)) flg = TRUE;
-
-		if (1)
+		if (CheckQuickButtonOkMode(md, SYSTEMMENU_MODE))
 		{
-			if (m_mouseStatus->CheckClick(m_optionStartMouseButton)) flg = TRUE;
-		}
+			BOOL flg = FALSE;
+			if (CheckClickKey(SYSTEMMENU_KEY)) flg = TRUE;
+			if (CheckClickKey(OPTIONMENU_KEY)) flg = TRUE;
 
-		if (flg)
-		{
-			TaihiAllEffect();
-
-			if (m_shortCutSystemMenuSound > 0)
+			if (1)
 			{
-				PlaySystemSound(m_shortCutSystemMenuSound-1);
+				if (m_mouseStatus->CheckClick(m_optionStartMouseButton)) flg = TRUE;
 			}
 
-			SetSaveMode(modeNumber);
-			MakeMiniCG();
+			if (flg)
+			{
+				TaihiAllEffect();
 
-			SetCommonBackMode(SAVE_MODE,modeNumber);
-			SetCommonBackMode(LOAD_MODE,modeNumber);
-			SetCommonBackMode(CONFIG_MODE,modeNumber);
-			SetCommonBackMode(SYSTEMMENU_MODE,modeNumber);
+				if (m_shortCutSystemMenuSound > 0)
+				{
+					PlaySystemSound(m_shortCutSystemMenuSound - 1);
+				}
+
+				SetSaveMode(modeNumber);
+				MakeMiniCG();
+
+				SetCommonBackMode(SAVE_MODE, modeNumber);
+				SetCommonBackMode(LOAD_MODE, modeNumber);
+				SetCommonBackMode(CONFIG_MODE, modeNumber);
+				SetCommonBackMode(SYSTEMMENU_MODE, modeNumber);
 
 
-			//not create exit screen??? ok?
-			if (createExitScreenFlag) general->CreateExitScreen();
+				//not create exit screen??? ok?
+				if (createExitScreenFlag) general->CreateExitScreen();
 
-			return SYSTEMMENU_MODE;
+				return SYSTEMMENU_MODE;
+			}
 		}
 	}
 
@@ -15553,12 +15589,16 @@ void CGameCallBack::PrintOptionButton(void)
 	m_optionButtonPrintYoyaku = FALSE;
 	if (GetOptionOff()) return;
 
+	int md = GetGameMode();
+
 	if (m_optionButton != NULL)
 	{
-		m_optionButton->Print(TRUE);
+		if (CheckQuickButtonOkMode(md, SYSTEMMENU_MODE))
+		{
+			m_optionButton->Print(TRUE);
+		}
 	}
 
-	int md = GetGameMode();
 
 	if (CheckSceneMode() == FALSE)
 	{
@@ -18078,7 +18118,7 @@ void CGameCallBack::TestJump(int n,int onJumpNumber)
 
 	InitLoadGame();
 	backLog->ClearExitScreen();
-	backLog->ReplayJumpVoice();
+//	backLog->ReplayJumpVoice();
 
 	//FuqueAllEffect();
 

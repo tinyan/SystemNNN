@@ -49,7 +49,7 @@ public:
 	void ClearJump(int dataNumber);
 	void ResetBackLogByJump(int onJumpNumber);
 
-	void YoyakuAddVoice(LPSTR filename);
+	void YoyakuAddVoice(int ch,LPSTR filename);
 	void ClearYoyakuVoice(void);
 
 //	void AddJumpMessage(int n, LPSTR mes);
@@ -339,7 +339,7 @@ protected:
 	int m_enableBackLogAppned;
 	int m_voiceMultiCount;
 
-	char m_yoyakuVoice[256];
+	char m_yoyakuVoice[4][256];
 
 	int m_lastVoicePointer;
 	int m_lastSetJumpNumber;

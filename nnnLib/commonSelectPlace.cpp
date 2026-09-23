@@ -534,7 +534,7 @@ int CCommonSelectPlace::Init(void)
 					if (m_allCharaFlag == 0)
 					{
 						char filename[256];
-						wsprintf(filename,"sys\\%s%d",m_charaPicName,m_chara[i]);
+						wsprintf(filename, "sys\\%s%d", m_charaPicName, m_chara[i]);
 						m_charaPic[i]->LoadDWQ(filename);
 					}
 				}
@@ -547,12 +547,12 @@ int CCommonSelectPlace::Init(void)
 
 	if (m_buttonMode)
 	{
-		for (i=0;i<m_placeKosuu;i++)
+		for (i = 0; i < m_placeKosuu; i++)
 		{
 			CPicture* lpPic = m_placeButtonGroup->GetPicture(i);
 			LPSTR name = m_placeButtonGroup->GetFileName(i);
 			char filename[256];
-			wsprintf(filename,"sys\\%s",name);
+			wsprintf(filename, "sys\\%s", name);
 			lpPic->LoadDWQ(filename);
 
 			BOOL b = TRUE;
@@ -566,19 +566,19 @@ int CCommonSelectPlace::Init(void)
 
 			if (b)
 			{
-				m_placeButtonGroup->SetExist(i,TRUE);
+				m_placeButtonGroup->SetExist(i, TRUE);
 				if (m_selectOk[i])
 				{
-					m_placeButtonGroup->SetEnable(i,TRUE);
+					m_placeButtonGroup->SetEnable(i, TRUE);
 				}
 				else
 				{
-					m_placeButtonGroup->SetEnable(i,FALSE);
+					m_placeButtonGroup->SetEnable(i, FALSE);
 				}
 			}
 			else
 			{
-				m_placeButtonGroup->SetExist(i,FALSE);
+				m_placeButtonGroup->SetExist(i, FALSE);
 			}
 		}
 
@@ -587,14 +587,14 @@ int CCommonSelectPlace::Init(void)
 
 	m_charaAnimeCount = 0;
 
-//	m_maeSelectNumber = -1;
-//	m_nowSelectNumber = -1;
+	//	m_maeSelectNumber = -1;
+	//	m_nowSelectNumber = -1;
 	m_selectedNumber = -1;
 
 	m_lastKeyButton = 0;
 	if (m_keyMoveEnable)
 	{
-		for (i=0;i<m_placeKosuu;i++)
+		for (i = 0; i < m_placeKosuu; i++)
 		{
 			if (CheckSelectOk(i))
 			{
@@ -603,7 +603,7 @@ int CCommonSelectPlace::Init(void)
 			}
 		}
 	}
-	if (m_placeKosuu>0)
+	if (m_placeKosuu > 0)
 	{
 		m_lastKeyButton -= 1;
 		m_lastKeyButton += m_placeKosuu;
@@ -611,7 +611,7 @@ int CCommonSelectPlace::Init(void)
 	}
 
 
-//	m_game->SetOptionVarOn();
+	//	m_game->SetOptionVarOn();
 
 	return -1;
 }
@@ -619,7 +619,11 @@ int CCommonSelectPlace::Init(void)
 
 int CCommonSelectPlace::Calcu(void)
 {
-	int rt = m_game->CalcuOptionButton();
+	int rt = NNNBUTTON_NOTHING;
+	if (!CheckOtherSetup(SYSTEMMENU_MODE, 0, nullptr))
+	{
+		rt = m_game->CalcuOptionButton();
+	}
 
 	if (rt != NNNBUTTON_NOTHING)
 	{
